@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>数学阶梯 · 雅致</title>
+<link rel="stylesheet" href="/vendor/katex.min.css">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- 顶栏: 品牌面包屑 / 搜索 -->
+  <header class="fl-top">
+    <button type="button" class="fl-menu-btn" id="menu-btn" aria-label="目录">☰</button>
+    <a class="fl-brand" href="#/">
+      <span class="fl-brand-mark">∑</span>
+      <span class="fl-brand-name">数学阶梯</span>
+    </a>
+    <nav class="fl-crumbs" id="crumbs" aria-label="面包屑"></nav>
+    <div class="fl-search">
+      <input id="search-input" type="search" placeholder="搜索课程  (Ctrl+K)" autocomplete="off" spellcheck="false">
+      <div id="search-drop" class="fl-search-drop" hidden></div>
+    </div>
+  </header>
+
+  <div class="fl-shell">
+    <!-- 侧栏: 全部章节(桌面常驻,移动抽屉) -->
+    <aside class="fl-side" id="side">
+      <nav id="side-nav" class="fl-side-nav" aria-label="课程目录"></nav>
+      <div class="fl-side-foot">
+        <a href="#/graph" class="fl-side-graph">⛶ 知识图谱</a>
+        <span>进度仅存本机</span>
+      </div>
+    </aside>
+    <div class="fl-side-backdrop" id="side-backdrop" hidden></div>
+
+    <!-- 内容区 -->
+    <main class="fl-main" id="view" tabindex="-1"></main>
+  </div>
+
+  <!-- 浮窗 Python 控制台(自包含) -->
+  <script type="module" src="./console.js"></script>
+  <!-- 知识树画布(自包含) -->
+  <script type="module" src="./graph.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

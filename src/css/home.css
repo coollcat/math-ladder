@@ -1,0 +1,1181 @@
+/* ===== 首页 v2：演算纸 × 印章朱砂 ===== */
+
+/* 全页作用域：暖纸底、方格纸网格、衬线大标题、朱砂印章点缀。
+   样式全部收在 .ml-home 里，不影响站内其余页面；
+   英雄区规则比 custom.css 的旧 .ml-hero 多一级限定，保证覆盖。 */
+.ml-home {
+  --ml-grid: rgba(35, 48, 80, 0.08);
+  --ml-paper: #fbf8f1;
+  --ml-card: #ffffff;
+  --ml-ink: #26324b;
+  --ml-vermilion: #c2401c;
+  --ml-hardshadow: rgba(38, 50, 75, 0.16);
+  --ml-display: Georgia, 'Times New Roman', 'Songti SC', STSong, SimSun, serif;
+  /* Infima 的标题规则带 :not(#\#) 双保险（ID 级特异性），类选择器压不过它，
+     只能在 .ml-home 作用域里改这些变量来换标题字体/字号 */
+  --ifm-heading-font-family: var(--ml-display);
+  --ifm-h1-font-size: clamp(2.6rem, 6vw, 3.9rem);
+  --ifm-h2-font-size: 1.65rem;
+  --ifm-heading-font-weight: 800;
+}
+
+/* 小标题（卡片/卷册）退回正文无衬线：变量按元素继承，特异性免疫 */
+.ml-home main h3 {
+  --ifm-heading-font-family: var(--ifm-font-family-base);
+  --ifm-heading-font-weight: 700;
+}
+
+[data-theme='dark'] .ml-home {
+  --ml-grid: rgba(148, 163, 184, 0.11);
+  --ml-paper: #1b202a;
+  --ml-card: #232a36;
+  --ml-ink: #c7d0e0;
+  --ml-hardshadow: rgba(0, 0, 0, 0.4);
+}
+
+.ml-home {
+  background: var(--ml-paper);
+}
+
+/* 方格演算纸底纹：横竖两层 1px 渐变线 */
+.ml-gridbg {
+  background-image:
+    linear-gradient(var(--ml-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ml-grid) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+.ml-home main h2::before {
+  content: '§ ';
+  color: var(--ml-vermilion);
+  font-weight: 700;
+}
+
+.ml-home main .card {
+  border-radius: 12px;
+}
+
+/* ---- 英雄区 ---- */
+
+.ml-home .ml-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 4.2rem 0 3rem;
+  text-align: left;
+  border-bottom: 2px solid var(--ml-ink);
+  background-color: var(--ml-paper);
+}
+
+/* 右缘竖排书脊字：像一本摊开的教材 */
+.ml-home .ml-hero__spine {
+  position: absolute;
+  top: 3.4rem;
+  right: max(1rem, calc((100% - 1140px) / 2));
+  writing-mode: vertical-rl;
+  font-family: var(--ml-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.5em;
+  opacity: 0.45;
+  border-right: 1px solid var(--ml-ink);
+  padding-right: 0.55em;
+  user-select: none;
+}
+
+@media (max-width: 1200px) {
+  .ml-home .ml-hero__spine { display: none; }
+}
+
+.ml-home .ml-hero__kicker {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.86rem;
+  letter-spacing: 0.28em;
+  color: var(--ml-vermilion);
+  margin-bottom: 0.9rem;
+}
+
+.ml-home .ml-hero__kicker::before {
+  content: '── ';
+}
+
+.ml-home .ml-hero__title {
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+/* 朱砂印章 */
+.ml-seal {
+  flex: none;
+  width: 1.02em;
+  height: 1.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ml-vermilion);
+  color: #fff;
+  font-size: 0.5em;
+  font-weight: 700;
+  border-radius: 12%;
+  transform: rotate(-7deg);
+  box-shadow: 0 3px 10px rgba(194, 64, 28, 0.35);
+  user-select: none;
+}
+
+.ml-home .ml-hero__subtitle {
+  font-size: 1.3rem;
+  opacity: 0.94;
+  max-width: 40rem;
+  margin-top: 0;
+}
+
+.ml-home .ml-hero__note {
+  max-width: 42rem;
+  margin: 1rem 0 0;
+  opacity: 0.72;
+  line-height: 1.9;
+}
+
+.ml-hero__btns {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-top: 1.6rem;
+}
+
+/* 主按钮配「印刷硬阴影」 */
+.ml-hero__btns .button--primary {
+  box-shadow: 4px 4px 0 var(--ml-ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ml-hero__btns .button--primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ml-ink);
+}
+
+/* 示波器纸带：正弦波画在方格纸上 */
+.ml-hero__scope {
+  margin: 2.6rem 0 0;
+  border: 1.5px solid var(--ml-ink);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--ml-card);
+  box-shadow: 6px 6px 0 var(--ml-hardshadow);
+}
+
+.ml-hero__canvas {
+  display: block;
+  width: 100%;
+}
+
+.ml-hero__scope figcaption {
+  padding: 0.5rem 0.95rem;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+  font-size: 0.84rem;
+  opacity: 0.66;
+}
+
+.ml-section__lead {
+  max-width: 720px;
+  opacity: 0.75;
+  margin-bottom: 1.1rem;
+}
+
+/* ---- 首页嵌入的知识树 ---- */
+
+.ml-tree-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ml-tree-head__links {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.15rem;
+}
+
+.ml-ht {
+  border: 1.5px solid var(--ml-ink);
+  border-radius: 14px;
+  background: var(--ml-card);
+  padding: 12px 10px 6px;
+  box-shadow: 6px 6px 0 var(--ml-hardshadow);
+}
+
+/* 窄屏时横向滚动，避免整树缩成邮票 */
+.ml-ht__stage {
+  overflow-x: auto;
+}
+
+.ml-ht__svg {
+  display: block;
+  width: 100%;
+  min-width: 980px;
+  height: auto;
+}
+
+.ml-ht__edge {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 1.5;
+  opacity: 0.55;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition:
+    stroke-dashoffset 0.9s ease,
+    stroke 0.25s ease,
+    opacity 0.35s ease;
+}
+
+.ml-ht__edge--branch {
+  stroke: #e8871e;
+  opacity: 0.4;
+  stroke-width: 1.2;
+}
+
+.ml-ht.is-grown .ml-ht__edge,
+.ml-ht__svg.is-grown .ml-ht__edge {
+  stroke-dashoffset: 0;
+}
+
+.ml-ht__node {
+  cursor: pointer;
+  /* 聚焦筛选时各层横向重新居中，位置走 transform 平滑过渡 */
+  transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ml-ht__reveal {
+  opacity: 0;
+  transform: translateY(14px) scale(0.82);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ml-ht__reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.ml-ht__reveal rect {
+  fill: var(--ifm-background-surface-color, var(--ifm-card-background-color));
+  stroke: var(--ifm-color-emphasis-400);
+  stroke-width: 1.2;
+  transition: stroke 0.15s ease;
+}
+
+[data-theme='dark'] .ml-ht__reveal rect {
+  fill: rgba(255, 255, 255, 0.07);
+}
+
+.ml-ht__reveal:hover rect,
+.ml-ht__reveal:focus rect {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2.2;
+}
+
+.ml-ht__reveal text {
+  font-size: 15px;
+  fill: var(--ifm-font-color-base);
+  pointer-events: none;
+}
+
+.ml-ht__count-bg {
+  fill: rgba(59, 116, 214, 0.16);
+}
+
+.ml-ht__count {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--ifm-color-primary);
+  pointer-events: none;
+}
+
+/* ---- 聚焦模式状态：选中章绿=先修、橙=托起，无关章节隐藏 ---- */
+
+.ml-ht__reveal.is-off {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ml-ht__reveal.is-hot rect {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 2px 5px rgba(59, 116, 214, 0.4));
+}
+
+.ml-ht__reveal.is-up rect {
+  stroke: #2e7d32;
+  stroke-width: 1.9;
+  fill: rgba(46, 125, 50, 0.14);
+}
+
+.ml-ht__reveal.is-down rect {
+  stroke: #e8871e;
+  stroke-width: 1.9;
+  fill: rgba(232, 135, 30, 0.16);
+}
+
+[data-theme='dark'] .ml-ht__reveal.is-up rect {
+  fill: rgba(46, 125, 50, 0.3);
+}
+
+[data-theme='dark'] .ml-ht__reveal.is-down rect {
+  fill: rgba(232, 135, 30, 0.28);
+}
+
+.ml-ht__svg .ml-ht__edge.is-eoff {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ml-ht__svg .ml-ht__edge.is-edirect {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2.4;
+  opacity: 1;
+}
+
+.ml-ht__svg .ml-ht__edge.is-eup {
+  stroke: #2e7d32;
+  stroke-width: 1.9;
+  opacity: 0.95;
+}
+
+.ml-ht__svg .ml-ht__edge.is-edown {
+  stroke: #e8871e;
+  stroke-width: 1.9;
+  opacity: 0.95;
+}
+
+/* 聚焦信息条 */
+.ml-ht__info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.ml-ht__info-btns {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ml-ht__legend strong {
+  color: var(--ifm-color-primary);
+}
+
+.ml-ht__pill--up {
+  background: rgba(46, 125, 50, 0.14);
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.ml-ht__pill--down {
+  background: rgba(232, 135, 30, 0.18);
+  color: #b45309;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .ml-ht__pill--up {
+  color: #81c995;
+}
+
+[data-theme='dark'] .ml-ht__pill--down {
+  color: #f0a35c;
+}
+
+.ml-ht__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.3rem 0.3rem;
+}
+
+.ml-ht__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  opacity: 0.72;
+  flex-wrap: wrap;
+}
+
+.ml-ht__dot {
+  width: 18px;
+  height: 0;
+  border-top: 2.5px solid var(--ifm-color-emphasis-500);
+  display: inline-block;
+}
+
+.ml-ht__dot--branch {
+  border-top-color: #e8871e;
+  border-top-style: dotted;
+}
+
+.ml-ht__count-hint {
+  opacity: 0.85;
+}
+
+/* ---- 章节芯片墙 ---- */
+
+.ml-wall {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.ml-wall__group {
+  border-left: 3px solid var(--ifm-color-primary);
+  padding-left: 1.15rem;
+}
+
+.ml-wall__group--plan {
+  border-left-style: dashed;
+  border-left-color: var(--ifm-color-emphasis-400);
+}
+
+.ml-wall__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.ml-wall__vol {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.ml-wall__desc {
+  margin: 0.15rem 0 0.6rem;
+  opacity: 0.65;
+  font-size: 0.9rem;
+  max-width: 860px;
+}
+
+.ml-wall__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.ml-wall__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.26rem 0.68rem;
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-card-background-color);
+  font-size: 0.87rem;
+  text-decoration: none !important;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ml-wall__chip:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 3px 3px 0 var(--ml-hardshadow);
+  transform: translateY(-2px);
+}
+
+.ml-wall__chip-num {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.76rem;
+  opacity: 0.48;
+}
+
+.ml-wall__chip-count {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.74rem;
+  padding: 0 0.42rem;
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-200);
+  opacity: 0.78;
+}
+
+.ml-wall__group--plan .ml-wall__chip {
+  border-style: dashed;
+}
+
+/* ---- 底部行动条 ---- */
+
+.ml-cta-band {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border: 2px solid var(--ml-ink);
+  border-radius: 16px;
+  padding: 1.5rem 1.7rem;
+  background-color: var(--ml-card);
+  box-shadow: 6px 6px 0 var(--ml-hardshadow);
+}
+
+/* 右下角超大淡色积分号：纯装饰 */
+.ml-cta-band__glyph {
+  position: absolute;
+  right: 0.5rem;
+  bottom: -2.6rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 9.5rem;
+  line-height: 1;
+  color: var(--ifm-color-primary);
+  opacity: 0.09;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ml-cta-band h2 {
+  margin-bottom: 0.3rem;
+}
+
+.ml-cta-band p {
+  margin: 0;
+  opacity: 0.7;
+  max-width: 540px;
+}
+
+.ml-cta-band__btns {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* ---- 三种玩法试玩卡 ---- */
+
+.ml-home .card.ml-demo {
+  position: relative;
+  border: 1.5px solid var(--ml-ink);
+  border-radius: 14px;
+  background-color: var(--ml-card);
+  box-shadow: 4px 4px 0 var(--ml-hardshadow);
+}
+
+/* 顶部朱砂书签条 */
+.ml-home .card.ml-demo::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 20px;
+  width: 46px;
+  height: 5px;
+  background: var(--ml-vermilion);
+  border-radius: 0 0 3px 3px;
+}
+
+.ml-demo__title {
+  font-size: 1.02rem;
+}
+
+.ml-demo__run {
+  margin-top: 0.35rem;
+}
+
+.ml-demo__quiz .ml-quiz__q {
+  margin-bottom: 0.5rem;
+}
+
+.ml-demo__quiz .ml-quiz__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+/* ===== 知识图谱：全课细览页 ===== */
+
+/* ---- 全课细览页 ---- */
+
+.ml-fg__lead {
+  max-width: 820px;
+  opacity: 0.85;
+}
+
+.ml-fg__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+
+.ml-fg__search {
+  flex: 0 1 320px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+}
+
+.ml-fg__search:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-fg__meta {
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-family: var(--ifm-font-family-monospace);
+  opacity: 0.6;
+}
+
+.ml-fg__wrap {
+  overflow-x: auto;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: var(--ifm-card-background-color);
+}
+
+/* 全屏：泳道图谱铺满整屏，双向滚动 */
+.ml-fg__wrap:fullscreen,
+.ml-fg__wrap:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  border-radius: 0;
+  overflow: auto;
+  background: var(--ifm-background-color);
+  padding: 18px;
+}
+
+/* 全屏时固定在右上角的退出钮（渲染在 wrap 外层） */
+.ml-fg__fs-exit {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 999;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* 全屏：树画布铺满整屏 */
+.ml-tr__viewport:fullscreen,
+.ml-tr__viewport:-webkit-full-screen {
+  height: 100vh;
+  border: none;
+  border-radius: 0;
+}
+
+.ml-fg__svg {
+  display: block;
+  width: 100%;
+}
+
+.ml-fg__band {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: var(--ifm-font-color-base);
+  opacity: 0.55;
+}
+
+.ml-fg__edge {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-400);
+  stroke-width: 1.1;
+  opacity: 0.5;
+  transition: stroke 0.15s ease, opacity 0.15s ease;
+}
+
+/* 入场描画：pathLength 归一后用 dashoffset 从 0 长到全长。
+   用一次性 animation 而非 transition-delay——动画结束后悬停高亮不被延迟。 */
+.ml-fg__svg .ml-fg__edge {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.ml-fg__svg .ml-fg__edge.is-in {
+  stroke-dashoffset: 0;
+  transition: stroke 0.15s ease, opacity 0.15s ease;
+  animation: ml-edge-draw 0.7s ease backwards;
+  animation-delay: var(--rvd, 0s);
+}
+
+@keyframes ml-edge-draw {
+  from { stroke-dashoffset: 1; }
+}
+
+.ml-fg__edge.is-direct { stroke: var(--ifm-color-primary); stroke-width: 2.4; opacity: 1; }
+.ml-fg__edge.is-up { stroke: var(--ifm-color-success); stroke-width: 1.8; opacity: 0.95; }
+.ml-fg__edge.is-down { stroke: #e8871e; stroke-width: 1.8; opacity: 0.95; }
+.ml-fg__edge.is-dim2 { opacity: 0.07; }
+.ml-fg__edge.is-search { stroke: var(--ifm-color-info); stroke-width: 2; opacity: 1; }
+
+.ml-fg__node { cursor: pointer; outline: none; }
+
+.ml-fg__node rect {
+  fill: var(--ifm-background-surface-color, var(--ifm-card-background-color));
+  stroke: var(--ifm-color-emphasis-400);
+  stroke-width: 1.1;
+  transition: stroke 0.15s ease, filter 0.15s ease;
+}
+
+[data-theme='dark'] .ml-fg__node rect {
+  fill: rgba(255, 255, 255, 0.06);
+}
+
+.ml-fg__node text {
+  font-size: 11.5px;
+  fill: var(--ifm-font-color-base);
+  pointer-events: none;
+}
+
+.ml-fg__node:hover rect,
+.ml-fg__node:focus rect,
+.ml-fg__node.is-hot rect {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 2px 5px rgba(59, 116, 214, 0.4));
+}
+
+.ml-fg__node.is-up rect { stroke: var(--ifm-color-success); stroke-width: 1.8; }
+.ml-fg__node.is-down rect { stroke: #e8871e; stroke-width: 1.8; }
+.ml-fg__node.is-dim2 { opacity: 0.28; }
+.ml-fg__node.is-search rect { stroke: var(--ifm-color-info); stroke-width: 2.2; }
+
+.ml-fg__tool {
+  fill: var(--ifm-color-warning-dark, #b45309);
+}
+
+/* 图谱页节点入场：淡入上浮，逐列错峰（delay 由组件内联给出） */
+.ml-fg__svg .ml-fg__rv {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.ml-fg__svg .ml-fg__rv.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* 筛选模式：点节点后其余隐藏、泳道压实重排（位置走 transform 过渡） */
+.ml-fg__svg .ml-fg__pos {
+  transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ml-fg__svg .ml-fg__node.is-off {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ml-fg__svg .ml-fg__edge.is-off,
+.ml-fg__svg .ml-fg__tedge.is-off {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ml-fg__legend {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+/* ===== 全图谱 v2：模式芯片/深度着色/血缘线/信息面板 ===== */
+
+.ml-fg__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ml-fg__chip input { margin: 0; }
+
+.ml-fg__tedge {
+  fill: none;
+  stroke: var(--ifm-color-warning-dark, #b45309);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.4;
+}
+
+.ml-fg__tedge.is-up { opacity: 0.85; stroke-width: 1.6; }
+
+.ml-fg__depth {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--ifm-color-emphasis-600);
+  pointer-events: none;
+}
+
+.ml-fg__node.d1 rect { fill: rgba(59, 116, 214, 0.30); }
+.ml-fg__node.d2 rect { fill: rgba(59, 116, 214, 0.24); }
+.ml-fg__node.d3 rect { fill: rgba(46, 125, 50, 0.22); }
+.ml-fg__node.d4 rect { fill: rgba(46, 125, 50, 0.28); }
+.ml-fg__node.d5 rect { fill: rgba(232, 135, 30, 0.26); }
+.ml-fg__node.d6 rect { fill: rgba(179, 38, 30, 0.24); }
+
+[data-theme='dark'] .ml-fg__node.d1 rect,
+[data-theme='dark'] .ml-fg__node.d2 rect,
+[data-theme='dark'] .ml-fg__node.d3 rect,
+[data-theme='dark'] .ml-fg__node.d4 rect,
+[data-theme='dark'] .ml-fg__node.d5 rect,
+[data-theme='dark'] .ml-fg__node.d6 rect {
+  fill: rgba(255, 255, 255, 0.08);
+}
+
+.ml-fg__panel {
+  margin-top: 0.8rem;
+  min-height: 64px;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: 1px dashed var(--ifm-color-emphasis-300);
+}
+
+.ml-fg__panel.is-active {
+  border-style: solid;
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-fg__panel-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ml-fg__pill {
+  font-size: 0.78rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-200);
+}
+
+.ml-fg__pill--born {
+  background: rgba(232, 135, 30, 0.18);
+  color: var(--ifm-color-warning-dark, #b45309);
+  font-weight: 600;
+}
+
+.ml-fg__line {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+}
+
+.ml-fg__panel .button--link {
+  padding-left: 0.4rem;
+}
+
+/* ===== 树状知识图谱：滚动逐层展开 ===== */
+
+.ml-tr__tip {
+  font-size: 0.82rem;
+  opacity: 0.6;
+}
+
+/* ---- 巨型画布：固定高度视口 + 原始尺寸画布（拖动平移/滚轮缩放） ---- */
+
+.ml-tr__viewport {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  background-color: var(--ifm-card-background-color);
+  /* 点阵网格：让「这是一张可拖动的画布」一眼可读 */
+  background-image: radial-gradient(var(--ifm-color-emphasis-300) 1px, transparent 1px);
+  background-size: 24px 24px;
+  height: min(82vh, 880px);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+[data-theme='dark'] .ml-tr__viewport {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+}
+
+.ml-tr__viewport.is-grabbing {
+  cursor: grabbing;
+}
+
+.ml-tr__canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  /* 首次定位完成前隐藏，避免闪跳（applyView 里置回 visible） */
+  visibility: hidden;
+}
+
+.ml-tr__canvas .ml-tr__svg {
+  display: block;
+}
+
+.ml-tr__ctrls {
+  position: absolute;
+  right: 10px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 5;
+}
+
+.ml-tr__ctrls button {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-card-background-color);
+  color: var(--ifm-font-color-base);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: border-color 0.15s ease;
+}
+
+.ml-tr__ctrls button:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-tr__hint {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  font-size: 0.78rem;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* 树页胶囊字号：比泳道图谱大一档，配合放大后的胶囊 */
+.ml-tr__svg .ml-fg__node text {
+  font-size: 13.5px;
+}
+
+.ml-tr__svg .ml-fg__depth {
+  font-size: 12px;
+}
+
+.ml-tr__edge {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-400);
+  stroke-width: 1.2;
+  opacity: 0.45;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke 0.15s ease, opacity 0.15s ease, d 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* 滚动到视口时一次性描画（--rvd 由组件内联给出同层错峰延迟） */
+.ml-tr__edge.is-in {
+  stroke-dashoffset: 0;
+  animation: ml-edge-draw 0.7s ease backwards;
+  animation-delay: var(--rvd, 0s);
+}
+
+.ml-tr__edge.is-direct { stroke: var(--ifm-color-primary); stroke-width: 2.4; opacity: 1; }
+.ml-tr__edge.is-up { stroke: var(--ifm-color-success); stroke-width: 1.8; opacity: 0.9; }
+.ml-tr__edge.is-down { stroke: #e8871e; stroke-width: 1.8; opacity: 0.9; }
+.ml-tr__edge.is-dim2 { opacity: 0.06; }
+
+.ml-tr__edge.is-branch {
+  stroke-dasharray: 5 5;
+  opacity: 0;
+  transition: opacity 0.5s ease, d 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ml-tr__edge.is-branch.is-in {
+  opacity: 0.5;
+  animation: ml-branch-in 0.5s ease backwards;
+  animation-delay: var(--rvd, 0s);
+}
+
+/* 筛选隐藏必须压过 is-branch.is-in 的入场透明度 */
+.ml-tr__edge.is-off,
+.ml-tr__tedge.is-off {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes ml-branch-in {
+  from { opacity: 0; }
+}
+
+.ml-tr__tedge {
+  fill: none;
+  stroke: var(--ifm-color-warning-dark, #b45309);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0;
+  transition: opacity 0.5s ease, d 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ml-tr__tedge.is-in { opacity: 0.35; }
+.ml-tr__tedge.is-up { opacity: 0.8; }
+.ml-tr__tedge.is-dim2 { opacity: 0.05; }
+
+.ml-tr__reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.ml-tr__reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.ml-tr__pos {
+  transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ml-tr__svg .ml-fg__node {
+  transition: opacity 0.35s ease;
+}
+
+.ml-tr__svg .ml-fg__node.is-off {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-tr__edge { stroke-dashoffset: 0; transition: none; animation: none; }
+  .ml-tr__edge.is-branch { opacity: 0.5; animation: none; }
+  .ml-tr__tedge { opacity: 0.35; transition: none; }
+  .ml-tr__tedge.is-dim2 { opacity: 0.05; }
+  .ml-tr__reveal { opacity: 1; transform: none; transition: none; }
+  .ml-tr__pos { transition: none; }
+  .ml-fg__svg .ml-fg__edge { stroke-dashoffset: 0; animation: none; }
+  .ml-fg__svg .ml-fg__rv { opacity: 1; transform: none; transition: none; }
+  .ml-fg__svg .ml-fg__pos { transition: none; }
+  .ml-ht__edge { stroke-dashoffset: 0; transition: none; }
+  .ml-ht__reveal { opacity: 1; transform: none; transition: none; }
+  .ml-ht__node { transition: none; }
+}
+
+/* ===== 知识树 v2：双模式 / 搜索 / 图例 / 分支线 ===== */
+
+/* 模式切换分段控件 */
+.ml-tr__modes {
+  display: inline-flex;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--ifm-background-color);
+}
+
+.ml-tr__mode {
+  border: none;
+  background: transparent;
+  padding: 0.34rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--ifm-font-color-base);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ml-tr__mode + .ml-tr__mode { border-left: 1px solid var(--ifm-color-emphasis-300); }
+
+.ml-tr__mode:hover { background: var(--ifm-color-emphasis-100); }
+
+.ml-tr__mode.is-on {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 搜索框 + 结果计数 + 清除 */
+.ml-tr__searchwrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 1 340px;
+}
+
+.ml-tr__searchwrap .ml-fg__search { flex: 1 1 auto; min-width: 0; }
+
+.ml-tr__count {
+  font-size: 0.78rem;
+  font-family: var(--ifm-font-family-monospace);
+  opacity: 0.65;
+  white-space: nowrap;
+}
+
+.ml-tr__clear {
+  border: none;
+  background: transparent;
+  color: var(--ifm-color-emphasis-600);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0.1rem 0.3rem;
+}
+
+.ml-tr__clear:hover { color: var(--ifm-color-primary); }
+
+/* 图例 */
+.ml-tr__legend {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.ml-tr__legend-line {
+  width: 20px;
+  height: 0;
+  border-top: 2px solid var(--ifm-color-emphasis-500);
+  display: inline-block;
+}
+
+.ml-tr__legend-line--branch { border-top: 1px dashed #e8871e; }
+.ml-tr__legend-line--up { border-top-color: var(--ifm-color-success); }
+.ml-tr__legend-line--down { border-top-color: #e8871e; }
+
+/* 分支线（跨线支撑）：非主干的先修边，细虚线淡入（覆盖 base 的描画动画） */
+.ml-tr__edge--branch {
+  stroke-dasharray: 5 5;
+  stroke-dashoffset: 0;
+  stroke-width: 1.1;
+  stroke: #e8871e;
+  opacity: 0;
+  animation: none;
+  transition: opacity 0.4s ease, d 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ml-tr__edge--branch.is-in { opacity: 0.5; animation: none; }
+
+/* 搜索命中高亮：亮蓝描边 + 轻微发光，与普通悬停区分 */
+.ml-tr__svg .ml-fg__node.is-search rect {
+  stroke: var(--ifm-color-info);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 4px rgba(30, 120, 200, 0.5));
+}
+
+[data-theme='dark'] .ml-tr__svg .ml-fg__node.is-search rect {
+  filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.55));
+}
+
+/* 减少动态偏好：分支线直接呈现，不做淡入/描画 */
+@media (prefers-reduced-motion: reduce) {
+  .ml-tr__edge--branch { opacity: 0.5; transition: none; animation: none; }
+  .ml-tr__mode { transition: none; }
+}

@@ -1,0 +1,1385 @@
+﻿/* viz 组件库很大（源码约 400KB），静态 import 会把它打进每页必下的主包。
+   这里改成按需动态加载：页面里真出现 ```viz 围栏才拉取对应 chunk。 */
+let vizModPromise = null;
+function loadVizModule() {
+  if (!vizModPromise) {
+    vizModPromise = import('./viz').then(
+      (mod) => mod.enhanceViz,
+      (e) => {
+        vizModPromise = null;
+        throw e;
+      },
+    );
+  }
+  return vizModPromise;
+}
+
+const PYODIDE_VERSION = 'v0.26.4';
+const PYODIDE_CDNS = [
+  'https://registry.npmmirror.com/-/binary/pyodide/' + PYODIDE_VERSION + '/full/',
+  'https://cdn.jsdelivr.net/pyodide/' + PYODIDE_VERSION + '/full/',
+  'https://gcore.jsdelivr.net/pyodide/' + PYODIDE_VERSION + '/full/',
+];
+const CDN_TIMEOUT_MS = 15000;
+
+let pyodidePromise = null;
+let preambleDone = false;
+
+function loadScript(src, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const el = document.createElement('script');
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        el.remove();
+        reject(new Error('超时'));
+      }
+    }, timeoutMs);
+    el.onload = () => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(timer);
+        resolve();
+      }
+    };
+    el.onerror = () => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(timer);
+        el.remove();
+        reject(new Error('加载失败'));
+      }
+    };
+    el.src = src;
+    document.head.appendChild(el);
+  });
+}
+
+async function initPyodide(status) {
+  let lastErr = null;
+  for (const base of PYODIDE_CDNS) {
+    try {
+      status('首次运行需下载 Python 运行时（约 10 MB），来源 ' + new URL(base).host + ' …');
+      await loadScript(base + 'pyodide.js', CDN_TIMEOUT_MS);
+      const py = await window.loadPyodide({ indexURL: base });
+      return py;
+    } catch (e) {
+      lastErr = e;
+      try { delete window.loadPyodide; } catch (e2) { window.loadPyodide = undefined; }
+    }
+  }
+  throw new Error(
+    '所有下载源都不可用，请检查网络后重试' +
+      (lastErr ? '（最后错误：' + lastErr.message + '）' : ''),
+  );
+}
+
+function getPyodide(status) {
+  if (!pyodidePromise) {
+    /* 缓存挂在 window 上：热更新重置模块状态后不会重新下载整个运行时 */
+    const cached = window.__mlPyodidePromise;
+    pyodidePromise =
+      cached ||
+      initPyodide(status).catch((e) => {
+        window.__mlPyodidePromise = null;
+        throw e;
+      });
+    window.__mlPyodidePromise = pyodidePromise;
+  }
+  return pyodidePromise;
+}
+
+const PREAMBLE = `
+import io as _io
+import base64 as _base64
+import contextlib as _contextlib
+
+def _ml_capture_figures():
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return []
+    figs = []
+    for num in plt.get_fignums():
+        bio = _io.BytesIO()
+        plt.figure(num).savefig(bio, format="png", dpi=110,
+                                bbox_inches="tight")
+        figs.append(_base64.b64encode(bio.getvalue()).decode())
+    plt.close("all")
+    return figs
+
+def _ml_run(code, extra=None):
+    g = {"__name__": "__main__"}
+    if extra:
+        g.update(extra)
+    buf = _io.StringIO()
+    err = None
+    try:
+        with _contextlib.redirect_stdout(buf):
+            exec(compile(code, "<\\u7ec3\\u4e60>", "exec"), g)
+    except Exception as exc:
+        import traceback as _tb
+        err = _tb.format_exc()
+    figs = _ml_capture_figures()
+    return buf.getvalue(), figs, err or ""
+
+_ml_console_g = {"__name__": "__main__"}
+
+def _ml_console_run(code, extra=None):
+    if extra:
+        _ml_console_g.update(extra)
+    buf = _io.StringIO()
+    err = None
+    try:
+        with _contextlib.redirect_stdout(buf):
+            exec(compile(code, "<\\u63a7\\u5236\\u53f0>", "exec"), _ml_console_g)
+    except Exception as exc:
+        import traceback as _tb
+        err = _tb.format_exc()
+    figs = _ml_capture_figures()
+    return buf.getvalue(), figs, err or ""
+`;
+
+async function ensurePreamble(py) {
+  if (preambleDone || py.__mlPreambleDone) {
+    preambleDone = true;
+    return;
+  }
+  await py.runPythonAsync(PREAMBLE);
+  /* 标记记在 Pyodide 实例上：热更新后模块布尔值清零，但不会重复执行
+     PREAMBLE（重复执行会重置 _ml_console_g，丢掉随手算的变量） */
+  py.__mlPreambleDone = true;
+  preambleDone = true;
+}
+
+const HINTS = [
+  [/NameError/i, 'NameError：有名字没被定义过。检查拼写，或确认前面课程是否讲过它。'],
+  [/SyntaxError/i, 'SyntaxError：语法写错了。看报错指向的那一行附近。'],
+  [/ModuleNotFoundError/i, '模块不存在：本站代码只用课程里出现过的库。'],
+  [/IndentationError/i, '缩进错误：Python 靠缩进分层，检查行首空格。'],
+  [/ZeroDivisionError/i, '除以零了。数学上我们很快会讲到"为什么不能除以零"。'],
+];
+
+function prettifyError(msg) {
+  const lines = msg.split('\n');
+  const kept = [];
+  let skipBlock = false;
+  for (const line of lines) {
+    const m = line.match(/^\s+File "([^"]*)"/);
+    if (m) {
+      const internal =
+        !line.includes('\u7ec3\u4e60') &&
+        !line.includes('\u63a7\u5236\u53f0') &&
+        !line.includes('<module>');
+      skipBlock = internal;
+      if (!internal) kept.push(line);
+      continue;
+    }
+    if (skipBlock) {
+      if (/^\s*$/.test(line) || /^\s*(\^|\||~)/.test(line)) continue;
+      skipBlock = false;
+    }
+    kept.push(line);
+  }
+  const body = kept.join('\n').trim();
+  const hint = HINTS.find(([re]) => re.test(msg));
+  return body + (hint ? '\n\n提示：' + hint[1] : '');
+}
+
+function normalizeOut(text) {
+  const lines = String(text)
+    .replace(/\r/g, '')
+    .split('\n')
+    .map((l) => l.trim());
+  const collapsed = [];
+  let prevEmpty = false;
+  for (const l of lines) {
+    const empty = l === '';
+    if (empty && prevEmpty) continue;
+    collapsed.push(l);
+    prevEmpty = empty;
+  }
+  return collapsed.join('\n').trim();
+}
+
+function hashStr(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = (((h << 5) + h + s.charCodeAt(i)) | 0) >>> 0;
+  }
+  return h.toString(36);
+}
+
+/* ---------- 登录态（论文下载 / 学习进度的门禁） ---------- */
+
+import { getAuth } from '../auth';
+
+/* ---------- localStorage 小工具 ---------- */
+
+function loadJSON(key, fallback) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key) || 'null');
+    return v == null ? fallback : v;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function saveJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) { }
+}
+
+/* ---------- 进度命名空间 ----------
+ * 进度对所有人开放：未登录存本地「游客空间」，登录后存「账号空间」
+ * （同一浏览器多账号互不混淆）。旧版无命名空间的统一 key 一次性迁移到游客空间。 */
+function progressNS() {
+  const a = getAuth();
+  return a && a.u ? ':' + a.u : ':guest';
+}
+
+function nsKey(base) {
+  return base + progressNS();
+}
+
+let nsMigrated = false;
+function migrateLegacyProgress() {
+  if (nsMigrated || typeof window === 'undefined') return;
+  nsMigrated = true;
+  for (const base of ['ml-progress', 'ml-exercises']) {
+    if (localStorage.getItem(base) != null) {
+      if (localStorage.getItem(nsKey(base)) == null) {
+        localStorage.setItem(nsKey(base), localStorage.getItem(base));
+      }
+      localStorage.removeItem(base);
+    }
+  }
+}
+
+function passStore() {
+  migrateLegacyProgress();
+  return loadJSON(nsKey('ml-exercises'), {});
+}
+
+/* ---------- 浮窗控制台 ---------- */
+
+const SCRATCH_DEFAULT = '# 随手算：写点什么，Ctrl+Enter 运行\n# 变量在两次运行之间是保留的\nx = 2 ** 100\nprint(x)';
+
+/* 会话状态必须挂在全局上跨热更新代共享：
+   开发时编辑本文件会让模块整个重新执行，若状态随模块重置，
+   新一代代码与旧壳互不相认，轻则「点按钮没反应」，重则空引用崩掉路由。
+   SSR 侧没有 window，退回 globalThis——服务端只需模块能求值，不会真正用到状态。 */
+const consoleState = ((typeof window !== 'undefined' ? window : globalThis).__mlConsoleState =
+  (typeof window !== 'undefined' ? window : globalThis).__mlConsoleState || {
+  fab: null,
+  panel: null,
+  editor: null,
+  status: null,
+  out: null,
+  btnRun: null,
+  btnHint: null,
+  btnResetCode: null,
+  btnResetNs: null,
+  btnBack: null,
+  headTitle: null,
+  banner: null,
+  store: null,
+  slot: 'scratch',
+  slotTitle: 'Python 随手算',
+  prompt: '',
+  exercise: null,
+  sliders: [],
+  sliderTimer: null,
+  sliderPending: false,
+  running: false,
+  originals: {},
+  resets: {},
+  callbacks: new Map(),
+});
+
+function consoleStore() {
+  if (!consoleState.store) {
+    const raw = loadJSON('ml-console', {});
+    const store = raw && typeof raw === 'object' ? raw : {};
+    if (!store.drafts || typeof store.drafts !== 'object') store.drafts = {};
+    if (typeof store.draft === 'string' && store.draft && !store.drafts.scratch) {
+      store.drafts.scratch = store.draft;
+    }
+    delete store.draft;
+    consoleState.store = store;
+  }
+  return consoleState.store;
+}
+
+function saveConsoleStore() {
+  saveJSON('ml-console', consoleStore());
+}
+
+function currentSource() {
+  return consoleState.editor ? consoleState.editor.value : '';
+}
+
+function stashCurrent() {
+  const s = consoleStore();
+  s.drafts[consoleState.slot] = currentSource();
+  saveConsoleStore();
+}
+
+function applySlot(slot, opts) {
+  const s = consoleStore();
+  clearTimeout(consoleState.sliderTimer);
+  consoleState.sliderTimer = null;
+  consoleState.sliderPending = false;
+  stashCurrent();
+  consoleState.slot = slot;
+  consoleState.prompt = opts?.prompt || '';
+  consoleState.exercise = opts?.exercise || null;
+  consoleState.sliders = opts?.sliders || [];
+  consoleState.originals[slot] = opts?.original ?? s.drafts[slot] ?? SCRATCH_DEFAULT;
+  consoleState.resets[slot] =
+    opts?.resetSource ?? consoleState.originals[slot] ?? SCRATCH_DEFAULT;
+  if (!s.drafts[slot]) s.drafts[slot] = consoleState.originals[slot];
+  consoleState.editor.value = s.drafts[slot];
+  consoleState.slotTitle = opts?.title || (slot === 'scratch' ? 'Python 随手算' : '代码块');
+  refreshChrome();
+  renderSliders();
+  saveConsoleStore();
+}
+
+function renderSliders() {
+  const st = consoleState;
+  const box = st.slidersBox;
+  clearTimeout(st.sliderTimer);
+  st.sliderTimer = null;
+  st.sliderPending = false;
+  box.innerHTML = '';
+  if (!st.sliders.length) {
+    box.classList.remove('is-visible');
+    return;
+  }
+  box.classList.add('is-visible');
+  for (const s of st.sliders) {
+    const row = document.createElement('div');
+    row.className = 'ml-slider';
+    const label = document.createElement('label');
+    label.textContent = s.name + ' =';
+    const range = document.createElement('input');
+    range.type = 'range';
+    range.min = String(s.min);
+    range.max = String(s.max);
+    range.step = String(s.step);
+    range.value = String(s.value);
+    const val = document.createElement('span');
+    val.className = 'ml-slider__val';
+    val.textContent = String(s.value);
+    range.addEventListener('input', () => {
+      val.textContent = range.value;
+      clearTimeout(st.sliderTimer);
+      st.sliderTimer = setTimeout(() => {
+        st.sliderPending = true;
+        if (!st.running) run();
+      }, 260);
+    });
+    s.input = range;
+    row.append(label, range, val);
+    box.appendChild(row);
+  }
+}
+
+function refreshChrome() {
+  const st = consoleState;
+  const isEx = !!st.exercise;
+  const showPrompt = isEx || st.prompt;
+  st.headTitle.textContent =
+    (st.slot === 'scratch'
+      ? 'Python 随手算 · 变量保留 · Ctrl+Enter 运行'
+      : '来源：' + st.slotTitle + (isEx ? ' · 判题模式' : '')) +
+    ' · Ctrl+Enter 运行';
+  st.btnBack.style.display = st.slot === 'scratch' ? 'none' : '';
+  st.btnRun.textContent = isEx ? '▶ 运行并检查' : '▶ 运行';
+  st.banner.style.display = showPrompt ? '' : 'none';
+  st.banner.className =
+    'ml-console__banner' +
+    (isEx ? ' ml-console__banner--exercise' : '') +
+    (!isEx && st.prompt ? ' ml-console__banner--question' : '');
+  if (showPrompt) {
+    const label = document.createElement('strong');
+    const text = document.createElement('span');
+    if (isEx) {
+      label.textContent = '✍ 答题模式：';
+      text.textContent =
+        (st.exercise.title || '练习') +
+        '（目标输出 ' + st.exercise.check.length + ' 行）';
+    } else {
+      label.textContent = '题目：';
+      text.textContent = st.prompt;
+    }
+    st.banner.replaceChildren(label, text);
+  }
+  st.btnHint.style.display = isEx && st.exercise.hint ? '' : 'none';
+  st.btnResetNs.style.display = isEx ? 'none' : '';
+}
+
+export function openInConsole(opts) {
+  ensureConsole();
+  const st = consoleState;
+  /* 路由切换后，旧页面练习的回调不会再被触发：顺手清掉，防 Map 无限增长 */
+  for (const k of Array.from(st.callbacks.keys())) {
+    if (k.includes('#ex-') && !k.startsWith(location.pathname)) st.callbacks.delete(k);
+  }
+  if (opts?.exercise?.key) {
+    st.callbacks.set(opts.exercise.key, opts.exercise.onPass || null);
+  } else if (opts?.key && String(opts.key).startsWith('#ex-')) {
+    if (!st.callbacks.has(opts.key)) st.callbacks.set(opts.key, null);
+  }
+
+  if (st.running) {
+    st.panel.classList.add('is-open');
+    st.fab.classList.add('is-active');
+    st.out.classList.add('py-runner__out--visible');
+    st.status.textContent = '正在运行，已保持当前槽位';
+    return;
+  }
+
+  st.panel.classList.add('is-open');
+  st.fab.classList.add('is-active');
+  applySlot(opts?.key || 'scratch', {
+    original: opts?.source,
+    resetSource: opts?.resetSource,
+    title: opts?.title,
+    prompt: opts?.prompt,
+    exercise: opts?.exercise || null,
+    sliders: opts?.sliders || [],
+  });
+  st.out.innerHTML = '';
+  st.out.classList.remove('py-runner__out--visible');
+  st.status.textContent = '';
+  requestAnimationFrame(() => st.editor.focus());
+}
+
+/* 文档级监听去重：热更新重建浮窗时先摘掉上一实例挂的全局监听，防止重复触发 */
+function bindDocListener(type, handler) {
+  const bag = (window.__mlDocHandlers = window.__mlDocHandlers || {});
+  if (bag[type]) document.removeEventListener(type, bag[type]);
+  bag[type] = handler;
+  document.addEventListener(type, handler);
+}
+
+function ensureConsole() {
+  const st = consoleState;
+  if (st.fab && st.panel && document.contains(st.fab) && document.contains(st.panel)) return;
+
+  const fabEl = document.getElementById('ml-fab');
+  const panelEl = document.getElementById('ml-console');
+  if (fabEl && panelEl && panelEl.__mlRefs && document.contains(panelEl)) {
+    /* 壳健在但引用失效（异常兜底）：领养现有节点，绝不拆除——
+       拆了正在使用的浮窗，用户手里的按钮就全变成「点了没反应」。 */
+    Object.assign(st, panelEl.__mlRefs);
+    return;
+  }
+
+  /* 真没有壳（或壳残缺）才全新构建。浮窗节点都是我们自己 append 到
+     body 的普通节点（不归 React 管），可以安全移除残骸。 */
+  fabEl?.remove();
+  panelEl?.remove();
+  document.querySelector('.ml-lightbox')?.remove();
+
+  const fab = document.createElement('button');
+  fab.id = 'ml-fab';
+  fab.className = 'ml-fab';
+  fab.type = 'button';
+  fab.title = 'Python 控制台（Alt+P）';
+  fab.setAttribute('aria-label', '打开 Python 控制台');
+  fab.textContent = 'Py';
+
+  const panel = document.createElement('div');
+  panel.id = 'ml-console';
+  panel.className = 'ml-console';
+
+  const head = document.createElement('div');
+  head.className = 'ml-console__head';
+  const btnBack = document.createElement('button');
+  btnBack.className = 'ml-console__back';
+  btnBack.type = 'button';
+  btnBack.title = '回到随手算草稿';
+  btnBack.textContent = '← 随手算';
+  const headTitle = document.createElement('span');
+  headTitle.className = 'ml-console__headtitle';
+  const btnClose = document.createElement('button');
+  btnClose.className = 'ml-console__close';
+  btnClose.type = 'button';
+  btnClose.title = '关闭（Esc）';
+  btnClose.textContent = '×';
+  head.append(btnBack, headTitle, btnClose);
+
+  const banner = document.createElement('div');
+  banner.className = 'ml-console__banner';
+  banner.style.display = 'none';
+
+  const slidersBox = document.createElement('div');
+  slidersBox.className = 'ml-console__sliders';
+
+  const editor = document.createElement('textarea');
+  editor.className = 'ml-console__editor';
+  editor.spellcheck = false;
+  editor.placeholder = 'print("hello")';
+
+  const bar = document.createElement('div');
+  bar.className = 'ml-console__bar';
+  const status = document.createElement('span');
+  status.className = 'py-runner__status ml-console__status';
+  const btnHint = document.createElement('button');
+  btnHint.className = 'py-runner__btn py-runner__btn--ghost';
+  btnHint.textContent = '提示';
+  btnHint.style.display = 'none';
+  const btnRun = document.createElement('button');
+  btnRun.className = 'py-runner__btn';
+  btnRun.textContent = '▶ 运行';
+  const btnResetCode = document.createElement('button');
+  btnResetCode.className = 'py-runner__btn py-runner__btn--ghost';
+  btnResetCode.textContent = '恢复代码';
+  const btnClearOut = document.createElement('button');
+  btnClearOut.className = 'py-runner__btn py-runner__btn--ghost';
+  btnClearOut.textContent = '清屏';
+  const btnBigOut = document.createElement('button');
+  btnBigOut.className = 'py-runner__btn py-runner__btn--ghost';
+  btnBigOut.title = '在「编辑/输出平分」和「输出占满」之间切换';
+  btnBigOut.textContent = '输出放大';
+  const btnResetNs = document.createElement('button');
+  btnResetNs.className = 'py-runner__btn py-runner__btn--ghost';
+  btnResetNs.title = '清空随手算的所有变量';
+  btnResetNs.textContent = '重置变量';
+  bar.append(status, btnHint, btnRun, btnResetCode, btnClearOut, btnBigOut, btnResetNs);
+
+  const out = document.createElement('div');
+  out.className = 'py-runner__out ml-console__out';
+
+  panel.append(head, banner, slidersBox, editor, bar, out);
+  document.body.append(fab, panel);
+
+  const refs = {
+    fab, panel, editor, status, out, btnRun, btnHint,
+    btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox,
+  };
+  /* 引用登记在壳上：热更新后新一代模块靠它领养，而不是拆掉重建 */
+  panel.__mlRefs = refs;
+  Object.assign(st, refs);
+
+  btnBigOut.addEventListener('click', () => {
+    const big = panel.classList.toggle('is-bigout');
+    btnBigOut.textContent = big ? '恢复编辑' : '输出放大';
+    clearOut();
+    out.classList.add('py-runner__out--visible');
+    appendText('(输出放大模式：再次点击「恢复编辑」返回)', 'py-runner__dim');
+  });
+
+  let activeLb = null;
+  const closeLb = () => {
+    if (activeLb) {
+      activeLb.remove();
+      activeLb = null;
+      return true;
+    }
+    return false;
+  };
+  bindDocListener('click', (ev) => {
+    const img = ev.target.closest && ev.target.closest('.py-runner__img img');
+    if (!img) return;
+    ev.preventDefault();
+    closeLb();
+    activeLb = document.createElement('div');
+    activeLb.className = 'ml-lightbox';
+    const big = document.createElement('img');
+    big.src = img.src;
+    big.alt = '图像查看';
+    activeLb.appendChild(big);
+    activeLb.addEventListener('click', closeLb);
+    document.body.appendChild(activeLb);
+  });
+
+  const setOpen = (v) => {
+    panel.classList.toggle('is-open', v);
+    fab.classList.toggle('is-active', v);
+    if (v) requestAnimationFrame(() => editor.focus());
+  };
+  const isOpen = () => panel.classList.contains('is-open');
+
+  fab.addEventListener('click', () => {
+    if (!isOpen()) {
+      setOpen(true);
+      if (st.running) {
+        status.textContent = '正在运行，已保持当前槽位';
+        return;
+      }
+      applySlot('scratch', {});
+      return;
+    }
+    setOpen(false);
+  });
+  btnClose.addEventListener('click', () => setOpen(false));
+  btnBack.addEventListener('click', () => {
+    if (st.running) {
+      status.textContent = '正在运行，不能切换槽位';
+      return;
+    }
+    stashCurrent();
+    applySlot('scratch', {});
+  });
+
+  bindDocListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      if (closeLb()) return;
+      if (isOpen()) setOpen(false);
+    } else if (ev.altKey && (ev.key === 'p' || ev.key === 'P')) {
+      ev.preventDefault();
+      if (!isOpen()) {
+        setOpen(true);
+        if (st.running) status.textContent = '正在运行，已保持当前槽位';
+      } else {
+        setOpen(false);
+      }
+    }
+  });
+
+  const appendText = (text, cls) => {
+    if (!text) return;
+    out.classList.add('py-runner__out--visible');
+    const div = document.createElement('div');
+    if (cls) div.className = cls;
+    div.textContent = text;
+    out.appendChild(div);
+    out.scrollTop = out.scrollHeight;
+  };
+  const clearOut = () => {
+    out.innerHTML = '';
+    out.classList.remove('py-runner__out--visible');
+  };
+  btnClearOut.addEventListener('click', clearOut);
+
+  let saveTimer = null;
+  editor.addEventListener('input', () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const s = consoleStore();
+      s.drafts[st.slot] = editor.value;
+      saveConsoleStore();
+    }, 400);
+  });
+
+  editor.addEventListener('keydown', (ev) => {
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+      ev.preventDefault();
+      run();
+    }
+    if (ev.key === 'Tab') {
+      ev.preventDefault();
+      const s = editor.selectionStart;
+      const e2 = editor.selectionEnd;
+      editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(e2);
+      editor.selectionStart = editor.selectionEnd = s + 2;
+    }
+  });
+
+  const run = async () => {
+    if (st.running) return;
+    st.running = true;
+    btnRun.disabled = true;
+    clearOut();
+    stashCurrent();
+    const source = editor.value;
+    const chunks = [];
+    try {
+      const py = await getPyodide((s) => (status.textContent = s));
+      await ensurePreamble(py);
+      const needsMpl = /\bmatplotlib\b/.test(source);
+      if (needsMpl) {
+        status.textContent = '加载绘图库…';
+        await py.loadPackage('matplotlib');
+        await py.runPythonAsync("import os; os.environ.setdefault('MPLBACKEND', 'AGG')");
+        try {
+          await py.runPythonAsync(
+            "import matplotlib as _m; _m.rcParams.update({'figure.figsize':(7.2,4.2),'axes.grid':True,'grid.alpha':0.35,'font.size':11,'lines.linewidth':2,'axes.spines.top':False,'axes.spines.right':False})",
+          );
+        } catch (e2) { }
+      }
+      status.textContent = '运行中…';
+      py.setStdout({ batched: (s) => { chunks.push(s); appendText(s); } });
+      py.setStderr({ batched: (s) => appendText(s, 'py-runner__errtext') });
+      py.globals.set('_ml_src', source);
+      let extraArg = '';
+      if (st.sliders.length) {
+        const obj = {};
+        for (const s of st.sliders) obj[s.name] = parseFloat(s.input.value);
+        py.globals.set('_ml_extra', py.toPy(obj));
+        extraArg = ', _ml_extra';
+      }
+      const call = (isExerciseSlot() ? '_ml_run(_ml_src' : '_ml_console_run(_ml_src') + extraArg + ')';
+      const result = await py.runPythonAsync(call);
+      const arr = typeof result.toJs === 'function' ? result.toJs({ depth: 1 }) : result;
+      result.destroy?.();
+      const textOut = arr[0] || '';
+      const imgs = arr[1];
+      const errText = arr[2] || '';
+
+      if (textOut) appendText(textOut);
+      for (const b64 of imgs || []) {
+        out.classList.add('py-runner__out--visible');
+        const box = document.createElement('div');
+        box.className = 'py-runner__img';
+        const img = document.createElement('img');
+        img.src = 'data:image/png;base64,' + b64;
+        img.alt = '输出的图像';
+        box.appendChild(img);
+        out.appendChild(box);
+      }
+
+      if (errText) {
+        /* 出错也要保住出错前已打印的内容，学生才能对照排查 */
+        appendText(prettifyError(errText), 'py-runner__errtext');
+        status.textContent = '出错 ✗';
+        return;
+      }
+
+      if (isExerciseSlot()) {
+        const got = normalizeOut(textOut);
+        const want = normalizeOut(st.exercise.check.join('\n'));
+        if (got === want) {
+          const a = getAuth();
+          appendText('✓ 输出与期望一致，通过！进度已保存。', 'ml-exercise__pass');
+          const passes = passStore();
+          passes[st.slot] = true;
+          saveJSON(nsKey('ml-exercises'), passes);
+          appendText(
+            a ? '（账号空间：' + a.u + '）' : '（本地存储 · 登录后进度存入账号空间）',
+            'ml-exercise__unauthed',
+          );
+          const cb = st.callbacks.get(st.slot);
+          if (cb) cb();
+        } else {
+          appendText('✗ 还不对。期望输出是：', 'ml-exercise__fail');
+          appendText(want, 'ml-exercise__want');
+        }
+      } else if (!(imgs || []).length && !textOut && !chunks.length) {
+        appendText('(运行完毕，无输出)', 'py-runner__dim');
+      }
+      status.textContent = '完成 ✔';
+    } catch (e) {
+      appendText(prettifyError(String(e.message || e)), 'py-runner__errtext');
+      status.textContent = '出错 ✗';
+    } finally {
+      const shouldRerun = st.sliderPending;
+      st.sliderPending = false;
+      btnRun.disabled = false;
+      st.running = false;
+      if (shouldRerun) setTimeout(run, 0);
+    }
+  };
+
+  function isExerciseSlot() {
+    return !!st.exercise;
+  }
+
+  btnRun.addEventListener('click', run);
+
+  btnHint.addEventListener('click', () => {
+    if (st.exercise?.hint) appendText('提示：' + st.exercise.hint, 'py-runner__dim');
+  });
+
+  btnResetCode.addEventListener('click', () => {
+    editor.value = st.resets[st.slot] ?? st.originals[st.slot] ?? SCRATCH_DEFAULT;
+    const s = consoleStore();
+    s.drafts[st.slot] = editor.value;
+    saveConsoleStore();
+    clearOut();
+    status.textContent = '';
+  });
+
+  btnResetNs.addEventListener('click', async () => {
+    btnResetNs.disabled = true;
+    try {
+      const py = await getPyodide((s) => (status.textContent = s));
+      await ensurePreamble(py);
+      await py.runPythonAsync(
+        '_ml_console_g.clear(); _ml_console_g.update({"__name__": "__main__"})',
+      );
+      clearOut();
+      status.textContent = '变量已清空';
+    } catch (e) {
+      status.textContent = '重置失败';
+    } finally {
+      btnResetNs.disabled = false;
+    }
+  });
+
+  let drag = null;
+  head.addEventListener('pointerdown', (ev) => {
+    if (ev.target.closest('button')) return;
+    const rect = panel.getBoundingClientRect();
+    panel.style.transform = 'none';
+    panel.style.left = rect.left + 'px';
+    panel.style.top = rect.top + 'px';
+    drag = { dx: ev.clientX - rect.left, dy: ev.clientY - rect.top };
+    head.setPointerCapture(ev.pointerId);
+  });
+  head.addEventListener('pointermove', (ev) => {
+    if (!drag || ev.buttons === 0) {
+      drag = null;
+      return;
+    }
+    const w = panel.offsetWidth;
+    const h = panel.offsetHeight;
+    const x = Math.min(Math.max(ev.clientX - drag.dx, 8), window.innerWidth - w - 8);
+    const y = Math.min(Math.max(ev.clientY - drag.dy, 8), window.innerHeight - h - 8);
+    panel.style.left = x + 'px';
+    panel.style.top = y + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  });
+  const endDrag = () => {
+    drag = null;
+  };
+  head.addEventListener('pointerup', endDrag);
+  head.addEventListener('pointercancel', () => {
+    drag = null;
+  });
+  head.addEventListener('lostpointercapture', () => {
+    drag = null;
+  });
+
+  applySlot('scratch', {});
+}
+
+/* ---------- 正文代码块：注入浮窗按钮 / 内嵌测验 ---------- */
+
+function extractSource(container) {
+  const code = container.querySelector('code');
+  if (!code) return '';
+  const lineEls = code.querySelectorAll('[class*="token-line"]');
+  if (lineEls.length) {
+    return Array.from(lineEls)
+      .map((l) => (l.textContent || '').replace(/\u00a0/g, ' '))
+      .join('\n');
+  }
+  return (code.textContent || '').replace(/\u00a0/g, ' ');
+}
+
+function parseSliders(source) {
+  const m = source.match(/^#\s*sliders:\s*(.+)$/m);
+  if (!m) return [];
+  const out = [];
+  const re =
+    /([A-Za-z_]\w*)\s*=\s*(-?\d+(?:\.\d+)?)\s*\[\s*(-?[\d.]+)\s*[:：]\s*(-?[\d.]+)\s*[:：]\s*(-?[\d.]+)\s*\]/g;
+  let mm;
+  while ((mm = re.exec(m[1]))) {
+    out.push({
+      name: mm[1],
+      value: parseFloat(mm[2]),
+      min: parseFloat(mm[3]),
+      max: parseFloat(mm[4]),
+      step: parseFloat(mm[5]),
+    });
+  }
+  return out;
+}
+
+function makeMiniBtn(label) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'ml-mini-btn';
+  b.textContent = label;
+  return b;
+}
+
+function getButtonGroup(container) {
+  let group = container.querySelector('[class*="buttonGroup"]');
+  if (!group) {
+    group = document.createElement('div');
+    group.className = 'ml-btn-group';
+    const content = container.querySelector('[class*="codeBlockContent"]') || container;
+    content.appendChild(group);
+  }
+  return group;
+}
+
+function parseExerciseMeta(source) {
+  const meta = { title: '', check: [], hint: '', initial: [] };
+  for (const line of source.split('\n')) {
+    const m = line.match(/^#\s*@(title|check|hint):\s*(.*)$/);
+    if (m) {
+      if (m[1] === 'title') meta.title = m[2].trim();
+      else if (m[1] === 'check') meta.check.push(m[2].trim());
+      else if (m[1] === 'hint') meta.hint = m[2].trim();
+    } else {
+      meta.initial.push(line);
+    }
+  }
+  while (meta.initial.length && !meta.initial[0].trim()) meta.initial.shift();
+  while (meta.initial.length && !meta.initial[meta.initial.length - 1].trim()) meta.initial.pop();
+  meta.initial = meta.initial.join('\n');
+  return meta;
+}
+
+function buildQuizCard(source) {
+  const lines = source
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ml-quiz';
+
+  let question = null;
+  const options = [];
+  let explanation = null;
+
+  for (const line of lines) {
+    if (line.startsWith('-')) {
+      const text = line.replace(/^[-*]\s*/, '');
+      const correct = /\[\*\]\s*$/.test(text);
+      options.push({ text: text.replace(/\s*\[\*]\s*$/, ''), correct });
+    } else if (line.startsWith('?')) {
+      explanation = line.replace(/^[？?]\s*/, '');
+    } else if (!question) {
+      question = line.replace(/^q[:：]\s*/i, '');
+    }
+  }
+
+  if (!question || options.length < 2) {
+    const warn = document.createElement('div');
+    warn.className = 'ml-quiz__bad';
+    warn.textContent = '测验格式有误：需要一行问题 + 至少两个 "- 选项"，正确项标 [*]';
+    wrap.appendChild(warn);
+    return wrap;
+  }
+
+  const qEl = document.createElement('div');
+  qEl.className = 'ml-quiz__q';
+  qEl.textContent = question;
+  wrap.appendChild(qEl);
+
+  const list = document.createElement('div');
+  list.className = 'ml-quiz__opts';
+  const inputs = [];
+  const radioName = 'mlq-' + Math.random().toString(36).slice(2, 9);
+  options.forEach((opt, i) => {
+    const label = document.createElement('label');
+    label.className = 'ml-quiz__opt';
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.name = radioName;
+    inputs.push({ input, label, correct: opt.correct });
+    const span = document.createElement('span');
+    span.textContent = String.fromCharCode(65 + i) + '. ' + opt.text;
+    label.append(input, span);
+    list.appendChild(label);
+  });
+  wrap.appendChild(list);
+
+  const hasCorrect = options.some((o) => o.correct);
+  const feedback = document.createElement('div');
+  feedback.className = 'ml-quiz__fb';
+
+  const btnCheck = document.createElement('button');
+  btnCheck.className = 'ml-quiz__btn';
+  btnCheck.textContent = '提交';
+
+  btnCheck.addEventListener('click', () => {
+    const picked = inputs.find(({ input }) => input.checked);
+    feedback.querySelectorAll('.ml-quiz__exp').forEach((e) => e.remove());
+    if (!picked) {
+      feedback.className = 'ml-quiz__fb ml-quiz__fb--warn';
+      feedback.textContent = '先选一个选项再提交。';
+      return;
+    }
+    if (!hasCorrect) {
+      feedback.className = 'ml-quiz__fb';
+      feedback.textContent = '本题为开放讨论题，结合上文思考即可。';
+    } else if (picked.correct) {
+      feedback.className = 'ml-quiz__fb ml-quiz__fb--ok';
+      feedback.textContent = '答对了！';
+      inputs.forEach(({ label, correct }) => {
+        if (correct) label.classList.add('is-correct');
+      });
+    } else {
+      feedback.className = 'ml-quiz__fb ml-quiz__fb--no';
+      feedback.textContent = '不对哦，再想想——可以重选后再提交。';
+      picked.label.classList.add('is-wrong');
+    }
+    if (explanation && picked.correct) {
+      const exp = document.createElement('div');
+      exp.className = 'ml-quiz__exp';
+      exp.textContent = '解释：' + explanation;
+      feedback.appendChild(exp);
+    }
+  });
+
+  wrap.append(list, btnCheck, feedback);
+  return wrap;
+}
+
+function bindCodeBlocks() {
+  document.querySelectorAll('pre[class*="language-"]').forEach((pre) => {
+    const lang = (pre.className.match(/language-([a-z0-9]+)/) || [])[1] || '';
+    if (lang !== 'python' && lang !== 'quiz' && lang !== 'exercise') return;
+
+    const container = pre.closest('.theme-code-block') || pre.parentElement;
+    if (!container) return;
+    const source = extractSource(container);
+    const sourceKey = String(hashStr(source));
+    const staleQuiz = [container.previousElementSibling, container.nextElementSibling]
+      .find((node) => node?.classList.contains('ml-quiz') && node.dataset.mlSource === sourceKey);
+    if (staleQuiz) {
+      container.style.display = 'none';
+      container.dataset.mlBound = '1';
+      return;
+    }
+    if (container.dataset.mlBound === '1') return;
+    container.dataset.mlBound = '1';
+
+    if (lang === 'quiz') {
+      /* 水合安全：不删除 React 管辖的节点——隐藏原容器，把测验卡片插到它后面 */
+      const widget = buildQuizCard(source);
+      widget.dataset.mlSource = sourceKey;
+      const parent = container.parentNode;
+      if (parent) {
+        container.style.display = 'none';
+        parent.insertBefore(widget, container.nextSibling);
+      }
+      return;
+    }
+
+    const group = getButtonGroup(container);
+    if (group.querySelector('.ml-mini-btn')) {
+      container.dataset.mlBound = '1';
+      return;
+    }
+
+    if (lang === 'python') {
+      const titleEl = container.querySelector('[class*="codeBlockTitle"]');
+      const title = titleEl ? (titleEl.textContent || '').trim() : '';
+      const key = 'py-' + hashStr(title + '\u0000' + source);
+      const sliders = parseSliders(source);
+      const btn = makeMiniBtn(sliders.length ? '▶ 浮窗实验' : '▶ 浮窗运行');
+      btn.title = sliders.length
+        ? '在浮窗中打开：拖动滑块实时改变参数'
+        : '在浮窗中运行此代码（可自由修改）';
+      btn.addEventListener('click', () => {
+        openInConsole({
+          key,
+          title: title || 'Python 代码块',
+          source,
+          sliders,
+        });
+      });
+      group.appendChild(btn);
+      return;
+    }
+
+    if (lang === 'exercise') {
+      const meta = parseExerciseMeta(source);
+      if (!meta.check.length) {
+        const btn = makeMiniBtn('⚠ 练习缺少 @check');
+        btn.disabled = true;
+        group.appendChild(btn);
+        return;
+      }
+      const key =
+        location.pathname +
+        '#ex-' +
+        hashStr(meta.title + '\u0000' + meta.initial + '\u0000' + meta.check.join('|'));
+      const savedDraft = consoleStore().drafts[key];
+      const legacyDraft = loadJSON('ml-exercise-drafts', {})[key];
+      const startSource = savedDraft || legacyDraft || meta.initial;
+      const btn = makeMiniBtn(passStore()[key] ? '✓ 已通过' : '▶ 在浮窗作答');
+      if (passStore()[key]) btn.classList.add('ok');
+      btn.title = '打开浮窗完成这道练习';
+      btn.addEventListener('click', () => {
+        openInConsole({
+          key,
+          title: meta.title || '练习',
+          source: startSource,
+          resetSource: meta.initial,
+          exercise: {
+            key,
+            title: meta.title,
+            check: meta.check,
+            hint: meta.hint,
+            onPass: () => {
+              btn.textContent = '✓ 已通过';
+              btn.classList.add('ok');
+            },
+          },
+        });
+      });
+      group.appendChild(btn);
+      return;
+    }
+  });
+}
+
+function normalizedSolutionQuestion(detail) {
+  let node = detail.previousElementSibling;
+  while (node && node.tagName !== 'P' && node.tagName !== 'H2' && node.tagName !== 'H3') {
+    node = node.previousElementSibling;
+  }
+  if (!node) return '';
+  /* KaTeX 会同时渲染 MathML 和 HTML，直接取 textContent 会让公式重复 */
+  const clone = node.cloneNode(true);
+  clone.querySelectorAll('.katex-mathml').forEach((el) => el.remove());
+  return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function solutionTitle(detail) {
+  const text = normalizedSolutionQuestion(detail);
+  return text
+    .replace(/^.*?练习[^：:]*[：:]\s*/, '')
+    .trim() || '本题';
+}
+
+function bindSolutionDetails() {
+  document.querySelectorAll('.theme-doc-markdown details').forEach((detail) => {
+    const summary = detail.querySelector('summary');
+    if (!summary || detail.dataset.mlSolveBound === '1') return;
+    if (!/点开查看逐步解答/.test((summary.textContent || '').trim())) return;
+
+    detail.dataset.mlSolveBound = '1';
+    const title = solutionTitle(detail);
+    const question = normalizedSolutionQuestion(detail);
+    const key =
+      location.pathname +
+      '#solve-' +
+      hashStr(question + '\u0000' + (summary.textContent || '').trim());
+    const starter = [
+      '# 先别展开下面的解答，试着用 Python 算出来。',
+      '# 把题目里的数字和条件写成表达式，print() 输出结果。',
+      '',
+      '',
+    ].join('\n');
+
+    const box = document.createElement('div');
+    box.className = 'ml-solve';
+    const btn = makeMiniBtn('▶ 用 Python 解题');
+    btn.title = '在浮窗中写代码解这道题（草稿会保存在本机）';
+    btn.addEventListener('click', () => {
+      openInConsole({
+        key,
+        title,
+        prompt: question || '本题',
+        source: consoleStore().drafts[key] || starter,
+        resetSource: starter,
+      });
+    });
+    box.appendChild(btn);
+    detail.parentNode?.insertBefore(box, detail);
+  });
+}
+
+/* ---------- 学习进度 ---------- */
+
+function enhanceProgress() {
+  const article = document.querySelector('article');
+  if (!article) return;
+  const path = location.pathname;
+  if (!/^\/docs\/.+/.test(path)) return;
+  if (article.querySelector('.ml-progress')) return;
+
+  migrateLegacyProgress();
+  const ns = progressNS(); // ':guest' 或 ':用户名'
+  const store = loadJSON(nsKey('ml-progress'), {});
+
+  const box = document.createElement('div');
+  box.className = 'ml-progress';
+
+  const btn = document.createElement('button');
+  const render = () => {
+    const done = Object.values(store).filter(Boolean).length;
+    btn.className = 'ml-progress__btn' + (store[path] ? ' done' : '');
+    btn.textContent = store[path]
+      ? '✓ 已标记学完 · 累计 ' + done + ' 节'
+      : '读完这节了？标记「已学完」· 累计 ' + done + ' 节';
+  };
+  btn.addEventListener('click', () => {
+    store[path] = !store[path];
+    saveJSON(nsKey('ml-progress'), store);
+    render();
+    document.dispatchEvent(new Event('ml-progress-changed'));
+  });
+
+  render();
+  box.appendChild(btn);
+
+  const wipe = document.createElement('button');
+  wipe.className = 'ml-progress__wipe';
+  wipe.textContent = ns === ':guest' ? '清除本机学习数据' : '清除本空间学习数据（' + ns.slice(1) + '）';
+  wipe.title =
+    ns === ':guest'
+      ? '删除本地存的学完标记、练习通过记录与练习草稿（随手算草稿保留）'
+      : '删除该账号空间存的学完标记、练习通过记录与练习草稿（随手算草稿保留）';
+  wipe.addEventListener('click', () => {
+    if (
+      !window.confirm(
+        '确定清除当前空间的全部学习数据？学完标记、练习通过记录与练习草稿将被删除。',
+      )
+    )
+      return;
+    [nsKey('ml-progress'), nsKey('ml-exercises')].forEach((k) =>
+      localStorage.removeItem(k),
+    );
+    const cs = consoleStore();
+    for (const k of Object.keys(cs.drafts)) {
+      if (k.includes('#ex-') || k.includes('#solve-')) delete cs.drafts[k];
+    }
+    saveConsoleStore();
+    location.reload();
+  });
+  box.appendChild(wipe);
+
+  article.appendChild(box);
+}
+
+/* ---------- 论文与参考资料卡片 ---------- */
+
+/* 参考资料条目（docs/NN-chapter/999-references.md）用 ```paper 围栏书写，
+   每条一张文献卡：文献页面与 PDF 下载对所有人开放。 */
+
+function parsePaperMeta(source) {
+  const meta = {};
+  for (const line of source.split('\n')) {
+    const m = line.match(/^#\s*@([A-Za-z_]\w*):\s*(.*)$/);
+    if (m) meta[m[1]] = m[2].trim();
+  }
+  /* 生成器把 PDF 链接写成 base64（@pdf64），避免静态 HTML 源码直接可读；
+     手写条目仍可用明文 @pdf。arXiv 等 PDF 链接均为 ASCII，atob 足够。 */
+  if (meta.pdf64) {
+    try {
+      const bytes = Uint8Array.from(atob(meta.pdf64), (c) => c.charCodeAt(0));
+      meta.pdf = new TextDecoder().decode(bytes);
+    } catch {
+      /* 解码失败时宁可没有下载按钮，也不要给出坏链接 */
+    }
+    delete meta.pdf64;
+  }
+  return meta;
+}
+
+function buildPaperCard(meta) {
+  const card = document.createElement('div');
+  card.className = 'ml-paper';
+
+  const head = document.createElement('div');
+  head.className = 'ml-paper__head';
+  const tag = document.createElement('span');
+  tag.className = 'ml-paper__tag';
+  tag.textContent = meta.tag || '论文';
+  head.appendChild(tag);
+  const title = document.createElement('span');
+  title.className = 'ml-paper__title';
+  title.textContent = meta.title || '';
+  head.appendChild(title);
+  card.appendChild(head);
+
+  const metaLine = [meta.authors, meta.year, meta.venue].filter(Boolean).join(' · ');
+  if (metaLine) {
+    const sub = document.createElement('div');
+    sub.className = 'ml-paper__meta';
+    sub.textContent = metaLine;
+    card.appendChild(sub);
+  }
+  if (meta.desc) {
+    const desc = document.createElement('div');
+    desc.className = 'ml-paper__desc';
+    desc.textContent = meta.desc;
+    card.appendChild(desc);
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'ml-paper__actions';
+
+  if (meta.page) {
+    const a = document.createElement('a');
+    a.className = 'ml-paper__btn ml-paper__btn--page';
+    a.href = meta.page;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = '文献页面 ↗';
+    a.title = '打开文献/资料页面（无需登录）';
+    actions.appendChild(a);
+  }
+
+  if (meta.pdf) {
+    const btn = document.createElement('button');
+    btn.className = 'ml-paper__btn ml-paper__btn--pdf';
+    btn.textContent = '⬇ PDF 下载';
+    btn.title = '在新窗口打开 PDF';
+    btn.addEventListener('click', () => {
+      window.open(meta.pdf, '_blank', 'noopener');
+    });
+    actions.appendChild(btn);
+  }
+
+  card.appendChild(actions);
+  return card;
+}
+
+function enhancePapers() {
+  document.querySelectorAll('pre[class*="language-paper"]').forEach((pre) => {
+    const container = pre.closest('.theme-code-block') || pre.parentElement;
+    if (!container) return;
+    const source = extractSource(container);
+    const sourceKey = String(hashStr(source));
+    /* 水合安全：不删除 React 管辖的节点——隐藏原容器，把文献卡插到它后面 */
+    const staleCard = [container.previousElementSibling, container.nextElementSibling].find(
+      (node) => node?.classList.contains('ml-paper') && node.dataset.mlSource === sourceKey,
+    );
+    if (staleCard) {
+      container.style.display = 'none';
+      container.dataset.mlBound = '1';
+      return;
+    }
+    if (container.dataset.mlBound === '1') return;
+    container.dataset.mlBound = '1';
+
+    const widget = buildPaperCard(parsePaperMeta(source));
+    widget.dataset.mlSource = sourceKey;
+    const parent = container.parentNode;
+    if (parent) {
+      container.style.display = 'none';
+      parent.insertBefore(widget, container.nextSibling);
+    }
+  });
+}
+
+/* ---------- 扫描入口 ---------- */
+
+let scheduled = false;
+
+export function scheduleEnhance() {
+  if (scheduled) return;
+  scheduled = true;
+  queueMicrotask(() => {
+    scheduled = false;
+    enhanceAll();
+  });
+}
+
+function maybeEnhanceViz() {
+  if (!document.querySelector('pre[class*="language-viz"]')) return;
+  loadVizModule().then(
+    (enhanceViz) => {
+      try { enhanceViz(); } catch (e) { console.error('[ml] viz:', e); }
+    },
+    (e) => console.error('[ml] viz 加载失败:', e),
+  );
+}
+
+export function enhanceAll() {
+  /* 任一阶段出错都不拖垮其余阶段，更不冒泡打断 React 提交 */
+  try { ensureConsole(); } catch (e) { console.error('[ml] console:', e); }
+  try { bindCodeBlocks(); } catch (e) { console.error('[ml] code blocks:', e); }
+  try { bindSolutionDetails(); } catch (e) { console.error('[ml] solutions:', e); }
+  try { maybeEnhanceViz(); } catch (e) { console.error('[ml] viz:', e); }
+  try { enhancePapers(); } catch (e) { console.error('[ml] papers:', e); }
+  try { enhanceProgress(); } catch (e) { console.error('[ml] progress:', e); }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "math-ladder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "数学阶梯 · 从数感到前沿：覆盖基础直觉、高等数学与现代应用数学的交互式教程",
+  "scripts": {
+    "start": "docusaurus start --host :: --port 9452",
+    "dev": "docusaurus start --host :: --port 9452",
+    "build": "npm run validate && docusaurus build",
+    "serve": "docusaurus serve --port 9452",
+    "validate": "node scripts/validate.mjs",
+    "audit:guides": "node scripts/audit-unit-guides.mjs",
+    "clear": "docusaurus clear",
+    "ui:fluent": "node ui/server.mjs --skin fluent --port 9453",
+    "ui:hud": "node ui/server.mjs --skin hud --port 9454"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.8.0",
+    "@docusaurus/preset-classic": "^3.8.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "browserslist": [
+    "defaults"
+  ],
+  "devDependencies": {
+    "@docusaurus/faster": "^3.10.2",
+    "@easyops-cn/docusaurus-search-local": "^0.55.3",
+    "katex": "^0.16.47",
+    "marked": "^18.0.11",
+    "prism-react-renderer": "^2.4.1",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  },
+  "allowScripts": {
+    "@swc/core@1.16.1": true
+  }
+}

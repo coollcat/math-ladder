@@ -1,0 +1,101 @@
+/* 登录页样式（仅 /login 页面使用，类名带 ml-auth 前缀避免污染全站） */
+
+.ml-auth {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+.ml-auth__title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ml-auth__card {
+  background: var(--ifm-card-background-color, #fff);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ml-auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ml-auth__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ml-auth__field span {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.ml-auth__field input {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+}
+
+.ml-auth__field input:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 2px var(--ifm-color-primary-lightest, rgba(0, 120, 212, 0.15));
+}
+
+.ml-auth__submit {
+  margin-top: 0.5rem;
+}
+
+.ml-auth__default {
+  margin-bottom: 1.25rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px dashed var(--ifm-color-primary);
+  border-radius: 8px;
+  background: var(--ifm-color-primary-lightest, rgba(0, 120, 212, 0.06));
+  font-size: 0.94rem;
+}
+
+.ml-auth__default code {
+  font-weight: 700;
+}
+
+.ml-auth__error {
+  color: #d33;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.ml-auth__note {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+  font-size: 0.92rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-auth__note p {
+  margin-bottom: 0.5rem;
+}
+
+.ml-auth__hello {
+  font-size: 1.1rem;
+}
+
+.ml-auth__hint {
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-auth__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}

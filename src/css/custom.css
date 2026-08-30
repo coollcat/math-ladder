@@ -1,0 +1,1348 @@
+:root {
+  --pyr-mono: 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* viz 画布主题变量：viz.js 的 canvas 底色/文字/网格从这里取（cssVar） */
+  --ml-viz-bg: #ffffff;
+  --ml-viz-fg: #1c1e21;
+  --ml-viz-grid: rgba(107, 114, 128, 0.18);
+  --ml-viz-axis: rgba(107, 114, 128, 0.6);
+}
+
+[data-theme='dark'] {
+  --ml-viz-bg: #20242c;
+  --ml-viz-fg: #e8eaed;
+  --ml-viz-grid: rgba(148, 163, 184, 0.2);
+  --ml-viz-axis: rgba(148, 163, 184, 0.6);
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2rem 0;
+}
+
+/* ---------- PyRunner ---------- */
+
+.py-runner {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  margin: 1rem 0;
+  background: var(--ifm-background-color);
+  overflow: hidden;
+}
+
+.py-runner__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  font-size: 0.85rem;
+}
+
+.py-runner__title {
+  font-weight: 600;
+  flex: 1;
+  min-width: 6rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.py-runner__status {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.8rem;
+}
+
+.py-runner__btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 0.25rem 0.9rem;
+  font-weight: 600;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  line-height: 1.4;
+}
+
+.py-runner__btn--ghost {
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  border: 1px solid var(--ifm-color-emphasis-400);
+}
+
+.py-runner__btn[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.py-runner pre {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  outline: none;
+}
+
+.py-runner pre:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
+}
+
+[data-theme='dark'] .py-runner pre {
+  background: #1b1f26;
+}
+
+.py-runner__out {
+  display: none;
+  padding: 0.5rem 0.85rem;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+  max-height: 22rem;
+  overflow-y: auto;
+  font-family: var(--pyr-mono);
+  font-size: 0.88em;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.py-runner__out--visible {
+  display: block;
+}
+
+.py-runner__errtext {
+  color: #b3261e;
+}
+
+[data-theme='dark'] .py-runner__errtext {
+  color: #ff9b93;
+}
+
+.py-runner__dim {
+  color: var(--ifm-color-emphasis-600);
+  font-style: italic;
+}
+
+.py-runner__img img {
+  max-width: 100%;
+  background: #fff;
+  border-radius: 4px;
+  margin: 0.35rem 0;
+}
+
+/* ---------- 中文阅读排版 ---------- */
+
+article.theme-doc-markdown-container,
+.theme-doc-markdown {
+  line-height: 1.85;
+}
+
+.theme-doc-markdown p {
+  margin: 0.9rem 0;
+}
+
+.theme-doc-markdown h2 {
+  margin-top: 2.2rem;
+}
+
+.theme-doc-markdown details {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  margin: 0.8rem 0;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.theme-doc-markdown details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ---------- 测验 ---------- */
+
+.ml-quiz {
+  border: 1px solid var(--ifm-color-primary);
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin: 1rem 0;
+  background: var(--ifm-background-color);
+}
+
+.ml-quiz__q {
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+
+.ml-quiz__opt {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ml-quiz__opt:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-quiz__opt.is-correct {
+  background: rgba(46, 125, 50, 0.12);
+  color: var(--ifm-color-success-dark, #2e7d32);
+  font-weight: 600;
+}
+
+.ml-quiz__opt.is-wrong {
+  background: rgba(179, 38, 30, 0.1);
+  color: #b3261e;
+  text-decoration: line-through;
+}
+
+[data-theme='dark'] .ml-quiz__opt.is-wrong {
+  color: #ff9b93;
+}
+
+.ml-quiz__btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 1.1rem;
+  font-weight: 600;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  margin-top: 0.5rem;
+}
+
+.ml-quiz__fb {
+  margin-top: 0.55rem;
+  font-size: 0.92em;
+  min-height: 1.2em;
+}
+
+.ml-quiz__fb--ok { color: var(--ifm-color-success-dark, #2e7d32); font-weight: 600; }
+.ml-quiz__fb--no { color: #b3261e; }
+
+[data-theme='dark'] .ml-quiz__fb--no { color: #ff9b93; }
+
+.ml-quiz__fb--warn { color: var(--ifm-color-warning-dark, #a2700a); }
+
+.ml-quiz__exp {
+  margin-top: 0.45rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  background: var(--ifm-color-emphasis-100);
+  font-weight: normal;
+}
+
+.ml-quiz__bad {
+  color: #b3261e;
+  font-size: 0.9em;
+}
+
+/* ---------- 解答折叠块前的 Python 作答入口 ---------- */
+
+.ml-solve {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.65rem 0 -0.15rem;
+}
+
+.ml-solve .ml-mini-btn {
+  padding: 0.24rem 0.72rem;
+}
+
+/* ---------- 学习进度 ---------- */
+
+.ml-progress {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+  text-align: center;
+}
+
+.ml-progress__btn {
+  cursor: pointer;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  border-radius: 999px;
+  padding: 0.45rem 1.4rem;
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-size: 0.92rem;
+}
+
+.ml-progress__btn.done {
+  border-color: var(--ifm-color-success-dark, #2e7d32);
+  color: var(--ifm-color-success-dark, #2e7d32);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .ml-progress__btn.done {
+  color: #81c995;
+  border-color: #81c995;
+}
+
+.ml-progress__wipe {
+  margin-left: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+
+.ml-progress__wipe:hover {
+  color: var(--ifm-color-danger-dark, #d32f2f);
+}
+
+/* 未登录时的进度门禁入口（学习进度仅登录用户可用） */
+.ml-progress__login {
+  cursor: pointer;
+  border: 1px dashed var(--ifm-color-emphasis-400);
+  border-radius: 999px;
+  padding: 0.45rem 1.4rem;
+  background: transparent;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.92rem;
+}
+
+.ml-progress__login:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+/* ---------- 论文与参考资料卡片 ---------- */
+
+.ml-paper {
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left: 3px solid var(--ifm-color-primary);
+  border-radius: 10px;
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+}
+
+.ml-paper__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ml-paper__tag {
+  flex: none;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  white-space: nowrap;
+}
+
+.ml-paper__title {
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+.ml-paper__meta {
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-paper__desc {
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.ml-paper__actions {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ml-paper__btn {
+  display: inline-block;
+  font-size: 0.84rem;
+  padding: 0.28rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ml-paper__btn:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.ml-paper__btn--pdf {
+  border-style: dashed;
+}
+
+[data-theme='dark'] .ml-paper {
+  background: var(--ifm-background-color);
+}
+
+/* 判题通过但未登录时浮窗里的提示行 */
+.ml-exercise__unauthed {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-500);
+}
+
+/* ---------- 首页 ---------- */
+
+.ml-hero {
+  background:
+    radial-gradient(1200px 400px at 20% -10%, rgba(51, 132, 255, 0.25), transparent),
+    radial-gradient(900px 380px at 90% 0%, rgba(140, 82, 255, 0.18), transparent),
+    var(--ifm-background-surface-color, var(--ifm-background-color));
+  padding: 4.5rem 0 3.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.ml-hero__title {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.8rem;
+}
+
+.ml-hero__subtitle {
+  font-size: 1.35rem;
+  opacity: 0.92;
+}
+
+.ml-hero__note {
+  max-width: 42rem;
+  margin: 1.1rem auto 0;
+  opacity: 0.75;
+  line-height: 1.9;
+}
+
+.ml-chapter {
+  height: 100%;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+a:hover .ml-chapter.is-done {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.ml-chapter.is-todo {
+  opacity: 0.62;
+}
+
+.ml-chapter__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.ml-chapter__num {
+  font-family: var(--pyr-mono);
+  font-size: 0.95rem;
+  opacity: 0.65;
+}
+
+.ml-chapter__title {
+  margin-bottom: 0.25rem;
+}
+
+.ml-chapter__desc {
+  margin-bottom: 0;
+  font-size: 0.88rem;
+  opacity: 0.75;
+}
+
+/* ---------- 浮窗 Python 控制台 ---------- */
+
+.ml-fab {
+  position: fixed;
+  right: 1.4rem;
+  bottom: 1.4rem;
+  z-index: 1060;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  font-family: var(--pyr-mono);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ml-fab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+}
+
+.ml-fab.is-active {
+  background: var(--ifm-color-emphasis-700);
+}
+
+.ml-console {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1055;
+  display: none;
+  flex-direction: column;
+  width: min(1200px, calc(100vw - 2rem));
+  height: min(92vh, 940px);
+  min-width: 320px;
+  min-height: 340px;
+  background: #ffffff;
+  border: 1px solid #d5d9e0;
+  border-radius: 12px;
+  box-shadow: 0 24px 72px rgba(15, 23, 42, 0.45);
+  overflow: hidden;
+}
+
+[data-theme='dark'] .ml-console {
+  background: #171b21;
+  border-color: #2c3340;
+}
+
+.ml-console.is-open {
+  display: flex;
+}
+
+.ml-console__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.42rem 0.8rem;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+  font-size: 0.82rem;
+}
+
+.ml-console__close {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.2rem;
+}
+
+.ml-console__editor {
+  flex: 1;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 0.7rem 0.9rem;
+  background: #ffffff;
+  color: #1c1e21;
+  font-family: var(--pyr-mono);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  white-space: pre;
+  overflow: auto;
+}
+
+[data-theme='dark'] .ml-console__editor {
+  background: #171b21;
+  color: #e6e6e6;
+}
+
+.ml-console__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--ifm-color-emphasis-100);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.ml-console__status {
+  flex: 1;
+  text-align: right;
+  margin-right: auto;
+}
+
+.ml-console .ml-console__out {
+  max-height: 38%;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+}
+
+@media (max-width: 768px) {
+  .ml-fab {
+    right: 0.9rem;
+    bottom: 0.9rem;
+    width: 50px;
+    height: 50px;
+  }
+
+  .ml-console {
+    width: calc(100vw - 1.4rem);
+    height: 86vh;
+  }
+}
+
+/* ---------- 代码可编辑的视觉提示 ---------- */
+
+.py-runner pre {
+  cursor: text;
+}
+
+.py-runner pre:hover {
+  box-shadow: inset 0 0 0 2px var(--ifm-color-emphasis-400);
+}
+
+/* ---------- 互动练习 ---------- */
+
+.ml-exercise {
+  border: 2px solid var(--ifm-color-primary);
+  border-radius: 10px;
+  margin: 1.1rem 0;
+  overflow: hidden;
+  background: var(--ifm-background-color);
+}
+
+.ml-exercise__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.9rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.ml-exercise__name {
+  font-weight: 700;
+}
+
+.ml-exercise__pill {
+  font-size: 0.8rem;
+  padding: 0.12rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  color: var(--ifm-color-emphasis-700);
+  white-space: nowrap;
+}
+
+.ml-exercise__pill.ok {
+  border-color: var(--ifm-color-success-dark, #2e7d32);
+  color: var(--ifm-color-success-dark, #2e7d32);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .ml-exercise__pill.ok {
+  color: #81c995;
+  border-color: #81c995;
+}
+
+.ml-exercise__code {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 96px;
+  resize: vertical;
+  border: none;
+  outline: none;
+  padding: 0.65rem 0.85rem;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font-family: var(--pyr-mono);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+.ml-exercise:focus-within .ml-exercise__code {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-exercise .py-runner__bar {
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+}
+
+.ml-exercise__pass {
+  color: var(--ifm-color-success-dark, #2e7d32);
+  font-weight: 700;
+}
+
+[data-theme='dark'] .ml-exercise__pass {
+  color: #81c995;
+}
+
+.ml-exercise__fail {
+  color: #b3261e;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+[data-theme='dark'] .ml-exercise__fail {
+  color: #ff9b93;
+}
+
+.ml-exercise__want {
+  color: var(--ifm-color-emphasis-800);
+  background: var(--ifm-color-emphasis-200);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  display: inline-block;
+}
+
+/* ---------- 代码块内嵌小按钮 ---------- */
+
+.ml-btn-group {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0 0.4rem 0.4rem;
+}
+
+.ml-mini-btn {
+  cursor: pointer;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  padding: 0.16rem 0.6rem;
+  line-height: 1.5;
+  transition: all 0.12s ease;
+}
+
+.ml-mini-btn:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.ml-mini-btn.ok {
+  border-color: var(--ifm-color-success-dark, #2e7d32);
+  color: var(--ifm-color-success-dark, #2e7d32);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .ml-mini-btn.ok {
+  color: #81c995;
+  border-color: #81c995;
+}
+
+/* ---------- 浮窗：槽位与判题 ---------- */
+
+.ml-console__headtitle {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ml-console__back {
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: transparent;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  padding: 0.05rem 0.55rem;
+  cursor: pointer;
+}
+
+.ml-console__back:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.ml-console__banner {
+  padding: 0.32rem 0.8rem;
+  font-size: 0.8rem;
+  background: rgba(255, 176, 32, 0.14);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  color: var(--ifm-font-color-base);
+}
+
+.ml-console__banner--question {
+  display: flex;
+  gap: 0.45rem;
+  align-items: baseline;
+  max-height: 5.4rem;
+  overflow-y: auto;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.ml-console__banner--question strong {
+  flex-shrink: 0;
+}
+
+/* ---------- 浮窗滑块参数 ---------- */
+
+.ml-console__sliders {
+  display: none;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.ml-console__sliders.is-visible {
+  display: flex;
+}
+
+.ml-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--pyr-mono);
+  font-size: 0.85rem;
+}
+
+.ml-slider label {
+  font-weight: 600;
+}
+
+.ml-slider input[type='range'] {
+  width: 130px;
+  accent-color: var(--ifm-color-primary);
+}
+
+.ml-slider .ml-slider__val {
+  min-width: 3.2em;
+  text-align: right;
+  color: var(--ifm-color-primary);
+  font-weight: 700;
+}
+
+
+/* ---------- 网页原生可视化组件 ---------- */
+
+.ml-viz {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 10px;
+  margin: 1rem 0;
+  overflow: hidden;
+  background: var(--ifm-background-color);
+}
+
+.ml-viz__title {
+  padding: 0.45rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.86rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.ml-viz__canvasbox {
+  padding: 0.35rem;
+  background: var(--ml-viz-bg);
+}
+
+[data-theme='dark'] .ml-viz__canvasbox {
+  background: var(--ml-viz-bg);
+}
+
+.ml-viz__sliders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  padding: 0.45rem 0.85rem;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+}
+
+
+/* ---------- 浮窗输出区空间优化 ---------- */
+
+.ml-console__editor {
+  flex: 1 1 44%;
+  min-height: 88px;
+}
+
+.ml-console .ml-console__out {
+  flex: 1 1 56%;
+  max-height: none;
+  min-height: 120px;
+}
+
+.ml-console.is-bigout .ml-console__editor {
+  display: none;
+}
+
+.py-runner__img img {
+  cursor: zoom-in;
+}
+
+/* ---------- 图片灯箱 ---------- */
+
+.ml-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1070;
+  background: rgba(10, 12, 16, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.ml-lightbox img {
+  max-width: 94vw;
+  max-height: 92vh;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.5);
+}
+
+
+.ml-drag { touch-action: none; cursor: grab; }
+.ml-drag:active { cursor: grabbing; }
+
+.ml-viz-btn {
+  cursor: pointer;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.7rem;
+  margin-right: 0.5rem;
+}
+
+.ml-viz-btn:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.ml-viz__caption {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-viz__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding: 0.45rem 0.85rem;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+}
+
+.ml-viz__sliders.is-visible {
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+}
+
+.ml-viz__eq {
+  font-family: var(--pyr-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 0.5rem 0.9rem;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 6px;
+  margin: 0.4rem 0.8rem;
+}
+
+.ml-eqlog {
+  max-height: 150px;
+  overflow-y: auto;
+  font-family: var(--pyr-mono);
+  font-size: 0.82rem;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  margin: 0.4rem 0.8rem;
+}
+
+.ml-chip-ok {
+  display: inline-block;
+  padding: 0.08rem 0.6rem;
+  border-radius: 999px;
+  background: #2e7d32;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8rem;
+  vertical-align: middle;
+}
+
+.ml-share-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  margin: 0.12rem 0;
+}
+
+.ml-share-dot {
+  color: var(--ifm-color-primary);
+  letter-spacing: 2px;
+}
+
+/* ---- 凯撒密码盘 ---- */
+
+.ml-caesar__input {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  margin: 0.5rem auto 0.35rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.ml-caesar__input:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-caesar__out {
+  min-height: 2.4rem;
+  margin: 0 auto;
+  max-width: 640px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  background: var(--ml-viz-bg);
+  border: 1px dashed var(--ifm-color-emphasis-300);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  word-break: break-all;
+}
+
+.ml-caesar__strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 720px;
+  margin: 0.7rem auto 0;
+}
+
+.ml-caesar__cell {
+  width: 24px;
+  height: 26px;
+  line-height: 26px;
+  text-align: center;
+  border-radius: 5px;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 12.5px;
+  font-weight: 600;
+  background: rgba(59, 116, 214, 0.10);
+  color: var(--ifm-font-color-base);
+}
+
+.ml-caesar__cell--shift {
+  background: rgba(232, 135, 30, 0.16);
+  color: var(--ifm-color-warning-dark, #b45309);
+}
+
+.ml-caesar__cell.is-hot {
+  outline: 2px solid var(--ifm-color-primary);
+}
+
+/* ---- 代数结构：双轴运算表 ---- */
+
+.ml-algebra-scroll {
+  overflow: auto;
+  padding: 0.5rem;
+  background: var(--ml-viz-bg);
+}
+
+.ml-algebra-grid {
+  display: grid;
+  gap: 3px;
+  min-width: min-content;
+  font-family: var(--pyr-mono);
+  font-size: 0.8rem;
+}
+
+.ml-algebra-head,
+.ml-algebra-axis,
+.ml-algebra-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 6px;
+}
+
+.ml-algebra-head {
+  color: var(--ifm-font-color-base);
+  font-weight: 700;
+}
+
+.ml-algebra-axis {
+  cursor: pointer;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-font-color-base);
+  font-weight: 700;
+  padding: 0;
+}
+
+.ml-algebra-axis:hover,
+.ml-algebra-cell:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-algebra-axis:focus-visible,
+.ml-algebra-cell:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.ml-algebra-axis.is-row-hot {
+  border-color: #3b74d6;
+  background: rgba(59, 116, 214, 0.18);
+}
+
+.ml-algebra-axis.is-col-hot {
+  border-color: #e8871e;
+  background: rgba(232, 135, 30, 0.18);
+}
+
+.ml-algebra-cell {
+  cursor: pointer;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  padding: 0;
+}
+
+.ml-algebra-cell.is-row-hot {
+  background: rgba(59, 116, 214, 0.08);
+}
+
+.ml-algebra-cell.is-col-hot {
+  box-shadow: inset 0 0 0 1px rgba(232, 135, 30, 0.55);
+}
+
+.ml-algebra-cell.is-selected {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -1px;
+  font-weight: 800;
+}
+
+.ml-algebra-cell.is-identity {
+  background: rgba(46, 125, 50, 0.16);
+}
+
+.ml-algebra-cell.is-inverse {
+  background: rgba(46, 125, 50, 0.28);
+}
+
+.ml-algebra-cell.is-mismatch {
+  background: rgba(220, 38, 38, 0.14);
+  color: #b3261e;
+}
+
+[data-theme='dark'] .ml-algebra-cell.is-mismatch {
+  color: #ff9b93;
+}
+
+.ml-algebra-cell.is-zero {
+  background: rgba(220, 38, 38, 0.24);
+}
+
+/* ---------- 前置知识面板（内容页右上角，DocItem/Layout swizzle 注入） ---------- */
+
+/* 前置知识面板基础外观（布局属性由修饰类提供） */
+.ml-prereq {
+  padding: 12px 15px 10px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left: 3px solid var(--ifm-color-primary);
+  border-radius: 10px;
+  background: var(--ifm-color-emphasis-100);
+  font-size: 0.85rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* 正文内实例：桌面隐藏（右栏挂件接管），窄屏为顶部横条 */
+.ml-prereq--inline {
+  float: right;
+  width: 250px;
+  margin: 0 0 14px 18px;
+}
+
+@media (min-width: 997px) {
+  .ml-prereq--inline {
+    display: none;
+  }
+}
+
+/* 右栏 TOC 挂件实例：窄屏隐藏（横条版接管） */
+.ml-prereq--toc {
+  width: auto;
+}
+
+@media (max-width: 996px) {
+  .ml-prereq--toc {
+    display: none;
+  }
+}
+
+.ml-prereq__title {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--ifm-color-primary);
+  margin-bottom: 7px;
+}
+
+.ml-prereq__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ml-prereq__list li {
+  margin: 3px 0;
+  padding-left: 2px;
+}
+
+.ml-prereq__list a {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: var(--ifm-font-color-base);
+  line-height: 1.45;
+}
+
+.ml-prereq__list a:hover {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  text-decoration: none;
+}
+
+.ml-prereq__note {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px dashed var(--ifm-color-emphasis-200);
+  font-size: 0.72rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* 窄屏：正文内实例右上浮动改为正文顶部横条，避免挤压正文 */
+@media (max-width: 996px) {
+  .ml-prereq--inline {
+    float: none;
+    width: auto;
+    margin: 0 0 14px;
+  }
+  .ml-prereq__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ml-prereq__list a {
+    border: 1px solid var(--ifm-color-emphasis-300);
+    padding: 3px 10px;
+  }
+}
+
+/* ---------- 右栏 TOC 挂件：前置知识 + 学习进度条 ---------- */
+
+.ml-toc-widgets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ml-miniprogress {
+  padding: 12px 15px 10px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left: 3px solid var(--ifm-color-success-dark, #2e7d32);
+  border-radius: 10px;
+  background: var(--ifm-color-emphasis-100);
+  font-size: 0.85rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.ml-miniprogress__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ml-miniprogress__title {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--ifm-color-success-dark, #2e7d32);
+}
+
+[data-theme='dark'] .ml-miniprogress__title {
+  color: #81c995;
+}
+
+.ml-miniprogress__count {
+  font-size: 0.74rem;
+  color: var(--ifm-color-emphasis-600);
+  white-space: nowrap;
+}
+
+.ml-miniprogress__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-200);
+  overflow: hidden;
+}
+
+.ml-miniprogress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ifm-color-success-dark, #2e7d32);
+  transition: width 0.4s ease;
+}
+
+[data-theme='dark'] .ml-miniprogress__fill {
+  background: #81c995;
+}
+
+.ml-miniprogress__note {
+  margin-top: 7px;
+  font-size: 0.72rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* ---------- 文档页阅读区拉宽（正文 58% → 76%，容器 1140 → 1360） ---------- */
+
+@media (min-width: 997px) {
+  main[class*='docMainContainer'] > .container {
+    max-width: 1360px;
+  }
+  main[class*='docMainContainer'] .row > .col.col--7 {
+    flex: 0 0 76%;
+    max-width: 76%;
+  }
+  main[class*='docMainContainer'] .row > .col.col--3 {
+    flex: 0 0 24%;
+    max-width: 24%;
+  }
+}
