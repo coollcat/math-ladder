@@ -13,7 +13,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Probably approximately correct learning（PAC 学习）
@@ -44,4 +44,6 @@ difficulty: 4
 # @desc: 性能随参数、数据、算力的幂律展开：大模型时代的路线图。
 # @page: https://arxiv.org/abs/2001.08361
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIwMDEuMDgzNjE=
+# @local64: L3BhcGVycy8yMDAxLjA4MzYxLnBkZg==
+# @lsize: 2.4 MB
 ```

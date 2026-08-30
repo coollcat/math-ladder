@@ -142,7 +142,9 @@ function renderPythonCard(code, fenceMeta, id) {
 </div>`;
 }
 
-function renderVizCard(code, id) {
+/* viz 与 lab 共用同一张占位卡：独立阅读前端是「静态为主」的定位，
+   重交互组件一律引导到主站玩，卡片负责把组件名和标题交代清楚。 */
+function renderVizCard(code, id, lang = 'viz') {
   let t = '', type = '', specAttr = '';
   try {
     const j = JSON.parse(code);
@@ -150,8 +152,9 @@ function renderVizCard(code, id) {
     // 完整 spec 交给皮肤前端渲染交互组件（ui/*/viz.js 支持的类型就地可玩）
     specAttr = ` data-viz="${encodeURIComponent(code)}"`;
   } catch { /* 非法 JSON 就只当占位 */ }
+  const tag = lang === 'lab' ? 'lab 互动实验' : 'viz 互动图';
   return `<div class="ml-card ml-viz"${specAttr}>
-  <div class="ml-card-head"><span class="ml-card-tag">viz 互动图</span>${type ? `<span class="ml-card-type">${escapeHtml(type)}</span>` : ''}${t ? `<span class="ml-card-title">${escapeHtml(t)}</span>` : ''}<a href="${mainSiteLink(id)}" class="ml-gomain" target="_blank" rel="noopener">到主站玩这个组件 ↗</a></div>
+  <div class="ml-card-head"><span class="ml-card-tag">${tag}</span>${type ? `<span class="ml-card-type">${escapeHtml(type)}</span>` : ''}${t ? `<span class="ml-card-title">${escapeHtml(t)}</span>` : ''}<a href="${mainSiteLink(id)}" class="ml-gomain" target="_blank" rel="noopener">到主站玩这个组件 ↗</a></div>
   <div class="ml-viz-ph">［ 交互式可视化 ］</div>
 </div>`;
 }
@@ -196,7 +199,8 @@ export function renderMarkdown(id, dir, bodySrc, pageTitle = '') {
       case 'quiz': return renderQuizCard(f.code);
       case 'exercise': return renderExerciseCard(f.code, id);
       case 'python': return renderPythonCard(f.code, f.meta, id);
-      case 'viz': return renderVizCard(f.code, id);
+      case 'viz': return renderVizCard(f.code, id, 'viz');
+      case 'lab': return renderVizCard(f.code, id, 'lab');
       default:
         return `<pre class="ml-code plain lang-${escapeHtml(f.lang)}"><code>${escapeHtml(f.code)}</code></pre>`;
     }

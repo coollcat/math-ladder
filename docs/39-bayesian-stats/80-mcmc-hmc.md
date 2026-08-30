@@ -126,8 +126,8 @@ for it in range(6000):
     samples.append(cur)           # 无论搬没搬都记一笔
 
 keep = samples[1000::5]           # 烧入前 1000 步，之后每 5 步抽 1 个（抗自相关）
-left = sum(1 for s in keep if s < 0.5)
-print(f"接受率 {round(acc_cnt / 6000, 2)}")
+left = sum(1 for s in keep if s < 0.5)   # 生成器表达式：sum 直接吃一个边生成边计数的循环，数出落在左半边的样本
+print(f"接受率 {round(acc_cnt / 6000, 2)}")   # f-string：引号前加 f，花括号里的表达式算好直接填进句子
 print(f"左峰占比 {round(left / len(keep), 2)}")
 print(f"足迹均值 {round(sum(keep) / len(keep), 3)}")
 

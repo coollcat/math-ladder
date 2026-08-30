@@ -14,7 +14,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Denavit–Hartenberg parameters（DH 参数）
@@ -44,6 +44,9 @@ difficulty: 4
 # @tag: 论文
 # @desc: 朝随机方向疯狂生长的树：高维空间避障的利器。
 # @page: https://en.wikipedia.org/wiki/Rapidly-exploring_random_tree
+# @pdf64: aHR0cHM6Ly9tc2wuY3MuaWxsaW5vaXMuZWR1L35sYXZhbGxlL3BhcGVycy9MYXY5OGMucGRm
+# @local64: L3BhcGVycy9MYXY5OGMtMWZhZTg2ZDQucGRm
+# @lsize: 0.4 MB
 ```
 
 ```paper

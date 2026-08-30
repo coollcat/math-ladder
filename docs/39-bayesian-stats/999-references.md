@@ -13,7 +13,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: An Essay towards Solving a Problem in the Doctrine of Chances
@@ -23,6 +23,9 @@ difficulty: 4
 # @tag: 论文
 # @desc: 逆概率的原始论证：从结果反推原因的数学首次成型。
 # @page: https://en.wikipedia.org/wiki/An_Essay_towards_Solving_a_Problem_in_the_Doctrine_of_Chances
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9waGlsdHJhbnMwOTk0ODA3MC8wOTk0ODA3MC5wZGY=
+# @local64: L3BhcGVycy8wOTk0ODA3MC1iZTAzNjViNy5wZGY=
+# @lsize: 4.1 MB
 ```
 
 ```paper
@@ -33,6 +36,9 @@ difficulty: 4
 # @tag: 论文
 # @desc: 按接受概率随机游走：让 impossible 的积分变成可模拟的实验。
 # @page: https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm
+# @pdf64: aHR0cHM6Ly93d3cub3N0aS5nb3Yvc2VydmxldHMvcHVybC80MzkwNTc4
+# @local64: L3BhcGVycy80MzkwNTc4LWNkNzY3NzEzLnBkZg==
+# @lsize: 0.8 MB
 ```
 
 ```paper
@@ -43,4 +49,7 @@ difficulty: 4
 # @tag: 论文
 # @desc: 在「猜测-更新」循环里爬向极大似然：缺失数据的通用引擎。
 # @page: https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm
+# @pdf64: aHR0cHM6Ly93ZWIubWl0LmVkdS82LjQzNS93d3cvRGVtcHN0ZXI3Ny5wZGY=
+# @local64: L3BhcGVycy9EZW1wc3Rlcjc3LTBmODBjMDg5LnBkZg==
+# @lsize: 1.1 MB
 ```

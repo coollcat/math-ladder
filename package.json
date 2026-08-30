@@ -9,6 +9,7 @@
     "build": "npm run validate && docusaurus build",
     "serve": "docusaurus serve --port 9452",
     "validate": "node scripts/validate.mjs",
+    "audit": "node mechanical-audit.cjs",
     "audit:guides": "node scripts/audit-unit-guides.mjs",
     "clear": "docusaurus clear",
     "ui:fluent": "node ui/server.mjs --skin fluent --port 9453",

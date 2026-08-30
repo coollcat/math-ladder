@@ -14,7 +14,7 @@ difficulty: 5
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Louis Bachelier 与随机游走
@@ -54,6 +54,9 @@ difficulty: 5
 # @tag: 论文
 # @desc: 偏微分方程为期权定价：衍生品市场的数学引擎。
 # @page: https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model
+# @pdf64: aHR0cHM6Ly93d3cuY3MucHJpbmNldG9uLmVkdS9jb3Vyc2VzL2FyY2hpdmUvZmFsbDA5L2NvczMyMy9wYXBlcnMvYmxhY2tfc2Nob2xlczczLnBkZg==
+# @local64: L3BhcGVycy9ibGFja19zY2hvbGVzNzMtYzI4ZTYyYjEucGRm
+# @lsize: 0.3 MB
 ```
 
 ```paper

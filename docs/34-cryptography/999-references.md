@@ -13,7 +13,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Kerckhoffs's principle（柯克霍夫原则）
@@ -33,6 +33,9 @@ difficulty: 4
 # @tag: 论文
 # @desc: 素数幂的模运算让陌生人在公开频道协商出共同秘密。
 # @page: https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange
+# @pdf64: aHR0cHM6Ly9lZS5zdGFuZm9yZC5lZHUvfmhlbGxtYW4vcHVibGljYXRpb25zLzI0LnBkZg==
+# @local64: L3BhcGVycy8yNC0xY2I4ZWE4ZS5wZGY=
+# @lsize: 2.1 MB
 ```
 
 ```paper

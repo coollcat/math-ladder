@@ -9,7 +9,7 @@
 - `language-python` → 在容器的 buttonGroup 里注入「▶ 浮窗运行」按钮，点击把代码装进浮窗控制台运行；
 - `language-exercise` → 注入「▶ 在浮窗作答」按钮，浮窗进入判题模式（对照 @check 输出）；
 - `language-quiz` → 隐藏原容器，把内嵌测验卡片插到其后（不删除 React 节点，水合安全）；
-- `language-paper` → 隐藏原容器，把论文文献卡插到其后（PDF 下载按钮走登录门禁，`@pdf64` 客户端解码）。
+- `language-paper` → 隐藏原容器，把论文文献卡插到其后（PDF 下载分两路：已登录取本站归档副本、未登录走原始地址；`@pdf64`/`@local64` 客户端解码）。
 
 所有 Python 执行都发生在浮窗（Pyodide 单例）。正文代码块保持原生渲染（保留复制按钮），不做 DOM 手术。
 
@@ -21,6 +21,16 @@ npm run build      # 构建前自动执行 validate，不通过则中止
 npm run validate   # 单独跑课程闭环校验
 npm run clear      # 清缓存（行为诡异时第一步）
 ```
+
+部署包（服务器性能不足以构建时用本机出包）：
+
+```bat
+构建Linux部署包.bat                 # npm ci -> docusaurus build -> 打成 math-ladder-build.zip（默认跳过 validate）
+构建Linux部署包.bat --skip-install  # node_modules 已就绪时跳过安装
+构建Linux部署包.bat --full          # 构建前先跑 validate   --clear 清缓存   --no-pause 不暂停
+```
+
+产物是**纯静态文件**（zip 内顶层为 `build/`），目标机 x86_64 Linux / glibc≥2.31 只需任意静态服务器托管，**不需要 Node、不需要在服务器上构建**。打包用系统自带 `tar.exe`（bsdtar，无 `zip` 命令时的替代），缺失时回退 PowerShell 的 ZipFile。
 
 测试/脚本一律用 node 执行 fetch 等验证；**不要用 PowerShell 的 Invoke-WebRequest 测 localhost**（系统代理会返回假 404）。
 
@@ -41,10 +51,13 @@ src/components/ml-home/        # 首页数据与组件：data.js(章节/卷册�
 scripts/validate.mjs           # 方法准入 + 依赖顺序校验（构建闸门）
 scripts/references-data.json   # 各章论文/文献数据（单一事实来源，手改这个）
 scripts/gen-references.mjs     # 生成各章 999-references.md 参考资料条目（含 paper 围栏）
+scripts/fetch-papers.mjs       # 把条目里的 PDF 抓到 static/papers/（--force 全量 / --check 体检）
+scripts/papers-local.json      # 归档清单（生成器产物勿手改）：PDF 原始地址 → 本地文件名/字节数
+static/papers/                 # 归档 PDF（体积大，不入库；见 .gitignore）
 scripts/add-user.mjs           # 账号开通/重置/删除（仅站方本地使用，详见 REGISTRATION.md）
 src/auth/index.js              # 登录态与 SHA-256（localStorage ml-auth；无公开注册）
 src/data/accounts.json         # 账号库（salt+哈希，不存明文；构建时打进 bundle）
-src/pages/login.js             # /login 登录页（默认账号直登，无注册/申请页）
+src/pages/login.js             # /login 登录页（不展示账号密码，无注册/申请页）
 REGISTRATION.md                # 账号与进度机制说明（维护者向，链接本文件）
 ui/                            # 独立阅读前端（与 Docusaurus 主站并存，端口 9453/9454）
   server.mjs                   #   node 原生 http 双皮肤服务器（--skin fluent|hud --port N）
@@ -64,10 +77,28 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 
 - **参考资料条目**：每章一个 `docs/NN-chapter/999-references.md`（编号 999 保证侧边栏垫底）。内容**只改 `scripts/references-data.json` 然后跑 `node scripts/gen-references.mjs`**（`--check` 模式可做闸门），不要手改生成的 md。每条文献是一个 ` ```paper ` 围栏（`# @title/@authors/@year/@venue/@tag/@desc/@page/@pdf64`），由 `enhancer.js` 的 `enhancePapers()` 渲染成文献卡（隐藏原容器 + 插卡，与 quiz 同一套水合安全模式）。**PDF 链接以 `@pdf64`（base64）写入条目**、客户端解码——静态 HTML 源码不再直接可读；这是混淆不是加密（边界声明见 REGISTRATION.md），手写条目仍可用明文 `@pdf`（两种写法兼容）。**validate.mjs 已挂双检查**：999-references 落后于 references-data.json → 硬错误；新章缺资料数据 → 警告。
 - **排除口径与 17- 章一致**：`999-references.md` 不进知识图谱/知识树/首页统计（gen-graph.mjs 已排除）、不进独立阅读前端课程列表（ui/server.mjs 已排除），但进 Docusaurus 侧边栏与全站搜索。改完数据后重跑 gen-graph.mjs 同步 full-graph-data.js。
-- **论文链接纪律**：arXiv ID 只写验证过的高把握条目（abs 页 + `arxiv.org/pdf/<id>` 下载链）；没把握的文献只给稳定的 Wikipedia/官网页面（`@page`），**宁缺毋滥，不编造 ID**。条目正文不放行内公式（MDX 塌陷风险）。
-- **账号与进度体系（2026-08-29 晚间改版：无申请页，默认账号直登，进度全开放）**：登录页 `/login`（`src/pages/login.js`）直接展示默认账号（`admin` / `ml-2026`）；站内无注册页、无申请页（原 `/registration` 已删，导航只留「登录」）。追加账号仍用 `node scripts/add-user.mjs <用户名> <显示名> <密码>`（`--list`/`--remove` 见 `REGISTRATION.md`）。账号库 `src/data/accounts.json` 只存 salt+SHA-256 哈希；哈希口径在 `src/auth/index.js`（自实现 SHA-256，已与 node:crypto 做一致性测试）与 add-user.mjs 两侧一致。
+- **论文链接纪律（2026-08-30 加固）**：arXiv ID 只写验证过的高把握条目（abs 页 + `arxiv.org/pdf/<id>` 下载链）；没把握的文献只给稳定的 Wikipedia/官网页面（`@page`），**宁缺毋滥，不编造 ID**。条目正文不放行内公式（MDX 塌陷风险）。
+  **任何 `@f`（PDF）都必须是机器验证过的链接**，不许凭印象填。已验证可用的四条找源路径：
+
+  | 场景 | 接口 | 拿什么 |
+  | --- | --- | --- |
+  | arXiv 论文 | `http://export.arxiv.org/api/query?id_list=<id>` 或 `?search_query=ti:"标题"` | 先用 **`id_list` 回查标题确认没张冠李戴**（踩过坑：`2312.00916` 根本不是 AlphaGeometry），再拼 `arxiv.org/pdf/<id>` |
+  | 公版原著 | Gutenberg（`gutenberg.org/ebooks/search/?query=` → 详情页正则取 `.pdf`）→ 兜底 archive.org（`advancedsearch.php` → `metadata/<id>` → 找 `format` 含 PDF 的 file） | `files/<id>/<id>-pdf.pdf`（文本版，几百 KB）、`archive.org/download/<id>/<file>`（扫描件，10–50 MB） |
+  | 现代论文 OA | OpenAlex（`api.openalex.org/works?filter=title.search:`）拿 DOI → Unpaywall（`api.unpaywall.org/v2/<doi>?email=`）拿 OA PDF | 老论文（1950–1990）OA 命中率只有两三成，别指望 |
+  | 机构镜像 | 直接 candidate 探测 | 命中率靠运气，**必须验证** |
+
+  验证一律是「`Range: bytes=0-2047` 取前 2 KB 看 `%PDF-` 魔数」；被反爬（返回 `text/html`）就换浏览器 UA 再走一次完整 GET（只读前 2 KB 就 abort）。**典型失败码**：`401/403` = 站点要登录或反爬（ACM `dl.acm.org/doi/pdf/` 恒 403；archive.org 借阅受限的书也 401），`429` = 限流（AMS），`text/html` = 被 Cloudflare 挡。**拿不到就留 `@page`，不要硬凑。**
+  **HTTP 200 + `%PDF-` 只证明"那里有个 PDF"，不证明它就是条目要的那篇**——归档后还要做一次**对版核对**，踩过两次坑：
+  1. `arxiv:2312.00916` 以为是 AlphaGeometry，用 `id_list` 回查发现是一篇心理学量表论文 → 撤掉；
+  2. Hellman 主页 `publications/32.pdf` 以为是 1976 年 *New Directions in Cryptography*，实际是 #32 = 1979 年 *Privacy and Authentication* → 换成 `#24` 对应的 `24.pdf`。
+  核对手段按可靠性排序：**来源页面上的标题/编号对照**（Hellman 的 publications.html、RAND 的 P295 页面、archive.org 搜索结果标题）> arXiv `id_list` 回查标题 > 解压 PDF 文本层搜关键词（`zlib.inflate` 各 `stream`，再取 `(...)` 字符串字面量；**扫描件和 CID 字体提取不出**，此时只能靠来源页面）。
+  另外下载器 `fetch-papers.mjs` 重试时会轮换浏览器 UA——RAND 一类站点只认浏览器 UA，否则 403。
+- **账号与进度体系（2026-08-30 改版：无申请页、凭据不公示、进度全开放）**：登录页 `/login`（`src/pages/login.js`）**不再展示任何账号或密码**——只有表单 + 一句「账号由站方开通，凭据请联系维护者索取」；站内无注册页、无申请页（原 `/registration` 已删，导航只留「登录」）。追加账号仍用 `node scripts/add-user.mjs <用户名> <显示名> <密码>`（`--list`/`--remove` 见 `REGISTRATION.md`）。账号库 `src/data/accounts.json` 只存 salt+SHA-256 哈希；哈希口径在 `src/auth/index.js`（自实现 SHA-256，已与 node:crypto 做一致性测试）与 add-user.mjs 两侧一致。
 - **进度系统（命名空间存储）**：进度对所有人开放——未登录存本地游客空间 `ml-progress:guest` / `ml-exercises:guest`，登录后存 `ml-progress:<用户名>` 等账号空间（同一浏览器多账号互不混淆）；旧版无命名空间 key 由 `migrateLegacyProgress()` 首扫自动迁移。文末进度按钮标记后 dispatch `ml-progress-changed` 事件，右栏进度条监听同步。`enhanceProgress` 清除按钮只清当前空间。
-- **论文下载**：paper 卡片的 PDF 下载与文献页面对所有人开放，无登录门禁（`enhancer.js` 的 `buildPaperCard` 直接 `window.open`）。
+- **论文下载（2026-08-30 改版：双路门禁）**：paper 卡片的「文献页面」对所有人开放；PDF 按钮由 `enhancer.js` 的 `paintPdfButton()` 决定去向——**已登录且有归档副本** → 虚线转实线、文案「⬇ 本地下载（x.x MB）」、`href` 指向 `/papers/xxx.pdf` 并带 `download`；**未登录**（或该条目没归档）→ 文案「⬇ 原站下载 / ⬇ PDF 下载」、新窗口打开原始地址。登录态在别的页面变化后，靠 `ml-auth-changed` 事件整体重刷按钮（`setAuth`/`clearAuth` 会 dispatch），不必等路由切换。
+- **归档现状（2026-08-30）**：211 条条目里 **64 条有 PDF 副本（30.3%）**，共 62 份文件、375 MB（`static/papers/`，不入库）。剩下 147 条绝大多数是「只有 Wikipedia/官网页面」的条目——历史原著只有借阅受限的扫描件、1950–1990 年代期刊论文没有开放获取版本，这些既不编造链接也不硬凑，留 `@page` 即可。
+- **归档流程**：`node scripts/fetch-papers.mjs`（增量抓 PDF 到 `static/papers/`，`--force` 全量、`--check` 体检）→ `node scripts/gen-references.mjs`（把 `@local64` + `@lsize` 写进条目）。两个顺序不能反：生成器只在**磁盘上真有该文件**时才写 `@local64`，所以没跑过下载的克隆会自然退化成「全部走原始地址」，绝不出死链。`static/papers/` 已加进 `.gitignore`（375 MB，可随时重抓），清单 `papers-local.json` 入库。`validate.mjs` 挂了第三条检查：副本缺失只**警告**不拦构建。
+  **构建体积提醒**：这 375 MB 会原样进 `build/`。嫌大的话按「体积/价值」删（最大的几份：Sutton & Barto 教材 69.7 MB、Stable Diffusion 39 MB、Fourier 33 MB、Ars Conjectandi 28.4 MB、Cauchy 23.9 MB），删完跑一次 `gen-references.mjs` 就会自动不再引用。
 - **右栏挂件（2026-08-29）**：`src/theme/TOCItems/index.js`（swizzle wrap）在右栏目录上方渲染「前置知识面板 + 学习进度条」；前置知识面板组件抽到 `src/components/doc-widgets/PrereqPanel.js` 供两处复用——正文内实例（`variant="inline"`）桌面隐藏、窄屏横条；右栏实例（`variant="toc"`）窄屏隐藏。阅读区拉宽：`main[class*='docMainContainer']` 容器 1140→1360px、正文列 58%→76%。
 
 ### 首页与章级知识树（2026-08 重做）

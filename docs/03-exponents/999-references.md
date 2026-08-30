@@ -7,7 +7,7 @@ description: 第 3 章涉及的核心论文、原著与延伸阅读一览。
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Mirifici Logarithmorum Canonis Descriptio（奇妙的对数定律说明书）
@@ -17,6 +17,9 @@ description: 第 3 章涉及的核心论文、原著与延伸阅读一览。
 # @tag: 原著
 # @desc: 把乘法降格为加法的天才表格，天文学家的命是它救的。
 # @page: https://en.wikipedia.org/wiki/Mirifici_Logarithmorum_Canonis_Descriptio
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9taXJpZmljaWxvZ2FyaXQwMG5hcGkvbWlyaWZpY2lsb2dhcml0MDBuYXBpLnBkZg==
+# @local64: L3BhcGVycy9taXJpZmljaWxvZ2FyaXQwMG5hcGktYjg5NjZmYjgucGRm
+# @lsize: 18.2 MB
 ```
 
 ```paper
@@ -27,4 +30,7 @@ description: 第 3 章涉及的核心论文、原著与延伸阅读一览。
 # @tag: 原著
 # @desc: 第一次把指数函数、对数函数当作「函数」来写，e 的称号也从这里坐实。
 # @page: https://en.wikipedia.org/wiki/Introductio_in_analysin_infinitorum
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9idWJfZ2JfRk55ZjY0QlFSbzhDL2J1Yl9nYl9GTnlmNjRCUVJvOEMucGRm
+# @local64: L3BhcGVycy9idWJfZ2JfRk55ZjY0QlFSbzhDLTliMWI1NTUwLnBkZg==
+# @lsize: 10.0 MB
 ```

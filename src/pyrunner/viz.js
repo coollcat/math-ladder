@@ -7017,13 +7017,18 @@ function sourceSignature(text) {
 function renderElimination(host, spec) {
   const m = Array.isArray(spec.matrix) ? spec.matrix : [2, 1, 3, 4];
   const rhs = Array.isArray(spec.rhs) ? spec.rhs : [7, 12];
+  /* 只对 NaN/undefined 兜底，合法的 0 必须按 0 生效 */
+  const numOr = (v, fb) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fb;
+  };
   const state = {
-    a: Number(m[0]) || 2,
-    b: Number(m[1]) || 1,
-    c: Number(m[2]) || 3,
-    d: Number(m[3]) || 4,
-    r1: Number(rhs[0]) || 7,
-    r2: Number(rhs[1]) || 12,
+    a: numOr(m[0], 2),
+    b: numOr(m[1], 1),
+    c: numOr(m[2], 3),
+    d: numOr(m[3], 4),
+    r1: numOr(rhs[0], 7),
+    r2: numOr(rhs[1], 12),
     step: 0,
   };
   const wrap = document.createElement('div');
@@ -7308,11 +7313,16 @@ function renderDetarea(host, spec) {
 
 function renderEigendirection(host, spec) {
   const m = Array.isArray(spec.matrix) ? spec.matrix : [3, 1, 0, 2];
+  /* 只对 NaN/undefined 兜底，合法的 0 必须按 0 生效 */
+  const numOr = (v, fb) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fb;
+  };
   const state = {
-    a: Number(m[0]) || 3,
-    b: Number(m[1]) || 1,
-    c: Number(m[2]) || 0,
-    d: Number(m[3]) || 2,
+    a: numOr(m[0], 3),
+    b: numOr(m[1], 1),
+    c: numOr(m[2], 0),
+    d: numOr(m[3], 2),
     v: { x: 1, y: 0.35 },
   };
   const wrap = document.createElement('div');
@@ -7426,11 +7436,16 @@ function renderEigendirection(host, spec) {
 
 function renderSvdstretch(host, spec) {
   const m = Array.isArray(spec.matrix) ? spec.matrix : [3, 1, 0, 2];
+  /* 只对 NaN/undefined 兜底，合法的 0 必须按 0 生效 */
+  const numOr = (v, fb) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fb;
+  };
   const state = {
-    a: Number(m[0]) || 3,
-    b: Number(m[1]) || 1,
-    c: Number(m[2]) || 0,
-    d: Number(m[3]) || 2,
+    a: numOr(m[0], 3),
+    b: numOr(m[1], 1),
+    c: numOr(m[2], 0),
+    d: numOr(m[3], 2),
     rank1: false,
   };
   const wrap = document.createElement('div');
@@ -7785,11 +7800,16 @@ function renderLeastSquaresFit(host, spec) {
 
 function renderLinearmap(host, spec) {
   const m = Array.isArray(spec.matrix) ? spec.matrix : [2, 1, 1, 2];
+  /* 只对 NaN/undefined 兜底，合法的 0 必须按 0 生效 */
+  const numOr = (v, fb) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fb;
+  };
   const state = {
-    a: Number(m[0]) || 2,
-    b: Number(m[1]) || 1,
-    c: Number(m[2]) || 1,
-    d: Number(m[3]) || 2,
+    a: numOr(m[0], 2),
+    b: numOr(m[1], 1),
+    c: numOr(m[2], 1),
+    d: numOr(m[3], 2),
     p: { x: 1, y: 1 },
   };
   const wrap = document.createElement('div');
@@ -13392,7 +13412,7 @@ function renderIcaRotate(box, spec) {
   box.appendChild(sl.box);
   const holder = setupCanvas(canvasHost, 230, null);
   function draw() {
-    const deg = Math.round(sl.state.steps !== undefined ? sl.state.angle : 0);
+    const deg = Math.round(sl.state.angle !== undefined ? sl.state.angle : 0);
     const k = kurtAt(deg);
     const ctx = holder.ctx;
     const W = holder.W;

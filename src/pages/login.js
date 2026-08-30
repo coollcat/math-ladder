@@ -29,7 +29,7 @@ function LoginForm({ onOk }) {
     setErr('');
     const acct = findAccount(user.trim());
     if (!acct) {
-      setErr('没有这个账号。可以用下方的默认账号直接登录。');
+      setErr('没有这个账号，或者账号还没开通。');
       return;
     }
     setBusy(true);
@@ -55,7 +55,7 @@ function LoginForm({ onOk }) {
           value={user}
           onChange={(e) => setUser(e.target.value)}
           autoComplete="username"
-          placeholder="默认账号 admin"
+          placeholder="用户名"
         />
       </label>
       <label className="ml-auth__field">
@@ -99,7 +99,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Layout title="登录" description="数学阶梯 · 登录（默认账号开箱即用）">
+    <Layout title="登录" description="数学阶梯 · 登录（账号由站方开通）">
       <main className="container margin-vert--lg">
         <div className="ml-auth">
           <h1 className="ml-auth__title">登录 · 数学阶梯</h1>
@@ -128,18 +128,18 @@ export default function LoginPage() {
             </div>
           ) : (
             <div className="ml-auth__card">
-              <div className="ml-auth__default">
-                <strong>默认账号已开通，直接登录即可：</strong>
-                用户名 <code>admin</code> · 密码 <code>ml-2026</code>
-              </div>
               <LoginForm onOk={handleOk} />
               <div className="ml-auth__note">
                 <p>
-                  不登录也能学习：论文 PDF 下载、练习作答与进度记录都开放，进度保存在本机游客空间。
+                  不登录也能学习：文献页面随时可看，PDF 下载按钮会带你去<strong>原始出处</strong>
+                  ，练习作答与进度记录同样开放，进度保存在本机游客空间。
                 </p>
                 <p>
-                  登录的意义：进度存入<strong>你的账号空间</strong>
-                  ，与游客空间分开管理（同一浏览器多账号互不混淆）。
+                  登录后：带归档副本的论文可以直接<strong>从本站下载</strong>
+                  ，进度存入你的账号空间，与游客空间分开管理（同一浏览器多账号互不混淆）。
+                </p>
+                <p className="ml-auth__muted">
+                  账号由站方开通，不对外公开注册，凭据请联系本站维护者索取。
                 </p>
               </div>
             </div>

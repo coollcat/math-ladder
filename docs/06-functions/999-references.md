@@ -7,7 +7,7 @@ description: 第 6 章涉及的核心论文、原著与延伸阅读一览。
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: La Géométrie（几何学）
@@ -17,6 +17,9 @@ description: 第 6 章涉及的核心论文、原著与延伸阅读一览。
 # @tag: 原著
 # @desc: 坐标系登场：代数式与几何曲线从此一一对应，函数有了自己的舞台。
 # @page: https://en.wikipedia.org/wiki/La_G%C3%A9om%C3%A9trie
+# @pdf64: aHR0cHM6Ly93d3cuZ3V0ZW5iZXJnLm9yZy9maWxlcy8yNjQwMC8yNjQwMC1wZGYucGRm
+# @local64: L3BhcGVycy8yNjQwMC1wZGYtZDRmMjI0OTkucGRm
+# @lsize: 0.5 MB
 ```
 
 ```paper

@@ -111,4 +111,4 @@ print(color)
 
 把连接表变成方阵后，图会突然和线性代数接上电。
 
-→ [110 · 邻接矩阵与图代数](./110-adjacency-algebra.md)
+→ [邻接矩阵与图代数](./110-adjacency-algebra.md)

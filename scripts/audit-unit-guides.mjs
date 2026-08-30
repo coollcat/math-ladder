@@ -2,7 +2,7 @@
 /* UNIT_GUIDES 章号引用审计（低频脚本，对应 OPEN_ITEMS §十一第 4 条）
  *
  * 拦两类病：
- * 1. 「第 N 章」/ 裸「NNN 章」里的 N 不落在 00–67（或该章目录不存在）；
+ * 1. 「第 N 章」/ 裸「NNN 章」里的 N 不在 docs/ 现有章号集合内；
  * 2. 旧号段（VISION §4 重排前的 110/130/…/490）复活——历史上曾因只扫「第 N 章」
  *    而漏掉裸形式，这里两种写法都查。
  *
@@ -16,7 +16,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const guidesDir = path.join(root, 'UNIT_GUIDES');
 const docsDir = path.join(root, 'docs');
 
-/* 现行章号（00–67）以 docs/ 实际目录为准 */
+/* 现行章号以 docs/ 实际目录为准（新增卷时不要改这里，加目录即可）。
+   原先把上界写死成 00–67，卷六（68–75）一开建就误报，故改为集合判属。 */
 const existingChapters = new Set(
   fs
     .readdirSync(docsDir, { withFileTypes: true })

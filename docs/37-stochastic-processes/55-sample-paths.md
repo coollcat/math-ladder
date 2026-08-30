@@ -107,7 +107,7 @@ for k in range(paths):
     if rows[k][steps] > 0:
         up_end = up_end + 1
 print(up_end)
-print([rows[k][steps] for k in range(paths)])
+print([rows[k][steps] for k in range(paths)])   # 列表推导：[表达式 for k in 序列] 一行收齐全部终点值
 ```
 
 种子固定为 7 时输出：5 条收在零线上方，终点分别是 `[20, 2, 4, 28, 20, -10]`。看红线：集体平均几乎贴着零爬行（期望为 0 被"平均"兑现）；再看个体：同一个家庭里的兄弟，终点却散布在 $-10$ 到 $28$ 之间。横切一刀统计一个时刻，永远看不出这种"家族内的大分化"。

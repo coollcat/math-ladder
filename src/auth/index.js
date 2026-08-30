@@ -5,13 +5,27 @@
  * - 不开放公开注册：账号由站方本地 agent 用 scripts/add-user.mjs 统一开通，
  *   账号库是 src/data/accounts.json（构建时打进 bundle，只存 salt + 哈希，不存明文）。
  * - 登录态存 localStorage `ml-auth`（浏览器本机，不上传）。
- * - 受登录门禁的能力：论文 PDF 下载、学习进度的记录与管理（ml-progress / ml-exercises）。
- *   未登录用户可正常浏览全部课程内容与文献页面链接。
+ * - 受登录门禁的能力：论文 PDF 的**本站归档副本**下载、学习进度的记录与管理（ml-progress / ml-exercises）。
+ *   未登录用户可正常浏览全部课程内容、打开文献页面，PDF 下载按钮会指向原始出处
+ *   （不暴露本站归档路径）；登录后同一按钮改为从 static/papers/ 取本地副本。
  * - 注意：静态站没有服务端会话，这套门禁是「产品级权限入口」而非安全边界；
  *   真正的机密文件应放在未公开的存储位置，链接只发给已授权者。
  * ============================================================ */
 
 export const AUTH_KEY = 'ml-auth';
+
+/* 登录态变化事件：论文卡片的「本地下载/原站下载」按钮监听它实时换脸，
+   不必等路由切换重新扫描。 */
+export const AUTH_EVENT = 'ml-auth-changed';
+
+function notifyAuthChange() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.dispatchEvent(new CustomEvent(AUTH_EVENT));
+  } catch {
+    /* 极老浏览器没有 CustomEvent 构造器：退化成不通知，页面刷新即生效 */
+  }
+}
 
 /* ---------- 精简 SHA-256（同步实现，http 部署下 crypto.subtle 不可用时的兜底） ----------
  * node 端 scripts/add-user.mjs 用 node:crypto 生成同算法哈希，两侧已做一致性测试。 */
@@ -120,11 +134,13 @@ export function getAuth() {
 export function setAuth(auth) {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+  notifyAuthChange();
 }
 
 export function clearAuth() {
   if (typeof window === 'undefined') return;
   window.localStorage.removeItem(AUTH_KEY);
+  notifyAuthChange();
 }
 
 /* 供 enhancer / 组件统一使用：是否已登录 */

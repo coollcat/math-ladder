@@ -7,7 +7,7 @@ description: 第 16 章涉及的核心论文、原著与延伸阅读一览。
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Théorie analytique de la chaleur（热的解析理论）
@@ -17,6 +17,9 @@ description: 第 16 章涉及的核心论文、原著与延伸阅读一览。
 # @tag: 原著
 # @desc: 为解热方程发明级数展开：「任何信号都是正弦波的和」从这里开始。
 # @page: https://en.wikipedia.org/wiki/Joseph_Fourier
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9kbGkuZXJuZXQuMTc3NTU1LzE3NzU1NS1UaGUlMjBBbmFseXRpY2FsJTIwVGhlb3J5JTIwT2YlMjBIZWF0LnBkZg==
+# @local64: L3BhcGVycy8xNzc1NTUtVGhlMjBBbmFseXRpY2FsMjBUaGVvcnkyME9mMjBIZWF0LWY3ODA1NDc2LnBkZg==
+# @lsize: 33.0 MB
 ```
 
 ```paper

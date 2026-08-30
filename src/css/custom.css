@@ -383,8 +383,15 @@ article.theme-doc-markdown-container,
   text-decoration: none;
 }
 
+/* 虚线 = 原站（未登录）；实线高亮 = 本站归档副本（已登录） */
 .ml-paper__btn--pdf {
   border-style: dashed;
+}
+
+.ml-paper__btn--pdf[data-ml-mode='local'] {
+  border-style: solid;
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
 }
 
 [data-theme='dark'] .ml-paper {
@@ -932,6 +939,90 @@ a:hover .ml-chapter.is-done {
   padding: 0.35rem 0.8rem;
   font-size: 0.82rem;
   color: var(--ifm-color-emphasis-700);
+}
+
+/* ---------- lab 组件（卷六工程域：音频 / 电路 / 机构 / 逻辑） ----------
+   复用 viz 的卡片与按钮外观，只补 lab 特有的控件：分段选择、读数条、提示行。 */
+
+.ml-lab__body {
+  padding: 0.2rem 0;
+}
+
+.ml-lab__loading {
+  padding: 1rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-lab__seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.4rem 0.85rem;
+}
+
+.ml-lab__seg .ml-viz-btn.is-active {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.ml-lab__readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  padding: 0.45rem 0.85rem;
+  border-top: 1px dashed var(--ifm-color-emphasis-300);
+  font-size: 0.85rem;
+}
+
+.ml-lab__ro {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.ml-lab__ro-k {
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-lab__ro-v {
+  font-family: var(--pyr-mono, monospace);
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-900);
+}
+
+.ml-lab__hint {
+  font-size: 0.82rem;
+  color: var(--ifm-color-emphasis-600);
+  align-self: center;
+}
+
+.ml-lab__hint:empty {
+  display: none;
+}
+
+/* 电路 / 机构 / 时序图组件的图例区 */
+.ml-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-lab__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.ml-lab__legend i {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
 }
 
 .ml-viz__controls {

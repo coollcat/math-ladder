@@ -13,7 +13,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: On Computable Numbers（论可计算数）
@@ -33,6 +33,9 @@ difficulty: 4
 # @tag: 论文
 # @desc: 用三种基本运算描述全部正则语言：从神经元模型长出的记号系统。
 # @page: https://en.wikipedia.org/wiki/Regular_expression
+# @pdf64: aHR0cHM6Ly93d3cuY3NlLmNoYWxtZXJzLnNlL35jb3F1YW5kL0FVVE9NQVRBL21jcC5wZGY=
+# @local64: L3BhcGVycy9tY3AtZGVhMmNlMDgucGRm
+# @lsize: 0.8 MB
 ```
 
 ```paper

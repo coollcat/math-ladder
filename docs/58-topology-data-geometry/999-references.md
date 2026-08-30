@@ -14,7 +14,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Euler characteristic（欧拉示性数）
@@ -34,6 +34,9 @@ difficulty: 4
 # @tag: 论文
 # @desc: 三维流形的刻画：里奇流技术解决百年悬案。
 # @page: https://en.wikipedia.org/wiki/Poincar%C3%A9_conjecture
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmL21hdGgvMDIxMTE1OQ==
+# @local64: L3BhcGVycy8wMjExMTU5LTQ2MmJmNWY0LnBkZg==
+# @lsize: 0.3 MB
 ```
 
 ```paper

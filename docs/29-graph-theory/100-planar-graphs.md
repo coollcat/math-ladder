@@ -126,4 +126,4 @@ for name,v,e in cases:
 
 给地图上色时相邻地区不能同色，本质上是给顶点分配标签。
 
-→ [105 · 图着色](./105-coloring.md)
+→ [图着色](./105-coloring.md)

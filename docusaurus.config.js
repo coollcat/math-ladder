@@ -9,7 +9,9 @@ async function createConfig() {
     tagline: '数学阶梯 · 从数感到前沿——覆盖小学直觉、中学工具、大学核心、工程应用与现代 AI 数学的全域数学路径；傅里叶是卷一信号与变换枢纽站而非终点',
     url: process.env.URL || 'http://localhost:9452',
     baseUrl: '/',
-    onBrokenLinks: 'throw',
+    /* 默认 throw（构建闸门）。打包部署时若课文还在补写、存在指向未写页面的链接，
+       可用 ML_ON_BROKEN_LINKS=warn 临时降级（见 构建Linux部署包.bat --loose）。 */
+    onBrokenLinks: process.env.ML_ON_BROKEN_LINKS || 'throw',
     /* Rspack+SWC 构建管线：构建/热更新提速数倍，产物行为与 webpack 等价 */
     future: {
       faster: true,

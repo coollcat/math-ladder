@@ -7,7 +7,7 @@ description: 第 4 章涉及的核心论文、原著与延伸阅读一览。
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: 《代数学》（Kitab al-jabr wa'l-muqabala）
@@ -17,6 +17,9 @@ description: 第 4 章涉及的核心论文、原著与延伸阅读一览。
 # @tag: 原著
 # @desc: 「移项与对消」的系统化：解方程第一次有了可复制的操作手册。
 # @page: https://en.wikipedia.org/wiki/The_Compendious_Book_on_Calculation_by_Completion_and_Balancing
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9yb2JlcnRvZmNoZXN0ZXJzMDBraHV3L3JvYmVydG9mY2hlc3RlcnMwMGtodXcucGRm
+# @local64: L3BhcGVycy9yb2JlcnRvZmNoZXN0ZXJzMDBraHV3LWZiYzQzNzE5LnBkZg==
+# @lsize: 8.7 MB
 ```
 
 ```paper

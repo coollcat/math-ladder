@@ -13,20 +13,20 @@
     { "t": "De Thiende（论十进）", "a": "Simon Stevin（西蒙·斯特芬）", "y": 1585, "v": "欧洲第一本十进小数专著", "g": "原著", "d": "让小数点成为人人会用的工具，分数与小数从此可以互相翻译。", "p": "https://en.wikipedia.org/wiki/Simon_Stevin" }
   ],
   "03-exponents": [
-    { "t": "Mirifici Logarithmorum Canonis Descriptio（奇妙的对数定律说明书）", "a": "John Napier（约翰·纳皮尔）", "y": 1614, "v": "对数的第一份公开档案", "g": "原著", "d": "把乘法降格为加法的天才表格，天文学家的命是它救的。", "p": "https://en.wikipedia.org/wiki/Mirifici_Logarithmorum_Canonis_Descriptio" },
-    { "t": "Introductio in analysin infinitorum（无穷分析引论）", "a": "Leonhard Euler（欧拉）", "y": 1748, "v": "现代函数概念与指数理论的奠基之作", "g": "原著", "d": "第一次把指数函数、对数函数当作「函数」来写，e 的称号也从这里坐实。", "p": "https://en.wikipedia.org/wiki/Introductio_in_analysin_infinitorum" }
+    { "t": "Mirifici Logarithmorum Canonis Descriptio（奇妙的对数定律说明书）", "a": "John Napier（约翰·纳皮尔）", "y": 1614, "v": "对数的第一份公开档案", "g": "原著", "d": "把乘法降格为加法的天才表格，天文学家的命是它救的。", "p": "https://en.wikipedia.org/wiki/Mirifici_Logarithmorum_Canonis_Descriptio", "f": "https://archive.org/download/mirificilogarit00napi/mirificilogarit00napi.pdf" },
+    { "t": "Introductio in analysin infinitorum（无穷分析引论）", "a": "Leonhard Euler（欧拉）", "y": 1748, "v": "现代函数概念与指数理论的奠基之作", "g": "原著", "d": "第一次把指数函数、对数函数当作「函数」来写，e 的称号也从这里坐实。", "p": "https://en.wikipedia.org/wiki/Introductio_in_analysin_infinitorum", "f": "https://archive.org/download/bub_gb_FNyf64BQRo8C/bub_gb_FNyf64BQRo8C.pdf" }
   ],
   "04-algebra": [
-    { "t": "《代数学》（Kitab al-jabr wa'l-muqabala）", "a": "al-Khwarizmi（花拉子米）", "y": "约 820 年", "v": "algebra 一词的源头", "g": "原著", "d": "「移项与对消」的系统化：解方程第一次有了可复制的操作手册。", "p": "https://en.wikipedia.org/wiki/The_Compendious_Book_on_Calculation_by_Completion_and_Balancing" },
+    { "t": "《代数学》（Kitab al-jabr wa'l-muqabala）", "a": "al-Khwarizmi（花拉子米）", "y": "约 820 年", "v": "algebra 一词的源头", "g": "原著", "d": "「移项与对消」的系统化：解方程第一次有了可复制的操作手册。", "p": "https://en.wikipedia.org/wiki/The_Compendious_Book_on_Calculation_by_Completion_and_Balancing", "f": "https://archive.org/download/robertofchesters00khuw/robertofchesters00khuw.pdf" },
     { "t": "Ars Magna（大术）", "a": "Gerolamo Cardano（卡尔达诺）", "y": 1545, "v": "文艺复兴数学对决的战场记录", "g": "原著", "d": "三次方程求根公式的首发地，负数开平方被迫登场，复数在此埋下伏笔。", "p": "https://en.wikipedia.org/wiki/Ars_Magna_(Gerolamo_Cardano)" },
     { "t": "Évariste Galois 与五次方程的不可解", "a": "Évariste Galois（伽罗瓦）", "y": "1832 年遗稿", "v": "群论的诞生", "g": "原著", "d": "用「对称的结构」回答了为什么五次方程没有求根公式，代数从此研究结构。", "p": "https://en.wikipedia.org/wiki/%C3%89variste_Galois" }
   ],
   "05-geometry": [
-    { "t": "《几何原本》（Elements）", "a": "Euclid（欧几里得）", "y": "约公元前 300 年", "v": "公理化方法的原点", "g": "原著", "d": "从五条公设推出整个几何世界，「证明」的现代含义由它定义。", "p": "https://en.wikipedia.org/wiki/Euclid%27s_Elements" },
+    { "t": "《几何原本》（Elements）", "a": "Euclid（欧几里得）", "y": "约公元前 300 年", "v": "公理化方法的原点", "g": "原著", "d": "从五条公设推出整个几何世界，「证明」的现代含义由它定义。", "p": "https://en.wikipedia.org/wiki/Euclid%27s_Elements", "f": "https://www.gutenberg.org/files/21076/21076-pdf.pdf" },
     { "t": "The Method of Mechanical Theorems（方法）", "a": "Archimedes（阿基米德）", "y": "约公元前 250 年", "v": "1906 年重见天日的羊皮卷", "g": "原著", "d": "用「切片求和」的力学直觉算出体积与面积，积分思想的预演早了两千年。", "p": "https://en.wikipedia.org/wiki/The_Method_of_Mechanical_Theorems" }
   ],
   "06-functions": [
-    { "t": "La Géométrie（几何学）", "a": "René Descartes（笛卡尔）", "y": 1637, "v": "《方法论》附录", "g": "原著", "d": "坐标系登场：代数式与几何曲线从此一一对应，函数有了自己的舞台。", "p": "https://en.wikipedia.org/wiki/La_G%C3%A9om%C3%A9trie" },
+    { "t": "La Géométrie（几何学）", "a": "René Descartes（笛卡尔）", "y": 1637, "v": "《方法论》附录", "g": "原著", "d": "坐标系登场：代数式与几何曲线从此一一对应，函数有了自己的舞台。", "p": "https://en.wikipedia.org/wiki/La_G%C3%A9om%C3%A9trie", "f": "https://www.gutenberg.org/files/26400/26400-pdf.pdf" },
     { "t": "函数概念的历史演进", "a": "从 Euler 到 Dirichlet", "y": "18–19 世纪", "v": "分析学概念史", "g": "论文", "d": "从「解析式」到「任意对应」：函数定义的三次扩容，本站第 6 章的直接脚注。", "p": "https://en.wikipedia.org/wiki/Function_(mathematics)" }
   ],
   "07-trigonometry": [
@@ -34,12 +34,12 @@
     { "t": "三角学的系统化", "a": "Nasir al-Din al-Tusi（纳西尔丁·图西）", "y": 1250, "v": "《论四边形》", "g": "原著", "d": "第一次把平面与球面三角学独立成科，正弦定理在此定型。", "p": "https://en.wikipedia.org/wiki/Nasir_al-Din_al-Tusi" }
   ],
   "08-sequences": [
-    { "t": "Liber Quadratorum 与斐波那契数列", "a": "Fibonacci（斐波那契）", "y": 1225, "v": "数列与递推的经典案例", "g": "原著", "d": "兔子问题留下的数列，成为递推与归纳法最好的入门教材。", "p": "https://en.wikipedia.org/wiki/Fibonacci" },
+    { "t": "Liber Quadratorum 与斐波那契数列", "a": "Fibonacci（斐波那契）", "y": 1225, "v": "数列与递推的经典案例", "g": "原著", "d": "兔子问题留下的数列，成为递推与归纳法最好的入门教材。", "p": "https://en.wikipedia.org/wiki/Fibonacci", "f": "https://archive.org/download/jstor-2974039/2974039.pdf" },
     { "t": "Zeno's paradoxes（芝诺悖论）", "a": "Zeno of Elea（芝诺）", "y": "约公元前 450 年", "v": "无穷与极限的思想源流", "g": "原著", "d": "阿基里斯追不上乌龟？数列求和给出两千年后的答案。", "p": "https://en.wikipedia.org/wiki/Zeno%27s_paradoxes" }
   ],
   "09-probability": [
-    { "t": "Ars Conjectandi（猜度术）", "a": "Jacob Bernoulli（雅各布·伯努利）", "y": 1713, "v": "大数定律的第一份证明", "g": "原著", "d": "「频率稳定在概率附近」第一次被证明，概率从赌桌走向科学。", "p": "https://en.wikipedia.org/wiki/Ars_Conjectandi" },
-    { "t": "The Doctrine of Chances（机遇论）", "a": "Abraham de Moivre（棣莫弗）", "y": 1718, "v": "古典概率的集大成之作", "g": "原著", "d": "正态曲线在抛硬币极限里首次现身，中心极限定理的序章。", "p": "https://en.wikipedia.org/wiki/The_Doctrine_of_Chances" }
+    { "t": "Ars Conjectandi（猜度术）", "a": "Jacob Bernoulli（雅各布·伯努利）", "y": 1713, "v": "大数定律的第一份证明", "g": "原著", "d": "「频率稳定在概率附近」第一次被证明，概率从赌桌走向科学。", "p": "https://en.wikipedia.org/wiki/Ars_Conjectandi", "f": "https://archive.org/download/jacobibernoulli00bern/jacobibernoulli00bern.pdf" },
+    { "t": "The Doctrine of Chances（机遇论）", "a": "Abraham de Moivre（棣莫弗）", "y": 1718, "v": "古典概率的集大成之作", "g": "原著", "d": "正态曲线在抛硬币极限里首次现身，中心极限定理的序章。", "p": "https://en.wikipedia.org/wiki/The_Doctrine_of_Chances", "f": "https://archive.org/download/doctrinechances00moivgoog/doctrinechances00moivgoog.pdf" }
   ],
   "10-numbertheory": [
     { "t": "Euclid's theorem（素数有无穷多个）", "a": "Euclid（欧几里得）", "y": "约公元前 300 年", "v": "《几何原本》第九卷", "g": "原著", "d": "「假设有限则可造新素数」的反证法范本，数论的第一座里程碑。", "p": "https://en.wikipedia.org/wiki/Euclid%27s_theorem" },
@@ -56,7 +56,7 @@
     { "t": "Euler's formula（欧拉公式）", "a": "Leonhard Euler（欧拉）", "y": 1748, "v": "《无穷分析引论》", "g": "原著", "d": "指数与圆周运动的相遇：e 的 i 次方等于余弦加 i 倍正弦。", "p": "https://en.wikipedia.org/wiki/Euler%27s_formula" }
   ],
   "13-derivatives": [
-    { "t": "Philosophiæ Naturalis Principia Mathematica（自然哲学的数学原理）", "a": "Isaac Newton（牛顿）", "y": 1687, "v": "经典力学与流数术", "g": "原著", "d": "用「流数」处理瞬时变化率，物理与微积分一起诞生。", "p": "https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica" },
+    { "t": "Philosophiæ Naturalis Principia Mathematica（自然哲学的数学原理）", "a": "Isaac Newton（牛顿）", "y": 1687, "v": "经典力学与流数术", "g": "原著", "d": "用「流数」处理瞬时变化率，物理与微积分一起诞生。", "p": "https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica", "f": "https://archive.org/download/philosophiaenatu04newtuoft/philosophiaenatu04newtuoft.pdf" },
     { "t": "Nova methodus pro maximis et minimis（极大极小新方法）", "a": "Gottfried Leibniz（莱布尼茨）", "y": 1684, "v": "微积分的第一篇论文", "g": "原著", "d": "dx、dy 记号出自这里，今天全世界的微积分教材都在用他的符号。", "p": "https://en.wikipedia.org/wiki/Gottfried_Wilhelm_Leibniz" },
     { "t": "Weierstrass function（魏尔斯特拉斯函数）", "a": "Karl Weierstrass（魏尔斯特拉斯）", "y": 1872, "v": "分析严格化运动的标志性反例", "g": "论文", "d": "处处连续却处处不可导：直觉的失败逼出了 epsilon-delta 的严格语言。", "p": "https://en.wikipedia.org/wiki/Weierstrass_function" }
   ],
@@ -65,11 +65,11 @@
     { "t": "Riemann integral（黎曼积分）", "a": "Bernhard Riemann（黎曼）", "y": 1854, "v": "哥廷根就职资格论文", "g": "论文", "d": "「分割-求和-取极限」写成严格定义，积分第一次有了现代模样。", "p": "https://en.wikipedia.org/wiki/Riemann_integral" }
   ],
   "15-series-taylor": [
-    { "t": "Methodus Incrementorum Directa et Inversa（正与反的增量方法）", "a": "Brook Taylor（布鲁克·泰勒）", "y": 1715, "v": "泰勒级数的原始出处", "g": "原著", "d": "「用多项式逼近光滑函数」的系统陈述，函数计算从此有了通用模板。", "p": "https://en.wikipedia.org/wiki/Taylor_series" },
+    { "t": "Methodus Incrementorum Directa et Inversa（正与反的增量方法）", "a": "Brook Taylor（布鲁克·泰勒）", "y": 1715, "v": "泰勒级数的原始出处", "g": "原著", "d": "「用多项式逼近光滑函数」的系统陈述，函数计算从此有了通用模板。", "p": "https://en.wikipedia.org/wiki/Taylor_series", "f": "https://archive.org/download/UFIE003454_TO0324_PNI-2529_000000/UFIE003454_TO0324_PNI-2529_000000.pdf" },
     { "t": "Brook Taylor 与级数展开的历史", "a": "多位学者（Gregory, Newton, Maclaurin）", "y": "17–18 世纪", "v": "分析学史", "g": "论文", "d": "同一思想被多人反复逼近：级数展开从特殊技巧长成标准工具的过程。", "p": "https://en.wikipedia.org/wiki/Brook_Taylor" }
   ],
   "16-fourier": [
-    { "t": "Théorie analytique de la chaleur（热的解析理论）", "a": "Joseph Fourier（傅里叶）", "y": 1822, "v": "傅里叶分析的起点", "g": "原著", "d": "为解热方程发明级数展开：「任何信号都是正弦波的和」从这里开始。", "p": "https://en.wikipedia.org/wiki/Joseph_Fourier" },
+    { "t": "Théorie analytique de la chaleur（热的解析理论）", "a": "Joseph Fourier（傅里叶）", "y": 1822, "v": "傅里叶分析的起点", "g": "原著", "d": "为解热方程发明级数展开：「任何信号都是正弦波的和」从这里开始。", "p": "https://en.wikipedia.org/wiki/Joseph_Fourier", "f": "https://archive.org/download/dli.ernet.177555/177555-The%20Analytical%20Theory%20Of%20Heat.pdf" },
     { "t": "Cooley–Tukey FFT algorithm（快速傅里叶变换）", "a": "James Cooley, John Tukey", "y": 1965, "v": "An Algorithm for the Machine Calculation of Complex Fourier Series", "g": "论文", "d": "把 DFT 计算量从平方降到对数线性：让傅里叶分析真正可计算的里程碑。", "p": "https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm" },
     { "t": "Gibbs phenomenon（吉布斯现象）", "a": "Josiah Gibbs（吉布斯）", "y": 1899, "v": "Nature 上的通信", "g": "论文", "d": "方波边缘那跳不过去的 9% 过冲：傅里叶级数逼近的诚实边界。", "p": "https://en.wikipedia.org/wiki/Gibbs_phenomenon" }
   ],
@@ -83,7 +83,7 @@
     { "t": "Paul Halmos 与「数学是问题构成的」", "a": "Paul Halmos（哈尔莫斯）", "y": "20 世纪", "v": "数学方法论", "g": "论文", "d": "「学数学的唯一方法是做数学」：本章写作方法论的出处。", "p": "https://en.wikipedia.org/wiki/Paul_Halmos" }
   ],
   "19-real-analysis": [
-    { "t": "Cours d'analyse（分析教程）", "a": "Augustin-Louis Cauchy（柯西）", "y": 1821, "v": "分析严格化的起点", "g": "原著", "d": "极限、连续、收敛第一次获得准确定义，无穷小告别含糊时代。", "p": "https://en.wikipedia.org/wiki/Augustin-Louis_Cauchy" },
+    { "t": "Cours d'analyse（分析教程）", "a": "Augustin-Louis Cauchy（柯西）", "y": 1821, "v": "分析严格化的起点", "g": "原著", "d": "极限、连续、收敛第一次获得准确定义，无穷小告别含糊时代。", "p": "https://en.wikipedia.org/wiki/Augustin-Louis_Cauchy", "f": "https://archive.org/download/TO0E037871_TO0324_PNI-1898_000000/TO0E037871_TO0324_PNI-1898_000000.pdf" },
     { "t": "Limit of a function（函数极限的 epsilon-delta 定义）", "a": "Cauchy → Weierstrass 一脉", "y": "19 世纪定型", "v": "现代分析的语言基座", "g": "论文", "d": "「对任意 epsilon 存在 delta」：把直觉写成可检验命题的标准句式。", "p": "https://en.wikipedia.org/wiki/Limit_of_a_function" },
     { "t": "Walter Rudin《数学分析原理》", "a": "Walter Rudin", "y": 1953, "v": "经典研究生教材", "g": "教材", "d": "以紧凑著称的分析教材，想走硬核路线时的下一级台阶。", "p": "https://en.wikipedia.org/wiki/Walter_Rudin" }
   ],
@@ -123,7 +123,7 @@
     { "t": "Riesz representation theorem（里斯表示定理）", "a": "Frigyes Riesz（里斯）", "y": 1909, "v": "泛函分析对偶理论基石", "g": "论文", "d": "每个连续线性泛函都来自一个内积：空间与它的对偶可以互相翻译。", "p": "https://en.wikipedia.org/wiki/Riesz_representation_theorem" }
   ],
   "27-logic-sets": [
-    { "t": "Georg Cantor 与集合论诞生", "a": "Georg Cantor（康托尔）", "y": 1874, "v": "超穷数理论", "g": "原著", "d": "对角线证明实数不可数：无穷也有大小之分。", "p": "https://en.wikipedia.org/wiki/Georg_Cantor" },
+    { "t": "Georg Cantor 与集合论诞生", "a": "Georg Cantor（康托尔）", "y": 1874, "v": "超穷数理论", "g": "原著", "d": "对角线证明实数不可数：无穷也有大小之分。", "p": "https://en.wikipedia.org/wiki/Georg_Cantor", "f": "https://archive.org/download/contributionstof00cantrich/contributionstof00cantrich.pdf" },
     { "t": "Russell's paradox（罗素悖论）", "a": "Bertrand Russell（罗素）", "y": 1901, "v": "第三次数学危机的导火索", "g": "论文", "d": "「不给自己刮脸的理发师」动摇朴素集合论，公理化集合论被迫登场。", "p": "https://en.wikipedia.org/wiki/Russell%27s_paradox" },
     { "t": "Gödel's incompleteness theorems（哥德尔不完备定理）", "a": "Kurt Gödel（哥德尔）", "y": 1931, "v": "数理逻辑里程碑", "g": "论文", "d": "足够强的自洽系统必有不可证的真命题：数学证明的边界第一次被画出来。", "p": "https://en.wikipedia.org/wiki/G%C3%B6del%27s_incompleteness_theorems" }
   ],
@@ -138,13 +138,13 @@
     { "t": "Erdős–Rényi model（随机图模型）", "a": "Paul Erdős, Alfréd Rényi", "y": 1959, "v": "随机图论奠基文献", "g": "论文", "d": "随机连边的图何时突然「连通」：网络科学的先声。", "p": "https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model" }
   ],
   "30-algorithms": [
-    { "t": "Dijkstra's algorithm（迪杰斯特拉算法）", "a": "Edsger Dijkstra（戴克斯特拉）", "y": 1959, "v": "Numerische Mathematik", "g": "论文", "d": "三行伪代码写下最短路：20 分钟想出的算法用了六十年。", "p": "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm" },
+    { "t": "Dijkstra's algorithm（迪杰斯特拉算法）", "a": "Edsger Dijkstra（戴克斯特拉）", "y": 1959, "v": "Numerische Mathematik", "g": "论文", "d": "三行伪代码写下最短路：20 分钟想出的算法用了六十年。", "p": "https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm", "f": "https://ir.cwi.nl/pub/9256/9256D.pdf" },
     { "t": "The Art of Computer Programming（计算机程序设计艺术）", "a": "Donald Knuth（高德纳）", "y": "1968 起", "v": "算法学科的圣经", "g": "教材", "d": "把「算法」变成可分析的科学，渐进记号与分析方法的总仓库。", "p": "https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming" },
     { "t": "Hash function（哈希函数）", "a": "Knuth 等系统化", "y": "1950s–1960s", "v": "数据结构经典文献", "g": "论文", "d": "用取余直接算出存储位置：以空间换时间的经典交易。", "p": "https://en.wikipedia.org/wiki/Hash_function" }
   ],
   "31-automata": [
     { "t": "On Computable Numbers（论可计算数）", "a": "Alan Turing（图灵）", "y": 1936, "v": "图灵机与计算模型的原典", "g": "原著", "d": "一根纸带加一个读写头，定义了「什么是可计算的」。", "p": "https://en.wikipedia.org/wiki/On_Computable_Numbers,_with_an_Application_to_the_Entscheidungsproblem" },
-    { "t": "Regular expression（正则表达式）", "a": "Stephen Kleene（克林）", "y": 1956, "v": "Representation of Events in Nerve Nets", "g": "论文", "d": "用三种基本运算描述全部正则语言：从神经元模型长出的记号系统。", "p": "https://en.wikipedia.org/wiki/Regular_expression" },
+    { "t": "Regular expression（正则表达式）", "a": "Stephen Kleene（克林）", "y": 1956, "v": "Representation of Events in Nerve Nets", "g": "论文", "d": "用三种基本运算描述全部正则语言：从神经元模型长出的记号系统。", "p": "https://en.wikipedia.org/wiki/Regular_expression", "f": "https://www.cse.chalmers.se/~coquand/AUTOMATA/mcp.pdf" },
     { "t": "Chomsky hierarchy（乔姆斯基层级）", "a": "Noam Chomsky（乔姆斯基）", "y": 1956, "v": "形式语言经典分类", "g": "论文", "d": "语言强度分四级，每级对应一台能力递增的自动机。", "p": "https://en.wikipedia.org/wiki/Chomsky_hierarchy" }
   ],
   "32-computability": [
@@ -159,11 +159,11 @@
   ],
   "34-cryptography": [
     { "t": "Kerckhoffs's principle（柯克霍夫原则）", "a": "Auguste Kerckhoffs（柯克霍夫）", "y": 1883, "v": "La cryptographie militaire", "g": "原著", "d": "「假设算法公开，保密全靠密钥」：现代密码学的第一设计原则。", "p": "https://en.wikipedia.org/wiki/Kerckhoffs%27s_principle" },
-    { "t": "Diffie–Hellman key exchange（DH 密钥交换）", "a": "Whitfield Diffie, Martin Hellman", "y": 1976, "v": "New Directions in Cryptography", "g": "论文", "d": "素数幂的模运算让陌生人在公开频道协商出共同秘密。", "p": "https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange" },
+    { "t": "Diffie–Hellman key exchange（DH 密钥交换）", "a": "Whitfield Diffie, Martin Hellman", "y": 1976, "v": "New Directions in Cryptography", "g": "论文", "d": "素数幂的模运算让陌生人在公开频道协商出共同秘密。", "p": "https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange", "f": "https://ee.stanford.edu/~hellman/publications/24.pdf" },
     { "t": "RSA (cryptosystem)", "a": "Rivest, Shamir, Adleman", "y": 1977, "v": "公钥加密经典方案", "g": "论文", "d": "「大数分解很难」这个假设撑起了互联网的保密通信。", "p": "https://en.wikipedia.org/wiki/RSA_(cryptosystem)" }
   ],
   "35-coding-theory": [
-    { "t": "A Mathematical Theory of Communication（通信的数学理论）", "a": "Claude Shannon（香农）", "y": 1948, "v": "Bell System Technical Journal", "g": "论文", "d": "信息 = 熵的惊世定义，压缩与纠错的极限由此划定。", "p": "https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication" },
+    { "t": "A Mathematical Theory of Communication（通信的数学理论）", "a": "Claude Shannon（香农）", "y": 1948, "v": "Bell System Technical Journal", "g": "论文", "d": "信息 = 熵的惊世定义，压缩与纠错的极限由此划定。", "p": "https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication", "f": "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf" },
     { "t": "Hamming code（汉明码）", "a": "Richard Hamming（汉明）", "y": 1950, "v": "Error Detecting and Error Correcting Codes", "g": "论文", "d": "「机器不懂」逼出来的纠错码：让计算机自己纠正读写错误。", "p": "https://en.wikipedia.org/wiki/Hamming_code" },
     { "t": "Reed–Solomon error correction（里德-所罗门码）", "a": "Irving Reed, Gustave Solomon", "y": 1960, "v": " Polynomial Codes over Certain Finite Fields", "g": "论文", "d": "用多项式插值思想造码：光盘、二维码与深空通信的共同保护伞。", "p": "https://en.wikipedia.org/wiki/Reed%E2%80%93Solomon_error_correction" }
   ],
@@ -183,13 +183,13 @@
     { "t": "Bootstrapping (statistics)（自助法）", "a": "Bradley Efron（埃夫龙）", "y": 1979, "v": "Bootstrap Methods: Another Look at the Jackknife", "g": "论文", "d": "用重抽样模拟「再来一次」：计算机时代的统计推断。", "p": "https://en.wikipedia.org/wiki/Bootstrapping_(statistics)" }
   ],
   "39-bayesian-stats": [
-    { "t": "An Essay towards Solving a Problem in the Doctrine of Chances", "a": "Thomas Bayes（贝叶斯）", "y": 1763, "v": "皇家学会哲学汇刊（遗作）", "g": "论文", "d": "逆概率的原始论证：从结果反推原因的数学首次成型。", "p": "https://en.wikipedia.org/wiki/An_Essay_towards_Solving_a_Problem_in_the_Doctrine_of_Chances" },
-    { "t": "Metropolis–Hastings algorithm（MH 算法）", "a": "Metropolis (1953), Hastings (1970)", "y": 1953, "v": "MCMC 采样奠基文献", "g": "论文", "d": "按接受概率随机游走：让 impossible 的积分变成可模拟的实验。", "p": "https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm" },
-    { "t": "Expectation–maximization algorithm（EM 算法）", "a": "Dempster, Laird, Rubin", "y": 1977, "v": "Maximum Likelihood from Incomplete Data", "g": "论文", "d": "在「猜测-更新」循环里爬向极大似然：缺失数据的通用引擎。", "p": "https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm" }
+    { "t": "An Essay towards Solving a Problem in the Doctrine of Chances", "a": "Thomas Bayes（贝叶斯）", "y": 1763, "v": "皇家学会哲学汇刊（遗作）", "g": "论文", "d": "逆概率的原始论证：从结果反推原因的数学首次成型。", "p": "https://en.wikipedia.org/wiki/An_Essay_towards_Solving_a_Problem_in_the_Doctrine_of_Chances", "f": "https://archive.org/download/philtrans09948070/09948070.pdf" },
+    { "t": "Metropolis–Hastings algorithm（MH 算法）", "a": "Metropolis (1953), Hastings (1970)", "y": 1953, "v": "MCMC 采样奠基文献", "g": "论文", "d": "按接受概率随机游走：让 impossible 的积分变成可模拟的实验。", "p": "https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm", "f": "https://www.osti.gov/servlets/purl/4390578" },
+    { "t": "Expectation–maximization algorithm（EM 算法）", "a": "Dempster, Laird, Rubin", "y": 1977, "v": "Maximum Likelihood from Incomplete Data", "g": "论文", "d": "在「猜测-更新」循环里爬向极大似然：缺失数据的通用引擎。", "p": "https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm", "f": "https://web.mit.edu/6.435/www/Dempster77.pdf" }
   ],
   "40-information-theory": [
-    { "t": "A Mathematical Theory of Communication（通信的数学理论）", "a": "Claude Shannon（香农）", "y": 1948, "v": "Bell System Technical Journal", "g": "论文", "d": "信息论开山：比特、熵、信道容量与压缩极限的全部来源。", "p": "https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication" },
-    { "t": "Huffman coding（哈夫曼编码）", "a": "David A. Huffman（哈夫曼）", "y": 1952, "v": "A Method for the Construction of Minimum-Redundancy Codes", "g": "论文", "d": "一篇学期作业成为最优前缀码：贪心合并的完美示范。", "p": "https://en.wikipedia.org/wiki/Huffman_coding" },
+    { "t": "A Mathematical Theory of Communication（通信的数学理论）", "a": "Claude Shannon（香农）", "y": 1948, "v": "Bell System Technical Journal", "g": "论文", "d": "信息论开山：比特、熵、信道容量与压缩极限的全部来源。", "p": "https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication", "f": "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf" },
+    { "t": "Huffman coding（哈夫曼编码）", "a": "David A. Huffman（哈夫曼）", "y": 1952, "v": "A Method for the Construction of Minimum-Redundancy Codes", "g": "论文", "d": "一篇学期作业成为最优前缀码：贪心合并的完美示范。", "p": "https://en.wikipedia.org/wiki/Huffman_coding", "f": "http://compression.ru/download/articles/huff/huffman_1952_minimum-redundancy-codes.pdf" },
     { "t": "Kolmogorov complexity（柯尔莫哥洛夫复杂度）", "a": "Ray Solomonoff, Andrey Kolmogorov", "y": "1960s", "v": "算法信息论", "g": "论文", "d": "用「最短描述长度」重新定义信息量：随机性与可压缩性的理论极限。", "p": "https://en.wikipedia.org/wiki/Kolmogorov_complexity" }
   ],
   "41-learning-theory": [
@@ -205,7 +205,7 @@
   "43-optimization": [
     { "t": "Stochastic gradient descent（随机梯度下降）", "a": "Herbert Robbins, Sutton Monro", "y": 1951, "v": "A Stochastic Approximation Method", "g": "论文", "d": "用带噪声的小步逼近最优点：整个深度学习训练的地基。", "p": "https://en.wikipedia.org/wiki/Stochastic_gradient_descent" },
     { "t": "Adam: A Method for Stochastic Optimization", "a": "Diederik Kingma, Jimmy Ba", "y": 2014, "v": "arXiv:1412.6980 (ICLR 2015)", "g": "论文", "d": "动量 + 自适应学习率：被引用最多的优化器，深度学习的默认引擎。", "p": "https://arxiv.org/abs/1412.6980", "f": "https://arxiv.org/pdf/1412.6980" },
-    { "t": "Convex Optimization（凸优化）", "a": "Stephen Boyd, Lieven Vandenberghe", "y": 2004, "v": "Cambridge University Press（官方免费电子版）", "g": "教材", "d": "凸性的「局部最优即全局最优」：优化理论的分水岭。", "p": "https://web.stanford.edu/~boyd/cvxbook/" },
+    { "t": "Convex Optimization（凸优化）", "a": "Stephen Boyd, Lieven Vandenberghe", "y": 2004, "v": "Cambridge University Press（官方免费电子版）", "g": "教材", "d": "凸性的「局部最优即全局最优」：优化理论的分水岭。", "p": "https://web.stanford.edu/~boyd/cvxbook/", "f": "https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf" },
     { "t": "Simplex algorithm（单纯形法）", "a": "George Dantzig（丹齐格）", "y": 1947, "v": "线性规划奠基算法", "g": "论文", "d": "沿多面体棱边走向最优：规划论的诞生与运筹学的开端。", "p": "https://en.wikipedia.org/wiki/Simplex_algorithm" }
   ],
   "44-numerical-analysis": [
@@ -222,7 +222,7 @@
     { "t": "Learning representations by back-propagating errors（反向传播）", "a": "Rumelhart, Hinton, Williams", "y": 1986, "v": "Nature", "g": "论文", "d": "链式法则逐层传误差：多层网络真正能训练的开端。", "p": "https://en.wikipedia.org/wiki/Backpropagation" },
     { "t": "Deep Residual Learning（ResNet）", "a": "Kaiming He 等（微软亚洲研究院）", "y": 2015, "v": "arXiv:1511.06434 (CVPR 2016)", "g": "论文", "d": "「学残差比学映射容易」：跳线让百层网络成为可能。", "p": "https://arxiv.org/abs/1511.06434", "f": "https://arxiv.org/pdf/1511.06434" },
     { "t": "Batch Normalization", "a": "Sergey Ioffe, Christian Szegedy", "y": 2015, "v": "arXiv:1502.03167 (ICML 2015)", "g": "论文", "d": "把每层输入拉回稳定分布：训练加速的标配组件。", "p": "https://arxiv.org/abs/1502.03167", "f": "https://arxiv.org/pdf/1502.03167" },
-    { "t": "Dropout（随机失活）", "a": "Srivastava, Hinton 等", "y": 2014, "v": "JMLR（思想源于 2012 年 arXiv 预印本）", "g": "论文", "d": "训练时随机关掉一部分神经元：集成思想防过拟合。", "p": "https://en.wikipedia.org/wiki/Dropout_(neural_networks)" }
+    { "t": "Dropout（随机失活）", "a": "Srivastava, Hinton 等", "y": 2014, "v": "JMLR（思想源于 2012 年 arXiv 预印本）", "g": "论文", "d": "训练时随机关掉一部分神经元：集成思想防过拟合。", "p": "https://en.wikipedia.org/wiki/Dropout_(neural_networks)", "f": "https://jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf" }
   ],
   "47-transformer": [
     { "t": "Attention Is All You Need", "a": "Vaswani 等（Google）", "y": 2017, "v": "arXiv:1706.03762 (NeurIPS 2017)", "g": "论文", "d": "抛弃循环只用注意力：Transformer 与大模型时代的起点。", "p": "https://arxiv.org/abs/1706.03762", "f": "https://arxiv.org/pdf/1706.03762" },
@@ -233,7 +233,7 @@
   "48-embeddings-geometry": [
     { "t": "Efficient Estimation of Word Representations（word2vec）", "a": "Tomas Mikolov 等（Google）", "y": 2013, "v": "arXiv:1301.3781", "g": "论文", "d": "词的语义变成几何向量：国王减男人加女王成为经典。", "p": "https://arxiv.org/abs/1301.3781", "f": "https://arxiv.org/pdf/1301.3781" },
     { "t": "BERT: Pre-training of Deep Bidirectional Transformers", "a": "Jacob Devlin 等（Google）", "y": 2018, "v": "arXiv:1810.04805 (NAACL 2019)", "g": "论文", "d": "完形填空式预训练：语言表示学习进入「预训练+微调」时代。", "p": "https://arxiv.org/abs/1810.04805", "f": "https://arxiv.org/pdf/1810.04805" },
-    { "t": "GloVe: Global Vectors for Word Representation", "a": "Jeffrey Pennington, Richard Socher, Christopher Manning", "y": 2014, "v": "EMNLP 2014", "g": "论文", "d": "共现矩阵 + 降维：词向量的另一条统计路线。", "p": "https://en.wikipedia.org/wiki/GloVe" }
+    { "t": "GloVe: Global Vectors for Word Representation", "a": "Jeffrey Pennington, Richard Socher, Christopher Manning", "y": 2014, "v": "EMNLP 2014", "g": "论文", "d": "共现矩阵 + 降维：词向量的另一条统计路线。", "p": "https://en.wikipedia.org/wiki/GloVe", "f": "https://nlp.stanford.edu/pubs/glove.pdf" }
   ],
   "49-generative-models": [
     { "t": "Auto-Encoding Variational Bayes（VAE）", "a": "Diederik Kingma, Max Welling", "y": 2013, "v": "arXiv:1312.6114 (ICLR 2014)", "g": "论文", "d": "重参数化技巧让「采样」可以求梯度：变分生成模型的起点。", "p": "https://arxiv.org/abs/1312.6114", "f": "https://arxiv.org/pdf/1312.6114" },
@@ -245,7 +245,7 @@
     { "t": "Leonid Kantorovich 与最优传输", "a": "Leonid Kantorovich（坎托罗维奇）", "y": 1942, "v": "最优传输理论的起点", "g": "论文", "d": "「把土堆搬成规划后的形状」的最优方案：Wasserstein 距离的源头。", "p": "https://en.wikipedia.org/wiki/Leonid_Kantorovich" }
   ],
   "50-reinforcement-learning": [
-    { "t": "Reinforcement Learning: An Introduction（第 2 版）", "a": "Richard Sutton, Andrew Barto", "y": 2018, "v": "MIT Press（作者官网免费全本）", "g": "教材", "d": "强化学习的标准教材：MDP、动态规划、TD 学习到策略梯度的完整路线。", "p": "http://incompleteideas.net/book/the-book-2nd.html" },
+    { "t": "Reinforcement Learning: An Introduction（第 2 版）", "a": "Richard Sutton, Andrew Barto", "y": 2018, "v": "MIT Press（作者官网免费全本）", "g": "教材", "d": "强化学习的标准教材：MDP、动态规划、TD 学习到策略梯度的完整路线。", "p": "http://incompleteideas.net/book/the-book-2nd.html", "f": "http://incompleteideas.net/book/RLbook2020.pdf" },
     { "t": "Q-learning（Q 学习）", "a": "Chris Watkins", "y": 1989, "v": "Learning from Delayed Rewards（博士论文）", "g": "论文", "d": "离策略 TD 学习：不依赖环境模型也能收敛到最优值函数。", "p": "https://en.wikipedia.org/wiki/Q-learning" },
     { "t": "Playing Atari with Deep Reinforcement Learning（DQN）", "a": "Mnih 等（DeepMind）", "y": 2013, "v": "arXiv:1312.5602", "g": "论文", "d": "卷积网络 + 经验回放：从像素直接学打游戏。", "p": "https://arxiv.org/abs/1312.5602", "f": "https://arxiv.org/pdf/1312.5602" },
     { "t": "Proximal Policy Optimization Algorithms（PPO）", "a": "John Schulman 等（OpenAI）", "y": 2017, "v": "arXiv:1707.06347", "g": "论文", "d": "用截断替代复杂约束：简单稳健的策略梯度，RLHF 时代的功臣。", "p": "https://arxiv.org/abs/1707.06347", "f": "https://arxiv.org/pdf/1707.06347" },
@@ -256,7 +256,7 @@
     { "t": "Minimax theorem（极小极大定理）", "a": "John von Neumann（冯·诺依曼）", "y": 1928, "v": "Zur Theorie der Gesellschaftsspiele", "g": "论文", "d": "零和博弈必有均衡值：博弈论诞生的数学宣言。", "p": "https://en.wikipedia.org/wiki/Minimax_theorem" },
     { "t": "Nash equilibrium（纳什均衡）", "a": "John Nash（纳什）", "y": 1950, "v": "Equilibrium Points in N-Person Games", "g": "论文", "d": "一页纸的论文证明不动点存在：谁单方面变招谁吃亏的稳定局面。", "p": "https://en.wikipedia.org/wiki/Nash_equilibrium" },
     { "t": "Vickrey auction（维克里拍卖）", "a": "William Vickrey（维克里）", "y": 1961, "v": "Counterspeculation, Auctions, and Competitive Sealed Tenders", "g": "论文", "d": "第二价格密封拍卖：诚实报价是占优策略的机制设计。", "p": "https://en.wikipedia.org/wiki/Vickrey_auction" },
-    { "t": "Shapley value（沙普利值）", "a": "Lloyd Shapley（沙普利）", "y": 1953, "v": "A Value for N-Person Games", "g": "论文", "d": "按平均边际贡献分蛋糕：合作博弈的公平分配唯一解。", "p": "https://en.wikipedia.org/wiki/Shapley_value" }
+    { "t": "Shapley value（沙普利值）", "a": "Lloyd Shapley（沙普利）", "y": 1953, "v": "A Value for N-Person Games", "g": "论文", "d": "按平均边际贡献分蛋糕：合作博弈的公平分配唯一解。", "p": "https://en.wikipedia.org/wiki/Shapley_value", "f": "https://www.rand.org/content/dam/rand/pubs/papers/2021/P295.pdf" }
   ],
   "52-control": [
     { "t": "Cybernetics（控制论）", "a": "Norbert Wiener（维纳）", "y": 1948, "v": "Or Control and Communication in the Animal and the Machine", "g": "原著", "d": "把「反馈」变成跨学科的科学：机器与动物共用同一套调节原理。", "p": "https://en.wikipedia.org/wiki/Cybernetics" },
@@ -277,7 +277,7 @@
     { "t": "A Unified Approach to Interpreting Model Predictions（SHAP）", "a": "Scott Lundberg, Su-In Lee", "y": 2017, "v": "arXiv:1705.07874 (NeurIPS 2017)", "g": "论文", "d": "沙普利值走进机器学习：特征贡献的统一度量框架。", "p": "https://arxiv.org/abs/1705.07874", "f": "https://arxiv.org/pdf/1705.07874" }
   ],
   "55-scientific-ml": [
-    { "t": "Physics-informed neural networks（PINN）", "a": "Maziar Raissi, Paris Perdikaris, George Karniadakis", "y": 2019, "v": "Journal of Computational Physics 378", "g": "论文", "d": "把物理方程残差写进损失函数：数据与定律共同训练网络。", "p": "https://en.wikipedia.org/wiki/Physics-informed_neural_networks" },
+    { "t": "Physics-informed neural networks（PINN）", "a": "Maziar Raissi, Paris Perdikaris, George Karniadakis", "y": 2019, "v": "Journal of Computational Physics 378", "g": "论文", "d": "把物理方程残差写进损失函数：数据与定律共同训练网络。", "p": "https://en.wikipedia.org/wiki/Physics-informed_neural_networks", "f": "https://arxiv.org/pdf/1711.10561" },
     { "t": "Neural Ordinary Differential Equations（Neural ODE）", "a": "Ricky Chen, Yulia Rubanova, Jesse Bettencourt, David Duvenaud", "y": 2018, "v": "arXiv:1806.07366 (NeurIPS 2018 最佳论文)", "g": "论文", "d": "把残差网络看成连续深度动力系统：网络与微分方程合流。", "p": "https://arxiv.org/abs/1806.07366", "f": "https://arxiv.org/pdf/1806.07366" },
     { "t": "Fourier Neural Operator for Parametric PDEs（FNO）", "a": "Zongyi Li 等（Caltech）", "y": 2020, "v": "arXiv:2010.08895 (ICLR 2021)", "g": "论文", "d": "在傅里叶空间学积分核：学「解算子」而非单个解，快三个数量级。", "p": "https://arxiv.org/abs/2010.08895", "f": "https://arxiv.org/pdf/2010.08895" }
   ],
@@ -287,18 +287,18 @@
     { "t": "AlphaProof", "a": "DeepMind", "y": 2024, "v": "IMO 银牌级系统", "g": "论文", "d": "强化学习 + 形式化验证冲击奥数：自动定理证明的路线图。", "p": "https://en.wikipedia.org/wiki/AlphaProof" }
   ],
   "57-differential-geometry": [
-    { "t": "On the Hypotheses which lie at the Bases of Geometry", "a": "Bernhard Riemann（黎曼）", "y": 1854, "v": "哥廷根就职演讲", "g": "原著", "d": "「弯曲空间的度量由内蕴决定」：黎曼几何从此开始。", "p": "https://en.wikipedia.org/wiki/On_the_Hypotheses_which_lie_at_the_Bases_of_Geometry" },
+    { "t": "On the Hypotheses which lie at the Bases of Geometry", "a": "Bernhard Riemann（黎曼）", "y": 1854, "v": "哥廷根就职演讲", "g": "原著", "d": "「弯曲空间的度量由内蕴决定」：黎曼几何从此开始。", "p": "https://en.wikipedia.org/wiki/On_the_Hypotheses_which_lie_at_the_Bases_of_Geometry", "f": "https://archive.org/download/paper-doi-10_1038_008014a0/paper-doi-10_1038_008014a0.pdf" },
     { "t": "Theorema Egregium（绝妙定理）", "a": "Carl Friedrich Gauss（高斯）", "y": 1827, "v": "曲面的弯曲不变量研究", "g": "论文", "d": "高斯曲率只由内蕴度量决定：生活在曲面上的生物也能测出曲率。", "p": "https://en.wikipedia.org/wiki/Theorema_Egregium" }
   ],
   "58-topology-data-geometry": [
     { "t": "Euler characteristic（欧拉示性数）", "a": "Leonhard Euler（欧拉）", "y": 1750, "v": "拓扑不变量的起点", "g": "论文", "d": "顶点-棱+面 = 2：形状在最粗暴的拉伸下不变的性质。", "p": "https://en.wikipedia.org/wiki/Euler_characteristic" },
-    { "t": "Poincaré conjecture（庞加莱猜想）", "a": "Henri Poincaré 提出，Grigori Perelman 证明", "y": "1904 提出 / 2003 证明", "v": "千年大奖问题", "g": "论文", "d": "三维流形的刻画：里奇流技术解决百年悬案。", "p": "https://en.wikipedia.org/wiki/Poincar%C3%A9_conjecture" },
+    { "t": "Poincaré conjecture（庞加莱猜想）", "a": "Henri Poincaré 提出，Grigori Perelman 证明", "y": "1904 提出 / 2003 证明", "v": "千年大奖问题", "g": "论文", "d": "三维流形的刻画：里奇流技术解决百年悬案。", "p": "https://en.wikipedia.org/wiki/Poincar%C3%A9_conjecture", "f": "https://arxiv.org/pdf/math/0211159" },
     { "t": "Topological data analysis（拓扑数据分析）", "a": "Edelsbrunner 等（持续同调）", "y": "2000s 系统化", "v": "数据科学新工具", "g": "论文", "d": "在多个尺度上记录数据「洞」的结构：形状也能当特征。", "p": "https://en.wikipedia.org/wiki/Topological_data_analysis" }
   ],
   "59-quantum-information": [
     { "t": "Simulating Physics with Computers", "a": "Richard Feynman（费曼）", "y": 1982, "v": "量子计算思想的公开起点", "g": "论文", "d": "「想模拟量子物理？用量子计算机」：领域诞生的宣言。", "p": "https://en.wikipedia.org/wiki/Quantum_computing" },
-    { "t": "Shor's algorithm（舒尔算法）", "a": "Peter Shor（舒尔）", "y": 1994, "v": "量子因数分解多项式算法", "g": "论文", "d": "大数分解在量子计算机上变快：RSA 的世纪警报。", "p": "https://en.wikipedia.org/wiki/Shor%27s_algorithm" },
-    { "t": "Grover's algorithm（格罗弗算法）", "a": "Lov Grover（格罗弗）", "y": 1996, "v": "量子搜索平方加速", "g": "论文", "d": "振幅放大让无序搜索快平方倍：量子优势的教科书案例。", "p": "https://en.wikipedia.org/wiki/Grover%27s_algorithm" },
+    { "t": "Shor's algorithm（舒尔算法）", "a": "Peter Shor（舒尔）", "y": 1994, "v": "量子因数分解多项式算法", "g": "论文", "d": "大数分解在量子计算机上变快：RSA 的世纪警报。", "p": "https://en.wikipedia.org/wiki/Shor%27s_algorithm", "f": "https://arxiv.org/pdf/quant-ph/9508027" },
+    { "t": "Grover's algorithm（格罗弗算法）", "a": "Lov Grover（格罗弗）", "y": 1996, "v": "量子搜索平方加速", "g": "论文", "d": "振幅放大让无序搜索快平方倍：量子优势的教科书案例。", "p": "https://en.wikipedia.org/wiki/Grover%27s_algorithm", "f": "https://arxiv.org/pdf/quant-ph/9605043" },
     { "t": "Quantum Computation and Quantum Information", "a": "Michael Nielsen, Isaac Chuang", "y": 2000, "v": "标准教材（Mike & Ike）", "g": "教材", "d": "量子信息领域的「圣经」：从量子比特到量子错误纠正的全景。", "p": "https://en.wikipedia.org/wiki/Quantum_Computation_and_Quantum_Information" }
   ],
   "60-engineering-cybernetics": [
@@ -313,7 +313,7 @@
     { "t": "Least mean squares filter（LMS 自适应滤波）", "a": "Bernard Widrow 等", "y": 1960, "v": "自适应信号处理奠基工作", "g": "论文", "d": "边跑边调权重的滤波器：降噪与回声消除的祖师爷。", "p": "https://en.wikipedia.org/wiki/Least_mean_squares_filter" }
   ],
   "62-communication-systems": [
-    { "t": "A Mathematical Theory of Communication（通信的数学理论）", "a": "Claude Shannon（香农）", "y": 1948, "v": "Bell System Technical Journal", "g": "论文", "d": "信道容量的极限公式：调制解调与纠错的共同天花板。", "p": "https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication" },
+    { "t": "A Mathematical Theory of Communication（通信的数学理论）", "a": "Claude Shannon（香农）", "y": 1948, "v": "Bell System Technical Journal", "g": "论文", "d": "信道容量的极限公式：调制解调与纠错的共同天花板。", "p": "https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication", "f": "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf" },
     { "t": "Phase-shift keying（相移键控）", "a": "通信工程界", "y": "20 世纪", "v": "数字调制经典方案", "g": "论文", "d": "用相位携带比特：从拨号上网到卫星链路的通用语言。", "p": "https://en.wikipedia.org/wiki/Phase-shift_keying" },
     { "t": "Quadrature amplitude modulation（正交幅度调制）", "a": "通信工程界", "y": "20 世纪", "v": "高效数字调制", "g": "论文", "d": "幅度与相位同时上货：Wi-Fi 与 5G 星座图的骨架。", "p": "https://en.wikipedia.org/wiki/Quadrature_amplitude_modulation" }
   ],
@@ -324,26 +324,45 @@
   ],
   "64-computer-graphics": [
     { "t": "Bresenham's line algorithm（布雷森汉姆直线算法）", "a": "Jack Bresenham（布雷森汉姆）", "y": 1965, "v": "IBM Systems Journal", "g": "论文", "d": "只用整数加减画直线：早期硬件的生存智慧。", "p": "https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm" },
-    { "t": "Phong shading（冯氏着色）", "a": "Bui Tuong Phong（裴祥风）", "y": 1975, "v": "Illumination for Computer Generated Pictures", "g": "论文", "d": "环境光-漫反射-镜面高光三件套：实时渲染光照模型的起点。", "p": "https://en.wikipedia.org/wiki/Phong_shading" },
+    { "t": "Phong shading（冯氏着色）", "a": "Bui Tuong Phong（裴祥风）", "y": 1975, "v": "Illumination for Computer Generated Pictures", "g": "论文", "d": "环境光-漫反射-镜面高光三件套：实时渲染光照模型的起点。", "p": "https://en.wikipedia.org/wiki/Phong_shading", "f": "https://www.cs.northwestern.edu/~ago820/cs395/Papers/Phong_1975.pdf" },
     { "t": "Z-buffering（深度缓冲）", "a": "Edwin Catmull（卡姆尔）", "y": 1974, "v": "A Subdivision Algorithm for Computer Display of Curved Surfaces", "g": "论文", "d": "逐像素比远近解决遮挡：3D 图像正确叠放的基础设施。", "p": "https://en.wikipedia.org/wiki/Z-buffering" },
     { "t": "The rendering equation（渲染方程）", "a": "James Kajiya", "y": 1986, "v": "SIGGRAPH", "g": "论文", "d": "把光传播写成积分方程：现代离线渲染器全部在解它。", "p": "https://en.wikipedia.org/wiki/Rendering_equation" }
   ],
   "65-robotics-motion": [
     { "t": "Denavit–Hartenberg parameters（DH 参数）", "a": "Jacques Denavit, Richard Hartenberg", "y": 1955, "v": "A Kinematic Notation for Lower-Pair Mechanisms", "g": "论文", "d": "四个参数定住一段连杆：机械臂正运动学的通用记法。", "p": "https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters" },
     { "t": "A* search algorithm（A 星算法）", "a": "Peter Hart, Nils Nilsson, Bertram Raphael", "y": 1968, "v": "SRI 移动机器人项目（Shakey 机器人）", "g": "论文", "d": "启发式搜索保证最优：机器人与游戏寻路的共同祖先。", "p": "https://en.wikipedia.org/wiki/A*_search_algorithm" },
-    { "t": "Rapidly-exploring random tree（RRT 快速探索随机树）", "a": "Steven LaValle（拉瓦莱）", "y": 1998, "v": "运动规划采样经典算法", "g": "论文", "d": "朝随机方向疯狂生长的树：高维空间避障的利器。", "p": "https://en.wikipedia.org/wiki/Rapidly-exploring_random_tree" },
+    { "t": "Rapidly-exploring random tree（RRT 快速探索随机树）", "a": "Steven LaValle（拉瓦莱）", "y": 1998, "v": "运动规划采样经典算法", "g": "论文", "d": "朝随机方向疯狂生长的树：高维空间避障的利器。", "p": "https://en.wikipedia.org/wiki/Rapidly-exploring_random_tree", "f": "https://msl.cs.illinois.edu/~lavalle/papers/Lav98c.pdf" },
     { "t": "Simultaneous localization and mapping（SLAM）", "a": "Smith, Cheeseman 等 → Durrant-Whyte 综述", "y": "1986 起", "v": "机器人定位与建图", "g": "论文", "d": "「我在哪」和「地图长啥样」互为鸡与蛋：概率估计同时解出两者。", "p": "https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping" }
   ],
   "66-stochastic-analysis": [
     { "t": "Louis Bachelier 与随机游走", "a": "Louis Bachelier（巴舍利耶）", "y": 1900, "v": "Théorie de la Spéculation", "g": "论文", "d": "早于爱因斯坦五年写布朗运动：金融数学的开山之作。", "p": "https://en.wikipedia.org/wiki/Louis_Bachelier" },
     { "t": "Brownian motion（布朗运动）", "a": "Robert Brown 观测 → Einstein (1905) 解释", "y": 1905, "v": "物理与随机的经典交汇", "g": "论文", "d": "花粉的无规则运动被原子论解释：维纳过程的物理出身。", "p": "https://en.wikipedia.org/wiki/Brownian_motion" },
     { "t": "Itô calculus（伊藤积分）", "a": "Kiyoshi Itô（伊藤清）", "y": 1944, "v": "Stochastic Integral", "g": "论文", "d": "给随机过程定义积分与微分方程：随机分析的地基。", "p": "https://en.wikipedia.org/wiki/It%C3%B4_calculus" },
-    { "t": "Black–Scholes model（布莱克-斯科尔斯模型）", "a": "Fischer Black, Myron Scholes", "y": 1973, "v": "The Pricing of Options and Corporate Liabilities", "g": "论文", "d": "偏微分方程为期权定价：衍生品市场的数学引擎。", "p": "https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model" },
+    { "t": "Black–Scholes model（布莱克-斯科尔斯模型）", "a": "Fischer Black, Myron Scholes", "y": 1973, "v": "The Pricing of Options and Corporate Liabilities", "g": "论文", "d": "偏微分方程为期权定价：衍生品市场的数学引擎。", "p": "https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model", "f": "https://www.cs.princeton.edu/courses/archive/fall09/cos323/papers/black_scholes73.pdf" },
     { "t": "Euler–Maruyama method（欧拉-丸山方法）", "a": "Gisiro Maruyama（丸山仪四郎）", "y": 1955, "v": "随机微分方程数值解", "g": "论文", "d": "给随机微分方程配一个「欧拉法」：随机模拟的第一课。", "p": "https://en.wikipedia.org/wiki/Euler%E2%80%93Maruyama_method" }
   ],
   "67-category-theory": [
     { "t": "General theory of natural equivalences", "a": "Samuel Eilenberg, Saunders Mac Lane", "y": 1945, "v": "范畴论奠基论文", "g": "论文", "d": "为统一拓扑与代数而发明「范畴」：数学的数学诞生。", "p": "https://en.wikipedia.org/wiki/Category_theory" },
     { "t": "Categories for the Working Mathematician", "a": "Saunders Mac Lane（麦克莱恩）", "y": 1971, "v": "研究生标准教材", "g": "教材", "d": "范畴论创始人亲自写的入门书：函子、自然变换、极限的源头。", "p": "https://en.wikipedia.org/wiki/Saunders_Mac_Lane" },
     { "t": "nLab", "a": "nLab 社区", "y": "持续更新", "v": "ncatlab.org", "g": "资源", "d": "范畴论与高阶结构 wiki：查概念来龙去脉的利器。", "p": "https://ncatlab.org/nlab/show/HomePage" }
+  ],
+  "71-electronics": [
+    { "t": "Die galvanische Kette, mathematisch bearbeitet（电路的数学研究）", "a": "Georg Ohm（格奥尔格·欧姆）", "y": 1827, "v": "柏林首版（德文）", "g": "原著", "d": "「电流正比于电压、反比于电阻」第一次被写成公式——第 2 课那颗 150 Ω 限流电阻的全部依据都在这里。", "p": "https://en.wikipedia.org/wiki/Ohm%27s_law" },
+    { "t": "Ueber den Durchgang eines electrischen Stromes durch eine Ebene（论电流通过平面的传导）", "a": "Gustav Kirchhoff（古斯塔夫·基尔霍夫）", "y": 1845, "v": "Poggendorff's Annalen der Physik", "g": "原著", "d": "KCL 与 KVL 的出生证明：把「节点」和「回路」变成可列的方程，电路从此不再靠直觉，而是一门线性代数。", "p": "https://en.wikipedia.org/wiki/Kirchhoff%27s_circuit_laws" },
+    { "t": "A Dynamical Theory of the Electromagnetic Field（电磁场的动力学理论）", "a": "James Clerk Maxwell（麦克斯韦）", "y": 1865, "v": "Philosophical Transactions of the Royal Society", "g": "原著", "d": "把电、磁、光统一进一组方程；本章电容与电感的「惯性」只是它在集总参数电路里投下的影子。", "p": "https://en.wikipedia.org/wiki/A_Dynamical_Theory_of_the_Electromagnetic_Field" },
+    { "t": "Stabilized Feedback Amplifiers（稳定化反馈放大器）", "a": "Harold S. Black（哈罗德·布莱克）", "y": 1934, "v": "Bell System Technical Journal 13(1)", "g": "论文", "d": "负反馈的发明：用一大堆不可靠的增益，换一个精确可靠的增益——第 13 课「虚短」的祖师爷。", "p": "https://en.wikipedia.org/wiki/Negative-feedback_amplifier", "f": "https://archive.org/download/bstj13-1-1/bstj13-1-1.pdf" },
+    { "t": "The Theory of p-n Junctions in Semiconductors and p-n Junction Transistors（p-n 结与面结型晶体管理论）", "a": "William Shockley（威廉·肖克利）", "y": 1949, "v": "Bell System Technical Journal 28(3)", "g": "论文", "d": "把 0.7 V 这个数字从实验台算了出来：二极管与双极型晶体管的定量理论起点，第 11、12 课的理论底座。", "p": "https://en.wikipedia.org/wiki/Point-contact_transistor", "f": "https://archive.org/download/bstj28-3-435/bstj28-3-435.pdf" },
+    { "t": "A Mathematical Theory of Communication（通信的数学理论）", "a": "Claude Shannon（克劳德·香农）", "y": 1948, "v": "Bell System Technical Journal", "g": "论文", "d": "采样定理的原始出处：第 17 课 ADC 那把「把时间切段」的刀，是从这里递过来的。", "p": "https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem", "f": "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf" }
+  ],
+  "73-computer-systems": [
+    { "t": "Cooperating Sequential Processes（协同顺序进程）", "a": "Edsger W. Dijkstra（迪杰斯特拉）", "y": 1965, "v": "EWD 123 · Eindhoven University of Technology", "g": "原著", "d": "信号量、互斥、临界区这些词都出生在这份手稿里——浏览器开 30 个标签而一个崩了别的还活着，靠的就是它。", "p": "https://en.wikipedia.org/wiki/Cooperating_sequential_processes", "f": "https://www.cs.utexas.edu/users/EWD/ewd01xx/EWD123.PDF" },
+    { "t": "Scheduling Algorithms for Multiprogramming in a Hard-Real-Time Environment（硬实时环境下的调度算法）", "a": "C. L. Liu, James W. Layland", "y": 1973, "v": "Journal of the ACM 20(1)", "g": "论文", "d": "速率单调调度与那个 ln2 ≈ 69% 的利用率上界：第 3 课「SJF 平均等待最短却没人真用」的另一半答案。", "p": "https://en.wikipedia.org/wiki/Rate-monotonic_scheduling" },
+    { "t": "Virtual Memory（虚拟内存）", "a": "Peter J. Denning", "y": 1970, "v": "Computing Surveys 2(3)", "g": "论文", "d": "把「地址」和「内存」彻底解耦的工作集理论；4 KB 一页、TLB 命中率 99% 这套说法从这儿开始。", "p": "https://en.wikipedia.org/wiki/Virtual_memory" },
+    { "t": "Three Models for the Description of Language（描述语言的三个模型）", "a": "Noam Chomsky（诺姆·乔姆斯基）", "y": 1956, "v": "IRE Transactions on Information Theory", "g": "论文", "d": "文法分层的源头：为什么 3 + 4 × 5 是 23 而不是 35，答案写在文法的层级里，而不是运算符优先级表里。", "p": "https://en.wikipedia.org/wiki/Chomsky_hierarchy" },
+    { "t": "A Relational Model of Data for Large Shared Data Banks（大型共享数据库的关系模型）", "a": "E. F. Codd（埃德加·科德）", "y": 1970, "v": "Communications of the ACM 13(6)", "g": "论文", "d": "「SQL 不是查表语言，它是集合论穿了件外套」——这句话的原始出处，第 9 课的主角。", "p": "https://en.wikipedia.org/wiki/Relational_model", "f": "https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf" },
+    { "t": "The Transaction Concept: Virtues and Limitations（事务概念：优点与局限）", "a": "Jim Gray（吉姆·格雷）", "y": 1981, "v": "VLDB 1981", "g": "论文", "d": "ACID 四个字母的定稿现场，也是「并发事务对不对，看冲突图有没有环」的出处。", "p": "https://en.wikipedia.org/wiki/ACID", "f": "https://jimgray.azurewebsites.net/papers/theTransactionConcept.pdf" },
+    { "t": "A Protocol for Packet Network Intercommunication（分组网络互连协议）", "a": "Vinton Cerf, Robert Kahn（瑟夫与卡恩）", "y": 1974, "v": "IEEE Transactions on Communications", "g": "论文", "d": "TCP/IP 的出生证明：第 12 课里「100 字节发出去、线上跑的是 158 字节」的信封格式，从这儿定下来。", "p": "https://en.wikipedia.org/wiki/Internet_protocol_suite", "f": "https://www.cs.princeton.edu/courses/archive/fall06/cos561/papers/cerf74.pdf" },
+    { "t": "Congestion Avoidance and Control（拥塞避免与控制）", "a": "Van Jacobson", "y": 1988, "v": "SIGCOMM '88", "g": "论文", "d": "「加性增、乘性减」那条锯齿的发明地——整个互联网没被自己挤垮，靠的就是这一篇。", "p": "https://en.wikipedia.org/wiki/TCP_congestion_control", "f": "https://ee.lbl.gov/papers/congavoid.pdf" },
+    { "t": "In Search of an Understandable Consensus Algorithm（寻找可理解的一致性算法）", "a": "Diego Ongaro, John Ousterhout", "y": 2014, "v": "USENIX ATC 2014", "g": "论文", "d": "把 Paxos 的晦涩拆成选主、日志复制、安全性三块：五台机器坏两台，凭什么还能对真相达成一致。", "p": "https://en.wikipedia.org/wiki/Raft_(algorithm)", "f": "https://raft.github.io/raft.pdf" }
   ]
 }

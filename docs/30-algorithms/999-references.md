@@ -13,7 +13,7 @@ difficulty: 3
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Dijkstra's algorithm（迪杰斯特拉算法）
@@ -23,6 +23,9 @@ difficulty: 3
 # @tag: 论文
 # @desc: 三行伪代码写下最短路：20 分钟想出的算法用了六十年。
 # @page: https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
+# @pdf64: aHR0cHM6Ly9pci5jd2kubmwvcHViLzkyNTYvOTI1NkQucGRm
+# @local64: L3BhcGVycy85MjU2RC0yMDc3MTIyNC5wZGY=
+# @lsize: 0.2 MB
 ```
 
 ```paper

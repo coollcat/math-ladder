@@ -14,7 +14,7 @@ difficulty: 5
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Simulating Physics with Computers
@@ -34,6 +34,9 @@ difficulty: 5
 # @tag: 论文
 # @desc: 大数分解在量子计算机上变快：RSA 的世纪警报。
 # @page: https://en.wikipedia.org/wiki/Shor%27s_algorithm
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmL3F1YW50LXBoLzk1MDgwMjc=
+# @local64: L3BhcGVycy85NTA4MDI3LTY1MWU0MzNkLnBkZg==
+# @lsize: 0.3 MB
 ```
 
 ```paper
@@ -44,6 +47,9 @@ difficulty: 5
 # @tag: 论文
 # @desc: 振幅放大让无序搜索快平方倍：量子优势的教科书案例。
 # @page: https://en.wikipedia.org/wiki/Grover%27s_algorithm
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmL3F1YW50LXBoLzk2MDUwNDM=
+# @local64: L3BhcGVycy85NjA1MDQzLWRhNzg5Mjc4LnBkZg==
+# @lsize: 0.1 MB
 ```
 
 ```paper

@@ -5,6 +5,10 @@
  * 每章的 volume/layer/track/stage/difficulty 元数据自动从该章 index.md 抄写，
  * 保证与 validate.mjs 的新课元数据闸门一致。
  *
+ * 本地 PDF 副本：scripts/papers-local.json（由 fetch-papers.mjs 生成）记录
+ * 「原始地址 → static/papers/ 下的文件」。只有磁盘上真有该文件时才写 @local64，
+ * 所以没跑过下载的克隆会自然退化成「全部走原始地址」，不会出现死链。
+ *
  * 用法：node scripts/gen-references.mjs [--check]
  *   默认写入；--check 只对比是否为最新（CI/闸门可用）。
  *
@@ -22,6 +26,29 @@ const dataFile = path.join(scriptDir, 'references-data.json');
 const checkMode = process.argv.includes('--check');
 
 const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+
+/* ---------- 本地 PDF 副本清单 ---------- */
+
+const manifestFile = path.join(scriptDir, 'papers-local.json');
+const papersDir = path.join(scriptDir, '..', 'static', 'papers');
+let localManifest = null;
+try {
+  localManifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
+} catch {
+  /* 没跑过 fetch-papers.mjs：全部条目走原始地址，不报错 */
+}
+
+/* 返回 { url, size } 或 null；磁盘上没有文件就当没有本地副本 */
+function localFor(pdfUrl) {
+  const it = localManifest?.items?.[pdfUrl];
+  if (!it?.file) return null;
+  if (!fs.existsSync(path.join(papersDir, it.file))) return null;
+  const base = localManifest.base || '/papers/';
+  return {
+    url: base + it.file,
+    size: it.bytes ? (it.bytes / 1048576).toFixed(1) + ' MB' : '',
+  };
+}
 
 function parseFrontMatter(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -77,6 +104,12 @@ function paperFence(entry) {
        下载按钮由 enhancer.js 在浏览器端解码。这是「避免源码一眼可得」的
        混淆手段而非加密（安全边界声明见 REGISTRATION.md）。 */
     lines.push('# @pdf64: ' + Buffer.from(entry.f, 'utf8').toString('base64'));
+    /* 本站归档副本：同样 base64 写入，登录后才走这条路径 */
+    const loc = localFor(entry.f);
+    if (loc) {
+      lines.push('# @local64: ' + Buffer.from(loc.url, 'utf8').toString('base64'));
+      if (loc.size) lines.push('# @lsize: ' + loc.size);
+    }
   }
   return '```paper\n' + lines.join('\n') + '\n```';
 }
@@ -125,7 +158,7 @@ for (const dir of chapterDirs) {
     '',
     '本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。',
     '',
-    '「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。',
+    '文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。',
     '',
     entries.map(paperFence).join('\n\n'),
     '',

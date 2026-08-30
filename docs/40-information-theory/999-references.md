@@ -13,7 +13,7 @@ difficulty: 3
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: A Mathematical Theory of Communication（通信的数学理论）
@@ -23,6 +23,9 @@ difficulty: 3
 # @tag: 论文
 # @desc: 信息论开山：比特、熵、信道容量与压缩极限的全部来源。
 # @page: https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication
+# @pdf64: aHR0cHM6Ly9wZW9wbGUubWF0aC5oYXJ2YXJkLmVkdS9+Y3RtL2hvbWUvdGV4dC9vdGhlcnMvc2hhbm5vbi9lbnRyb3B5L2VudHJvcHkucGRm
+# @local64: L3BhcGVycy9lbnRyb3B5LWRiY2IxMjE3LnBkZg==
+# @lsize: 0.3 MB
 ```
 
 ```paper
@@ -33,6 +36,9 @@ difficulty: 3
 # @tag: 论文
 # @desc: 一篇学期作业成为最优前缀码：贪心合并的完美示范。
 # @page: https://en.wikipedia.org/wiki/Huffman_coding
+# @pdf64: aHR0cDovL2NvbXByZXNzaW9uLnJ1L2Rvd25sb2FkL2FydGljbGVzL2h1ZmYvaHVmZm1hbl8xOTUyX21pbmltdW0tcmVkdW5kYW5jeS1jb2Rlcy5wZGY=
+# @local64: L3BhcGVycy9odWZmbWFuXzE5NTJfbWluaW11bS1yZWR1bmRhbmN5LWNvZGVzLTZiZmU5MTU1LnBkZg==
+# @lsize: 0.3 MB
 ```
 
 ```paper

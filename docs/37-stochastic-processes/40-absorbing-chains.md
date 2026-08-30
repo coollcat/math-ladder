@@ -120,7 +120,7 @@ print(f"平均局数 ≈ {round(steps_total / rounds, 1)}，理论 i×(N−i) = 
 
 拖动滑块改变出身与目标：胜率严格跟着 `money/goal` 走，平均时长在中间起步时最长——两头都是快结局，中间才是漫长的挣扎区。
 
-### 实验 3（python)：画出几条随机轨迹看"候车室"
+### 实验 3（python）：画出几条随机轨迹看"候车室"
 
 ```python title="三条轨迹：暂过区的徘徊与终点的一锤定音"
 import random

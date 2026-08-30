@@ -12,7 +12,9 @@ const docsRoot = path.resolve(docsRootOverride || path.join(scriptDir, '..', 'do
 
 const TRACKED_BUILTINS = ['abs', 'sum', 'min', 'max', 'round', 'pow', 'divmod'];
 const REGISTRY = {
-  volume: new Set(['1', '2', '3', '4', '5']),
+  /* 2026-08-30 卷六（68–75 工程与系统）开建，词表扩到 6。
+     卷号是纯分类标签，不是硬上限——新卷开建时在这里加，不要在课文里回避 volume 字段。 */
+  volume: new Set(['1', '2', '3', '4', '5', '6']),
   layer: new Set(['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']),
   track: new Set([
     'algebra-structure',
@@ -45,6 +47,46 @@ const VIZ_TYPES = new Set(
     : [],
 );
 
+/* lab 组件名白名单：卷六组件按章分册放在 lab/registries/ 下，
+   直接扫目录取键，比 viz 那种「正则抠单文件源码」更抗重构。
+   同时查重——分册之间同名会让后加载的章静默覆盖前一章。 */
+const LAB_TYPES = (() => {
+  const dir = path.join(scriptDir, '..', 'src', 'pyrunner', 'lab', 'registries');
+  const out = new Set();
+  const owner = new Map();
+  let files = [];
+  try {
+    files = fs.readdirSync(dir).filter((f) => f.endsWith('.js'));
+  } catch (e) {
+    void e;
+    return { types: out, dupes: [] };
+  }
+  const dupes = [];
+  files.forEach((f) => {
+    const src = fs.readFileSync(path.join(dir, f), 'utf8');
+    [...src.matchAll(/^\s*'?([A-Za-z][\w-]*)'?\s*:\s*\(\s*\)\s*=>/gm)].forEach((m) => {
+      if (owner.has(m[1])) dupes.push(`${m[1]}（${owner.get(m[1])} 与 ${f} 重复）`);
+      owner.set(m[1], f);
+      out.add(m[1]);
+    });
+  });
+  return { types: out, dupes };
+})();
+
+/* 滑块规格校验：viz 与 lab 共用同一套规则 */
+function checkSliders(at, spec, sink) {
+  for (const s of Array.isArray(spec.sliders) ? spec.sliders : []) {
+    for (const k of ['min', 'max', 'step', 'value']) {
+      if (typeof s[k] !== 'number') {
+        sink(`${at} 滑块 ${s.name || '?'} 的 ${k} 必须是数字`);
+      }
+    }
+    if (typeof s.min === 'number' && typeof s.max === 'number' && s.min >= s.max) {
+      sink(`${at} 滑块 ${s.name || '?'} 的 min 必须小于 max`);
+    }
+  }
+}
+
 /* 表达式编译器：直接从 viz.js 抠出同一段源码求值，保证两侧永不漂移。
    2026-08-28 加：历史上 10 处 viz 块因 -x^2 / Unicode 减号在页面上渲染成错误卡，
    而 validate 与 build 全绿放行，属典型校验盲区。这里在构建闸门就试编译一遍。 */
@@ -71,7 +113,7 @@ function extractInteractiveFences(text) {
   let cur = null;
   lines.forEach((line, i) => {
     if (cur === null) {
-      const m = line.match(/^(`{3,})\s*(viz|quiz|exercise)\s*$/);
+      const m = line.match(/^(`{3,})\s*(viz|lab|quiz|exercise)\s*$/);
       if (m) cur = { lang: m[2], fence: m[1], line: i + 1, code: [] };
     } else if (new RegExp('^' + cur.fence + '{1,}' + '\\s*$').test(line)) {
       out.push(cur);
@@ -86,6 +128,11 @@ function extractInteractiveFences(text) {
 
 const errors = [];
 const warns = [];
+
+/* 分册注册表之间的同名组件会在合并时静默互相覆盖，属于结构性错误 */
+if (LAB_TYPES.dupes && LAB_TYPES.dupes.length) {
+  LAB_TYPES.dupes.forEach((d) => errors.push(`lab 组件重名：${d}`));
+}
 
 function parseFrontMatter(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -410,20 +457,7 @@ if (!listMode) {
             `${at} 未知 viz 类型 "${spec.type}"（可用：${[...VIZ_TYPES].join(' / ')}）`,
           );
         }
-        for (const s of Array.isArray(spec.sliders) ? spec.sliders : []) {
-          for (const k of ['min', 'max', 'step', 'value']) {
-            if (typeof s[k] !== 'number') {
-              errors.push(`${at} 滑块 ${s.name || '?'} 的 ${k} 必须是数字`);
-            }
-          }
-          if (
-            typeof s.min === 'number' &&
-            typeof s.max === 'number' &&
-            s.min >= s.max
-          ) {
-            errors.push(`${at} 滑块 ${s.name || '?'} 的 min 必须小于 max`);
-          }
-        }
+        checkSliders(at, spec, (m) => errors.push(m));
         /* 表达式编译闸门：用 viz.js 同一套编译器试编译，拦在构建前 */
         if (vizExpr && vizExpr.compileExpr) {
           const names = (Array.isArray(spec.sliders) ? spec.sliders : [])
@@ -442,6 +476,28 @@ if (!listMode) {
             }
           }
         }
+      } else if (f.lang === 'lab') {
+        /* lab 是卷六工程域的交互围栏（音频/电路/机构/逻辑…）。
+           校验口径与 viz 一致：JSON 合法性 + 组件名白名单 + 滑块规格。
+           lab 的 spec 字段由各组件自定，不做表达式编译检查。 */
+        const stripped = joinedRaw
+          .replace(/^\s*\/\/.*$/gm, '')
+          .replace(/,\s*([}\]])/g, '$1');
+        let spec = null;
+        try {
+          spec = JSON.parse(stripped);
+        } catch (e) {
+          errors.push(`${at} lab 配置不是合法 JSON：${e.message}`);
+          continue;
+        }
+        if (!spec.type) {
+          errors.push(`${at} lab 缺少 type 字段`);
+        } else if (LAB_TYPES.types.size && !LAB_TYPES.types.has(spec.type)) {
+          errors.push(
+            `${at} 未知 lab 组件 "${spec.type}"（可用：${[...LAB_TYPES.types].join(' / ')}）`,
+          );
+        }
+        checkSliders(at, spec, (m) => errors.push(m));
       } else if (f.lang === 'quiz') {
         const lines = rawLines.map((l) => l.trim()).filter(Boolean);
         const opts = lines.filter((l) => l.startsWith('-'));
@@ -530,6 +586,15 @@ if (!listMode) {
         errors.push(
           '999-references.md 落后于 references-data.json——请运行 node scripts/gen-references.mjs 重新生成',
         );
+      }
+      /* 本地 PDF 副本体检：只警告不拦截（缺副本会自然退化成「走原始地址」） */
+      const papers = spawnSync(
+        process.execPath,
+        [path.join(scriptDir, 'fetch-papers.mjs'), '--check'],
+        { stdio: 'pipe' },
+      );
+      if (papers.status !== 0 && papers.stdout) {
+        warns.push('论文归档副本有缺失——运行 node scripts/fetch-papers.mjs 补齐');
       }
     } catch {
       /* references-data.json 缺失或不可读时跳过（gen-references.mjs 自身会报错） */

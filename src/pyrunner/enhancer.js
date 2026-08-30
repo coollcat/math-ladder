@@ -213,7 +213,7 @@ function hashStr(s) {
 
 /* ---------- 登录态（论文下载 / 学习进度的门禁） ---------- */
 
-import { getAuth } from '../auth';
+import { getAuth, isAuthed } from '../auth';
 
 /* ---------- localStorage 小工具 ---------- */
 
@@ -1242,7 +1242,8 @@ function enhanceProgress() {
 /* ---------- 论文与参考资料卡片 ---------- */
 
 /* 参考资料条目（docs/NN-chapter/999-references.md）用 ```paper 围栏书写，
-   每条一张文献卡：文献页面与 PDF 下载对所有人开放。 */
+   每条一张文献卡：文献页面对所有人开放；PDF 下载分两路——
+   已登录取本站归档副本（static/papers/），未登录前往原始地址。 */
 
 function parsePaperMeta(source) {
   const meta = {};
@@ -1250,18 +1251,58 @@ function parsePaperMeta(source) {
     const m = line.match(/^#\s*@([A-Za-z_]\w*):\s*(.*)$/);
     if (m) meta[m[1]] = m[2].trim();
   }
-  /* 生成器把 PDF 链接写成 base64（@pdf64），避免静态 HTML 源码直接可读；
-     手写条目仍可用明文 @pdf。arXiv 等 PDF 链接均为 ASCII，atob 足够。 */
-  if (meta.pdf64) {
+  /* 生成器把 PDF 链接写成 base64（@pdf64 原始地址 / @local64 本站副本），
+     避免静态 HTML 源码直接可读；手写条目仍可用明文 @pdf / @local。
+     arXiv 等 PDF 链接均为 ASCII，atob 足够。 */
+  for (const [from, to] of [['pdf64', 'pdf'], ['local64', 'local']]) {
+    if (!meta[from]) continue;
     try {
-      const bytes = Uint8Array.from(atob(meta.pdf64), (c) => c.charCodeAt(0));
-      meta.pdf = new TextDecoder().decode(bytes);
+      const bytes = Uint8Array.from(atob(meta[from]), (c) => c.charCodeAt(0));
+      meta[to] = new TextDecoder().decode(bytes);
     } catch {
       /* 解码失败时宁可没有下载按钮，也不要给出坏链接 */
     }
-    delete meta.pdf64;
+    delete meta[from];
   }
   return meta;
+}
+
+/* 下载按钮的两副面孔：登录 → 本站副本；未登录 → 原始地址。
+   登录态可能在卡片渲染之后变化（在别的页登录/退出登录再回来），
+   所以把 meta 挂在 WeakMap 上，收到 ml-auth-changed 时整体重刷一遍。 */
+const pdfBtnMeta = new WeakMap();
+
+function paintPdfButton(el, meta) {
+  const useLocal = Boolean(meta.local) && isAuthed();
+  el.dataset.mlMode = useLocal ? 'local' : 'remote';
+  if (useLocal) {
+    el.textContent = meta.lsize ? `⬇ 本地下载（${meta.lsize}）` : '⬇ 本地下载';
+    el.title = '从本站下载已归档的 PDF 副本';
+    el.setAttribute('href', meta.local);
+    el.setAttribute('download', '');
+    el.removeAttribute('target');
+    el.removeAttribute('rel');
+  } else {
+    el.textContent = meta.local ? '⬇ 原站下载' : '⬇ PDF 下载';
+    el.title = meta.local
+      ? '未登录：前往原始地址下载（登录后可直接从本站取归档副本）'
+      : '在新窗口打开 PDF（原始地址）';
+    el.setAttribute('href', meta.pdf);
+    el.setAttribute('target', '_blank');
+    el.setAttribute('rel', 'noopener noreferrer');
+    el.removeAttribute('download');
+  }
+}
+
+function repaintPdfButtons() {
+  document.querySelectorAll('.ml-paper__btn--pdf').forEach((el) => {
+    const meta = pdfBtnMeta.get(el);
+    if (meta) paintPdfButton(el, meta);
+  });
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('ml-auth-changed', repaintPdfButtons);
 }
 
 function buildPaperCard(meta) {
@@ -1309,13 +1350,10 @@ function buildPaperCard(meta) {
   }
 
   if (meta.pdf) {
-    const btn = document.createElement('button');
+    const btn = document.createElement('a');
     btn.className = 'ml-paper__btn ml-paper__btn--pdf';
-    btn.textContent = '⬇ PDF 下载';
-    btn.title = '在新窗口打开 PDF';
-    btn.addEventListener('click', () => {
-      window.open(meta.pdf, '_blank', 'noopener');
-    });
+    pdfBtnMeta.set(btn, meta);
+    paintPdfButton(btn, meta);
     actions.appendChild(btn);
   }
 
@@ -1374,12 +1412,49 @@ function maybeEnhanceViz() {
   );
 }
 
+/* lab 组件库（卷六工程域）同样按需加载：页面里真出现 ```lab 围栏才拉取。
+   与 viz 是两套平行系统；lab 走 per-component 分包，粒度比 viz 整包更细。 */
+let labModPromise = null;
+function loadLabModule() {
+  if (!labModPromise) {
+    labModPromise = import('./lab/index.js').then(
+      (m) => m,
+      (e) => {
+        labModPromise = null;
+        throw e;
+      },
+    );
+  }
+  return labModPromise;
+}
+
+function maybeEnhanceLab() {
+  if (!document.querySelector('pre[class*="language-lab"]')) return;
+  loadLabModule().then(
+    (m) => {
+      try { m.enhanceLab(); } catch (e) { console.error('[ml] lab:', e); }
+    },
+    (e) => console.error('[ml] lab 加载失败:', e),
+  );
+}
+
 export function enhanceAll() {
   /* 任一阶段出错都不拖垮其余阶段，更不冒泡打断 React 提交 */
   try { ensureConsole(); } catch (e) { console.error('[ml] console:', e); }
   try { bindCodeBlocks(); } catch (e) { console.error('[ml] code blocks:', e); }
   try { bindSolutionDetails(); } catch (e) { console.error('[ml] solutions:', e); }
   try { maybeEnhanceViz(); } catch (e) { console.error('[ml] viz:', e); }
+  try { maybeEnhanceLab(); } catch (e) { console.error('[ml] lab:', e); }
   try { enhancePapers(); } catch (e) { console.error('[ml] papers:', e); }
   try { enhanceProgress(); } catch (e) { console.error('[ml] progress:', e); }
+}
+
+/* 路由切换前清理 lab 组件持有的 AudioContext 等资源 */
+export function disposeLabComponents() {
+  loadLabModule().then(
+    (m) => {
+      try { m.disposeLab(); } catch (e) { console.error('[ml] lab dispose:', e); }
+    },
+    () => {},
+  );
 }

@@ -179,4 +179,4 @@ $$f(t)=\frac{1}{2\pi i}\int_{\gamma-i\infty}^{\gamma+i\infty}e^{st}F(s)\,ds,$$
 
 一个局部幂级数只在圆盘内有效，但解析函数往往能穿过边界继续生长。下一课讲解析延拓：如何用一串互相重叠的圆盘走出更大的世界。
 
-→ [110 · 解析延拓选讲](./110-analytic-continuation.md)
+→ [解析延拓选讲](./110-analytic-continuation.md)

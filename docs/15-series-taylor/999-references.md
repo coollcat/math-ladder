@@ -7,7 +7,7 @@ description: 第 15 章涉及的核心论文、原著与延伸阅读一览。
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Methodus Incrementorum Directa et Inversa（正与反的增量方法）
@@ -17,6 +17,9 @@ description: 第 15 章涉及的核心论文、原著与延伸阅读一览。
 # @tag: 原著
 # @desc: 「用多项式逼近光滑函数」的系统陈述，函数计算从此有了通用模板。
 # @page: https://en.wikipedia.org/wiki/Taylor_series
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9VRklFMDAzNDU0X1RPMDMyNF9QTkktMjUyOV8wMDAwMDAvVUZJRTAwMzQ1NF9UTzAzMjRfUE5JLTI1MjlfMDAwMDAwLnBkZg==
+# @local64: L3BhcGVycy9VRklFMDAzNDU0X1RPMDMyNF9QTkktMjUyOV8wMDAwMDAtMzhkYTEwNTcucGRm
+# @lsize: 7.8 MB
 ```
 
 ```paper

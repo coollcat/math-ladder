@@ -31,6 +31,33 @@ function routeFor(file) {
 const markdown = walk('docs').filter((file) => file.endsWith('.md') && path.basename(file) !== 'COMPONENT_SPEC.md');
 const problems = [];
 const warnings = []; // 预警级：打印但不作为失败依据
+
+/* ---------- viz type 白名单（RENDERERS 键集合） ----------
+   从 src/pyrunner/viz.js 尾部 type→renderer 映射表用正则抠取全部键，
+   同时覆盖带引号（'eigen-direction'）与不带引号（elimination）两种形式；
+   不手工抄列表，渲染器增删后闸门自动跟随，杜绝审计误报/漏报组件名。
+   提取失败（源码缺失或结构漂移）时降级为跳过 type 白名单校验并打 [warn]。 */
+function extractVizTypes(vizPath) {
+  let src = '';
+  try {
+    src = fs.readFileSync(vizPath, 'utf8');
+  } catch (error) {
+    void error;
+    return null;
+  }
+  const block = src.match(/const RENDERERS = \{([\s\S]*?)\n\}/);
+  if (!block) return null;
+  return new Set(
+    [...block[1].matchAll(/(^|\n)\s*(?:([A-Za-z_]\w*)|['"]([^'"]+)['"])\s*:/g)].map(
+      (m) => m[2] || m[3],
+    ),
+  );
+}
+
+const VIZ_TYPES = extractVizTypes(path.join('src', 'pyrunner', 'viz.js'));
+if (!VIZ_TYPES || !VIZ_TYPES.size) {
+  warnings.push('src/pyrunner/viz.js 的 RENDERERS 键集合提取失败，本轮回避 viz type 白名单校验（检查源文件是否被重构）');
+}
 let sourceH2 = 0;
 let builtH2 = 0;
 let pythonBlocks = 0;
@@ -77,7 +104,25 @@ for (const file of markdown) {
     const insideDetails = detailsOpen > detailsClose;
     if (block.lang === 'viz') {
       vizBlocks += 1;
-      try { JSON.parse(block.code); } catch (error) { problems.push(`${relative}:${block.line}: invalid viz JSON ${error.message}`); }
+      /* 与 validate.mjs 同口径：先剥行注释与尾逗号（历史宽容写法），再逐块 JSON.parse。
+         [error] 解析失败 / spec 非对象 / type 不在 RENDERERS 键集合；[warn] 缺失 type。 */
+      const stripped = block.code.replace(/^\s*\/\/.*$/gm, '').replace(/,\s*([}\]])/g, '$1');
+      let spec = null;
+      try {
+        spec = JSON.parse(stripped);
+      } catch (error) {
+        problems.push(`${relative}:${block.line}: invalid viz JSON ${error.message}`);
+        continue;
+      }
+      if (spec === null || typeof spec !== 'object' || Array.isArray(spec)) {
+        problems.push(`${relative}:${block.line}: viz spec 必须是 JSON 对象`);
+      } else if (typeof spec.type !== 'string' || !spec.type.trim()) {
+        warnings.push(`${relative}:${block.line}: viz 块缺少 type 字段`);
+      } else if (VIZ_TYPES && VIZ_TYPES.size && !VIZ_TYPES.has(spec.type)) {
+        problems.push(
+          `${relative}:${block.line}: 未知 viz 类型 "${spec.type}"（可用键见 src/pyrunner/viz.js 的 RENDERERS）`,
+        );
+      }
     }
     if (block.lang === 'quiz' && block.code.includes('$')) problems.push(`${relative}:${block.line}: KaTeX in quiz`);
     if (block.lang === 'exercise') {
@@ -117,7 +162,7 @@ for (const file of markdown) {
   }
 }
 
-console.log(`markdown=${markdown.length} sourceH2=${sourceH2} builtH2=${builtH2} pythonBlocks=${pythonBlocks} vizBlocks=${vizBlocks} problems=${problems.length} warnings=${warnings.length}`);
+console.log(`markdown=${markdown.length} sourceH2=${sourceH2} builtH2=${builtH2} pythonBlocks=${pythonBlocks} vizBlocks=${vizBlocks} vizTypes=${VIZ_TYPES ? VIZ_TYPES.size : 0} problems=${problems.length} warnings=${warnings.length}`);
 for (const problem of problems) console.log(problem);
 for (const warning of warnings) console.log(`[warn] ${warning}`);
 process.exit(problems.length ? 1 : 0);

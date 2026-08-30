@@ -283,38 +283,6 @@
 
 ## 十五、2026-08-30 卷二~卷五交互抽查遗留
 
-> 五个子代理全量扫描 18–66 章（574 viz / 698 exercise / 599 quiz / 1140 python）：未注册类型 0、JSON 失败 0、MDX 双坑 0、Pyodide 违禁依赖 0。「文案超前于实现」的 3 处 P1（conv2d-slide 逐格乘积读数 + pattern 切换、fit 删点）已按补控件方式修复（2026-08-30，build 全绿），不再登记。以下为未处理项。
-
-### 15.1 P0（渲染器真值默认，一处模式四处修）
-
-`Number(x)||默认` 会把合法的 0 静默替换为真值默认，导致组件画面与课文矛盾：
-
-| 位置 | 现象 |
-| --- | --- |
-| `viz.js` `renderElimination`（rhs 两行） | `21-linear-algebra-advanced/20-rank-nullspace.md` 的 `rhs:[0,0]` 被换成 [7,12]，齐次方程演示画出 0=−2，与课文「0=0」直接矛盾 |
-| `viz.js` `renderSvdstretch`（b 位） | `21/110-condition-number.md` 对角矩阵 [10,0,0,0.1] 被静默加剪切 |
-| `viz.js` `renderEigendirection` / `renderLinearmap` | 同模式待修（当前课程数据侥幸未踩） |
-
-修法：照抄 `renderPhaseportrait` 的 `Number.isFinite` 范例统一替换。
-
-### 15.2 P1（卷四：文字与代码对账，共 6 处）
-
-1. `36/45-joint-distributions.md:116-124`：引用输出应为 `0.0909 0.2975`（正文误写 0.0121 且「远高于」方向反）；116 行注释「红=6」与打印的 `row_sum[5]`（红=5）错位。
-2. `39/70-marginal-likelihood.md:100-119`：实验 2 漏乘 C(10,6)=210，实算 ml≈0.0004、BF≈473.7，与正文 0.0909 / 2.26 三处矛盾。
-3. `37/30-stationary-distribution.md:82`：正文 π=(5/8,3/8)，viz 矩阵 [[0.8,0.2],[0.5,0.5]] 实收敛 (5/7,2/7)。
-4. `41/index.md:101-143`：第一幕 `<details>` 缺就近闭合，「实战挑战」（含判题练习）被吞进答案折叠块。
-5. `42/30-confounders-dags.md:75-84`：伯克森 datachart「独立性预测」柱取全人群口径 25，应按池内口径 44.4（否则与正文负相关结论反向）。
-6. `38/85-multiple-testing-fdr.md`：全课无 exercise/quiz，与 38 章 index「全章全覆盖」承诺冲突（补课或改承诺）。
-
-### 15.3 P1（卷三：体例）
-
-- `docs/29-graph-theory/` 100/105/110/115 四课页尾互链带「NN ·」前缀（冻结的 `_generate.mjs` 历史遗留）；若解冻重跑需先清理其 `nextText` 数据，否则扩散全章。
-
-### 15.4 P2（择期）
-
-- `viz.js` `renderIcaRotate`：draw() 里 `sl.state.steps !== undefined ? sl.state.angle : 0` 条件写反（`steps` 恒 undefined → 滑块永远无效）。该组件全站 0 引用，首用前必修。
-- `55/70-parameter-identification-design.md:81`：fit 组件后接「行列式」文案，错位（行列式属实验 2 python）。
-- `61/85-dct-jpeg.md:163-164`：图例「u=12 细纹」越界（8×8 DCT 频率索引仅 0–7）。
-- 卷四零散数值 P2（37/80 差值 0.446 非「未过 0.35」、41/50 quiz 解释数字、40/40 1−h(0.49)≈0.0003、39/70 贝叶斯因子 1:93、36/37 章 index 状态行自相矛盾、「（python)」笔误 5 处、37/55 与 39/80 两处新语法缺注释）。
-- 卷二 P2：`21/90`、`21/110`、`24/90`、`24/100`、`24/110` 五处互链文字带「NN ·」前缀；`20/62` 唯一无 quiz 课、`20/65` 唯一无 viz 课（已有诚实兜底声明，备查）。
-- 建议给 validate/mechanical-audit 增补「全量 viz 块 JSON.parse + type 对 RENDERERS 键集合」机械闸门（本轮审计中只读代理曾误报 `%` 运算符不支持，机械校验可杜绝此类误报/漏报）。
+> 五个子代理全量扫描 18–66 章（574 viz / 698 exercise / 599 quiz / 1140 python）：未注册类型 0、JSON 失败 0、MDX 双坑 0、Pyodide 违禁依赖 0。「文案超前于实现」的 3 处 P1（conv2d-slide 逐格乘积读数 + pattern 切换、fit 删点）已按补控件方式修复（2026-08-30，build 全绿），不再登记。
+>
+> **✅ 本节全部销账（2026-08-30 第二轮多代理清理）**：15.1 渲染器真值默认四处（`renderElimination` rhs / `renderSvdstretch` b 位 / `renderEigendirection` / `renderLinearmap`，统一照 `renderPhaseportrait` 的 `Number.isFinite` 范例）与 `renderIcaRotate` 条件写反已修；15.2 六处对账逐项闭环，38/85 按「全章全覆盖」承诺补齐 quiz + exercise（k=5/0.04 已验算）；15.3 卷三互链「NN ·」前缀清零（仅手工清四课，`_generate.mjs` 未动）；15.4 零散 P2 全清（含卷二五处互链前缀、「（python)」笔误 5 处、41/50 正文同型笔误 ln(4×10⁷)/δ² 结论顺手改正）；「viz JSON.parse + type 对 RENDERERS 键集合」机械闸门已落地 `mechanical-audit.cjs`（`npm run audit`，vizBlocks=741 / vizTypes=108 / viz 问题 0）。本轮各条已处理即删行。另：71/73 章 8 处字面 `\{\}`（18–66 抽查范围外的未登记遗留）已按全站规范改 `\lbrace/\rbrace` 并拆解 71/100 跨行公式。

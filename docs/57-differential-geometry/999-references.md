@@ -14,7 +14,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: On the Hypotheses which lie at the Bases of Geometry
@@ -24,6 +24,9 @@ difficulty: 4
 # @tag: 原著
 # @desc: 「弯曲空间的度量由内蕴决定」：黎曼几何从此开始。
 # @page: https://en.wikipedia.org/wiki/On_the_Hypotheses_which_lie_at_the_Bases_of_Geometry
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9wYXBlci1kb2ktMTBfMTAzOF8wMDgwMTRhMC9wYXBlci1kb2ktMTBfMTAzOF8wMDgwMTRhMC5wZGY=
+# @local64: L3BhcGVycy9wYXBlci1kb2ktMTBfMTAzOF8wMDgwMTRhMC1hYzliYmQyYS5wZGY=
+# @lsize: 0.5 MB
 ```
 
 ```paper

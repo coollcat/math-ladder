@@ -115,4 +115,4 @@ print(stationary)
 
 概念很多，如何判断一个问题该用哪件工具？
 
-→ [120 · 图论方法地图](./120-method-map.md)
+→ [图论方法地图](./120-method-map.md)

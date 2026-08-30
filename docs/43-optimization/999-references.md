@@ -13,7 +13,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Stochastic gradient descent（随机梯度下降）
@@ -34,6 +34,8 @@ difficulty: 4
 # @desc: 动量 + 自适应学习率：被引用最多的优化器，深度学习的默认引擎。
 # @page: https://arxiv.org/abs/1412.6980
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE0MTIuNjk4MA==
+# @local64: L3BhcGVycy8xNDEyLjY5ODAucGRm
+# @lsize: 0.6 MB
 ```
 
 ```paper
@@ -44,6 +46,9 @@ difficulty: 4
 # @tag: 教材
 # @desc: 凸性的「局部最优即全局最优」：优化理论的分水岭。
 # @page: https://web.stanford.edu/~boyd/cvxbook/
+# @pdf64: aHR0cHM6Ly93ZWIuc3RhbmZvcmQuZWR1L35ib3lkL2N2eGJvb2svYnZfY3Z4Ym9vay5wZGY=
+# @local64: L3BhcGVycy9idl9jdnhib29rLTc0Y2RlZWRlLnBkZg==
+# @lsize: 6.6 MB
 ```
 
 ```paper

@@ -14,7 +14,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: PageRank
@@ -35,6 +35,8 @@ difficulty: 4
 # @desc: 频域卷积化简成邻域平均：图神经网络的标准积木。
 # @page: https://arxiv.org/abs/1609.02907
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE2MDkuMDI5MDc=
+# @local64: L3BhcGVycy8xNjA5LjAyOTA3LnBkZg==
+# @lsize: 0.8 MB
 ```
 
 ```paper
@@ -46,6 +48,8 @@ difficulty: 4
 # @desc: 采样邻居再聚合：为没见过的节点即时生成嵌入。
 # @page: https://arxiv.org/abs/1706.02216
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MDYuMDIyMTY=
+# @local64: L3BhcGVycy8xNzA2LjAyMjE2LnBkZg==
+# @lsize: 1.0 MB
 ```
 
 ```paper
@@ -57,4 +61,6 @@ difficulty: 4
 # @desc: 给邻居分配注意力权重：重要的邻居多听几句。
 # @page: https://arxiv.org/abs/1710.10903
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MTAuMTA5MDM=
+# @local64: L3BhcGVycy8xNzEwLjEwOTAzLnBkZg==
+# @lsize: 1.6 MB
 ```

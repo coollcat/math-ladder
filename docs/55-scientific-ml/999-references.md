@@ -14,7 +14,7 @@ difficulty: 5
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Physics-informed neural networks（PINN）
@@ -24,6 +24,9 @@ difficulty: 5
 # @tag: 论文
 # @desc: 把物理方程残差写进损失函数：数据与定律共同训练网络。
 # @page: https://en.wikipedia.org/wiki/Physics-informed_neural_networks
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MTEuMTA1NjE=
+# @local64: L3BhcGVycy8xNzExLjEwNTYxLnBkZg==
+# @lsize: 0.6 MB
 ```
 
 ```paper
@@ -35,6 +38,8 @@ difficulty: 5
 # @desc: 把残差网络看成连续深度动力系统：网络与微分方程合流。
 # @page: https://arxiv.org/abs/1806.07366
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE4MDYuMDczNjY=
+# @local64: L3BhcGVycy8xODA2LjA3MzY2LnBkZg==
+# @lsize: 3.8 MB
 ```
 
 ```paper
@@ -46,4 +51,6 @@ difficulty: 5
 # @desc: 在傅里叶空间学积分核：学「解算子」而非单个解，快三个数量级。
 # @page: https://arxiv.org/abs/2010.08895
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIwMTAuMDg4OTU=
+# @local64: L3BhcGVycy8yMDEwLjA4ODk1LnBkZg==
+# @lsize: 2.3 MB
 ```

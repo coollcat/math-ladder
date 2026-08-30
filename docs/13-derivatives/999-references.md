@@ -7,7 +7,7 @@ description: 第 13 章涉及的核心论文、原著与延伸阅读一览。
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Philosophiæ Naturalis Principia Mathematica（自然哲学的数学原理）
@@ -17,6 +17,9 @@ description: 第 13 章涉及的核心论文、原著与延伸阅读一览。
 # @tag: 原著
 # @desc: 用「流数」处理瞬时变化率，物理与微积分一起诞生。
 # @page: https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica
+# @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9waGlsb3NvcGhpYWVuYXR1MDRuZXd0dW9mdC9waGlsb3NvcGhpYWVuYXR1MDRuZXd0dW9mdC5wZGY=
+# @local64: L3BhcGVycy9waGlsb3NvcGhpYWVuYXR1MDRuZXd0dW9mdC0wMmQwOGU3OC5wZGY=
+# @lsize: 15.0 MB
 ```
 
 ```paper

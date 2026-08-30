@@ -13,7 +13,7 @@ difficulty: 4
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Minimax theorem（极小极大定理）
@@ -53,4 +53,7 @@ difficulty: 4
 # @tag: 论文
 # @desc: 按平均边际贡献分蛋糕：合作博弈的公平分配唯一解。
 # @page: https://en.wikipedia.org/wiki/Shapley_value
+# @pdf64: aHR0cHM6Ly93d3cucmFuZC5vcmcvY29udGVudC9kYW0vcmFuZC9wdWJzL3BhcGVycy8yMDIxL1AyOTUucGRm
+# @local64: L3BhcGVycy9QMjk1LTdiY2UwMTkzLnBkZg==
+# @lsize: 0.8 MB
 ```

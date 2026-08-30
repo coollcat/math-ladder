@@ -13,7 +13,7 @@ difficulty: 5
 
 本章涉及的核心论文、原著与延伸阅读，按课程推进顺序整理。
 
-「文献页面」与 PDF 下载对所有人开放；需要同步学习进度时可在「登录」页用默认账号进入自己的进度空间。
+文献页面对所有人开放；带归档副本的条目，未登录点「原站下载」前往出处，登录后点「本地下载」直接取本站副本。
 
 ```paper
 # @title: Auto-Encoding Variational Bayes（VAE）
@@ -24,6 +24,8 @@ difficulty: 5
 # @desc: 重参数化技巧让「采样」可以求梯度：变分生成模型的起点。
 # @page: https://arxiv.org/abs/1312.6114
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzEzMTIuNjExNA==
+# @local64: L3BhcGVycy8xMzEyLjYxMTQucGRm
+# @lsize: 3.7 MB
 ```
 
 ```paper
@@ -35,6 +37,8 @@ difficulty: 5
 # @desc: 生成器与判别器的极简博弈：以假乱真从对抗中长出。
 # @page: https://arxiv.org/abs/1406.2661
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE0MDYuMjY2MQ==
+# @local64: L3BhcGVycy8xNDA2LjI2NjEucGRm
+# @lsize: 0.5 MB
 ```
 
 ```paper
@@ -46,6 +50,8 @@ difficulty: 5
 # @desc: 用最优传输距离换掉 JS 散度：GAN 训练稳定性的一次理论升级。
 # @page: https://arxiv.org/abs/1701.07875
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MDEuMDc4NzU=
+# @local64: L3BhcGVycy8xNzAxLjA3ODc1LnBkZg==
+# @lsize: 8.4 MB
 ```
 
 ```paper
@@ -57,6 +63,8 @@ difficulty: 5
 # @desc: 「逐步去噪」的生成范式：扩散模型热潮的引爆点。
 # @page: https://arxiv.org/abs/2006.11239
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIwMDYuMTEyMzk=
+# @local64: L3BhcGVycy8yMDA2LjExMjM5LnBkZg==
+# @lsize: 9.8 MB
 ```
 
 ```paper
@@ -68,6 +76,8 @@ difficulty: 5
 # @desc: 学习「对数密度的梯度」做生成：分数模型与扩散模型的汇合点。
 # @page: https://arxiv.org/abs/1907.05600
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE5MDcuMDU2MDA=
+# @local64: L3BhcGVycy8xOTA3LjA1NjAwLnBkZg==
+# @lsize: 7.7 MB
 ```
 
 ```paper
@@ -79,6 +89,8 @@ difficulty: 5
 # @desc: 在压缩的潜空间做扩散：文生图从实验室走向全民。
 # @page: https://arxiv.org/abs/2112.10752
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIxMTIuMTA3NTI=
+# @local64: L3BhcGVycy8yMTEyLjEwNzUyLnBkZg==
+# @lsize: 39.0 MB
 ```
 
 ```paper

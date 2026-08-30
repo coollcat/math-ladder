@@ -1,0 +1,356 @@
+{
+  "generatedAt": "2026-08-30T13:22:59.596Z",
+  "base": "/papers/",
+  "items": {
+    "https://archive.org/download/mirificilogarit00napi/mirificilogarit00napi.pdf": {
+      "file": "mirificilogarit00napi-b8966fb8.pdf",
+      "bytes": 19123983,
+      "title": "Mirifici Logarithmorum Canonis Descriptio（奇妙的对数定律说明书）"
+    },
+    "https://archive.org/download/bub_gb_FNyf64BQRo8C/bub_gb_FNyf64BQRo8C.pdf": {
+      "file": "bub_gb_FNyf64BQRo8C-9b1b5550.pdf",
+      "bytes": 10451323,
+      "title": "Introductio in analysin infinitorum（无穷分析引论）"
+    },
+    "https://archive.org/download/robertofchesters00khuw/robertofchesters00khuw.pdf": {
+      "file": "robertofchesters00khuw-fbc43719.pdf",
+      "bytes": 9174479,
+      "title": "《代数学》（Kitab al-jabr wa'l-muqabala）"
+    },
+    "https://www.gutenberg.org/files/21076/21076-pdf.pdf": {
+      "file": "21076-pdf-f8c4ad36.pdf",
+      "bytes": 1860807,
+      "title": "《几何原本》（Elements）"
+    },
+    "https://www.gutenberg.org/files/26400/26400-pdf.pdf": {
+      "file": "26400-pdf-d4f22499.pdf",
+      "bytes": 570611,
+      "title": "La Géométrie（几何学）"
+    },
+    "https://archive.org/download/jstor-2974039/2974039.pdf": {
+      "file": "2974039-a116101a.pdf",
+      "bytes": 725048,
+      "title": "Liber Quadratorum 与斐波那契数列"
+    },
+    "https://archive.org/download/jacobibernoulli00bern/jacobibernoulli00bern.pdf": {
+      "file": "jacobibernoulli00bern-68063f1c.pdf",
+      "bytes": 29747167,
+      "title": "Ars Conjectandi（猜度术）"
+    },
+    "https://archive.org/download/doctrinechances00moivgoog/doctrinechances00moivgoog.pdf": {
+      "file": "doctrinechances00moivgoog-77a66345.pdf",
+      "bytes": 7490692,
+      "title": "The Doctrine of Chances（机遇论）"
+    },
+    "https://archive.org/download/philosophiaenatu04newtuoft/philosophiaenatu04newtuoft.pdf": {
+      "file": "philosophiaenatu04newtuoft-02d08e78.pdf",
+      "bytes": 15738205,
+      "title": "Philosophiæ Naturalis Principia Mathematica（自然哲学的数学原理）"
+    },
+    "https://archive.org/download/UFIE003454_TO0324_PNI-2529_000000/UFIE003454_TO0324_PNI-2529_000000.pdf": {
+      "file": "UFIE003454_TO0324_PNI-2529_000000-38da1057.pdf",
+      "bytes": 8131187,
+      "title": "Methodus Incrementorum Directa et Inversa（正与反的增量方法）"
+    },
+    "https://archive.org/download/dli.ernet.177555/177555-The%20Analytical%20Theory%20Of%20Heat.pdf": {
+      "file": "177555-The20Analytical20Theory20Of20Heat-f7805476.pdf",
+      "bytes": 34631239,
+      "title": "Théorie analytique de la chaleur（热的解析理论）"
+    },
+    "https://archive.org/download/TO0E037871_TO0324_PNI-1898_000000/TO0E037871_TO0324_PNI-1898_000000.pdf": {
+      "file": "TO0E037871_TO0324_PNI-1898_000000-3e9aaa30.pdf",
+      "bytes": 25038241,
+      "title": "Cours d'analyse（分析教程）"
+    },
+    "https://archive.org/download/contributionstof00cantrich/contributionstof00cantrich.pdf": {
+      "file": "contributionstof00cantrich-53fa782b.pdf",
+      "bytes": 10848393,
+      "title": "Georg Cantor 与集合论诞生"
+    },
+    "https://ir.cwi.nl/pub/9256/9256D.pdf": {
+      "file": "9256D-20771224.pdf",
+      "bytes": 261629,
+      "title": "Dijkstra's algorithm（迪杰斯特拉算法）"
+    },
+    "https://www.cse.chalmers.se/~coquand/AUTOMATA/mcp.pdf": {
+      "file": "mcp-dea2ce08.pdf",
+      "bytes": 890301,
+      "title": "Regular expression（正则表达式）"
+    },
+    "https://ee.stanford.edu/~hellman/publications/24.pdf": {
+      "file": "24-1cb8ea8e.pdf",
+      "bytes": 2216632,
+      "title": "Diffie–Hellman key exchange（DH 密钥交换）"
+    },
+    "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf": {
+      "file": "entropy-dbcb1217.pdf",
+      "bytes": 366296,
+      "title": "A Mathematical Theory of Communication（通信的数学理论）"
+    },
+    "https://archive.org/download/philtrans09948070/09948070.pdf": {
+      "file": "09948070-be0365b7.pdf",
+      "bytes": 4250691,
+      "title": "An Essay towards Solving a Problem in the Doctrine of Chances"
+    },
+    "https://www.osti.gov/servlets/purl/4390578": {
+      "file": "4390578-cd767713.pdf",
+      "bytes": 881831,
+      "title": "Metropolis–Hastings algorithm（MH 算法）"
+    },
+    "https://web.mit.edu/6.435/www/Dempster77.pdf": {
+      "file": "Dempster77-0f80c089.pdf",
+      "bytes": 1163485,
+      "title": "Expectation–maximization algorithm（EM 算法）"
+    },
+    "http://compression.ru/download/articles/huff/huffman_1952_minimum-redundancy-codes.pdf": {
+      "file": "huffman_1952_minimum-redundancy-codes-6bfe9155.pdf",
+      "bytes": 331643,
+      "title": "Huffman coding（哈夫曼编码）"
+    },
+    "https://arxiv.org/pdf/2001.08361": {
+      "file": "2001.08361.pdf",
+      "bytes": 2493004,
+      "title": "Scaling Laws for Neural Language Models"
+    },
+    "https://arxiv.org/pdf/1412.6980": {
+      "file": "1412.6980.pdf",
+      "bytes": 584641,
+      "title": "Adam: A Method for Stochastic Optimization"
+    },
+    "https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf": {
+      "file": "bv_cvxbook-74cdeede.pdf",
+      "bytes": 6881335,
+      "title": "Convex Optimization（凸优化）"
+    },
+    "https://arxiv.org/pdf/1511.06434": {
+      "file": "1511.06434.pdf",
+      "bytes": 7457198,
+      "title": "Deep Residual Learning（ResNet）"
+    },
+    "https://arxiv.org/pdf/1502.03167": {
+      "file": "1502.03167.pdf",
+      "bytes": 173548,
+      "title": "Batch Normalization"
+    },
+    "https://jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf": {
+      "file": "srivastava14a-39d3feb8.pdf",
+      "bytes": 2869095,
+      "title": "Dropout（随机失活）"
+    },
+    "https://arxiv.org/pdf/1706.03762": {
+      "file": "1706.03762.pdf",
+      "bytes": 2215244,
+      "title": "Attention Is All You Need"
+    },
+    "https://arxiv.org/pdf/1607.06450": {
+      "file": "1607.06450.pdf",
+      "bytes": 612446,
+      "title": "Layer Normalization"
+    },
+    "https://arxiv.org/pdf/2104.09864": {
+      "file": "2104.09864.pdf",
+      "bytes": 599289,
+      "title": "RoFormer: Rotary Position Embedding（RoPE）"
+    },
+    "https://arxiv.org/pdf/2010.11929": {
+      "file": "2010.11929.pdf",
+      "bytes": 3743814,
+      "title": "An Image is Worth 16x16 Words（ViT）"
+    },
+    "https://arxiv.org/pdf/1301.3781": {
+      "file": "1301.3781.pdf",
+      "bytes": 228716,
+      "title": "Efficient Estimation of Word Representations（word2vec）"
+    },
+    "https://arxiv.org/pdf/1810.04805": {
+      "file": "1810.04805.pdf",
+      "bytes": 775166,
+      "title": "BERT: Pre-training of Deep Bidirectional Transformers"
+    },
+    "https://nlp.stanford.edu/pubs/glove.pdf": {
+      "file": "glove-811f5066.pdf",
+      "bytes": 2618397,
+      "title": "GloVe: Global Vectors for Word Representation"
+    },
+    "https://arxiv.org/pdf/1312.6114": {
+      "file": "1312.6114.pdf",
+      "bytes": 3926758,
+      "title": "Auto-Encoding Variational Bayes（VAE）"
+    },
+    "https://arxiv.org/pdf/1406.2661": {
+      "file": "1406.2661.pdf",
+      "bytes": 530482,
+      "title": "Generative Adversarial Networks（GAN）"
+    },
+    "https://arxiv.org/pdf/1701.07875": {
+      "file": "1701.07875.pdf",
+      "bytes": 8834587,
+      "title": "Wasserstein GAN"
+    },
+    "https://arxiv.org/pdf/2006.11239": {
+      "file": "2006.11239.pdf",
+      "bytes": 10267274,
+      "title": "Denoising Diffusion Probabilistic Models（DDPM）"
+    },
+    "https://arxiv.org/pdf/1907.05600": {
+      "file": "1907.05600.pdf",
+      "bytes": 8113050,
+      "title": "Generative Modeling by Estimating Gradients of the Data Distribution"
+    },
+    "https://arxiv.org/pdf/2112.10752": {
+      "file": "2112.10752.pdf",
+      "bytes": 40842586,
+      "title": "High-Resolution Image Synthesis with Latent Diffusion Models（Stable Diffusion）"
+    },
+    "http://incompleteideas.net/book/RLbook2020.pdf": {
+      "file": "RLbook2020-f9e6b987.pdf",
+      "bytes": 73129769,
+      "title": "Reinforcement Learning: An Introduction（第 2 版）"
+    },
+    "https://arxiv.org/pdf/1312.5602": {
+      "file": "1312.5602.pdf",
+      "bytes": 483443,
+      "title": "Playing Atari with Deep Reinforcement Learning（DQN）"
+    },
+    "https://arxiv.org/pdf/1707.06347": {
+      "file": "1707.06347.pdf",
+      "bytes": 2923532,
+      "title": "Proximal Policy Optimization Algorithms（PPO）"
+    },
+    "https://arxiv.org/pdf/2305.18290": {
+      "file": "2305.18290.pdf",
+      "bytes": 1299212,
+      "title": "Direct Preference Optimization（DPO）"
+    },
+    "https://www.rand.org/content/dam/rand/pubs/papers/2021/P295.pdf": {
+      "file": "P295-7bce0193.pdf",
+      "bytes": 886269,
+      "title": "Shapley value（沙普利值）"
+    },
+    "https://arxiv.org/pdf/1609.02907": {
+      "file": "1609.02907.pdf",
+      "bytes": 873897,
+      "title": "Semi-Supervised Classification with Graph Convolutional Networks（GCN）"
+    },
+    "https://arxiv.org/pdf/1706.02216": {
+      "file": "1706.02216.pdf",
+      "bytes": 1086007,
+      "title": "Inductive Representation Learning on Large Graphs（GraphSAGE）"
+    },
+    "https://arxiv.org/pdf/1710.10903": {
+      "file": "1710.10903.pdf",
+      "bytes": 1637828,
+      "title": "Graph Attention Networks（GAT）"
+    },
+    "https://arxiv.org/pdf/1312.6199": {
+      "file": "1312.6199.pdf",
+      "bytes": 6565323,
+      "title": "Intriguing properties of neural networks"
+    },
+    "https://arxiv.org/pdf/1412.6572": {
+      "file": "1412.6572.pdf",
+      "bytes": 1036360,
+      "title": "Explaining and Harnessing Adversarial Examples（FGSM）"
+    },
+    "https://arxiv.org/pdf/1602.04938": {
+      "file": "1602.04938.pdf",
+      "bytes": 4299136,
+      "title": "\"Why Should I Trust You?\"（LIME）"
+    },
+    "https://arxiv.org/pdf/1705.07874": {
+      "file": "1705.07874.pdf",
+      "bytes": 1014198,
+      "title": "A Unified Approach to Interpreting Model Predictions（SHAP）"
+    },
+    "https://arxiv.org/pdf/1711.10561": {
+      "file": "1711.10561.pdf",
+      "bytes": 579573,
+      "title": "Physics-informed neural networks（PINN）"
+    },
+    "https://arxiv.org/pdf/1806.07366": {
+      "file": "1806.07366.pdf",
+      "bytes": 3990592,
+      "title": "Neural Ordinary Differential Equations（Neural ODE）"
+    },
+    "https://arxiv.org/pdf/2010.08895": {
+      "file": "2010.08895.pdf",
+      "bytes": 2436198,
+      "title": "Fourier Neural Operator for Parametric PDEs（FNO）"
+    },
+    "https://archive.org/download/paper-doi-10_1038_008014a0/paper-doi-10_1038_008014a0.pdf": {
+      "file": "paper-doi-10_1038_008014a0-ac9bbd2a.pdf",
+      "bytes": 527875,
+      "title": "On the Hypotheses which lie at the Bases of Geometry"
+    },
+    "https://arxiv.org/pdf/math/0211159": {
+      "file": "0211159-462bf5f4.pdf",
+      "bytes": 325949,
+      "title": "Poincaré conjecture（庞加莱猜想）"
+    },
+    "https://arxiv.org/pdf/quant-ph/9508027": {
+      "file": "9508027-651e433d.pdf",
+      "bytes": 315663,
+      "title": "Shor's algorithm（舒尔算法）"
+    },
+    "https://arxiv.org/pdf/quant-ph/9605043": {
+      "file": "9605043-da789278.pdf",
+      "bytes": 67338,
+      "title": "Grover's algorithm（格罗弗算法）"
+    },
+    "https://www.cs.northwestern.edu/~ago820/cs395/Papers/Phong_1975.pdf": {
+      "file": "Phong_1975-f623bf94.pdf",
+      "bytes": 1652870,
+      "title": "Phong shading（冯氏着色）"
+    },
+    "https://msl.cs.illinois.edu/~lavalle/papers/Lav98c.pdf": {
+      "file": "Lav98c-1fae86d4.pdf",
+      "bytes": 389156,
+      "title": "Rapidly-exploring random tree（RRT 快速探索随机树）"
+    },
+    "https://www.cs.princeton.edu/courses/archive/fall09/cos323/papers/black_scholes73.pdf": {
+      "file": "black_scholes73-c28e62b1.pdf",
+      "bytes": 327231,
+      "title": "Black–Scholes model（布莱克-斯科尔斯模型）"
+    },
+    "https://archive.org/download/bstj13-1-1/bstj13-1-1.pdf": {
+      "file": "bstj13-1-1-9d1becba.pdf",
+      "bytes": 10598206,
+      "title": "Stabilized Feedback Amplifiers（稳定化反馈放大器）"
+    },
+    "https://archive.org/download/bstj28-3-435/bstj28-3-435.pdf": {
+      "file": "bstj28-3-435-bfb63383.pdf",
+      "bytes": 25045128,
+      "title": "The Theory of p-n Junctions in Semiconductors and p-n Junction Transistors（p-n 结与面结型晶体管理论）"
+    },
+    "https://www.cs.utexas.edu/users/EWD/ewd01xx/EWD123.PDF": {
+      "file": "EWD123-7cdf4ce5.pdf",
+      "bytes": 1731745,
+      "title": "Cooperating Sequential Processes（协同顺序进程）"
+    },
+    "https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf": {
+      "file": "codd-50afbda4.pdf",
+      "bytes": 1462855,
+      "title": "A Relational Model of Data for Large Shared Data Banks（大型共享数据库的关系模型）"
+    },
+    "https://jimgray.azurewebsites.net/papers/theTransactionConcept.pdf": {
+      "file": "theTransactionConcept-85c43af5.pdf",
+      "bytes": 150612,
+      "title": "The Transaction Concept: Virtues and Limitations（事务概念：优点与局限）"
+    },
+    "https://www.cs.princeton.edu/courses/archive/fall06/cos561/papers/cerf74.pdf": {
+      "file": "cerf74-24216001.pdf",
+      "bytes": 179037,
+      "title": "A Protocol for Packet Network Intercommunication（分组网络互连协议）"
+    },
+    "https://ee.lbl.gov/papers/congavoid.pdf": {
+      "file": "congavoid-6b25d3ce.pdf",
+      "bytes": 219959,
+      "title": "Congestion Avoidance and Control（拥塞避免与控制）"
+    },
+    "https://raft.github.io/raft.pdf": {
+      "file": "raft-29f79120.pdf",
+      "bytes": 567533,
+      "title": "In Search of an Understandable Consensus Algorithm（寻找可理解的一致性算法）"
+    }
+  }
+}

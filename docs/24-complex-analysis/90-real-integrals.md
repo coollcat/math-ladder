@@ -177,4 +177,4 @@ $$|e^{ia(R\cos t+iR\sin t)}|=e^{-aR\sin t}$$
 
 复积分已经能算实积分；接下来把同一套复指数语言转向系统响应。Laplace 变换会把微分方程变成 $s$ 平面上的代数问题。
 
-→ [100 · Laplace 变换与 s 平面](./100-laplace-s-plane.md)
+→ [Laplace 变换与 s 平面](./100-laplace-s-plane.md)
