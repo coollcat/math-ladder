@@ -151,7 +151,7 @@ export default function Home() {
   return (
     <Layout
       title="数学阶梯 · 从数感到前沿"
-      description={`从 1+1 出发的交互式数学路径：五卷 ${s.chapters} 章 ${s.lessons} 门课持续生长，每一步都踩在已学的知识上`}
+      description={`从 1+1 出发的交互式数学路径：六卷 ${s.chapters} 章 ${s.lessons} 门课持续生长，每一步都踩在已学的知识上`}
     >
       <div className="ml-home">
         <header className="ml-hero ml-gridbg">
@@ -164,8 +164,18 @@ export default function Home() {
             </h1>
             <p className="ml-hero__subtitle">从 1+1 出发，每一级台阶都亲手踩上去——一路长到现代数学与 AI 的地基。</p>
             <p className="ml-hero__note">
-              内容按五卷组织：卷一《数学地基》已完成；卷二高等核心、卷三离散计算、卷四概率信息、卷五应用 AI
-              已开放大部分正式课。每个概念配一个能动手的交互，新工具先讲它的来历，代码块都能当场修改运行。
+              内容按六卷组织：卷一《数学地基》已完成；卷二高等核心、卷三离散计算、卷四概率信息、卷五应用
+              AI 已开放大部分正式课，卷六《工程与系统》开画——电子电路与计算机系统率先上线。每个概念配一个能动手的交互，新工具先讲它的来历，代码块都能当场修改运行。
+            </p>
+            <p className="ml-hero__note ml-hero__note--i18n">
+              <strong>About（English）</strong> · Math Ladder is an interactive mathematics
+              curriculum that grows from <em>1+1</em> to the mathematics behind modern AI —
+              six volumes, {s.chapters} chapters and {s.lessons} hands-on lessons. Every
+              concept ships with a runnable in-browser Python widget; every tool is derived
+              from first principles before it is used. Volume I (Foundations) is complete;
+              Volumes II–V (Advanced Core, Discrete &amp; Computing, Probability &amp;
+              Information, Applied AI) are largely open, and Volume VI (Engineering &amp;
+              Systems) is now underway with Electronics and Computer Systems live.
             </p>
             <div className="ml-hero__btns">
               <Link className="button button--primary button--lg" to="/docs/python-tools/conventions">
@@ -252,7 +262,7 @@ export default function Home() {
           </section>
 
           <section className="container margin-vert--lg">
-            <h2>五卷路线图</h2>
+            <h2>六卷路线图</h2>
             <p className="ml-section__lead">从地基到前沿的完整阶梯；已开课的章节都能直接进。</p>
             <ChapterWall />
           </section>

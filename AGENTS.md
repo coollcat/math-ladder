@@ -59,11 +59,10 @@ src/auth/index.js              # 登录态与 SHA-256（localStorage ml-auth；�
 src/data/accounts.json         # 账号库（salt+哈希，不存明文；构建时打进 bundle）
 src/pages/login.js             # /login 登录页（不展示账号密码，无注册/申请页）
 REGISTRATION.md                # 账号与进度机制说明（维护者向，链接本文件）
-ui/                            # 独立阅读前端（与 Docusaurus 主站并存，端口 9453/9454）
-  server.mjs                   #   node 原生 http 双皮肤服务器（--skin fluent|hud --port N）
+ui/                            # 独立阅读前端（与 Docusaurus 主站并存，端口 9453）
+  server.mjs                   #   node 原生 http 皮肤服务器（--skin fluent --port N）
   render.mjs                   #   markdown→HTML 管线（marked + KaTeX 服务端渲染 + 自定义围栏卡片）
   fluent/                      #   雅致版皮肤（Fluent/Win11 风，端口 9453，入口 启动FluentUI.bat）
-  hud/                         #   科幻版皮肤（FUI/HUD 风，端口 9454，入口 启动科幻UI.bat）
 UNIT_GUIDES/                   # 单章课题切分与专属组件规格
 AUDIT_REPORTS/OPEN_ITEMS.md    # 未结项与待改善清单（唯一留存的活口；处理完即删行）
 LESSON_TEMPLATE.md             # 写课模板·单一事实来源（先读这个）
@@ -116,11 +115,11 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 - **性能取舍**：平移/缩放走直接 DOM（绕开 React 渲染）；悬停只高亮连通路径（绿先修/橙托起）、**不再整图暗化**（减少 ~1700 元素的重绘）；入场用层级错峰（无 IntersectionObserver 千余观察者）。主干先修边与「跨线支撑」边分层着色（`.ml-tr__edge--branch` 虚线淡入）。
 - 样式在 `home.css` 末尾「知识树 v2」段（`.ml-tr__modes`/`.ml-tr__searchwrap`/`.ml-tr__legend`/`.ml-tr__edge--branch` 等）。
 
-### 独立阅读前端 ui/（2026-08-28 两套皮肤完全重做）
+### 独立阅读前端 ui/（2026-08-28 重做；科幻版 hud 已于 08-31 移除）
 
-- 定位：**静态为主 + 本地可玩**的两套独立阅读前端。公式服务端 KaTeX 渲染；quiz 客户端可点（答案仅 base64 混淆存 `data-qk`）；exercise/python 卡的「浮窗运行」由皮肤内置浮窗 Pyodide 控制台完成（判题走全新沙盒 `_ml_run`，随手算/python 卡走持久 `_ml_console_run`，matplotlib 懒加载出图）；viz 渲染为占位卡并链接主站对应页（`mainSiteLink`：目录与文件名都剥数字前缀）。
-- **每套皮肤目录自包含**：`fluent/`（Win11 雅致风）与 `hud/`（FUI/HUD 科幻风）各自拥有 index.html + style.css + app.js + console.js + graph.js，互不引用、无 shared/ 目录；后端 `server.mjs`/`render.mjs` 不感知皮肤。
-- `server.mjs`：node 原生 http，`--skin fluent|hud --port N`；`/api/meta`（章/课/卷册/edges/flat）、`/api/lesson?id=NN-dir/MM-file`（含 prev/next/prereqs/mainLink/interactive 计数）；`/vendor/*` 映射 `node_modules/katex/dist`（字体依赖这个映射）。lessonCache 上限 120。两个端口实例都服务整个 `ui/` 静态目录。
+- 定位：**静态为主 + 本地可玩**的独立阅读前端。公式服务端 KaTeX 渲染；quiz 客户端可点（答案仅 base64 混淆存 `data-qk`）；exercise/python 卡的「浮窗运行」由皮肤内置浮窗 Pyodide 控制台完成（判题走全新沙盒 `_ml_run`，随手算/python 卡走持久 `_ml_console_run`，matplotlib 懒加载出图）；viz 渲染为占位卡并链接主站对应页（`mainSiteLink`：目录与文件名都剥数字前缀）。
+- **皮肤目录自包含**：`fluent/`（Win11 雅致风）拥有自己的 index.html + style.css + app.js + console.js + graph.js；后端 `server.mjs`/`render.mjs` 不感知皮肤。
+- `server.mjs`：node 原生 http，`--skin fluent --port N`；`/api/meta`（章/课/卷册/edges/flat）、`/api/lesson?id=NN-dir/MM-file`（含 prev/next/prereqs/mainLink/interactive 计数）；`/vendor/*` 映射 `node_modules/katex/dist`（字体依赖这个映射）。lessonCache 上限 120。实例服务整个 `ui/` 静态目录。
 - `render.mjs` 管线顺序固定：`:::`提示块折叠 → 围栏保护（token `XQFENCEnQFX`）→ `$$`/`$` 数学保护（token `XQTEX..QFX`）→ marked → KaTeX 回填 → 卡片回填 → 相对 `.md` 链接改写为 hash 路由 → 与 fm.title 相同的首个 H1 去重。改顺序前先想清楚 token 生命周期。
 - 皮肤合同：hash 路由 `#/`、`#/chap/NN-dir`、`#/read/NN-dir/MM-file`、`#/graph`；localStorage 只允许三个 key：`ml-ui-progress`（`{id:true}`，各端口 origin 隔离，互不相通是特性）、`ml-ui-console`（浮窗草稿）、`ml-ui-exercises`（判题通过，payload djb2 哈希为 key）。Pyodide v0.26.4，CDN 顺序 npmmirror → jsdelivr → gcore.jsdelivr（各 15s 超时）。
 - 新增依赖需谨慎：`marked` 是唯一的渲染依赖（KaTeX 复用主站已有）。大改后用 node fetch 对 `/api/lesson` 全量跑一遍「无 XQ token 残留」体检；JS 语法检查用 `Get-Content -Raw -Encoding UTF8 | node --input-type=module --check`。

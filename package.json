@@ -12,8 +12,7 @@
     "audit": "node mechanical-audit.cjs",
     "audit:guides": "node scripts/audit-unit-guides.mjs",
     "clear": "docusaurus clear",
-    "ui:fluent": "node ui/server.mjs --skin fluent --port 9453",
-    "ui:hud": "node ui/server.mjs --skin hud --port 9454"
+    "ui:fluent": "node ui/server.mjs --skin fluent --port 9453"
   },
   "dependencies": {
     "@docusaurus/core": "^3.8.0",

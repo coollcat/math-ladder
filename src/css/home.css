@@ -138,6 +138,18 @@
   line-height: 1.9;
 }
 
+.ml-home .ml-hero__note--i18n {
+  margin-top: 0.75rem;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  opacity: 0.62;
+}
+
+.ml-home .ml-hero__note--i18n strong {
+  opacity: 0.9;
+  letter-spacing: 0.02em;
+}
+
 .ml-hero__btns {
   display: flex;
   gap: 0.7rem;

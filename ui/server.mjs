@@ -1,6 +1,5 @@
 /* 数学阶梯 · 新 UI 服务器（node 原生 http，无框架）
  * 用法：node ui/server.mjs --skin fluent --port 9453
- *       node ui/server.mjs --skin hud    --port 9454
  * 自扫 docs/ 构建 meta，/api/lesson 按需渲染并缓存；两个实例均可访问整个 ui/ 静态目录。
  */
 import http from 'node:http';
@@ -19,7 +18,7 @@ function arg(name, dflt) {
   return i > 0 ? process.argv[i + 1] : dflt;
 }
 const SKIN = arg('skin', 'fluent');
-const PORT = parseInt(arg('port', SKIN === 'hud' ? '9454' : '9453'), 10);
+const PORT = parseInt(arg('port', '9453'), 10);
 const MAIN_URL = arg('main', 'http://localhost:9452');
 
 /* ---------- 卷册划分（与 src/components/ml-home/data.js 保持一致） ---------- */
