@@ -9,9 +9,24 @@
 - `language-python` → 在容器的 buttonGroup 里注入「▶ 浮窗运行」按钮，点击把代码装进浮窗控制台运行；
 - `language-exercise` → 注入「▶ 在浮窗作答」按钮，浮窗进入判题模式（对照 @check 输出）；
 - `language-quiz` → 隐藏原容器，把内嵌测验卡片插到其后（不删除 React 节点，水合安全）；
-- `language-paper` → 隐藏原容器，把论文文献卡插到其后（PDF 下载分两路：已登录取本站归档副本、未登录走原始地址；`@pdf64`/`@local64` 客户端解码）。
+- `language-paper` → 隐藏原容器，把论文文献卡插到其后（PDF 下载分两路：已登录取本站归档副本、未登录走原始地址；`@pdf64`/`@local64` 客户端解码）；
+- `language-viz` → 隐藏原容器，整块 JSON 交给 `viz.js` 查表渲染（**前五卷老组件，只读不写**）；
+- `language-lab` → 同构，交给 `lab/index.js` 动态 import 对应组件文件（**卷六新交互一律走这里**）。
 
 所有 Python 执行都发生在浮窗（Pyodide 单例）。正文代码块保持原生渲染（保留复制按钮），不做 DOM 手术。
+
+### 两套可视化组件：`viz`（只读）与 `lab`（新建专用）
+
+| | `viz.js` | `src/pyrunner/lab/` |
+| --- | --- | --- |
+| 服务对象 | 前五卷 00–67 章，741 个代码块 | 卷六 68–75 章工程域 |
+| 形态 | 单体 14,370 行 / 108 渲染器 / 约 400KB | 一组件一文件 + 注册表动态 import |
+| 引擎 | 无 | `circuit/mech/logic/dsp/media/audio` 六个数值引擎 |
+| 现状 | **冻结：不加不改** | **在建设中，新东西全放这里** |
+
+`lab` 子系统自带：底座 `core.js`（主题色/画布/滑块/动画/音频壳）、六个引擎、
+`components/` 组件目录、`registries/chNN.js` 分册注册表（validate 扫目录自动白名单，
+**不需要手改 validate.mjs**）。详见 `UNIT_GUIDES/68-75-volume6-outline.md`。
 
 ## 常用命令
 
@@ -40,10 +55,17 @@ npm run clear      # 清缓存（行为诡异时第一步）
 docs/NN-chapter/MM-lesson.md   # 全部课程内容（纯 markdown，禁用 .mdx）
 docs/17-what-next/             # 「下一程导读」导览章：不入图谱/知识树（gen-graph.mjs 与 ui/server.mjs 均排除 17- 前缀），豁免九段式
 src/pyrunner/enhancer.js       # 核心：浮窗控制台/按钮注入/测验/判题/进度
-src/pyrunner/viz.js            # HTML 原生可视化：numberline / plot / sines
+src/pyrunner/viz.js            # 前五卷可视化单体（108 渲染器 / 约 400KB，只读不写）
+src/pyrunner/lab/              # 卷六工程组件系统（新交互一律走这里）
+  core.js                      #   底座：themeColors/setupCanvas/buildSliders/anim/audio/onScreen…
+  engines/                     #   数值引擎：circuit.js mech.js logic.js dsp.js media.js audio.js
+  components/<kebab>.js        #   一组件一文件：export default render(host, spec) → {slidersBox?,destroy?}
+  registries/chNN.js           #   分册注册表（ch68–ch75）：'名': () => import('../components/x.js') 必须字面量
+  registry.js                  #   汇总八个分册（勿手改，改分册文件即可）
 src/theme/Root/index.js        # MutationObserver 入口，路由变化后重扫描
 src/theme/TOCItems/index.js    # 右栏挂件 swizzle：目录上方渲染前置知识 + 学习进度条
-src/components/doc-widgets/    # PrereqPanel 等文档页挂件组件（正文/右栏两处复用）
+src/theme/DocItem/Layout/index.js  # 文档页布局 swizzle：正文横条前置知识 + RailControls 折叠把手
+src/components/doc-widgets/    # PrereqPanel 前置知识面板、RailControls 左右侧栏折叠控件
 src/pages/index.js             # 首页（演算纸视觉体系，样式全在 home.css 的 .ml-home 作用域内）
 src/pages/tree.js              # /tree 知识树页（章节/单元双模式 + 搜索 + 巨大画布，KnowledgeGraphTree v2）
 src/pages/graph.js             # /graph 知识图谱页（逐课泳道，KnowledgeGraphFull）
@@ -64,13 +86,34 @@ ui/                            # 独立阅读前端（与 Docusaurus 主站并�
   render.mjs                   #   markdown→HTML 管线（marked + KaTeX 服务端渲染 + 自定义围栏卡片）
   fluent/                      #   雅致版皮肤（Fluent/Win11 风，端口 9453，入口 启动FluentUI.bat）
 UNIT_GUIDES/                   # 单章课题切分与专属组件规格
+UNIT_GUIDES/68-75-volume6-outline.md  # ★ 卷六施工手册（自包含：架构+写课SOP+组件SOP+引擎API+八章课表+坑清单）
 AUDIT_REPORTS/OPEN_ITEMS.md    # 未结项与待改善清单（唯一留存的活口；处理完即删行）
-LESSON_TEMPLATE.md             # 写课模板·单一事实来源（先读这个）
+LESSON_TEMPLATE.md             # 写课模板·单一事实来源（卷一到卷五先读这个；卷六直接读卷六施工手册）
 BACKFILL_LOG.md                # 未完成缺口台账（含回填铁律）
 ROADMAP.md                     # 课程路线图 + 未完成进度 checkbox（读者侧入口是站内 /graph 知识图谱页）
 CONTENT_AUDIT.md               # 现行内容口径 + 发布自检纪律
 mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz 块扫描
 ```
+
+### 卷六章节编号（2026-08-31 按依赖拓扑重排）
+
+按**依赖拓扑**编排，编号即学习顺序。旧顺序「声画电算机」把电排在声后面，
+而声学要用到滤波器与电路知识，先修链是断的，故重排。重排是 8-循环置换，
+`registries/` 的文件集合不变，故 `registry.js` 无需改动。
+
+| 章 | 目录 | 主题 | 引擎 | 组件 | 课文 |
+| --- | --- | --- | --- | --- | --- |
+| 68 | `68-electronics` | 电子电路与电子设计 | circuit | 18/18 | **19/19 成稿** |
+| 69 | `69-digital-systems` | 数字系统与计算机组成 | logic | 0/18 | 0/18 |
+| 70 | `70-computer-systems` | 计算机系统 | logic | 15/15 | **16/16 成稿** |
+| 71 | `71-mechanical-engineering` | 机械工程与力学 | mech | 18/18 | 0/19（组件现成，只差正文） |
+| 72 | `72-mechatronics` | 机电系统与嵌入式 | circuit+mech | 16/16 | 0/17（组件现成，只差正文） |
+| 73 | `73-audio-acoustics` | 音频与声学 | audio+dsp | 2/14 | 0/15 |
+| 74 | `74-speech-audio` | 语音与音频智能 | audio+dsp+media | 0/14 | 0/15 |
+| 75 | `75-image-video` | 图像与视频 | media+dsp | 0/14 | 0/15 |
+
+侧边栏顺序由目录数字前缀自动生成，**不用改 `sidebars.js`**。建成一章后同步四件套：
+`references-data.json` → `gen-references.mjs` → `gen-graph.mjs` → `ROADMAP.md`。
 
 ### 参考资料条目与账号体系（2026-08-29 新增）
 
@@ -106,13 +149,15 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 - **标题字体/字号必须走 Infima 变量**：Infima 的标题规则是 `h1:not(#\#):not(#\#)`（双 ID 特异性），任何类选择器都压不过；在 `.ml-home` 上改 `--ifm-heading-font-family / --ifm-h1-font-size / --ifm-h2-font-size`，小标题用 `.ml-home main h3 { --ifm-heading-font-family: ... }` 按元素继承退回无衬线。
 - `HomeTree.js`（章级树）交互：滚动入场逐层生长 + 「重播生长」；**点击章节胶囊＝聚焦**——沿跨章先修边求上/下闭包，无关章节隐藏、可见各层横向重新居中（与 KnowledgeGraphTree 同一套 shifted 算法），绿=先修、橙=托起；双击或信息条按钮进入本章。实现要点：入场动画的逐节点 delay 在 SETTLE_MS 后统一清零（settled 状态），否则筛选切换会被旧延迟拖慢。
 
-### 知识树页 /tree v2（2026-08-29 重做：双模式 + 排除第 0 章）
+### 知识树页 /tree v3（2026-08-31 重做：紧凑块布局 + 渲染直改 DOM；v2 为 08-29 双模式）
 
-- `/tree` 页（`KnowledgeGraphTree.js`）**重做为双模式**：顶部分段控件切「章节模式」（课级先修边聚合到章）与「单元模式」（逐课展开）。两种模式共用同一套巨大画布（平移/缩放/全屏）与交互，只是节点粒度不同。
 - **排除第 0 章**：`treeLayout.js` 的 `filterCh0()` 在模块加载时把 `NODES` 里 `ch === 0`（Python 工具箱）整章剔除，并重映射 `EDGES`/`USE_AGG` 索引——第 0 章不再作为旁支挂根。注意这是**树页的视图层过滤**，不改 `full-graph-data.js` 源数据（/graph 与首页仍含第 0 章）。
-- **纯布局引擎 `treeLayout.js`**（无 React 依赖，可用 node 单测）：`layeredLayout()` 做「最长路径分层 + 重心法交叉消减（Sugiyama 简化）+ 主父子树择优 + 逐层居中」，并预生成祖先/后代 `Uint8Array` 位图供渲染期 O(1) 判属；`aggregateChapters()` 聚合章级边；`chainOf()`/`popcount()` 供信息面板。**布局与位图都在模块加载时算一次**，不随悬停重算。
+- **单元模式 = 章节块布局（`blockLayout()`）**：章 DAG 决定约 20 个「带」（章粒度最长路径，`chapterLevels()`），每章的课在带内排成 ≤5 列的紧凑网格块——**同章课程永远收在一个矩形块里**（v2 逐课最长路径会把一章拆到 5~8 层）。带内块按章 DAG 重心消叉排序 + 块级中位数对齐松弛（钳位防重叠）。章内边在块内走短弧线（同层弧深度随水平距离缩放、封顶 sagCap）。
+- **章节模式 = `layeredLayout()`**：坐标分配已改为「层内紧凑槽位（绕中轴居中）+ 层间中位数对齐松弛」——层内零空洞（v2 旧算法「继承父 x + 逐层居中」实测占用率仅 65%、空洞 429 个）。曾试过 Buchheim 紧凑树：本图深窄（46 层、叶子多），占用率反跌到 20%，弃用。
+- **渲染性能**：SVG 结构按模式 `useMemo` 静态化（805 节点 + 1125 边不随悬停/选中重渲染）；悬停/选中/搜索高亮与选中位移全部直改 DOM（`classList` 带 `__cls` 变更缓存、`transform`、`path d`）；React 只管工具栏与信息面板。挂载期事件监听（[] 依赖）经 `fnRef` 调最新闭包；`sel/hot` 在模式切换过渡渲染里可能越界，统一先夹紧（`selS/hotS`）再用。
+- **布局与位图都在模块加载时算一次**（块布局 ~14ms），不随悬停重算；`aggregateChapters()`/`chainOf()`/`popcount()` 照旧。
 - **搜索**：实时高亮命中（`is-search`），回车定位并循环轮询（`jumpTo(i, 1)` 同步平移缩放 + 聚焦筛选）；点击胶囊 `jumpTo(i)` 保留当前缩放只居中。
-- **性能取舍**：平移/缩放走直接 DOM（绕开 React 渲染）；悬停只高亮连通路径（绿先修/橙托起）、**不再整图暗化**（减少 ~1700 元素的重绘）；入场用层级错峰（无 IntersectionObserver 千余观察者）。主干先修边与「跨线支撑」边分层着色（`.ml-tr__edge--branch` 虚线淡入）。
+- 排坑：调试截图时 React 的 `onMouseEnter` 只认 `mouseover` 事件（`mouseenter` 不冒泡、React 不合成）；测 localhost 用 node fetch。
 - 样式在 `home.css` 末尾「知识树 v2」段（`.ml-tr__modes`/`.ml-tr__searchwrap`/`.ml-tr__legend`/`.ml-tr__edge--branch` 等）。
 
 ### 独立阅读前端 ui/（2026-08-28 重做；科幻版 hud 已于 08-31 移除）

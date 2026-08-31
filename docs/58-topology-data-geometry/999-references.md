@@ -35,8 +35,6 @@ difficulty: 4
 # @desc: 三维流形的刻画：里奇流技术解决百年悬案。
 # @page: https://en.wikipedia.org/wiki/Poincar%C3%A9_conjecture
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmL21hdGgvMDIxMTE1OQ==
-# @local64: L3BhcGVycy8wMjExMTU5LTQ2MmJmNWY0LnBkZg==
-# @lsize: 0.3 MB
 ```
 
 ```paper

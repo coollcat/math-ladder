@@ -45,8 +45,6 @@ difficulty: 4
 # @desc: 朝随机方向疯狂生长的树：高维空间避障的利器。
 # @page: https://en.wikipedia.org/wiki/Rapidly-exploring_random_tree
 # @pdf64: aHR0cHM6Ly9tc2wuY3MuaWxsaW5vaXMuZWR1L35sYXZhbGxlL3BhcGVycy9MYXY5OGMucGRm
-# @local64: L3BhcGVycy9MYXY5OGMtMWZhZTg2ZDQucGRm
-# @lsize: 0.4 MB
 ```
 
 ```paper

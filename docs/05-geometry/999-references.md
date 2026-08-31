@@ -18,8 +18,6 @@ description: 第 5 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 从五条公设推出整个几何世界，「证明」的现代含义由它定义。
 # @page: https://en.wikipedia.org/wiki/Euclid%27s_Elements
 # @pdf64: aHR0cHM6Ly93d3cuZ3V0ZW5iZXJnLm9yZy9maWxlcy8yMTA3Ni8yMTA3Ni1wZGYucGRm
-# @local64: L3BhcGVycy8yMTA3Ni1wZGYtZjhjNGFkMzYucGRm
-# @lsize: 1.8 MB
 ```
 
 ```paper

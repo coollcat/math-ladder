@@ -18,8 +18,6 @@ description: 第 4 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 「移项与对消」的系统化：解方程第一次有了可复制的操作手册。
 # @page: https://en.wikipedia.org/wiki/The_Compendious_Book_on_Calculation_by_Completion_and_Balancing
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9yb2JlcnRvZmNoZXN0ZXJzMDBraHV3L3JvYmVydG9mY2hlc3RlcnMwMGtodXcucGRm
-# @local64: L3BhcGVycy9yb2JlcnRvZmNoZXN0ZXJzMDBraHV3LWZiYzQzNzE5LnBkZg==
-# @lsize: 8.7 MB
 ```
 
 ```paper

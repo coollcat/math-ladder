@@ -25,8 +25,6 @@ difficulty: 4
 # @desc: 「弯曲空间的度量由内蕴决定」：黎曼几何从此开始。
 # @page: https://en.wikipedia.org/wiki/On_the_Hypotheses_which_lie_at_the_Bases_of_Geometry
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9wYXBlci1kb2ktMTBfMTAzOF8wMDgwMTRhMC9wYXBlci1kb2ktMTBfMTAzOF8wMDgwMTRhMC5wZGY=
-# @local64: L3BhcGVycy9wYXBlci1kb2ktMTBfMTAzOF8wMDgwMTRhMC1hYzliYmQyYS5wZGY=
-# @lsize: 0.5 MB
 ```
 
 ```paper

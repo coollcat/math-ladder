@@ -55,8 +55,6 @@ difficulty: 5
 # @desc: 偏微分方程为期权定价：衍生品市场的数学引擎。
 # @page: https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model
 # @pdf64: aHR0cHM6Ly93d3cuY3MucHJpbmNldG9uLmVkdS9jb3Vyc2VzL2FyY2hpdmUvZmFsbDA5L2NvczMyMy9wYXBlcnMvYmxhY2tfc2Nob2xlczczLnBkZg==
-# @local64: L3BhcGVycy9ibGFja19zY2hvbGVzNzMtYzI4ZTYyYjEucGRm
-# @lsize: 0.3 MB
 ```
 
 ```paper

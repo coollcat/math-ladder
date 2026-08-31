@@ -1,6 +1,6 @@
 ---
 title: 计算机系统 · 参考资料
-description: 第 73 章涉及的核心论文、原著与延伸阅读一览。
+description: 第 70 章涉及的核心论文、原著与延伸阅读一览。
 volume: 6
 layer: L4
 track:
@@ -24,8 +24,6 @@ difficulty: 3
 # @desc: 信号量、互斥、临界区这些词都出生在这份手稿里——浏览器开 30 个标签而一个崩了别的还活着，靠的就是它。
 # @page: https://en.wikipedia.org/wiki/Cooperating_sequential_processes
 # @pdf64: aHR0cHM6Ly93d3cuY3MudXRleGFzLmVkdS91c2Vycy9FV0QvZXdkMDF4eC9FV0QxMjMuUERG
-# @local64: L3BhcGVycy9FV0QxMjMtN2NkZjRjZTUucGRm
-# @lsize: 1.7 MB
 ```
 
 ```paper
@@ -67,8 +65,6 @@ difficulty: 3
 # @desc: 「SQL 不是查表语言，它是集合论穿了件外套」——这句话的原始出处，第 9 课的主角。
 # @page: https://en.wikipedia.org/wiki/Relational_model
 # @pdf64: aHR0cHM6Ly93d3cuc2Vhcy51cGVubi5lZHUvfnppdmVzLzAzZi9jaXM1NTAvY29kZC5wZGY=
-# @local64: L3BhcGVycy9jb2RkLTUwYWZiZGE0LnBkZg==
-# @lsize: 1.4 MB
 ```
 
 ```paper
@@ -80,8 +76,6 @@ difficulty: 3
 # @desc: ACID 四个字母的定稿现场，也是「并发事务对不对，看冲突图有没有环」的出处。
 # @page: https://en.wikipedia.org/wiki/ACID
 # @pdf64: aHR0cHM6Ly9qaW1ncmF5LmF6dXJld2Vic2l0ZXMubmV0L3BhcGVycy90aGVUcmFuc2FjdGlvbkNvbmNlcHQucGRm
-# @local64: L3BhcGVycy90aGVUcmFuc2FjdGlvbkNvbmNlcHQtODVjNDNhZjUucGRm
-# @lsize: 0.1 MB
 ```
 
 ```paper
@@ -93,8 +87,6 @@ difficulty: 3
 # @desc: TCP/IP 的出生证明：第 12 课里「100 字节发出去、线上跑的是 158 字节」的信封格式，从这儿定下来。
 # @page: https://en.wikipedia.org/wiki/Internet_protocol_suite
 # @pdf64: aHR0cHM6Ly93d3cuY3MucHJpbmNldG9uLmVkdS9jb3Vyc2VzL2FyY2hpdmUvZmFsbDA2L2NvczU2MS9wYXBlcnMvY2VyZjc0LnBkZg==
-# @local64: L3BhcGVycy9jZXJmNzQtMjQyMTYwMDEucGRm
-# @lsize: 0.2 MB
 ```
 
 ```paper
@@ -106,8 +98,6 @@ difficulty: 3
 # @desc: 「加性增、乘性减」那条锯齿的发明地——整个互联网没被自己挤垮，靠的就是这一篇。
 # @page: https://en.wikipedia.org/wiki/TCP_congestion_control
 # @pdf64: aHR0cHM6Ly9lZS5sYmwuZ292L3BhcGVycy9jb25nYXZvaWQucGRm
-# @local64: L3BhcGVycy9jb25nYXZvaWQtNmIyNWQzY2UucGRm
-# @lsize: 0.2 MB
 ```
 
 ```paper
@@ -119,6 +109,4 @@ difficulty: 3
 # @desc: 把 Paxos 的晦涩拆成选主、日志复制、安全性三块：五台机器坏两台，凭什么还能对真相达成一致。
 # @page: https://en.wikipedia.org/wiki/Raft_(algorithm)
 # @pdf64: aHR0cHM6Ly9yYWZ0LmdpdGh1Yi5pby9yYWZ0LnBkZg==
-# @local64: L3BhcGVycy9yYWZ0LTI5Zjc5MTIwLnBkZg==
-# @lsize: 0.5 MB
 ```

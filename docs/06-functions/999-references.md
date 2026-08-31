@@ -18,8 +18,6 @@ description: 第 6 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 坐标系登场：代数式与几何曲线从此一一对应，函数有了自己的舞台。
 # @page: https://en.wikipedia.org/wiki/La_G%C3%A9om%C3%A9trie
 # @pdf64: aHR0cHM6Ly93d3cuZ3V0ZW5iZXJnLm9yZy9maWxlcy8yNjQwMC8yNjQwMC1wZGYucGRm
-# @local64: L3BhcGVycy8yNjQwMC1wZGYtZDRmMjI0OTkucGRm
-# @lsize: 0.5 MB
 ```
 
 ```paper

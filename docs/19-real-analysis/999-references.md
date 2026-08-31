@@ -24,8 +24,6 @@ difficulty: 4
 # @desc: 极限、连续、收敛第一次获得准确定义，无穷小告别含糊时代。
 # @page: https://en.wikipedia.org/wiki/Augustin-Louis_Cauchy
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9UTzBFMDM3ODcxX1RPMDMyNF9QTkktMTg5OF8wMDAwMDAvVE8wRTAzNzg3MV9UTzAzMjRfUE5JLTE4OThfMDAwMDAwLnBkZg==
-# @local64: L3BhcGVycy9UTzBFMDM3ODcxX1RPMDMyNF9QTkktMTg5OF8wMDAwMDAtM2U5YWFhMzAucGRm
-# @lsize: 23.9 MB
 ```
 
 ```paper

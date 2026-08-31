@@ -34,8 +34,6 @@ difficulty: 4
 # @desc: 用三种基本运算描述全部正则语言：从神经元模型长出的记号系统。
 # @page: https://en.wikipedia.org/wiki/Regular_expression
 # @pdf64: aHR0cHM6Ly93d3cuY3NlLmNoYWxtZXJzLnNlL35jb3F1YW5kL0FVVE9NQVRBL21jcC5wZGY=
-# @local64: L3BhcGVycy9tY3AtZGVhMmNlMDgucGRm
-# @lsize: 0.8 MB
 ```
 
 ```paper

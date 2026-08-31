@@ -18,8 +18,6 @@ description: 第 15 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 「用多项式逼近光滑函数」的系统陈述，函数计算从此有了通用模板。
 # @page: https://en.wikipedia.org/wiki/Taylor_series
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9VRklFMDAzNDU0X1RPMDMyNF9QTkktMjUyOV8wMDAwMDAvVUZJRTAwMzQ1NF9UTzAzMjRfUE5JLTI1MjlfMDAwMDAwLnBkZg==
-# @local64: L3BhcGVycy9VRklFMDAzNDU0X1RPMDMyNF9QTkktMjUyOV8wMDAwMDAtMzhkYTEwNTcucGRm
-# @lsize: 7.8 MB
 ```
 
 ```paper

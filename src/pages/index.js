@@ -167,16 +167,6 @@ export default function Home() {
               内容按六卷组织：卷一《数学地基》已完成；卷二高等核心、卷三离散计算、卷四概率信息、卷五应用
               AI 已开放大部分正式课，卷六《工程与系统》开画——电子电路与计算机系统率先上线。每个概念配一个能动手的交互，新工具先讲它的来历，代码块都能当场修改运行。
             </p>
-            <p className="ml-hero__note ml-hero__note--i18n">
-              <strong>About（English）</strong> · Math Ladder is an interactive mathematics
-              curriculum that grows from <em>1+1</em> to the mathematics behind modern AI —
-              six volumes, {s.chapters} chapters and {s.lessons} hands-on lessons. Every
-              concept ships with a runnable in-browser Python widget; every tool is derived
-              from first principles before it is used. Volume I (Foundations) is complete;
-              Volumes II–V (Advanced Core, Discrete &amp; Computing, Probability &amp;
-              Information, Applied AI) are largely open, and Volume VI (Engineering &amp;
-              Systems) is now underway with Electronics and Computer Systems live.
-            </p>
             <div className="ml-hero__btns">
               <Link className="button button--primary button--lg" to="/docs/python-tools/conventions">
                 从第 0 课开始

@@ -18,8 +18,6 @@ description: 第 3 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 把乘法降格为加法的天才表格，天文学家的命是它救的。
 # @page: https://en.wikipedia.org/wiki/Mirifici_Logarithmorum_Canonis_Descriptio
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9taXJpZmljaWxvZ2FyaXQwMG5hcGkvbWlyaWZpY2lsb2dhcml0MDBuYXBpLnBkZg==
-# @local64: L3BhcGVycy9taXJpZmljaWxvZ2FyaXQwMG5hcGktYjg5NjZmYjgucGRm
-# @lsize: 18.2 MB
 ```
 
 ```paper
@@ -31,6 +29,4 @@ description: 第 3 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 第一次把指数函数、对数函数当作「函数」来写，e 的称号也从这里坐实。
 # @page: https://en.wikipedia.org/wiki/Introductio_in_analysin_infinitorum
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9idWJfZ2JfRk55ZjY0QlFSbzhDL2J1Yl9nYl9GTnlmNjRCUVJvOEMucGRm
-# @local64: L3BhcGVycy9idWJfZ2JfRk55ZjY0QlFSbzhDLTliMWI1NTUwLnBkZg==
-# @lsize: 10.0 MB
 ```

@@ -34,8 +34,6 @@ difficulty: 4
 # @desc: 素数幂的模运算让陌生人在公开频道协商出共同秘密。
 # @page: https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange
 # @pdf64: aHR0cHM6Ly9lZS5zdGFuZm9yZC5lZHUvfmhlbGxtYW4vcHVibGljYXRpb25zLzI0LnBkZg==
-# @local64: L3BhcGVycy8yNC0xY2I4ZWE4ZS5wZGY=
-# @lsize: 2.1 MB
 ```
 
 ```paper

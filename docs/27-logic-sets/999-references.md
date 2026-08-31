@@ -24,8 +24,6 @@ difficulty: 3
 # @desc: 对角线证明实数不可数：无穷也有大小之分。
 # @page: https://en.wikipedia.org/wiki/Georg_Cantor
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9jb250cmlidXRpb25zdG9mMDBjYW50cmljaC9jb250cmlidXRpb25zdG9mMDBjYW50cmljaC5wZGY=
-# @local64: L3BhcGVycy9jb250cmlidXRpb25zdG9mMDBjYW50cmljaC01M2ZhNzgyYi5wZGY=
-# @lsize: 10.3 MB
 ```
 
 ```paper

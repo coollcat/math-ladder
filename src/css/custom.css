@@ -513,6 +513,7 @@ a:hover .ml-chapter.is-done {
   flex-direction: column;
   width: min(1200px, calc(100vw - 2rem));
   height: min(92vh, 940px);
+  height: min(92dvh, 940px); /* dvh：真实视口，见 is-fullpage 注释 */
   min-width: 320px;
   min-height: 340px;
   background: #ffffff;
@@ -773,6 +774,86 @@ a:hover .ml-chapter.is-done {
 
 .ml-console__back:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+/* 显示模式切换：浮窗 ⇄ 整页（窄屏默认整页，见 enhancer.js 的 applyMode） */
+.ml-console__mode {
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: transparent;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  padding: 0.05rem 0.6rem;
+  cursor: pointer;
+}
+
+.ml-console__mode:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* 整页模式：铺满视口。拖拽在 JS 侧也被拦掉，这里只是把视觉铺满。
+ * dvh：iPad/Safari 上 100vh 不扣地址栏，铺满会溢出一截被系统工具条盖住；
+ * dvh 支持时覆盖 vh，不支持的老浏览器落在前一行。 */
+.ml-console.is-fullpage {
+  left: 0;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  transform: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.ml-console.is-fullpage .ml-console__head {
+  cursor: default;
+}
+
+@media (max-width: 1024px) {
+  .ml-console.is-fullpage .ml-console__editor {
+    font-size: 1rem;
+  }
+}
+
+/* ---------- 平板/触屏适配（pointer: coarse 才命中，鼠标桌面不受影响） ----------
+ * 触屏上的可用性三件事：
+ *   1. 触控目标 ≥44px——rail 把手、浮窗头部的关闭/模式/返回按钮在触屏上放大；
+ *   2. 滚动隔离——浮窗内编辑器/输出区滚动不让页面跟着弹（overscroll-behavior）；
+ *   3. 头部内边距加大，整页模式下手指不容易误触拖拽区（拖拽在整页下已禁用）。 */
+@media (pointer: coarse) {
+  .ml-rail-btn {
+    width: 30px;
+    height: 104px;
+    font-size: 19px;
+  }
+
+  .ml-console__head {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  .ml-console__close {
+    font-size: 1.45rem;
+    padding: 0.15rem 0.55rem;
+  }
+
+  .ml-console__mode,
+  .ml-console__back {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.85rem;
+  }
+
+  .ml-console__editor,
+  .ml-console .ml-console__out {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 .ml-console__banner {
@@ -1435,5 +1516,80 @@ a:hover .ml-chapter.is-done {
   main[class*='docMainContainer'] .row > .col.col--3 {
     flex: 0 0 24%;
     max-width: 24%;
+  }
+}
+
+/* ---------- 左右侧栏折叠（把手见 RailControls.js） ----------
+ * 2026-08-31 重写：Docusaurus 3 的 DOM 与旧版不同——
+ *   正文列是 col docItemCol_xxx（不是 col col--7），main 是 docMainContainer（flex 不是 grid），
+ *   sidebar 隐藏后要用 max-width 覆盖而非 grid-template-columns。
+ * 只在桌面生效：窄屏下 Docusaurus 本来就隐藏 TOC、sidebar 收成抽屉。 */
+
+.ml-rail-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 400;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 72px;
+  padding: 0;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-emphasis-700);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ml-rail-btn:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.ml-rail-btn--left {
+  left: 0;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+}
+
+.ml-rail-btn--right {
+  right: 0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+}
+
+@media (min-width: 997px) {
+  .ml-rail-btn {
+    display: flex;
+  }
+
+  /* ---- 左侧 sidebar 折叠 ----
+   * Docusaurus 3 的 docMainContainer 默认 max-width: calc(100% - sidebar-width)，
+   * 折叠后要覆盖为 100%。sidebar 容器直接 display:none。 */
+  .ml-side-l-collapsed [class*='theme-doc-sidebar-container'] {
+    display: none;
+  }
+
+  .ml-side-l-collapsed [class*='docMainContainer'] {
+    max-width: 100% !important;
+  }
+
+  /* ---- 右侧 TOC 折叠 ----
+   * Docusaurus 3 正文列 docItemCol 有 max-width: 75% !important，
+   * 折叠 TOC 后要覆盖为 100% !important。TOC 列 col--3 直接隐藏。 */
+  .ml-side-r-collapsed [class*='docItemCol'] {
+    max-width: 100% !important;
+  }
+
+  .ml-side-r-collapsed [class*='docMainContainer'] .row > .col.col--3 {
+    display: none;
+  }
+
+  /* 双侧都折叠：正文容器再放宽一档 */
+  .ml-side-l-collapsed.ml-side-r-collapsed [class*='docMainContainer'] > .container {
+    max-width: 1560px;
   }
 }

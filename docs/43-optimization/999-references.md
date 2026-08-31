@@ -34,8 +34,6 @@ difficulty: 4
 # @desc: 动量 + 自适应学习率：被引用最多的优化器，深度学习的默认引擎。
 # @page: https://arxiv.org/abs/1412.6980
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE0MTIuNjk4MA==
-# @local64: L3BhcGVycy8xNDEyLjY5ODAucGRm
-# @lsize: 0.6 MB
 ```
 
 ```paper
@@ -47,8 +45,6 @@ difficulty: 4
 # @desc: 凸性的「局部最优即全局最优」：优化理论的分水岭。
 # @page: https://web.stanford.edu/~boyd/cvxbook/
 # @pdf64: aHR0cHM6Ly93ZWIuc3RhbmZvcmQuZWR1L35ib3lkL2N2eGJvb2svYnZfY3Z4Ym9vay5wZGY=
-# @local64: L3BhcGVycy9idl9jdnhib29rLTc0Y2RlZWRlLnBkZg==
-# @lsize: 6.6 MB
 ```
 
 ```paper

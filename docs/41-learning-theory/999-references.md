@@ -44,6 +44,4 @@ difficulty: 4
 # @desc: 性能随参数、数据、算力的幂律展开：大模型时代的路线图。
 # @page: https://arxiv.org/abs/2001.08361
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIwMDEuMDgzNjE=
-# @local64: L3BhcGVycy8yMDAxLjA4MzYxLnBkZg==
-# @lsize: 2.4 MB
 ```

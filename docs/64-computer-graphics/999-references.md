@@ -35,8 +35,6 @@ difficulty: 4
 # @desc: 环境光-漫反射-镜面高光三件套：实时渲染光照模型的起点。
 # @page: https://en.wikipedia.org/wiki/Phong_shading
 # @pdf64: aHR0cHM6Ly93d3cuY3Mubm9ydGh3ZXN0ZXJuLmVkdS9+YWdvODIwL2NzMzk1L1BhcGVycy9QaG9uZ18xOTc1LnBkZg==
-# @local64: L3BhcGVycy9QaG9uZ18xOTc1LWY2MjNiZjk0LnBkZg==
-# @lsize: 1.6 MB
 ```
 
 ```paper

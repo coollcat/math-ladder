@@ -18,8 +18,6 @@ description: 第 16 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 为解热方程发明级数展开：「任何信号都是正弦波的和」从这里开始。
 # @page: https://en.wikipedia.org/wiki/Joseph_Fourier
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9kbGkuZXJuZXQuMTc3NTU1LzE3NzU1NS1UaGUlMjBBbmFseXRpY2FsJTIwVGhlb3J5JTIwT2YlMjBIZWF0LnBkZg==
-# @local64: L3BhcGVycy8xNzc1NTUtVGhlMjBBbmFseXRpY2FsMjBUaGVvcnkyME9mMjBIZWF0LWY3ODA1NDc2LnBkZg==
-# @lsize: 33.0 MB
 ```
 
 ```paper

@@ -45,6 +45,8 @@ async function createConfig() {
             rehypePlugins: [rehypeKatex],
             showLastUpdateTime: false,
             showLastUpdateAuthor: false,
+            sidebarCollapsible: true,
+            sidebarCollapsed: false,
           },
           blog: false,
           theme: {
@@ -67,6 +69,12 @@ async function createConfig() {
     themeConfig: {
       colorMode: {
         respectPrefersColorScheme: true,
+      },
+      docs: {
+        sidebar: {
+          hideable: true,
+          autoCollapseCategories: false,
+        },
       },
       navbar: {
         title: '数学阶梯',

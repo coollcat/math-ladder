@@ -24,8 +24,6 @@ difficulty: 5
 # @desc: 抛弃循环只用注意力：Transformer 与大模型时代的起点。
 # @page: https://arxiv.org/abs/1706.03762
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MDYuMDM3NjI=
-# @local64: L3BhcGVycy8xNzA2LjAzNzYyLnBkZg==
-# @lsize: 2.1 MB
 ```
 
 ```paper
@@ -37,8 +35,6 @@ difficulty: 5
 # @desc: 按样本内归一化：Transformer 前后层的稳定器。
 # @page: https://arxiv.org/abs/1607.06450
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE2MDcuMDY0NTA=
-# @local64: L3BhcGVycy8xNjA3LjA2NDUwLnBkZg==
-# @lsize: 0.6 MB
 ```
 
 ```paper
@@ -50,8 +46,6 @@ difficulty: 5
 # @desc: 用旋转矩阵编码位置：点积只依赖相对距离，现代大模型的默认位置编码。
 # @page: https://arxiv.org/abs/2104.09864
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIxMDQuMDk4NjQ=
-# @local64: L3BhcGVycy8yMTA0LjA5ODY0LnBkZg==
-# @lsize: 0.6 MB
 ```
 
 ```paper
@@ -63,6 +57,4 @@ difficulty: 5
 # @desc: 把图片切块当词喂给 Transformer：注意力统一视觉与语言。
 # @page: https://arxiv.org/abs/2010.11929
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIwMTAuMTE5Mjk=
-# @local64: L3BhcGVycy8yMDEwLjExOTI5LnBkZg==
-# @lsize: 3.6 MB
 ```

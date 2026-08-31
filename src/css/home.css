@@ -907,8 +907,9 @@
   background-color: var(--ifm-card-background-color);
   /* 点阵网格：让「这是一张可拖动的画布」一眼可读 */
   background-image: radial-gradient(var(--ifm-color-emphasis-300) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-size: 20px 20px;
   height: min(82vh, 880px);
+  height: min(82dvh, 880px); /* iPad/Safari：vh 不扣地址栏，dvh 才是真实视口 */
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -973,13 +974,14 @@
   pointer-events: none;
 }
 
-/* 树页胶囊字号：比泳道图谱大一档，配合放大后的胶囊 */
+/* 树页胶囊字号：比泳道图谱大一档，配合放大后的胶囊。
+ * 2026-08-31：胶囊由 172×36 收到 150×30，字号同步降一档，避免文字顶到圆角。 */
 .ml-tr__svg .ml-fg__node text {
-  font-size: 13.5px;
+  font-size: 12.5px;
 }
 
 .ml-tr__svg .ml-fg__depth {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .ml-tr__edge {

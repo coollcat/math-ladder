@@ -18,8 +18,6 @@ description: 第 13 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 用「流数」处理瞬时变化率，物理与微积分一起诞生。
 # @page: https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9waGlsb3NvcGhpYWVuYXR1MDRuZXd0dW9mdC9waGlsb3NvcGhpYWVuYXR1MDRuZXd0dW9mdC5wZGY=
-# @local64: L3BhcGVycy9waGlsb3NvcGhpYWVuYXR1MDRuZXd0dW9mdC0wMmQwOGU3OC5wZGY=
-# @lsize: 15.0 MB
 ```
 
 ```paper

@@ -25,8 +25,6 @@ difficulty: 4
 # @desc: 词的语义变成几何向量：国王减男人加女王成为经典。
 # @page: https://arxiv.org/abs/1301.3781
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzEzMDEuMzc4MQ==
-# @local64: L3BhcGVycy8xMzAxLjM3ODEucGRm
-# @lsize: 0.2 MB
 ```
 
 ```paper
@@ -38,8 +36,6 @@ difficulty: 4
 # @desc: 完形填空式预训练：语言表示学习进入「预训练+微调」时代。
 # @page: https://arxiv.org/abs/1810.04805
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE4MTAuMDQ4MDU=
-# @local64: L3BhcGVycy8xODEwLjA0ODA1LnBkZg==
-# @lsize: 0.7 MB
 ```
 
 ```paper
@@ -51,6 +47,4 @@ difficulty: 4
 # @desc: 共现矩阵 + 降维：词向量的另一条统计路线。
 # @page: https://en.wikipedia.org/wiki/GloVe
 # @pdf64: aHR0cHM6Ly9ubHAuc3RhbmZvcmQuZWR1L3B1YnMvZ2xvdmUucGRm
-# @local64: L3BhcGVycy9nbG92ZS04MTFmNTA2Ni5wZGY=
-# @lsize: 2.5 MB
 ```

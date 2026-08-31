@@ -25,8 +25,6 @@ difficulty: 4
 # @desc: 信道容量的极限公式：调制解调与纠错的共同天花板。
 # @page: https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication
 # @pdf64: aHR0cHM6Ly9wZW9wbGUubWF0aC5oYXJ2YXJkLmVkdS9+Y3RtL2hvbWUvdGV4dC9vdGhlcnMvc2hhbm5vbi9lbnRyb3B5L2VudHJvcHkucGRm
-# @local64: L3BhcGVycy9lbnRyb3B5LWRiY2IxMjE3LnBkZg==
-# @lsize: 0.3 MB
 ```
 
 ```paper

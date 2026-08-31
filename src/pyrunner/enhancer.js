@@ -507,12 +507,15 @@ function ensureConsole() {
   btnBack.textContent = '← 随手算';
   const headTitle = document.createElement('span');
   headTitle.className = 'ml-console__headtitle';
+  const btnMode = document.createElement('button');
+  btnMode.className = 'ml-console__mode';
+  btnMode.type = 'button';
   const btnClose = document.createElement('button');
   btnClose.className = 'ml-console__close';
   btnClose.type = 'button';
   btnClose.title = '关闭（Esc）';
   btnClose.textContent = '×';
-  head.append(btnBack, headTitle, btnClose);
+  head.append(btnBack, headTitle, btnMode, btnClose);
 
   const banner = document.createElement('div');
   banner.className = 'ml-console__banner';
@@ -561,7 +564,7 @@ function ensureConsole() {
 
   const refs = {
     fab, panel, editor, status, out, btnRun, btnHint,
-    btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox,
+    btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode,
   };
   /* 引用登记在壳上：热更新后新一代模块靠它领养，而不是拆掉重建 */
   panel.__mlRefs = refs;
@@ -574,6 +577,62 @@ function ensureConsole() {
     out.classList.add('py-runner__out--visible');
     appendText('(输出放大模式：再次点击「恢复编辑」返回)', 'py-runner__dim');
   });
+
+  /* ---------- 显示模式：浮窗 ⇄ 整页 ----------
+   * 窄屏（≤1024px，平板竖屏起）默认整页——浮窗会盖掉大半个屏幕；
+   * 宽屏按用户偏好，默认浮窗。用户手动点过按钮后偏好写进 localStorage，
+   * 之后不再被屏幕宽度覆盖。整页模式下禁用拖动（没有可拖的余地）。 */
+  const MODE_KEY = 'ml-console-mode';
+  const mqNarrow = window.matchMedia('(max-width: 1024px)');
+  let modeLocked = false;
+  try {
+    modeLocked = window.localStorage.getItem(MODE_KEY) !== null;
+  } catch {
+    modeLocked = false;
+  }
+
+  const readPrefMode = () => {
+    try {
+      return window.localStorage.getItem(MODE_KEY);
+    } catch {
+      return null;
+    }
+  };
+
+  const applyMode = () => {
+    const want = readPrefMode() || (mqNarrow.matches ? 'fullpage' : 'floating');
+    const isFull = want === 'fullpage';
+    panel.classList.toggle('is-fullpage', isFull);
+    if (isFull) {
+      /* 整页模式靠 CSS 定位：清掉拖拽留下的内联坐标，否则切不回去 */
+      panel.style.left = '';
+      panel.style.top = '';
+      panel.style.right = '';
+      panel.style.bottom = '';
+      panel.style.transform = '';
+    }
+    btnMode.textContent = isFull ? '浮窗' : '整页';
+    btnMode.title = isFull ? '切回浮窗（可拖动、可调位置）' : '铺满整个网页';
+    btnMode.setAttribute('aria-label', btnMode.title);
+  };
+
+  btnMode.addEventListener('click', () => {
+    const next = panel.classList.contains('is-fullpage') ? 'floating' : 'fullpage';
+    try {
+      window.localStorage.setItem(MODE_KEY, next);
+    } catch {
+      /* 隐私模式下写不进去：本次会话内仍生效，只是不跨会话记忆 */
+    }
+    modeLocked = true;
+    applyMode();
+  });
+
+  const onNarrowChange = () => {
+    if (modeLocked) return;
+    applyMode();
+  };
+  if (mqNarrow.addEventListener) mqNarrow.addEventListener('change', onNarrowChange);
+  else if (mqNarrow.addListener) mqNarrow.addListener(onNarrowChange);
 
   let activeLb = null;
   const closeLb = () => {
@@ -602,7 +661,10 @@ function ensureConsole() {
   const setOpen = (v) => {
     panel.classList.toggle('is-open', v);
     fab.classList.toggle('is-active', v);
-    if (v) requestAnimationFrame(() => editor.focus());
+    if (v) {
+      applyMode();
+      requestAnimationFrame(() => editor.focus());
+    }
   };
   const isOpen = () => panel.classList.contains('is-open');
 
@@ -816,6 +878,7 @@ function ensureConsole() {
   let drag = null;
   head.addEventListener('pointerdown', (ev) => {
     if (ev.target.closest('button')) return;
+    if (panel.classList.contains('is-fullpage')) return;
     const rect = panel.getBoundingClientRect();
     panel.style.transform = 'none';
     panel.style.left = rect.left + 'px';

@@ -24,8 +24,6 @@ difficulty: 3
 # @desc: 信息论开山：比特、熵、信道容量与压缩极限的全部来源。
 # @page: https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication
 # @pdf64: aHR0cHM6Ly9wZW9wbGUubWF0aC5oYXJ2YXJkLmVkdS9+Y3RtL2hvbWUvdGV4dC9vdGhlcnMvc2hhbm5vbi9lbnRyb3B5L2VudHJvcHkucGRm
-# @local64: L3BhcGVycy9lbnRyb3B5LWRiY2IxMjE3LnBkZg==
-# @lsize: 0.3 MB
 ```
 
 ```paper
@@ -37,8 +35,6 @@ difficulty: 3
 # @desc: 一篇学期作业成为最优前缀码：贪心合并的完美示范。
 # @page: https://en.wikipedia.org/wiki/Huffman_coding
 # @pdf64: aHR0cDovL2NvbXByZXNzaW9uLnJ1L2Rvd25sb2FkL2FydGljbGVzL2h1ZmYvaHVmZm1hbl8xOTUyX21pbmltdW0tcmVkdW5kYW5jeS1jb2Rlcy5wZGY=
-# @local64: L3BhcGVycy9odWZmbWFuXzE5NTJfbWluaW11bS1yZWR1bmRhbmN5LWNvZGVzLTZiZmU5MTU1LnBkZg==
-# @lsize: 0.3 MB
 ```
 
 ```paper

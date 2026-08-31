@@ -24,8 +24,6 @@ difficulty: 3
 # @desc: 三行伪代码写下最短路：20 分钟想出的算法用了六十年。
 # @page: https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 # @pdf64: aHR0cHM6Ly9pci5jd2kubmwvcHViLzkyNTYvOTI1NkQucGRm
-# @local64: L3BhcGVycy85MjU2RC0yMDc3MTIyNC5wZGY=
-# @lsize: 0.2 MB
 ```
 
 ```paper

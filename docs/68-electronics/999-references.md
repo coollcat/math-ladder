@@ -1,6 +1,6 @@
 ---
 title: 电子电路与电子设计 · 参考资料
-description: 第 71 章涉及的核心论文、原著与延伸阅读一览。
+description: 第 68 章涉及的核心论文、原著与延伸阅读一览。
 volume: 6
 layer: L8
 track:
@@ -55,8 +55,6 @@ difficulty: 3
 # @desc: 负反馈的发明：用一大堆不可靠的增益，换一个精确可靠的增益——第 13 课「虚短」的祖师爷。
 # @page: https://en.wikipedia.org/wiki/Negative-feedback_amplifier
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9ic3RqMTMtMS0xL2JzdGoxMy0xLTEucGRm
-# @local64: L3BhcGVycy9ic3RqMTMtMS0xLTlkMWJlY2JhLnBkZg==
-# @lsize: 10.1 MB
 ```
 
 ```paper
@@ -68,8 +66,6 @@ difficulty: 3
 # @desc: 把 0.7 V 这个数字从实验台算了出来：二极管与双极型晶体管的定量理论起点，第 11、12 课的理论底座。
 # @page: https://en.wikipedia.org/wiki/Point-contact_transistor
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9ic3RqMjgtMy00MzUvYnN0ajI4LTMtNDM1LnBkZg==
-# @local64: L3BhcGVycy9ic3RqMjgtMy00MzUtYmZiNjMzODMucGRm
-# @lsize: 23.9 MB
 ```
 
 ```paper
@@ -81,6 +77,4 @@ difficulty: 3
 # @desc: 采样定理的原始出处：第 17 课 ADC 那把「把时间切段」的刀，是从这里递过来的。
 # @page: https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem
 # @pdf64: aHR0cHM6Ly9wZW9wbGUubWF0aC5oYXJ2YXJkLmVkdS9+Y3RtL2hvbWUvdGV4dC9vdGhlcnMvc2hhbm5vbi9lbnRyb3B5L2VudHJvcHkucGRm
-# @local64: L3BhcGVycy9lbnRyb3B5LWRiY2IxMjE3LnBkZg==
-# @lsize: 0.3 MB
 ```

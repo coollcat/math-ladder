@@ -24,8 +24,6 @@ difficulty: 5
 # @desc: 看不见的扰动就能骗过网络：对抗样本的第一次系统披露。
 # @page: https://arxiv.org/abs/1312.6199
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzEzMTIuNjE5OQ==
-# @local64: L3BhcGVycy8xMzEyLjYxOTkucGRm
-# @lsize: 6.3 MB
 ```
 
 ```paper
@@ -37,8 +35,6 @@ difficulty: 5
 # @desc: 沿梯度方向一步生成对抗样本：线性解释与快速攻击。
 # @page: https://arxiv.org/abs/1412.6572
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE0MTIuNjU3Mg==
-# @local64: L3BhcGVycy8xNDEyLjY1NzIucGRm
-# @lsize: 1.0 MB
 ```
 
 ```paper
@@ -50,8 +46,6 @@ difficulty: 5
 # @desc: 局部线性近似解释黑盒：可解释 AI 的代表作之一。
 # @page: https://arxiv.org/abs/1602.04938
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE2MDIuMDQ5Mzg=
-# @local64: L3BhcGVycy8xNjAyLjA0OTM4LnBkZg==
-# @lsize: 4.1 MB
 ```
 
 ```paper
@@ -63,6 +57,4 @@ difficulty: 5
 # @desc: 沙普利值走进机器学习：特征贡献的统一度量框架。
 # @page: https://arxiv.org/abs/1705.07874
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MDUuMDc4NzQ=
-# @local64: L3BhcGVycy8xNzA1LjA3ODc0LnBkZg==
-# @lsize: 1.0 MB
 ```

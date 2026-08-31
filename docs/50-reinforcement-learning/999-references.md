@@ -24,8 +24,6 @@ difficulty: 5
 # @desc: 强化学习的标准教材：MDP、动态规划、TD 学习到策略梯度的完整路线。
 # @page: http://incompleteideas.net/book/the-book-2nd.html
 # @pdf64: aHR0cDovL2luY29tcGxldGVpZGVhcy5uZXQvYm9vay9STGJvb2syMDIwLnBkZg==
-# @local64: L3BhcGVycy9STGJvb2syMDIwLWY5ZTZiOTg3LnBkZg==
-# @lsize: 69.7 MB
 ```
 
 ```paper
@@ -47,8 +45,6 @@ difficulty: 5
 # @desc: 卷积网络 + 经验回放：从像素直接学打游戏。
 # @page: https://arxiv.org/abs/1312.5602
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzEzMTIuNTYwMg==
-# @local64: L3BhcGVycy8xMzEyLjU2MDIucGRm
-# @lsize: 0.5 MB
 ```
 
 ```paper
@@ -60,8 +56,6 @@ difficulty: 5
 # @desc: 用截断替代复杂约束：简单稳健的策略梯度，RLHF 时代的功臣。
 # @page: https://arxiv.org/abs/1707.06347
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MDcuMDYzNDc=
-# @local64: L3BhcGVycy8xNzA3LjA2MzQ3LnBkZg==
-# @lsize: 2.8 MB
 ```
 
 ```paper
@@ -83,6 +77,4 @@ difficulty: 5
 # @desc: 证明语言模型自己就是隐式奖励模型：偏好对齐省掉 RL 的复杂管线。
 # @page: https://arxiv.org/abs/2305.18290
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIzMDUuMTgyOTA=
-# @local64: L3BhcGVycy8yMzA1LjE4MjkwLnBkZg==
-# @lsize: 1.2 MB
 ```

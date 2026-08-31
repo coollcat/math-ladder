@@ -18,8 +18,6 @@ description: 第 8 章涉及的核心论文、原著与延伸阅读一览。
 # @desc: 兔子问题留下的数列，成为递推与归纳法最好的入门教材。
 # @page: https://en.wikipedia.org/wiki/Fibonacci
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9qc3Rvci0yOTc0MDM5LzI5NzQwMzkucGRm
-# @local64: L3BhcGVycy8yOTc0MDM5LWExMTYxMDFhLnBkZg==
-# @lsize: 0.7 MB
 ```
 
 ```paper

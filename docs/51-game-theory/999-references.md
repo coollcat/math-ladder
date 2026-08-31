@@ -54,6 +54,4 @@ difficulty: 4
 # @desc: 按平均边际贡献分蛋糕：合作博弈的公平分配唯一解。
 # @page: https://en.wikipedia.org/wiki/Shapley_value
 # @pdf64: aHR0cHM6Ly93d3cucmFuZC5vcmcvY29udGVudC9kYW0vcmFuZC9wdWJzL3BhcGVycy8yMDIxL1AyOTUucGRm
-# @local64: L3BhcGVycy9QMjk1LTdiY2UwMTkzLnBkZg==
-# @lsize: 0.8 MB
 ```
