@@ -10,3 +10,5 @@ build_verify/
 
 # 归档的论文 PDF（体积大，用 scripts/fetch-papers.mjs 重新拉取）
 static/papers/
+
+.workbuddy/
