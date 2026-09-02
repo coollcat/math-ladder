@@ -1,4 +1,13 @@
-﻿/* viz 组件库很大（源码约 400KB），静态 import 会把它打进每页必下的主包。
+﻿/* 输出里的数学公式（$$…$$ / $…$）渲染，KaTeX 在这边按需加载 */
+import { setMathText } from './mathout';
+/* 代码补全（静态词表 + 自己起过的名字），极简版 */
+import { attachComplete, harvestWords } from './complete';
+/* 三个浮窗谁最后被点谁在最上面 */
+import { watchPanel, bringToFront } from './zorder';
+/* 图标（圆钮上的笔记本图标走 iconSvg 字符串版，见 src/components/icons.js） */
+import { iconSvg } from '../components/icons';
+
+/* viz 组件库很大（源码约 400KB），静态 import 会把它打进每页必下的主包。
    这里改成按需动态加载：页面里真出现 ```viz 围栏才拉取对应 chunk。 */
 let vizModPromise = null;
 function loadVizModule() {
@@ -56,11 +65,54 @@ function loadScript(src, timeoutMs) {
   });
 }
 
+/* ---------- Python 运行时的本地缓存 ----------
+ * 运行时那几个大件（pyodide.asm.wasm ~9MB、python_stdlib.zip ~6MB）原本每次
+ * 开页面都要重新下一遍——CDN 的 Cache-Control 靠不住。解决办法是注册一个
+ * 只管这三个 CDN 域名的 Service Worker（static/ml-pyodide-sw.js），
+ * 把命中后缀的请求存进 Cache Storage，之后从本地拿。
+ * 缓存名两边必须一致，改这里记得改 SW。 */
+const SW_CACHE = 'ml-pyodide-v1';
+const SW_URL = '/ml-pyodide-sw.js';
+let swRegistered = false;
+
+function registerPySw() {
+  if (swRegistered || typeof navigator === 'undefined') return;
+  swRegistered = true;
+  if (!('serviceWorker' in navigator)) return;
+  if (!/^https?:$/.test(window.location.protocol)) return;
+  try {
+    navigator.serviceWorker.register(SW_URL).catch(() => {
+      /* 注册失败（隐私模式 / 不支持）：退回每次联网下载，不影响功能 */
+    });
+  } catch {
+    /* 同上 */
+  }
+}
+
+/** 缓存里已经有运行时了吗？有就别再吓唬用户「要下载 10MB」。 */
+async function runtimeCached(base) {
+  try {
+    if (typeof caches === 'undefined') return false;
+    const c = await caches.open(SW_CACHE);
+    return !!(await c.match(base + 'pyodide.asm.wasm'));
+  } catch {
+    return false;
+  }
+}
+
 async function initPyodide(status) {
+  registerPySw();
   let lastErr = null;
   for (const base of PYODIDE_CDNS) {
     try {
-      status('首次运行需下载 Python 运行时（约 10 MB），来源 ' + new URL(base).host + ' …');
+      const cached = await runtimeCached(base);
+      status(
+        cached
+          ? '从本地缓存装载 Python 运行时…'
+          : '首次运行需下载 Python 运行时（约 10 MB，下完会存本地），来源 ' +
+              new URL(base).host +
+              ' …',
+      );
       await loadScript(base + 'pyodide.js', CDN_TIMEOUT_MS);
       const py = await window.loadPyodide({ indexURL: base });
       return py;
@@ -175,6 +227,11 @@ export async function execInConsole(source, opts = {}) {
     } catch {
       /* 辅助函数注入失败不阻断主流程 */
     }
+  }
+  /* 用到哪个库就自动装哪个，省掉一个「加载 sympy」按钮（与浮窗同一套逻辑） */
+  if (/\bsympy\b/.test(source)) {
+    setStatus('加载符号计算库…');
+    await py.loadPackage('sympy');
   }
   if (/\bmatplotlib\b/.test(source)) {
     setStatus('加载绘图库…');
@@ -619,10 +676,13 @@ export function openInConsole(opts) {
 }
 
 /* 拆掉笔记本的圆钮与面板（浮窗跨代重建时一起带走，避免留下点了没反应的残壳）。
-   笔记本模块自己会在下次打开时检查 panel 是否还在文档里，不在就重建。 */
+   笔记本与公式面板都是按需动态 import 的：它们各自会在下次打开时检查
+   panel 是否还在文档里，不在就重建，所以这里只管拆。 */
 function dropNotebookShell() {
   document.getElementById('ml-nb-fab')?.remove();
   document.getElementById('ml-notebook')?.remove();
+  document.getElementById('ml-formula')?.remove();
+  document.getElementById('ml-repo')?.remove();
 }
 
 /* 文档级监听去重：热更新重建浮窗时先摘掉上一实例挂的全局监听，防止重复触发 */
@@ -721,14 +781,15 @@ function ensureConsole() {
   fab.textContent = 'Py';
 
   /* 笔记本入口：叠在 Py 按钮正上方（右下角第二个圆钮，位置见 custom.css）。
-     笔记本与浮窗共用同一个 Python 命名空间，变量互相可见。 */
+     笔记本与浮窗共用同一个 Python 命名空间，变量互相可见。
+     圆钮上放图标不放文字：两个圆钮挨着，文字会糊成一团，图标一眼能分。 */
   const fabNote = document.createElement('button');
   fabNote.id = 'ml-nb-fab';
   fabNote.className = 'ml-fab ml-fab--note';
   fabNote.type = 'button';
   fabNote.title = '数学笔记本（Alt+N）';
   fabNote.setAttribute('aria-label', '打开数学笔记本');
-  fabNote.textContent = '笔记';
+  fabNote.innerHTML = iconSvg('notebook', 24);
 
   const panel = document.createElement('div');
   panel.id = 'ml-console';
@@ -795,7 +856,12 @@ function ensureConsole() {
   btnRepo.type = 'button';
   btnRepo.title = '把编辑器里的代码存进代码仓库（本机 / 账号空间）';
   btnRepo.textContent = '仓库';
-  bar.append(status, btnHint, btnRun, btnResetCode, btnClearOut, btnBigOut, btnResetNs, btnRepo);
+  const btnFx = document.createElement('button');
+  btnFx.className = 'py-runner__btn py-runner__btn--ghost ml-console__fx';
+  btnFx.type = 'button';
+  btnFx.title = '打开公式输入器（符号面板 + 实时预览，插入到光标处）';
+  btnFx.textContent = '公式';
+  bar.append(status, btnHint, btnRun, btnResetCode, btnClearOut, btnBigOut, btnResetNs, btnFx, btnRepo);
 
   const out = document.createElement('div');
   out.className = 'py-runner__out ml-console__out';
@@ -805,12 +871,15 @@ function ensureConsole() {
 
   const refs = {
     fab, fabNote, panel, editor, status, out, btnRun, btnHint,
-    btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode, btnRepo,
+    btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode, btnRepo, btnFx,
   };
   /* 引用登记在壳上：热更新后新一代模块靠它领养或识别跨代重建 */
   panel.__mlRefs = refs;
   panel.__mlGen = GEN;
   Object.assign(st, refs);
+
+  /* 参与层叠：点到谁谁在最上面（三个浮窗共用 zorder.js 的栈） */
+  watchPanel(panel);
 
   btnBigOut.addEventListener('click', () => {
     const big = panel.classList.toggle('is-bigout');
@@ -905,6 +974,7 @@ function ensureConsole() {
     fab.classList.toggle('is-active', v);
     if (v) {
       applyMode();
+      bringToFront(panel);
       requestAnimationFrame(() => editor.focus());
     }
   };
@@ -932,7 +1002,30 @@ function ensureConsole() {
       st.status.textContent = s;
     },
     getContext: () => st.slotTitle || '',
+    /* 仓库的「插入」：把一段代码追加到编辑器末尾（与 setSource 的「替换」相对） */
+    insertSource: (src) => {
+      setOpen(true);
+      const cur = st.editor.value;
+      const gap = cur && !/\n\s*$/.test(cur) ? '\n\n' : '';
+      const next = cur + gap + String(src || '').replace(/\s+$/, '') + '\n';
+      st.editor.value = next;
+      const s = consoleStore();
+      s.drafts[st.slot] = next;
+      saveConsoleStore();
+      st.editor.focus();
+      st.editor.selectionStart = st.editor.selectionEnd = next.length;
+      refreshCompleter();
+    },
   };
+
+  btnFx.addEventListener('click', async () => {
+    try {
+      const mod = await import('./formula');
+      await mod.openFormula();
+    } catch (e) {
+      st.status.textContent = '公式面板打不开：' + ((e && e.message) || e);
+    }
+  });
 
   btnRepo.addEventListener('click', async () => {
     try {
@@ -994,12 +1087,15 @@ function ensureConsole() {
     }
   });
 
+  /* 输出里写 $$…$$ / $…$ 会渲染成公式（见 mathout.js）。
+     判题比较走的是 normalizeOut(textOut) 的字符串，不读 DOM，
+     所以这里换成 KaTeX 节点不会影响练习判题。 */
   const appendText = (text, cls) => {
     if (!text) return;
     out.classList.add('py-runner__out--visible');
     const div = document.createElement('div');
     if (cls) div.className = cls;
-    div.textContent = text;
+    setMathText(div, text);
     out.appendChild(div);
     out.scrollTop = out.scrollHeight;
   };
@@ -1019,6 +1115,17 @@ function ensureConsole() {
     }, 400);
   });
 
+  /* ---------- 代码补全 ----------
+   * 挂在编辑器自己的 keydown 之前：补全吃下的按键（Tab 接受/唤出等）会
+   * stopImmediatePropagation，后面的「Tab 缩进两格」就不会再加两个空格。
+   * 候选 = 静态词表 + 这段代码里自己起过的名字 + 控制台里的变量名。 */
+  let pyNames = [];
+  const completer = attachComplete(editor);
+  const refreshCompleter = () => {
+    completer.setExtras(harvestWords(editor.value).concat(pyNames));
+  };
+  refreshCompleter();
+
   editor.addEventListener('keydown', (ev) => {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
       ev.preventDefault();
@@ -1030,6 +1137,7 @@ function ensureConsole() {
       const e2 = editor.selectionEnd;
       editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(e2);
       editor.selectionStart = editor.selectionEnd = s + 2;
+      refreshCompleter();
     }
   });
 
@@ -1046,6 +1154,11 @@ function ensureConsole() {
     try {
       const py = await getPyodide((s) => (status.textContent = s));
       await ensurePreamble(py);
+      /* sympy 与 matplotlib 一样按需自动装：代码里 import 了就装，不用点按钮 */
+      if (/\bsympy\b/.test(source)) {
+        status.textContent = '加载符号计算库…';
+        await py.loadPackage('sympy');
+      }
       const needsMpl = /\bmatplotlib\b/.test(source);
       if (needsMpl) {
         status.textContent = '加载绘图库…';
@@ -1075,6 +1188,21 @@ function ensureConsole() {
       const textOut = arr[0] || '';
       const imgs = arr[1];
       const errText = arr[2] || '';
+
+      /* 把控制台里的变量名喂给补全：运行过一次之后，自己定义的变量也能提示 */
+      try {
+        const names = await py.runPythonAsync(
+          "sorted([k for k in _ml_console_g.keys() if not k.startswith('_')])",
+        );
+        const arr2 = names && typeof names.toJs === 'function' ? names.toJs({ depth: 1 }) : names;
+        if (names && typeof names.destroy === 'function') names.destroy();
+        if (Array.isArray(arr2) && arr2.length) {
+          pyNames = arr2.filter((x) => typeof x === 'string' && x.length < 40).slice(0, 400);
+          refreshCompleter();
+        }
+      } catch {
+        /* 取变量名失败无所谓，补全只是少几个候选 */
+      }
 
       if (textOut) appendText(textOut);
       for (const b64 of imgs || []) {

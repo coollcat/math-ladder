@@ -12,6 +12,7 @@
  * ========================================================================= */
 
 import { nsKey, progressNS } from '../learning/progress';
+import { watchPanel, bringToFront } from './zorder';
 
 const REPO_KEY = 'ml-repo';
 const MAX_ITEMS = 200;
@@ -260,6 +261,8 @@ function build(api) {
     }
   });
 
+  /* 参与层叠：点到谁谁在最上面（控制台 / 笔记本 / 仓库共用 zorder 的栈） */
+  watchPanel(panel);
   els = { panel, list, nameInput, search, setStatus, nsTip, jsonInput };
   return els;
 }
@@ -310,6 +313,9 @@ function renderList() {
     const bLoad = el('button', 'py-runner__btn', '载入');
     bLoad.type = 'button';
     bLoad.title = '装进浮窗编辑器（会覆盖当前槽位的内容）';
+    const bInsert = el('button', 'py-runner__btn py-runner__btn--ghost', '插入');
+    bInsert.type = 'button';
+    bInsert.title = '追加到浮窗编辑器现有代码的后面（不覆盖）';
     const bRename = el('button', 'py-runner__btn py-runner__btn--ghost', '改名');
     bRename.type = 'button';
     const bUpdate = el('button', 'py-runner__btn py-runner__btn--ghost', '更新');
@@ -317,7 +323,17 @@ function renderList() {
     bUpdate.title = '用编辑器里现在的代码覆盖这一条';
     const bDel = el('button', 'py-runner__btn py-runner__btn--ghost ml-repo__del', '删除');
     bDel.type = 'button';
-    acts.append(bLoad, bRename, bUpdate, bDel);
+    /* 竖排：五项横着摆在窄屏上会挤成一团，竖着放一眼能扫完 */
+    acts.append(bLoad, bInsert, bRename, bUpdate, bDel);
+
+    bInsert.addEventListener('click', () => {
+      if (apiRef && apiRef.insertSource) {
+        apiRef.insertSource(it.code);
+        els.setStatus(`《${it.name}》已追加到浮窗编辑器`);
+      } else {
+        els.setStatus('这个版本的浮窗还不支持插入');
+      }
+    });
 
     bLoad.addEventListener('click', () => {
       if (apiRef && apiRef.setSource) apiRef.setSource(it.code, it.name);
@@ -376,6 +392,7 @@ export function openRepo(api) {
   renderList();
   els.setStatus(`共 ${data.items.length} 条`);
   els.panel.classList.add('is-open');
+  bringToFront(els.panel);
 }
 
 export function closeRepo() {

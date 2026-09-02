@@ -742,6 +742,14 @@
   opacity: 0.55;
 }
 
+/* 泳道标签的副行（章名）：比难度那行更淡更小，两行共用 48px 的泳道高 */
+.ml-fg__bandsub {
+  font-size: 9.5px;
+  font-weight: 600;
+  fill: var(--ifm-font-color-base);
+  opacity: 0.38;
+}
+
 .ml-fg__edge {
   fill: none;
   stroke: var(--ifm-color-emphasis-400);
@@ -1027,6 +1035,17 @@
 
 .ml-tr__svg .ml-fg__depth {
   font-size: 10px;
+}
+
+/* 性能：悬停会一次改写上百个胶囊的 class（整条先修链 + 托起的全部子树）。
+   若每颗都做 stroke/filter 补间，整块画布就要连着重绘十几帧——这是悬停发涩的主因。
+   这里只让「直接命中」的那颗做补间，同链节点的描边直接切换。 */
+.ml-tr__svg .ml-fg__node rect {
+  transition: none;
+}
+
+.ml-tr__svg .ml-fg__node.is-hot rect {
+  transition: stroke 0.15s ease, filter 0.15s ease;
 }
 
 .ml-tr__edge {

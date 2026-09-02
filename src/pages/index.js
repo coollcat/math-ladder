@@ -123,9 +123,8 @@ function ChapterWall() {
         <div key={g.n} className={'ml-wall__group' + (g.status === 'done' ? '' : ' ml-wall__group--plan')}>
           <div className="ml-wall__head">
             <h3 className="ml-wall__vol">{g.n} · {g.title}</h3>
-            <span className={'badge ' + (g.status === 'done' ? 'badge--primary' : 'badge--secondary')}>
-              {g.rangeLabel}{g.status !== 'done' && ' 已开课'}
-            </span>
+            {/* 2026-09-02：卷首那枚「N 章 · M 课 已开课」徽章去掉了——
+                章节数随时在变，写死的统计反而容易误导，芯片墙上数一数就够。 */}
           </div>
           <p className="ml-wall__desc">{g.desc}</p>
           <div className="ml-wall__chips">
@@ -246,7 +245,7 @@ export default function Home() {
 
           <section className="container margin-vert--lg">
             <h2>六卷路线图</h2>
-            <p className="ml-section__lead">从地基到前沿的完整阶梯；已开课的章节都能直接进。</p>
+            <p className="ml-section__lead">从地基到前沿的完整阶梯；点任意一章直接进去。</p>
             <ChapterWall />
           </section>
 

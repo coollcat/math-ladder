@@ -1,0 +1,602 @@
+/* =========================================================================
+ * 顶栏 v2（2026-09-02 重做，见 src/theme/Navbar/index.js）
+ * -------------------------------------------------------------------------
+ * 视觉口径沿用首页的「演算纸 × 印章朱砂」：暖纸底 + 方格纸底纹、墨蓝字、
+ * 朱砂印章当品牌、激活项是一条从中间长出来的朱砂下划线、悬停轻微上浮。
+ * 全部规则收在 .ml-nav 作用域内（深色变量另配一份），不污染站内其它区域。
+ *
+ * 改链接请去 Navbar/index.js 的 LINKS；这里只管长相。
+ * ========================================================================= */
+
+/* 用 .navbar.ml-nav（两个类）而不是单个 .ml-nav：Infima 的 .navbar 也是单类，
+   同一份全局样式表里谁在后谁说得算，级联顺序一变就会歪。双类选择器稳定压过它。
+   另外不用 height + flex 居中，改成「上下等宽 padding + min-height」——
+   这样内容永远是靠对称留白居中的，跟外层盒子的高度算法无关。 */
+.navbar.ml-nav {
+  --ml-nav-paper: #fbf8f1;
+  --ml-nav-paper2: #ffffff;
+  --ml-nav-ink: #26324b;
+  --ml-nav-ink-soft: rgba(38, 50, 75, 0.62);
+  --ml-nav-seal: #c2401c;
+  --ml-nav-seal-a: rgba(194, 64, 28, 0.16);
+  --ml-nav-line: rgba(38, 50, 75, 0.16);
+  --ml-nav-grid: rgba(35, 48, 80, 0.055);
+  --ml-nav-hover: rgba(38, 50, 75, 0.07);
+
+  display: flex;
+  align-items: center;
+  min-height: var(--ifm-navbar-height);
+  padding: 0.6rem 0;
+  background-color: var(--ml-nav-paper);
+  /* 方格演算纸底纹：与首页 .ml-gridbg 同一套画法，只是线更淡 */
+  background-image:
+    linear-gradient(var(--ml-nav-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ml-nav-grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+  border-bottom: 1.5px solid var(--ml-nav-line);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.07);
+}
+
+[data-theme='dark'] .ml-nav {
+  --ml-nav-paper: #1b202a;
+  --ml-nav-paper2: #232a36;
+  --ml-nav-ink: #dde3ee;
+  --ml-nav-ink-soft: rgba(221, 227, 238, 0.6);
+  --ml-nav-seal: #e2704a;
+  --ml-nav-seal-a: rgba(226, 112, 74, 0.2);
+  --ml-nav-line: rgba(221, 227, 238, 0.16);
+  --ml-nav-grid: rgba(148, 163, 184, 0.09);
+  --ml-nav-hover: rgba(148, 163, 184, 0.13);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* 图标是行内元素，别被 flex 压扁 */
+.ml-icon {
+  flex: none;
+}
+
+.ml-nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0 1.1rem;
+}
+
+/* ---- 品牌：朱砂印章 + 名号 ---- */
+
+.ml-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ml-nav-ink);
+  text-decoration: none;
+  flex: none;
+  animation: ml-nav-drop 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.ml-nav__seal {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: var(--ml-nav-seal);
+  color: #fff;
+  font-family: Georgia, 'Songti SC', STSong, SimSun, serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1;
+  transform: rotate(-5deg);
+  box-shadow: 2px 2px 0 rgba(38, 50, 75, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ml-nav__brand:hover .ml-nav__seal {
+  transform: rotate(0deg) scale(1.06);
+  box-shadow: 3px 3px 0 rgba(38, 50, 75, 0.26);
+}
+
+.ml-nav__brandtext {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+}
+
+.ml-nav__title {
+  font-family: Georgia, 'Songti SC', STSong, SimSun, serif;
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+}
+
+.ml-nav__tag {
+  margin-top: 1px;
+  font-size: 0.62rem;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  color: var(--ml-nav-ink-soft);
+}
+
+/* ---- 导航项 ---- */
+
+.ml-nav__links {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* 入场只做淡入，不做位移：之前用 translateY(-8px) + fill-mode:both，
+   动画开始前的「 backwards 填充」会把链接先摆高 8px，看着就是「靠上」。 */
+.ml-nav__links > li {
+  animation: ml-nav-fade 0.36s ease both;
+  animation-delay: calc(var(--i) * 50ms + 60ms);
+}
+
+/* 顶栏右侧所有控件（链接 / 登录 / 账号 / 外观 / 搜索）统一 34px 高，
+   共用一条中线——原先靠各自的 padding 撑，视觉重心会一高一低。 */
+.ml-nav__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 34px;
+  padding: 0 0.62rem;
+  border-radius: 8px;
+  color: var(--ml-nav-ink-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.ml-nav__link:hover {
+  color: var(--ml-nav-ink);
+  background: var(--ml-nav-hover);
+  transform: translateY(-1px);
+}
+
+/* 激活：文字转墨色、图标转朱砂，底下长出一条朱砂横线 */
+.ml-nav__link.is-active {
+  color: var(--ml-nav-ink);
+}
+
+.ml-nav__link.is-active .ml-icon {
+  color: var(--ml-nav-seal);
+}
+
+.ml-nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0.62rem;
+  right: 0.62rem;
+  bottom: 0.28rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ml-nav-seal);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.ml-nav__link.is-active::after {
+  transform: scaleX(1);
+}
+
+/* ---- 右侧：搜索 + 账号 ---- */
+
+.ml-nav__right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  animation: ml-nav-drop 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: 0.24s;
+}
+
+.ml-nav__search {
+  display: flex;
+  align-items: center;
+}
+
+/* 本地搜索插件渲染的是 <div class="navbar__search"><input class="navbar__search-input">，
+   外观被 Infima 的 .navbar__search-input 与插件自带的 CSS module 一起管着。
+   这里一律用「.ml-nav + 两个类」的三级选择器压过去（与 Infima 单类规则同权重时
+   靠来源顺序不稳，宁可多一级）。 */
+.ml-nav .ml-nav__search .navbar__search {
+  position: relative;
+  margin-left: 0;
+}
+
+.ml-nav .ml-nav__search .navbar__search-input {
+  width: 13.5rem;
+  height: 34px;
+  padding: 0 2.1rem 0 2.1rem;
+  border: 1.5px solid var(--ml-nav-line);
+  border-radius: 999px;
+  background-color: var(--ml-nav-paper2);
+  background-image: none;
+  color: var(--ml-nav-ink);
+  font-size: 0.84rem;
+  box-shadow: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ml-nav .ml-nav__search .navbar__search-input::placeholder {
+  color: var(--ml-nav-ink-soft);
+}
+
+.ml-nav .ml-nav__search .navbar__search-input:hover {
+  border-color: var(--ml-nav-ink-soft);
+}
+
+.ml-nav .ml-nav__search .navbar__search-input:focus {
+  border-color: var(--ml-nav-seal);
+  box-shadow: 0 0 0 3px var(--ml-nav-seal-a);
+  outline: none;
+}
+
+/* 放大镜图标（插件用绝对定位的 svg 画的）跟着墨色走 */
+.ml-nav .ml-nav__search svg {
+  color: var(--ml-nav-ink-soft);
+}
+
+.ml-nav__login {
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+  height: 34px;
+  padding: 0 0.75rem;
+  border: 1.5px solid var(--ml-nav-seal);
+  border-radius: 999px;
+  color: var(--ml-nav-seal);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.ml-nav__login:hover {
+  background: var(--ml-nav-seal);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ---- 外观：一颗按钮循环 亮 → 暗 → 自动 ---- */
+
+.ml-nav__modebtn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 34px;
+  padding: 0 0.55rem;
+  border: 1.5px solid var(--ml-nav-line);
+  border-radius: 999px;
+  background: var(--ml-nav-paper2);
+  color: var(--ml-nav-ink-soft);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.ml-nav__modebtn:hover {
+  color: var(--ml-nav-ink);
+  border-color: var(--ml-nav-seal);
+  transform: translateY(-1px);
+}
+
+.ml-nav__modeicons {
+  display: flex;
+  align-items: center;
+}
+
+/* 三个图标都渲染，只显示当前那个——按 html[data-theme-choice] 挑。
+   这个属性由 Docusaurus 在 <head> 的内联脚本里于首帧前写好，
+   所以刷新时图标直接就是对的，不会先闪一下再跳。 */
+.ml-nav__modeicon {
+  display: none;
+}
+
+.ml-nav__modeicon .ml-icon {
+  display: block;
+}
+
+html[data-theme-choice='light'] .ml-nav__modeicon[data-mode='light'],
+html[data-theme-choice='dark'] .ml-nav__modeicon[data-mode='dark'],
+html[data-theme-choice='system'] .ml-nav__modeicon[data-mode='auto'] {
+  display: flex;
+}
+
+/* 抽屉里那颗：宽一点，带文字说明 */
+.ml-nav__modebtn--wide {
+  height: 34px;
+  padding: 0 0.7rem;
+  font-size: 0.84rem;
+}
+
+.ml-nav__drawer-modes {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--ml-nav-line);
+}
+
+.ml-nav__drawer-modelabel {
+  font-size: 0.8rem;
+  color: var(--ml-nav-ink-soft);
+}
+
+/* ---- 已登录：头像芯片 + 下拉 ---- */
+
+.ml-nav__acct {
+  position: relative;
+}
+
+.ml-nav__acctbtn {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  height: 34px;
+  padding: 0 0.6rem 0 0.28rem;
+  border: 1.5px solid var(--ml-nav-line);
+  border-radius: 999px;
+  background: var(--ml-nav-paper2);
+  color: var(--ml-nav-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.ml-nav__acctbtn:hover {
+  border-color: var(--ml-nav-seal);
+  transform: translateY(-1px);
+}
+
+.ml-nav__avatar {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ml-nav-seal);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.ml-nav__acctname {
+  max-width: 8.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ml-nav__menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 20;
+  min-width: 15rem;
+  padding: 0.4rem;
+  border: 1.5px solid var(--ml-nav-line);
+  border-radius: 12px;
+  background: var(--ml-nav-paper2);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+  animation: ml-nav-pop 0.16s ease-out both;
+}
+
+.ml-nav__menuhint {
+  margin: 0.15rem 0.5rem 0.45rem;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--ml-nav-ink-soft);
+}
+
+.ml-nav__menuhint strong {
+  color: var(--ml-nav-seal);
+}
+
+.ml-nav__menuitem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.42rem 0.55rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ml-nav-ink);
+  font-size: 0.86rem;
+  font-family: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ml-nav__menuitem:hover {
+  background: var(--ml-nav-hover);
+}
+
+/* ---- 窄屏：汉堡 + 抽屉 ---- */
+
+.ml-nav__burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--ml-nav-line);
+  border-radius: 10px;
+  background: var(--ml-nav-paper2);
+  color: var(--ml-nav-ink);
+  cursor: pointer;
+}
+
+.ml-nav__drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  padding: 0.5rem 0.9rem 0.9rem;
+  background: var(--ml-nav-paper);
+  border-bottom: 1.5px solid var(--ml-nav-line);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.16);
+  animation: ml-nav-pop 0.18s ease-out both;
+}
+
+.ml-nav__links--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.1rem;
+  margin: 0;
+}
+
+.ml-nav__links--stack .ml-nav__link {
+  padding: 0.6rem 0.7rem;
+  font-size: 0.98rem;
+}
+
+.ml-nav__links--stack .ml-nav__link::after {
+  left: 0.7rem;
+  right: auto;
+  width: 1.6rem;
+  bottom: 0.3rem;
+}
+
+.ml-nav__drawer-acct {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--ml-nav-line);
+}
+
+.ml-nav__drawer-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ml-nav-ink);
+}
+
+.ml-nav__drawer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  padding: 0.4rem 0.7rem;
+  border: 1.5px solid var(--ml-nav-seal);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ml-nav-seal);
+  font-size: 0.84rem;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@keyframes ml-nav-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ml-nav-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ml-nav-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 窄屏（Docusaurus 的移动断点）：导航项收进抽屉 */
+@media (max-width: 996px) {
+  .navbar.ml-nav {
+    position: sticky;
+  }
+
+  .ml-nav__links:not(.ml-nav__links--stack) {
+    display: none;
+  }
+
+  .ml-nav__burger {
+    display: flex;
+  }
+
+  .ml-nav__tag {
+    display: none;
+  }
+
+  /* 顶栏挤：搜索框收窄、快捷键提示藏掉 */
+  .ml-nav .ml-nav__search .navbar__search-input {
+    width: 9.5rem;
+  }
+
+  .ml-nav__search kbd,
+  .ml-nav__search [class*='searchHint'] {
+    display: none !important;
+  }
+
+  .ml-nav__acctname {
+    display: none;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .ml-nav__inner {
+    padding: 0 0.7rem;
+    gap: 0.5rem;
+  }
+
+  .ml-nav__login span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-nav__brand,
+  .ml-nav__links > li,
+  .ml-nav__right,
+  .ml-nav__menu,
+  .ml-nav__drawer {
+    animation: none;
+  }
+
+  .ml-nav__link,
+  .ml-nav__seal,
+  .ml-nav__acctbtn,
+  .ml-nav__login {
+    transition: none;
+  }
+}

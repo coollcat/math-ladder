@@ -1621,11 +1621,15 @@ a:hover .ml-chapter.is-done {
  * 颜色一律走 --ifm-* 变量，深浅色自动跟随。
  * ========================================================================= */
 
+/* 笔记本圆钮：图标版（innerHTML 塞的是 src/components/icons.js 的 SVG），
+   所以要显式 flex 居中——原来靠 button 默认的文字居中。 */
 .ml-fab--note {
   bottom: calc(1.4rem + 66px);
   width: 44px;
   height: 44px;
-  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--ifm-color-emphasis-800);
 }
 
@@ -2085,7 +2089,6 @@ a:hover .ml-chapter.is-done {
     bottom: calc(0.9rem + 58px);
     width: 40px;
     height: 40px;
-    font-size: 0.72rem;
   }
 
   .ml-notebook,
@@ -2102,5 +2105,269 @@ a:hover .ml-chapter.is-done {
   .ml-nb__code,
   .ml-nb__md {
     font-size: 1rem;
+  }
+}
+
+/* =========================================================================
+ * 代码补全候选框（complete.js）
+ * -------------------------------------------------------------------------
+ * z-index 高于圆钮（1060）：候选框是「贴着光标」的临时浮层，理应压住一切。
+ * ========================================================================= */
+
+.ml-ac {
+  position: fixed;
+  z-index: 1070;
+  max-height: 236px;
+  min-width: 156px;
+  overflow-y: auto;
+  padding: 0.2rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  background: var(--ifm-background-surface-color, #ffffff);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.3);
+  font-family: var(--pyr-mono);
+  font-size: 0.86rem;
+}
+
+[data-theme='dark'] .ml-ac {
+  background: #1b2028;
+  border-color: #2c3340;
+}
+
+.ml-ac__item {
+  padding: 0.15rem 0.4rem;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ml-ac__item.is-active {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.ml-ac__item b {
+  font-weight: 700;
+  color: var(--ifm-color-primary);
+}
+
+.ml-ac__item.is-active b {
+  color: inherit;
+}
+
+/* =========================================================================
+ * 公式输入器（formula.js）：符号面板 + 实时预览
+ * ========================================================================= */
+
+.ml-formula {
+  position: fixed;
+  left: 50%;
+  top: 10vh;
+  transform: translateX(-50%);
+  z-index: 1058;
+  display: none;
+  flex-direction: column;
+  width: min(700px, calc(100vw - 2rem));
+  max-height: 80vh;
+  max-height: 80dvh;
+  background: var(--ifm-background-surface-color, #ffffff);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 12px;
+  box-shadow: 0 24px 72px rgba(15, 23, 42, 0.45);
+  overflow: hidden;
+}
+
+.ml-formula.is-open {
+  display: flex;
+}
+
+[data-theme='dark'] .ml-formula {
+  background: #171b21;
+  border-color: #2c3340;
+}
+
+.ml-formula__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+  font-size: 0.85rem;
+}
+
+.ml-formula__brand {
+  font-weight: 700;
+}
+
+.ml-formula__close {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ml-formula__preview {
+  min-height: 3.4rem;
+  max-height: 9rem;
+  overflow: auto;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+  text-align: center;
+}
+
+.ml-formula__preview.is-empty {
+  text-align: left;
+  font-size: 0.85rem;
+  opacity: 0.55;
+}
+
+.ml-formula__preview.is-error {
+  text-align: left;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  color: var(--ifm-color-danger-dark, #b3261e);
+}
+
+.ml-formula__src {
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  outline: none;
+  resize: vertical;
+  padding: 0.45rem 0.75rem;
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-family: var(--pyr-mono);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.ml-formula__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem 0;
+}
+
+.ml-formula__tab {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-size: 0.78rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ml-formula__tab.is-active {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.ml-formula__grid {
+  flex: 1;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 0.3rem;
+  padding: 0.45rem 0.5rem;
+  align-content: start;
+}
+
+.ml-formula__sym {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0.2rem 0.25rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-font-color-base);
+  font-size: 0.95rem;
+  line-height: 1.2;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ml-formula__sym:hover {
+  border-color: var(--ifm-color-primary);
+  background: var(--ifm-color-emphasis-200);
+}
+
+.ml-formula__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.4rem 0.55rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-formula__bar .py-runner__btn {
+  padding: 0.18rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.ml-formula__opt {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.ml-formula__mode {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.78rem;
+  background: var(--ifm-background-color, #fff);
+  color: var(--ifm-font-color-base);
+}
+
+.ml-formula__target {
+  flex: 1 1 auto;
+  text-align: right;
+  font-size: 0.74rem;
+  opacity: 0.72;
+}
+
+/* 仓库条目右侧的操作按钮改竖排（载入/插入/改名/更新/删除） */
+.ml-repo__item-acts {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.ml-repo__item-acts .py-runner__btn {
+  width: 100%;
+}
+
+/* 输出里被渲染成公式的显示态（$$…$$），独占一行、超宽可横向滚 */
+.ml-math-display {
+  display: block;
+  overflow-x: auto;
+  padding: 0.2rem 0;
+}
+
+@media (max-width: 768px) {
+  .ml-formula {
+    left: 0.5rem;
+    right: 0.5rem;
+    width: auto;
+    transform: none;
+    top: 5vh;
+    max-height: 90vh;
+    max-height: 90dvh;
   }
 }

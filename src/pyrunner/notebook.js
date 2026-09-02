@@ -18,6 +18,11 @@
 
 import { nsKey, progressNS } from '../learning/progress';
 import { saveSnippet } from './repo';
+/* KaTeX 的加载与输出公式渲染和浮窗共用一份（mathout.js），别各拉各的 */
+import { getKatex } from './mathout';
+/* 代码补全与层叠，同样与浮窗共用 */
+import { attachComplete, harvestWords } from './complete';
+import { watchPanel, bringToFront } from './zorder';
 
 const NB_KEY = 'ml-notebook';
 const MAX_BOOKS = 20;
@@ -43,92 +48,280 @@ def show_eq(lhs, rhs):
     print("$$" + _ml_nb_latex(lhs) + " = " + _ml_nb_latex(rhs) + "$$")
 `;
 
+/* 模板库：g = 分组名。代码一律只用标准库 + numpy/matplotlib/sympy，
+   后三个是 Pyodide 自带或按需自动安装的（见 enhancer 的 loadPackage）。
+   带 sympy 的模板不用先点按钮——代码里 import 了就自动装。 */
 const TEMPLATES = [
-  {
-    label: '插入模板…',
-    code: null,
-  },
-  {
-    label: '符号求导（需 sympy）',
-    code: [
-      'import sympy as sp',
-      'x = sp.symbols("x")',
-      'f = sp.sin(x) * sp.exp(x)',
-      'show(f)                      # 原函数',
-      'show(sp.diff(f, x))          # 一阶导',
-      'print(sp.simplify(sp.diff(f, x)))',
-    ].join('\n'),
-  },
-  {
-    label: '符号积分（需 sympy）',
-    code: [
-      'import sympy as sp',
-      'x = sp.symbols("x")',
-      'show(sp.integrate(sp.exp(-x**2), (x, -sp.oo, sp.oo)))',
-      'show(sp.integrate(sp.log(x), x))',
-    ].join('\n'),
-  },
-  {
-    label: '极限与级数（需 sympy）',
-    code: [
-      'import sympy as sp',
-      'n = sp.symbols("n", positive=True)',
-      'show(sp.limit((1 + 1/n)**n, n, sp.oo))   # e',
-      'show(sp.Sum(1/n**2, (n, 1, sp.oo)).doit())',
-    ].join('\n'),
-  },
-  {
-    label: '泰勒展开（需 sympy）',
-    code: [
-      'import sympy as sp',
-      'x = sp.symbols("x")',
-      'show(sp.series(sp.cos(x), x, 0, 8))',
-      'print(sp.series(sp.exp(x), x, 0, 5))',
-    ].join('\n'),
-  },
-  {
-    label: '函数图像（matplotlib）',
-    code: [
-      'import numpy as np',
-      'import matplotlib.pyplot as plt',
-      'x = np.linspace(-6, 6, 400)',
-      'plt.plot(x, np.sin(x) / x, label="sin(x)/x")',
-      'plt.axhline(0, color="#888", lw=0.8)',
-      'plt.legend()',
-      'plt.show()',
-    ].join('\n'),
-  },
-  {
-    label: '黎曼和逼近面积',
-    code: [
-      'import numpy as np',
-      'f = lambda t: t ** 2',
-      'a, b, n = 0, 1, 50',
-      'xs = np.linspace(a, b, n + 1)',
-      'approx = sum(f(xs[i]) * (xs[i + 1] - xs[i]) for i in range(n))',
-      'print("黎曼和 =", approx, " 精确值 =", 1 / 3)',
-    ].join('\n'),
-  },
-  {
-    label: '矩阵与线性方程组（numpy）',
-    code: [
-      'import numpy as np',
-      'A = np.array([[2.0, 1.0], [1.0, 3.0]])',
-      'b = np.array([3.0, 5.0])',
-      'x = np.linalg.solve(A, b)',
-      'print("解 =", x)',
-      'print("特征值 =", np.linalg.eigvals(A))',
-    ].join('\n'),
-  },
-  {
-    label: '概率模拟（random）',
-    code: [
-      'import random',
-      'N = 20000',
-      'hit = sum(1 for _ in range(N) if random.random() ** 2 + random.random() ** 2 <= 1)',
-      'print("蒙特卡洛 π ≈", 4 * hit / N)',
-    ].join('\n'),
-  },
+  { g: '—', label: '插入模板…', code: null },
+
+  { g: '入门', label: '打印与变量', code: [
+    'name = "数学阶梯"',
+    'n = 12',
+    'print(f"{name}：第 {n} 章")',
+    'print("平方表：", [(i, i * i) for i in range(1, 6)])',
+  ].join('\n') },
+  { g: '入门', label: '循环与列表推导', code: [
+    '# 前 10 个斐波那契数',
+    'a, b = 0, 1',
+    'fib = []',
+    'for _ in range(10):',
+    '    fib.append(a)',
+    '    a, b = b, a + b',
+    'print(fib)',
+    'print("平方和 =", sum(x ** 2 for x in fib))',
+  ].join('\n') },
+  { g: '入门', label: '定义函数', code: [
+    'def f(x):',
+    '    return x ** 3 - 2 * x - 5',
+    '',
+    'for x in range(-2, 4):',
+    '    print(x, "→", f(x))',
+  ].join('\n') },
+  { g: '入门', label: '质数筛', code: [
+    'def sieve(n):',
+    '    mark = [True] * (n + 1)',
+    '    for i in range(2, int(n ** 0.5) + 1):',
+    '        if mark[i]:',
+    '            for j in range(i * i, n + 1, i):',
+    '                mark[j] = False',
+    '    return [i for i in range(2, n + 1) if mark[i]]',
+    '',
+    'print("100 以内的质数：", sieve(100))',
+  ].join('\n') },
+
+  { g: '符号计算', label: '符号求导', code: [
+    'import sympy as sp',
+    'x = sp.symbols("x")',
+    'f = sp.sin(x) * sp.exp(x)',
+    'show(f)                      # 原函数',
+    'show(sp.diff(f, x))          # 一阶导',
+    'print(sp.simplify(sp.diff(f, x)))',
+  ].join('\n') },
+  { g: '符号计算', label: '符号积分', code: [
+    'import sympy as sp',
+    'x = sp.symbols("x")',
+    'show(sp.integrate(sp.exp(-x**2), (x, -sp.oo, sp.oo)))',
+    'show(sp.integrate(sp.log(x), x))',
+  ].join('\n') },
+  { g: '符号计算', label: '极限与级数', code: [
+    'import sympy as sp',
+    'n = sp.symbols("n", positive=True)',
+    'show(sp.limit((1 + 1/n)**n, n, sp.oo))   # 这就是 e',
+    'show(sp.Sum(1/n**2, (n, 1, sp.oo)).doit())',
+  ].join('\n') },
+  { g: '符号计算', label: '泰勒展开', code: [
+    'import sympy as sp',
+    'x = sp.symbols("x")',
+    'show(sp.series(sp.cos(x), x, 0, 8))',
+    'print(sp.series(sp.exp(x), x, 0, 5))',
+  ].join('\n') },
+  { g: '符号计算', label: '解方程 / 方程组', code: [
+    'import sympy as sp',
+    'x, y = sp.symbols("x y")',
+    'show(sp.solve(x ** 2 - 5 * x + 6, x))',
+    'show(sp.solve([2 * x + y - 3, x - y + 1], [x, y]))',
+  ].join('\n') },
+  { g: '符号计算', label: '展开 / 因式分解 / 化简', code: [
+    'import sympy as sp',
+    'x, y = sp.symbols("x y")',
+    'show(sp.expand((x + y) ** 3))',
+    'show(sp.factor(x ** 3 - y ** 3))',
+    'show(sp.simplify(sp.sin(x) ** 2 + sp.cos(x) ** 2))',
+  ].join('\n') },
+  { g: '符号计算', label: '符号矩阵', code: [
+    'import sympy as sp',
+    'A = sp.Matrix([[2, 1], [1, 3]])',
+    'show(A)',
+    'show(A.inv())',
+    'print("特征值：", A.eigenvals())',
+  ].join('\n') },
+  { g: '符号计算', label: '解微分方程', code: [
+    'import sympy as sp',
+    'x = sp.symbols("x")',
+    'y = sp.Function("y")',
+    'ode = sp.Eq(sp.Derivative(y(x), x, 2) + y(x), 0)',
+    'show(ode)',
+    'show(sp.dsolve(ode))',
+  ].join('\n') },
+
+  { g: '数值方法', label: '黎曼和逼近面积', code: [
+    'import numpy as np',
+    'f = lambda t: t ** 2',
+    'a, b, n = 0, 1, 50',
+    'xs = np.linspace(a, b, n + 1)',
+    'approx = sum(f(xs[i]) * (xs[i + 1] - xs[i]) for i in range(n))',
+    'print("黎曼和 =", approx, " 精确值 =", 1 / 3)',
+  ].join('\n') },
+  { g: '数值方法', label: '梯形 / 辛普森积分', code: [
+    'import numpy as np',
+    'f = lambda t: np.sin(t)',
+    'a, b, n = 0, np.pi, 100',
+    'xs = np.linspace(a, b, n + 1)',
+    'h = (b - a) / n',
+    'trap = h * (f(xs).sum() - (f(a) + f(b)) / 2)',
+    'print("梯形法 =", trap, "（精确值 2）")',
+  ].join('\n') },
+  { g: '数值方法', label: '牛顿法求根', code: [
+    'f = lambda x: x ** 3 - 2 * x - 5',
+    'df = lambda x: 3 * x ** 2 - 2',
+    'x = 2.0',
+    'for i in range(8):',
+    '    x = x - f(x) / df(x)',
+    '    print(f"第 {i + 1} 步：x = {x:.12f}")',
+  ].join('\n') },
+  { g: '数值方法', label: '欧拉法解微分方程', code: [
+    '# y' + "' = -y,  y(0) = 1，精确解 y = e^(-t)",
+    'h, T = 0.1, 2.0',
+    't, y, hist = 0.0, 1.0, []',
+    'while t < T - 1e-9:',
+    '    hist.append((round(t, 2), round(y, 6)))',
+    '    y, t = y + h * (-y), t + h',
+    'print(hist[:6], "...")',
+    'print("终点误差 =", abs(y - 2.718281828 ** (-1)))',
+  ].join('\n') },
+  { g: '数值方法', label: '差分近似导数', code: [
+    'import math',
+    'f = math.sin',
+    'x, h = 1.0, 1e-5',
+    'd1 = (f(x + h) - f(x - h)) / (2 * h)',
+    'd2 = (f(x + h) - 2 * f(x) + f(x - h)) / h ** 2',
+    'print("一阶导 ≈", d1, "（精确 cos(1) =", math.cos(1), "）")',
+    'print("二阶导 ≈", d2, "（精确 -sin(1) =", -math.sin(1), "）")',
+  ].join('\n') },
+
+  { g: '线性代数', label: '线性方程组', code: [
+    'import numpy as np',
+    'A = np.array([[2.0, 1.0], [1.0, 3.0]])',
+    'b = np.array([3.0, 5.0])',
+    'x = np.linalg.solve(A, b)',
+    'print("解 =", x)',
+    'print("校验 A@x =", A @ x)',
+  ].join('\n') },
+  { g: '线性代数', label: '特征值与特征向量', code: [
+    'import numpy as np',
+    'A = np.array([[4.0, 1.0], [2.0, 3.0]])',
+    'w, V = np.linalg.eig(A)',
+    'print("特征值 =", w)',
+    'print("特征向量（列）=\\n", V)',
+    'print("行列式 =", np.linalg.det(A), " 迹 =", np.trace(A))',
+  ].join('\n') },
+  { g: '线性代数', label: '最小二乘拟合', code: [
+    'import numpy as np',
+    'x = np.array([0, 1, 2, 3, 4, 5], dtype=float)',
+    'y = np.array([1.1, 1.9, 3.2, 3.8, 5.1, 6.0])',
+    'A = np.vstack([x, np.ones_like(x)]).T',
+    'k, b = np.linalg.lstsq(A, y, rcond=None)[0]',
+    'print(f"拟合直线：y = {k:.3f}x + {b:.3f}")',
+  ].join('\n') },
+
+  { g: '概率统计', label: '蒙特卡洛 π', code: [
+    'import random',
+    'N = 20000',
+    'hit = sum(1 for _ in range(N) if random.random() ** 2 + random.random() ** 2 <= 1)',
+    'print("蒙特卡洛 π ≈", 4 * hit / N)',
+  ].join('\n') },
+  { g: '概率统计', label: '掷骰子与大数定律', code: [
+    'import random',
+    'N = 60000',
+    'rolls = [random.randint(1, 6) for _ in range(N)]',
+    'mean = sum(rolls) / N',
+    'print("点数均值 ≈", round(mean, 4), "（理论 3.5）")',
+    'for face in range(1, 7):',
+    '    print(face, "点频率 =", round(rolls.count(face) / N, 4))',
+  ].join('\n') },
+  { g: '概率统计', label: '二项分布与直方图', code: [
+    'import random',
+    'import matplotlib.pyplot as plt',
+    'N, n, p = 5000, 20, 0.3',
+    'data = [sum(1 for _ in range(n) if random.random() < p) for _ in range(N)]',
+    'plt.hist(data, bins=range(n + 2), align="left", rwidth=0.85)',
+    'plt.title("二项分布 B(20, 0.3)")',
+    'plt.xlabel("成功次数")',
+    'plt.show()',
+  ].join('\n') },
+  { g: '概率统计', label: '正态分布采样', code: [
+    'import statistics',
+    'import random',
+    'data = [random.gauss(0, 1) for _ in range(5000)]',
+    'print("均值 =", round(statistics.mean(data), 4))',
+    'print("标准差 =", round(statistics.stdev(data), 4))',
+    'print("落在 ±1σ 内的比例 =",',
+    '      round(sum(1 for d in data if -1 < d < 1) / len(data), 4), "（理论 0.6827）")',
+  ].join('\n') },
+
+  { g: '画图', label: '函数图像', code: [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'x = np.linspace(-6, 6, 400)',
+    'plt.plot(x, np.sin(x) / x, label="sin(x)/x")',
+    'plt.axhline(0, color="#888", lw=0.8)',
+    'plt.legend()',
+    'plt.show()',
+  ].join('\n') },
+  { g: '画图', label: '参数曲线', code: [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    't = np.linspace(0, 2 * np.pi, 500)',
+    'plt.plot(np.cos(t) ** 3, np.sin(t) ** 3)',
+    'plt.gca().set_aspect("equal")',
+    'plt.title("星形线 x=cos³t, y=sin³t")',
+    'plt.show()',
+  ].join('\n') },
+  { g: '画图', label: '散点图', code: [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'n = 300',
+    'x = np.random.randn(n)',
+    'y = 0.6 * x + np.random.randn(n) * 0.5',
+    'plt.scatter(x, y, s=14, alpha=0.6)',
+    'plt.title("相关与噪声")',
+    'plt.show()',
+  ].join('\n') },
+  { g: '画图', label: '极坐标', code: [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'theta = np.linspace(0, 6 * np.pi, 600)',
+    'r = theta / (2 * np.pi)',
+    'ax = plt.subplot(111, projection="polar")',
+    'ax.plot(theta, r)',
+    'ax.set_title("阿基米德螺线 r = θ / 2π")',
+    'plt.show()',
+  ].join('\n') },
+  { g: '画图', label: '3D 曲面', code: [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'x = np.linspace(-3, 3, 80)',
+    'y = np.linspace(-3, 3, 80)',
+    'X, Y = np.meshgrid(x, y)',
+    'Z = np.sin(np.sqrt(X ** 2 + Y ** 2))',
+    'ax = plt.subplot(111, projection="3d")',
+    'ax.plot_surface(X, Y, Z, cmap="viridis")',
+    'plt.show()',
+  ].join('\n') },
+  { g: '画图', label: '双子图对比', code: [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'x = np.linspace(0, 4 * np.pi, 300)',
+    'plt.subplot(2, 1, 1)',
+    'plt.plot(x, np.sin(x))',
+    'plt.title("sin 与它的傅里叶前 5 项")',
+    'plt.subplot(2, 1, 2)',
+    'approx = sum(np.sin((2 * k + 1) * x) / (2 * k + 1) for k in range(5))',
+    'plt.plot(x, approx * 4 / np.pi)',
+    'plt.show()',
+  ].join('\n') },
+
+  { g: '数学写法', label: 'show() 打印公式', code: [
+    'import sympy as sp',
+    'x = sp.symbols("x")',
+    'show(sp.sqrt(x ** 2 + 1) / (x - 1))',
+    'show_eq(sp.integrate(sp.exp(-x ** 2), (x, -sp.oo, sp.oo)), sp.sqrt(sp.pi))',
+  ].join('\n') },
+  { g: '数学写法', label: '图文混排输出', code: [
+    'print("勾股定理：$a^2 + b^2 = c^2$")',
+    'print("欧拉恒等式 $$e^{i\\\\pi} + 1 = 0$$")',
+    'print("输出里写 $...$ 或 $$...$$ 都会被渲染成公式")',
+  ].join('\n') },
 ];
 
 /* ---------- 存储 ---------- */
@@ -137,7 +330,6 @@ let data = null;
 let api = null;
 let els = null;
 let saveTimer = null;
-let sympyReady = false;
 
 function uid(p) {
   return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -221,20 +413,7 @@ function activeBook() {
   return b;
 }
 
-/* ---------- KaTeX（按需加载，只有真的要渲染公式时才拉） ---------- */
-
-let katexPromise = null;
-function getKatex() {
-  if (!katexPromise) {
-    katexPromise = import('katex')
-      .then((m) => m.default || m)
-      .catch((e) => {
-        katexPromise = null;
-        throw e;
-      });
-  }
-  return katexPromise;
-}
+/* KaTeX 的按需加载见 mathout.js（浮窗控制台与笔记本共用同一个实例） */
 
 /* ---------- 渲染小工具 ---------- */
 
@@ -537,9 +716,17 @@ function buildCellEl(cell) {
     ta.value = cell.src;
     ta.placeholder = '写 Python，Ctrl+Enter 运行；变量与 Py 浮窗互通';
     requestAnimationFrame(() => autoGrow(ta));
+
+    /* 代码补全：候选 = 静态词表 + 这个单元里自己起过的名字。
+       挂在下面的 keydown 之前，补全吃下的 Tab 不会再多出两个空格。 */
+    const ac = attachComplete(ta);
+    const refreshAc = () => ac.setExtras(harvestWords(cell.src));
+    refreshAc();
+
     ta.addEventListener('input', () => {
       cell.src = ta.value;
       autoGrow(ta);
+      refreshAc();
       scheduleSave();
     });
     ta.addEventListener('keydown', (ev) => {
@@ -554,6 +741,7 @@ function buildCellEl(cell) {
         ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(e2);
         ta.selectionStart = ta.selectionEnd = s + 2;
         cell.src = ta.value;
+        refreshAc();
         scheduleSave();
       }
     });
@@ -583,6 +771,9 @@ function buildCellEl(cell) {
     cell.src = ta.value;
     autoGrow(ta);
     scheduleSave();
+    /* 编辑框被隐藏时（渲染态）还可能被外部改内容——公式面板就是这么插进来的。
+       这时渲染区是可见的，改完必须立刻重画，否则用户看不到刚插的公式。 */
+    if (ta.style.display === 'none') paintMd(wrap, cell);
   });
   ta.addEventListener('blur', () => setEditing(wrap, false));
   ta.addEventListener('keydown', (ev) => {
@@ -707,30 +898,35 @@ function build() {
     addCell('code', src);
     setStatus('已把浮窗代码取回成一个新单元');
   });
-  const btnSympy = mkBtn('加载 sympy', 'py-runner__btn--ghost', '装上符号计算库（首次约 10 MB），之后可以 show(sp.diff(...))', async () => {
-    if (sympyReady) {
-      setStatus('sympy 已经装好了');
-      return;
-    }
-    btnSympy.disabled = true;
+  /* 公式输入器：符号面板 + 实时预览，插到光标处（与浮窗的「公式」是同一个） */
+  const btnFx = mkBtn('公式…', 'py-runner__btn--ghost', '打开公式输入器：符号面板 + 实时预览，插入到光标处', async () => {
     try {
-      await api.loadPackage('sympy', (s) => setStatus(s));
-      sympyReady = true;
-      btnSympy.textContent = 'sympy 已就绪';
-      setStatus('sympy 装好了：可以用 import sympy as sp 做符号推导');
+      const mod = await import('./formula');
+      await mod.openFormula();
     } catch (e) {
-      setStatus('sympy 加载失败：' + ((e && e.message) || e));
-    } finally {
-      btnSympy.disabled = false;
+      setStatus('公式面板打不开：' + ((e && e.message) || e));
     }
   });
   const tpl = document.createElement('select');
   tpl.className = 'ml-notebook__tpl';
+  /* 按 g 字段分组：模板一多，一个平铺的下拉根本翻不过来 */
+  let lastGroup = null;
+  let groupEl = null;
   TEMPLATES.forEach((t, i) => {
+    if (t.g !== lastGroup) {
+      lastGroup = t.g;
+      if (t.g !== '—') {
+        groupEl = document.createElement('optgroup');
+        groupEl.label = t.g;
+        tpl.appendChild(groupEl);
+      } else {
+        groupEl = null;
+      }
+    }
     const o = document.createElement('option');
     o.value = String(i);
     o.textContent = t.label;
-    tpl.appendChild(o);
+    (groupEl || tpl).appendChild(o);
   });
   tpl.addEventListener('change', () => {
     const t = TEMPLATES[Number(tpl.value)];
@@ -739,7 +935,7 @@ function build() {
     addCell('code', t.code);
     setStatus('已插入模板：' + t.label);
   });
-  bar.append(btnCode, btnMd, btnRunAll, btnClearOut, btnFromConsole, btnSympy, tpl);
+  bar.append(btnCode, btnMd, btnRunAll, btnClearOut, btnFromConsole, btnFx, tpl);
 
   const body = el('div', 'ml-notebook__body');
   const foot = el('div', 'ml-notebook__foot', '');
@@ -829,7 +1025,9 @@ function build() {
     if (ev.key === 'Escape' && panel.classList.contains('is-open')) closeNotebook();
   });
 
-  els = { panel, body, foot, books, title, btnSympy };
+  /* 参与层叠：点到谁谁在最上面（控制台 / 笔记本 / 仓库共用 zorder 的栈） */
+  watchPanel(panel);
+  els = { panel, body, foot, books, title };
   return els;
 }
 
@@ -860,6 +1058,7 @@ export async function openNotebook(toolApi) {
   renderBooks();
   renderCells();
   els.panel.classList.add('is-open');
+  bringToFront(els.panel);
   /* 先摸一下 KaTeX：等用户写完笔记再加载就慢了 */
   try {
     await getKatex();

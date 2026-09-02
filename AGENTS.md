@@ -57,6 +57,11 @@ docs/17-what-next/             # 「下一程导读」导览章：不入图谱/�
 src/pyrunner/enhancer.js       # 核心：浮窗控制台/按钮注入/测验/判题/进度
 src/pyrunner/notebook.js       # 数学笔记本（Markdown+KaTeX 单元 / 与浮窗共用 Python 命名空间），按需动态 import
 src/pyrunner/repo.js           # 代码仓库（浮窗代码的存档柜：本机/账号空间 + 导入导出），按需动态 import
+src/pyrunner/formula.js        # 公式输入器（符号面板 + 实时预览，插入到光标处），按需动态 import
+src/pyrunner/complete.js       # 代码补全（静态词表 + 自己起过的名字 + 控制台变量名），极简版
+src/pyrunner/mathout.js        # 输出里的 $$…$$ / $…$ 渲染；KaTeX 的唯一加载口（浮窗与笔记本共用）
+src/pyrunner/zorder.js         # 浮窗层叠：最近点过的排最上面（1056/1057/1058 重排，不递增）
+static/ml-pyodide-sw.js        # 只缓存三个 Pyodide CDN 静态资源的 Service Worker（运行时不再重复下载）
 src/learning/progress.js       # 学习进度/练习通过/续学位置的存储层（命名空间 + 旧 key 迁移），不引图谱数据
 src/pyrunner/viz.js            # 前五卷可视化单体（108 渲染器 / 约 400KB，只读不写）
 src/pyrunner/lab/              # 卷六工程组件系统（新交互一律走这里）
@@ -66,6 +71,9 @@ src/pyrunner/lab/              # 卷六工程组件系统（新交互一律走�
   registries/chNN.js           #   分册注册表（ch68–ch75）：'名': () => import('../components/x.js') 必须字面量
   registry.js                  #   汇总八个分册（勿手改，改分册文件即可）
 src/theme/Root/index.js        # MutationObserver 入口，路由变化后重扫描
+src/theme/Navbar/index.js      # 顶栏：整条重写的自定义实现（swizzle 整体接管，取代 Docusaurus 自带那条）
+src/css/nav.css                # 顶栏样式（.ml-nav 作用域，由 Navbar/index.js import）
+src/components/icons.js        # 图标集：ICONS 路径表 + <Icon/>（React）+ iconSvg()（原生 DOM）
 src/theme/TOCItems/index.js    # 右栏挂件 swizzle：目录上方渲染前置知识 + 学习进度条
 src/theme/DocItem/Layout/index.js  # 文档页布局 swizzle：正文横条前置知识 + RailControls 折叠把手
 src/components/doc-widgets/    # PrereqPanel 前置知识面板、RailControls 右侧栏折叠控件
@@ -121,6 +129,42 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 ### 参考资料条目与账号体系（2026-08-29 新增）
 
 - **参考资料条目**：每章一个 `docs/NN-chapter/999-references.md`（编号 999 保证侧边栏垫底）。内容**只改 `scripts/references-data.json` 然后跑 `node scripts/gen-references.mjs`**（`--check` 模式可做闸门），不要手改生成的 md。每条文献是一个 ` ```paper ` 围栏（`# @title/@authors/@year/@venue/@tag/@desc/@page/@pdf64`），由 `enhancer.js` 的 `enhancePapers()` 渲染成文献卡（隐藏原容器 + 插卡，与 quiz 同一套水合安全模式）。**PDF 链接以 `@pdf64`（base64）写入条目**、客户端解码——静态 HTML 源码不再直接可读；这是混淆不是加密（边界声明见 REGISTRATION.md），手写条目仍可用明文 `@pdf`（两种写法兼容）。**validate.mjs 已挂双检查**：999-references 落后于 references-data.json → 硬错误；新章缺资料数据 → 警告。
+- **两个图谱页的分工（2026-09-02 定案）：/tree 画树、/graph 画泳道**
+  | 页面 | 组件 | 画法 | 模式 |
+  | --- | --- | --- | --- |
+  | `/tree` 知识树 | `KnowledgeGraphTree` | 树（块布局） | 章节模式 = 边聚合到章；单元模式 = 逐课 805 节点（默认单元） |
+  | `/graph` 知识图谱 | `KnowledgeGraphFull` | 泳道图 | **没有模式，只有排序**：按难度（默认）/ 按章号 |
+
+  **/graph 一套渲染代码、两套粒度**（内容真不一样，不是换个排序）：
+  | 档位 | 泳道 | 胶囊 | 连线 |
+  | --- | --- | --- | --- |
+  | **章档（默认）** | 卷（六卷） | 章（71 颗，胶囊上是章号） | 章级聚合先修边 `aggregateChapters()` + 章级血缘 |
+  | 课档 | 章（71 条） | 课（811 门，胶囊上是先修深度） | 课级先修边 + 课级血缘 |
+
+  两套都由 `VIEWS = [CHAPTER_VIEW, LESSON_VIEW]` 描述（nodes / edges / toolEdges / laneKeys / laneKeyOf /
+  laneMain / laneSub / badge / label / tip / to / pills / stat），渲染代码只看 `view.*`，加档位只改这个数组。
+  每档还有自己的排序开关（章档：按卷 / 按难度；课档：按章号 / 按难度），组件接口 `defaultView` + `defaultSort`。
+  演变（都被用户当面否过，别再走）：曾分「章节模式 / 单元模式」两种模式，但内容完全一样（都是一章一排课），
+  只有泳道顺序不同；后来把「按章节走」理解成泳道分组，用户指出**胶囊还是一门门的课**，于是改成章档为默认。
+  **「按章节走」= 内容粒度是章，不是泳道叫什么。**
+  难度度量：章难度 `CH_DIFF` / 卷难度 `VOL_DIFF`，都是所辖课程**平均先修深度**取整。
+  `layout()` 会**剔除没有节点的泳道**（没有未归卷的章时「其它」那条就不出现）。
+  走过的弯路（都别再走）：
+  1. 单元模式做成「泳道 = 先修深度层」——画面上皮囊跟章节模式一样是一排排胶囊，只有左侧标签不同；
+  2. 泳道按章、但横向按难度列铺开（跨泳道同列 = 同难度）——同一章同深度最多 6 门课会撞车，
+     严格对齐要 126 个胶囊位 → 画布宽近 2 万 px。
+  ⚠️ 已知小缺口：`CHAPTER_INFO` 来自 `allChapterGroups()`，只覆盖 VOLUMES 里写到的章；
+     落在卷之外的章（目前 53、60、66 章）左侧会退化成「N 章」。要修得动 `data.js` 的卷区间，属数据层，暂不动。
+
+  两处「章节 / 单元」是**同一对语义**（聚合 vs 逐课），只是画法不同——别再往 /graph 里塞树，那会变成两棵知识树。
+  `KnowledgeGraphFull` 的模式由 `defaultMode` 属性给（默认 `'unit'`）。**改模式相关的逻辑，下面六处必须一起动**：`laneKeys(mode)` 泳道口径、`laneKeyOf(mode,i)` 取值、`layout(mode)`、`L2` 筛选后的泳道压实与**空泳道剔除**（否则筛选完图还是那么高）、`shownIn(mode,i)` 的显示过滤、`laneName(mode,key,count)` 左侧泳道名。
+  左侧泳道标签是**两行**：上排 `难度 N`（`.ml-fg__band`，11.5px），下排章名（`.ml-fg__bandsub`，9.5px 更淡）。
+  **两条文案纪律**（都是用户明确否掉后定下的）：
+  1. 不要「第 N 层 / 第 N 章」这类序号套话——深度是个度量不是编号；节点 tooltip 与信息面板同理写「先修深度 5」；
+  2. **不要写「· M 门」**（课数）。
+  栏宽 `GUTTER=88px`：「难度 38」约 60px、章名 4 字约 46px，都塞得下。泳道高 48px 容得下两行。
+- **单元模式从「第 3 层」起画**（`UNIT_MIN_DEPTH = 3`）：第 1 层是几门根课、第 2 层只有一门，画出来是顶部两条几乎空着的泳道，观感和章节模式差太远。这两层的课在章节模式里都在各章泳道的开头，切过去就能看。
+  口径与知识树页排除第 0 章一致：**不适用的节点整个不进布局**（`shownIn()` 在布局、边、血缘边、节点渲染、搜索命中等各处都要过滤），不是画出来再 CSS 藏掉——后一种做法会留下指向空处的连线。
 - **排除口径与 17- 章一致**：`999-references.md` 不进知识图谱/知识树/首页统计（gen-graph.mjs 已排除）、不进独立阅读前端课程列表（ui/server.mjs 已排除），但进 Docusaurus 侧边栏与全站搜索。改完数据后重跑 gen-graph.mjs 同步 full-graph-data.js。
 - **论文链接纪律（2026-08-30 加固）**：arXiv ID 只写验证过的高把握条目（abs 页 + `arxiv.org/pdf/<id>` 下载链）；没把握的文献只给稳定的 Wikipedia/官网页面（`@page`），**宁缺毋滥，不编造 ID**。条目正文不放行内公式（MDX 塌陷风险）。
   **任何 `@f`（PDF）都必须是机器验证过的链接**，不许凭印象填。已验证可用的四条找源路径：
@@ -154,14 +198,45 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 右下角现在有两个圆钮：**Py**（浮窗控制台，原本就有）与叠在它上方的**笔记**（数学笔记本，`Alt+N`）。
 
 - **共用同一个 Python 命名空间**：笔记本单元跑在 `_ml_console_g` 里，与浮窗「▶ 运行」完全同一套变量——笔记本里 `x = 3`，浮窗里 `print(x)` 就是 3。实现上是 enhancer 新增的 `execInConsole(source, opts)`（导出给 notebook.js 用），与浮窗 `run()` 的差异只是不读槽位/滑块/判题。单元右键式的三个联动按钮：送到浮窗（`openInConsole({key:'nb'})`，不动随手算草稿）、取回浮窗代码、存进仓库。
-- **数学向优化**：笔记单元支持 Markdown + `$...$`/`$$...$$`（KaTeX 按需 `import('katex')`，不进主包）；代码输出里的 `$$...$$` 同样渲染；内置 `show(x)`（`HELPER_PY`，每次运行前注入）把对象转成 LaTeX，装了 sympy 就走 `sympy.latex`。`sympy` 按需 `loadPackage`（约 10MB，按钮触发）。模板下拉里是求导/积分/极限/泰勒/画图/黎曼和/矩阵/蒙特卡洛。
+- **数学向优化**：笔记单元支持 Markdown + `$...$`/`$$...$$`（KaTeX 按需 `import('katex')`，不进主包）；**浮窗控制台的 print 输出同样会渲染公式**（`appendText` 走 `mathout.setMathText`：先写纯文本再异步升级，判题比较的是 `normalizeOut(textOut)` 字符串、不读 DOM，所以不受影响）。内置 `show(x)`（`HELPER_PY`，每次运行前注入）把对象转成 LaTeX，装了 sympy 就走 `sympy.latex`。
+- **模板库**：`TEMPLATES` 按 `g` 字段分组（入门 / 符号计算 / 数值方法 / 线性代数 / 概率统计 / 画图 / 数学写法），选单用 `<optgroup>` 渲染。新增模板只要往这个数组里加一项。**sympy 不用按钮**：`execInConsole` 与浮窗 `run()` 都会检测源码里的 `import sympy` 并 `loadPackage('sympy')`（与 matplotlib 同一套按需逻辑）。
+- **公式输入器**（`formula.js`，浮窗工具条与笔记本工具条都有入口）：分类符号面板（常用/希腊/运算/关系/结构/函数）+ LaTeX 源码框 + 实时预览，插入到「最后一个被聚焦的输入框」的光标处（`focusin` 记录目标，面板自己的控件除外）。
+  **插什么由目标类型决定（`targetKind()`）**：
+  | 目标 | 插入内容 |
+  | --- | --- |
+  | 笔记单元 `.ml-nb__md` | **公式本身**：`$…$` / `$$…$$`（勾掉「包成公式」则插裸 LaTeX） |
+  | Python 代码区 `.ml-console__editor` / `.ml-nb__code` | **代码**：`print(r"$$…$$")`（用 raw string 保住反斜杠；源码里的双引号换成单引号，别截断字符串） |
+  | 其它输入框 | 按笔记的规矩插带定界符的公式 |
+
+  往代码里塞裸 LaTeX 会直接语法错误，这条边界别模糊。插入时若光标不在行首会先补换行。
+  配套：**笔记单元的编辑框被隐藏（渲染态）时也可能被外部改内容**，所以 md 单元的 `input` 处理里有一条 `if (ta.style.display === 'none') paintMd(wrap, cell)`——公式面板正是这么插进来的，不重画用户就看不到刚插的公式。
+- **代码补全**（`complete.js`）：候选 = 静态词表（关键字/内置/常用方法名）+ `harvestWords(源码)` 抓到的自定义名 + 运行后从 `_ml_console_g` 取回的变量名。`Ctrl+空格` 唤出，`Tab` 有候选就补全、没候选照旧缩进两格。`attachComplete(ta)` 必须挂在编辑器自己的 `keydown` **之前**：它吃下的按键会 `stopImmediatePropagation`，否则补完还会多俩空格。
+- **Python 运行时缓存**：`static/ml-pyodide-sw.js` 只拦截三个 CDN 域名下的 `wasm|js|mjs|zip|json|data|txt|whl|so` 请求，存进 Cache Storage（缓存名 `ml-pyodide-v1`，与 enhancer 的 `SW_CACHE` **必须同名**）；其余请求不调 `respondWith`，站点文件不受影响。enhancer 在 `initPyodide` 里注册 SW，并先用 `caches.match(base+'pyodide.asm.wasm')` 判断有没有缓存，有就把状态文案换成「从本地缓存装载」。
 - **渲染坑**：Markdown 里的公式必须先抽成 token（私有区字符 `U+E000` 包裹下标），等排版完再换回 KaTeX 的 HTML——否则转义、切行、列表包装会把 LaTeX 里的 `<>&` 弄坏。**不要改用 `\u0000`**：构建链路（Rspack/SWC）见到它会在日志里刷 `Character { ... raw: Some(Atom("\0")) }`，且一旦被吞掉，空 token 会让正则把正文里每个数字都当成公式。
 - **存储**：笔记本 `ml-notebook:<ns>`（含多本、多单元；**输出不落盘**，图片 base64 太大）、代码仓库 `ml-repo:<ns>`（条目 = `{id,name,code,from,at}`，上限 200 条，支持 .py 导入与 .json 导出）。都是本机 localStorage 的命名空间隔离，**不是云同步**——换设备要导出/导入。
-- **面板**：两个面板与 `.ml-console` 同构（固定定位 + 头部可拖），层级 笔记本 1056 / 仓库 1057 / 圆钮 1060。enhancer 跨代重建浮窗时会调 `dropNotebookShell()` 一并拆掉 `#ml-nb-fab` 与 `#ml-notebook`；notebook.js 打开时检查 `document.contains(els.panel)`，不在就重建。`Root/index.js` 的 MutationObserver 已把 `#ml-notebook`、`#ml-repo` 加进「自留地」过滤，避免打字时重扫正文。
+- **仓库条目操作是竖排的**：载入 / 插入（追加到编辑器末尾，不覆盖）/ 改名 / 更新 / 删除，五颗按钮竖着排（横排在窄屏会挤成一团）。「插入」走 `api.insertSource`，「载入」走 `api.setSource`（替换整个槽位）。
+- **面板与层叠**：三个面板（`控制台 / 笔记本 / 仓库`，外加公式输入器）都与 `.ml-console` 同构（固定定位 + 头部可拖）。层级由 `zorder.js` 统一管理：谁最后被点谁在最上面，每次交互按栈重排 z-index 为 1056/1057/1058（**不用递增写法**，否则点几十次就盖过圆钮 1060）。新增面板只要 `watchPanel(el)` + 打开时 `bringToFront(el)`。enhancer 跨代重建浮窗时会调 `dropNotebookShell()` 一并拆掉 `#ml-nb-fab` / `#ml-notebook` / `#ml-formula` / `#ml-repo`；各模块打开时检查 `document.contains(els.panel)`，不在就重建。`Root/index.js` 的 MutationObserver 已把 `#ml-notebook`、`#ml-repo` 加进「自留地」过滤，避免打字时重扫正文。
+
+### 顶栏 v2（2026-09-02 整条重做）
+
+- **Docusaurus 自带那条已被完全替换**：`src/theme/Navbar/index.js` 是 swizzle 后的整体接管（不是 wrap），`docusaurus.config.js` 的 `navbar.items` 已清空——**改导航请改组件里的 `LINKS`**，往 config 里加条目不会被渲染。
+- 结构：左（朱砂印章「数」+ 数学阶梯 + 副标题）· 中（带图标的 4 个导航项）· 右（搜索 + 账号芯片/登录钮）· ≤996px 收成汉堡 + 下拉抽屉。视觉延续首页的「演算纸 × 印章朱砂」：暖纸底 + 方格纸底纹、墨蓝字、激活项是从中间 `scaleX` 长出来的朱砂下划线。
+- **必须保留外层的 `navbar navbar--fixed-top`**：sticky 定位、`--ifm-navbar-height` 与侧栏/锚点的偏移计算都挂在上面，别换成自定义定位。
+- **搜索框的类名不是 DocSearch-\***：本地搜索插件（`search-local`）渲染的是 `<div class="navbar__search"><input class="navbar__search-input">`，外观被 Infima 的 `.navbar__search-input` 和插件自带的 CSS module 共同管着。本站的覆盖规则一律写成 `.ml-nav .ml-nav__search .navbar__search-input`（三级选择器）——只写两级会和插件的 `.navbar__search-input:not(:focus)`（窄屏收成 2rem）撞成同权重，谁赢看打包顺序，不稳。
+- **文档侧栏不依赖顶栏**：移动端那个侧栏抽屉由 `DocRoot/Layout/Sidebar` 自带（含 `ExpandButton`），所以顶栏换掉不影响课程目录的移动端使用；被去掉的只是「navbar items 抽屉」，那条我们自己有。
+- **外观是一颗按钮循环三态**（亮 → 暗 → 自动），和 Docusaurus 原本那个一样：用 `useColorMode()`（`@docusaurus/theme-common`）取 `colorModeChoice`（`'light' | 'dark' | null`，null = 跟随系统）与 `setColorMode(v)`，选择由 Docusaurus 存进 localStorage、刷新保留。
+  **图标别只靠 React state**：`colorModeChoice` 在 SSR 恒为 null、挂载后才校正，只用它会导致每次刷新先闪一下「自动」。所以三个图标全部渲染，由 CSS 按 `html[data-theme-choice='light'|'dark'|'system']` + `.ml-nav__modeicon[data-mode=...]` 决定显示哪个；该属性由 Docusaurus 用 `<head>` 里的内联脚本在首帧前写好。React state 只用来算 title / aria-label。
+- **右侧控件统一 34px 高**（链接 / 登录 / 账号 / 外观 / 搜索 / 汉堡），共用一条中线——原先各用各的 padding，视觉重心会一高一低。激活下划线贴到 `bottom: .28rem`，别顶着文字。
+- **顶栏的垂直居中靠「上下等宽 padding + min-height」**：选择器写成 `.navbar.ml-nav`（双类）压过 Infima 的 `.navbar`（单类，同权重时看级联顺序、不稳）；`height` + flex 居中那套在 padding 被覆盖时就会整体偏高。
+- **入场动画不要给链接加纵向位移**：`translateY(-8px)` 配 `animation-fill-mode: both` 时，动画开始前的 backwards 填充会把元素先摆高 8px（看着就是「导航项靠上」）。链接改成纯淡入（`ml-nav-fade`）。
+- **图标集** `src/components/icons.js`：24×24 描边式，`stroke="currentColor"`，一律 `aria-hidden`（语义由外层按钮/链接承担）。React 用 `<Icon name="home" size={17}/>`，手搓 DOM 用 `iconSvg('notebook', 24)`（笔记本圆钮走这条）。新增图标只改 `ICONS` 表。
+- 圆钮上的「笔记」已改成**图标**：两个圆钮上下挨着，文字会糊成一团。图标版要显式 `display:flex` 居中（原来靠 button 默认的文字居中）。
 
 ### 首页与章级知识树（2026-08 重做）
 
-- 首页视觉 = 「演算纸 × 印章朱砂」：方格纸网格底纹（`.ml-gridbg`）、暖纸底、衬线大标题、朱砂印章/书签条、印刷硬阴影。全部设计变量收在 `.ml-home` 作用域（home.css 顶部），**不要写成全局规则**，避免污染站内其他页面；英雄区规则必须带 `.ml-home .ml-hero` 前缀压过 custom.css 的旧 `.ml-hero`。
+- 首页视觉 = 「演算纸 × 印章朱砂」：方格纸网格底纹（`.ml-gridbg`）、暖纸底、衬线大标题、朱砂印章/书签条、印刷硬阴影。
+- **口径更新（2026-09-02）：本站目标不再是「从 1+1 到傅里叶」——终点是人工智能与前沿数学**，傅里叶只是卷一「信号与变换」那一段的枢纽站。别在新写的文案里再把傅里叶当终点。顶栏副标题写作「从 1+1 到 AI 与前沿数学」。
+- **六卷墙的卷首徽章「N 章 · M 课（已开课）」已删除**：章节数随时在变，写死的统计容易误导，芯片墙上数一数就够（数据在 `data.js` 的 `rangeLabel` / `range` 里，需要时还能取回来）。全部设计变量收在 `.ml-home` 作用域（home.css 顶部），**不要写成全局规则**，避免污染站内其他页面；英雄区规则必须带 `.ml-home .ml-hero` 前缀压过 custom.css 的旧 `.ml-hero`。
 - **标题字体/字号必须走 Infima 变量**：Infima 的标题规则是 `h1:not(#\#):not(#\#)`（双 ID 特异性），任何类选择器都压不过；在 `.ml-home` 上改 `--ifm-heading-font-family / --ifm-h1-font-size / --ifm-h2-font-size`，小标题用 `.ml-home main h3 { --ifm-heading-font-family: ... }` 按元素继承退回无衬线。
 - `HomeTree.js`（章级树）交互：滚动入场逐层生长 + 「重播生长」；**点击章节胶囊＝聚焦**——沿跨章先修边求上/下闭包，无关章节隐藏、可见各层横向重新居中（与 KnowledgeGraphTree 同一套 shifted 算法），绿=先修、橙=托起；双击或信息条按钮进入本章。实现要点：入场动画的逐节点 delay 在 SETTLE_MS 后统一清零（settled 状态），否则筛选切换会被旧延迟拖慢。
 - **首页英雄区按钮（2026-09-02）**：只有「从第 0 课开始」与 `ContinueButton`（有记录→继续学习/下一课，没记录→随机翻一章）；原来的「看知识树生长」已删（/tree 的入口保留在导航栏与下方知识树小节）。按钮下方的 `ProgressStrip` 只在有记录（或未登录的游客空间也有学完标记）时才出现。
@@ -175,6 +250,17 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 - **渲染性能**：SVG 结构按模式 `useMemo` 静态化（805 节点 + 1125 边不随悬停/选中重渲染）；悬停/选中/搜索高亮与选中位移全部直改 DOM（`classList` 带 `__cls` 变更缓存、`transform`、`path d`）；React 只管工具栏与信息面板。挂载期事件监听（[] 依赖）经 `fnRef` 调最新闭包；`sel/hot` 在模式切换过渡渲染里可能越界，统一先夹紧（`selS/hotS`）再用。
 - **布局与位图都在模块加载时算一次**（块布局 ~14ms），不随悬停重算；`aggregateChapters()`/`chainOf()`/`popcount()` 照旧。
 - **搜索**：实时高亮命中（`is-search`），回车定位并循环轮询（`jumpTo(i, 1)` 同步平移缩放 + 聚焦筛选）；点击胶囊 `jumpTo(i)` 保留当前缩放只居中。
+- **视图坐标有两套，混用就会「不居中」（2026-09-02 修）**：
+  | | 世界坐标 | SVG 元素坐标 |
+  | --- | --- | --- |
+  | 来源 | 布局算的 `p.x / p.y`，x 以 0 为中轴，故 `L.minX` 是负的（单元模式 −2462） | `viewBox="minX 0 width height"` 平移后，`[0,width]×[0,height]`，画布的 CSS transform 作用在这一层 |
+  | 换算 | 元素 x = 世界 x − `L.minX`；元素 y = 世界 y（viewBox 的 y 起点是 0） |
+
+  坑位三处，都在 `applyView` / `fitSel` / `jumpTo` 里，已统一由 `toElem(b)` + `applyView(b, {center, noClamp})` 处理：
+  1. `shiftPositions` 给的 `bounds` 是**世界坐标**，直接拿它算中心会偏出去 `|L.minX| × k` 像素（根节点选中最夸张：节点落在屏幕 x=4086，视口才 1200 宽）；
+  2. 垂直居中原本写 `(vh − H)/2`，等于假设 `minY = 0`，选中内容一深就整体下移出屏；
+  3. 拖到边的夹取上界写的是 `pad`，正确值是 `pad − e.minX × k`（内容在元素坐标里未必从 0 开始）。
+  另：`fitSel` 的缩放下限从 0.15 提到 **0.42**——连通路径常纵贯全树，缩到 0.16 字都看不清；装不下时改为把**选中节点**摆到视口正中（装得下才整块居中）。`noClamp` 只给 fitSel / jumpTo 用，拖动与滚轮仍要夹住，否则一拖就把画布甩没了。
 - 排坑：调试截图时 React 的 `onMouseEnter` 只认 `mouseover` 事件（`mouseenter` 不冒泡、React 不合成）；测 localhost 用 node fetch。
 - 样式在 `home.css` 末尾「知识树 v2」段（`.ml-tr__modes`/`.ml-tr__searchwrap`/`.ml-tr__legend`/`.ml-tr__edge--branch` 等）。
 
