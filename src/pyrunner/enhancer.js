@@ -293,11 +293,21 @@ const consoleState = ((typeof window !== 'undefined' ? window : globalThis).__ml
   sliders: [],
   sliderTimer: null,
   sliderPending: false,
+  syncAfterRun: false,
+  sliderSpecChanged: false,
   running: false,
   originals: {},
   resets: {},
   callbacks: new Map(),
 });
+
+/* 模块代次：本文件每次被重新执行（保存/热更新）就 +1。
+   浮窗壳是跨模块代次复用的，壳上按钮绑的闭包还属于上一代代码——
+   上一代的 bug 也跟着活着（踩过：滑块回调引用不到 run、同步读不到值）。
+   所以 ensureConsole 发现壳不是本代建的，就拆掉重建，让新代码真正接管。 */
+const GEN =
+  ((typeof window !== 'undefined' ? window : globalThis).__mlEnhancerGen =
+    ((typeof window !== 'undefined' ? window : globalThis).__mlEnhancerGen || 0) + 1);
 
 function consoleStore() {
   if (!consoleState.store) {
@@ -360,6 +370,19 @@ function renderSliders() {
     return;
   }
   box.classList.add('is-visible');
+  /* 「⇄ 从代码同步」：代码运行后，把代码里的变量值回填到滑块，
+     让交互组件跟着代码里改的参数走（与拖动滑块反向） */
+  const syncRow = document.createElement('div');
+  syncRow.className = 'ml-console__syncrow';
+  const syncBtn = document.createElement('button');
+  syncBtn.type = 'button';
+  syncBtn.className = 'ml-console__syncbtn';
+  syncBtn.textContent = '⇄ 从代码同步参数';
+  syncBtn.title =
+    '先运行一次代码，再点这个按钮：把代码运行后产生的变量值回填到滑块（例如代码里把 top 改成 200，点这里滑块就跳到 200，交互组件随之更新）';
+  syncBtn.addEventListener('click', requestSyncFromCode);
+  syncRow.appendChild(syncBtn);
+  box.appendChild(syncRow);
   for (const s of st.sliders) {
     const row = document.createElement('div');
     row.className = 'ml-slider';
@@ -379,13 +402,107 @@ function renderSliders() {
       clearTimeout(st.sliderTimer);
       st.sliderTimer = setTimeout(() => {
         st.sliderPending = true;
-        if (!st.running) run();
+        /* run 是 ensureConsole 内部的局部函数，这里够不着；
+           st._run 是它暴露出来的引用，运行中则交给 run 的 finally 重跑 */
+        if (!st.running && typeof st._run === 'function') st._run();
       }, 260);
     });
     s.input = range;
+    s.valEl = val;
     row.append(label, range, val);
     box.appendChild(row);
   }
+}
+
+/* 点「⇄ 从代码同步参数」：请求运行一次当前代码，运行完成后自动把
+   _ml_console_g 里的变量值回填到滑块（见 run() 的 finally 分支）。 */
+function requestSyncFromCode() {
+  const st = consoleState;
+  if (!st.sliders.length) return;
+  if (st.running) {
+    st.syncAfterRun = true;
+    return;
+  }
+  st.syncAfterRun = true;
+  if (typeof st._run === 'function') st._run();
+}
+
+/* 读取 _ml_console_g 中与滑块同名的变量，回填滑块。返回是否有变化。 */
+async function syncSlidersFromCode() {
+  const st = consoleState;
+  if (!st.sliders.length) return false;
+  try {
+    const py = await getPyodide((s) => {
+      if (st.status) st.status.textContent = s;
+    });
+    await ensurePreamble(py);
+    const names = st.sliders.map((s) => s.name);
+    const res = await py.runPythonAsync(
+      '{n: _ml_console_g.get(n) for n in ' + JSON.stringify(names) + '}',
+    );
+    let vals;
+    try {
+      /* dict_converter: Object.fromEntries 把 Python dict 转成普通对象，
+         否则 toJs 默认转 Map，vals[s.name] 取不到值 */
+      vals =
+        typeof res.toJs === 'function'
+          ? res.toJs({ depth: 1, dict_converter: Object.fromEntries })
+          : res;
+    } finally {
+      if (res && typeof res.destroy === 'function') res.destroy();
+    }
+    let changed = false;
+    for (const s of st.sliders) {
+      const v = vals[s.name];
+      if (typeof v !== 'number' || !Number.isFinite(v)) continue;
+      const clamped = Math.min(Math.max(v, s.min), s.max);
+      const cur = parseFloat(s.input.value);
+      if (Math.abs(clamped - cur) > 1e-9) {
+        s.input.value = String(clamped);
+        if (s.valEl) s.valEl.textContent = String(clamped);
+        changed = true;
+      }
+    }
+    if (st.status) {
+      if (changed) {
+        st.status.textContent = '已把代码里的参数同步到滑块，自动重跑';
+      } else if (st.sliderSpecChanged) {
+        st.status.textContent = '滑块已按代码里的 # sliders: 行更新';
+      } else {
+        st.status.textContent = '代码里没有给滑块变量赋新值，滑块保持不变';
+      }
+    }
+    st.sliderSpecChanged = false;
+    return changed;
+  } catch (e) {
+    if (st.status) st.status.textContent = '同步失败：' + String((e && e.message) || e);
+    return false;
+  }
+}
+
+/* 每次运行前按编辑器里的 # sliders: 行刷新滑块规格。
+   此前滑块只在点「▶ 浮窗实验」那一刻解析一次，之后在代码里改行
+   （改初值/范围/步长）滑块完全不跟——用户以为同步坏了。
+   规格有变时整行重建（初值、上限都按新行来），没变则不动滑块。 */
+function refreshSliderSpec(source) {
+  const st = consoleState;
+  const spec = parseSliders(source);
+  const same =
+    spec.length === st.sliders.length &&
+    spec.every((p, i) => {
+      const s = st.sliders[i];
+      return (
+        p.name === s.name &&
+        p.min === s.min &&
+        p.max === s.max &&
+        p.step === s.step &&
+        p.value === s.value
+      );
+    });
+  st.sliderSpecChanged = !same;
+  if (same) return;
+  st.sliders = spec;
+  renderSliders();
 }
 
 function refreshChrome() {
@@ -469,15 +586,72 @@ function bindDocListener(type, handler) {
 
 function ensureConsole() {
   const st = consoleState;
-  if (st.fab && st.panel && document.contains(st.fab) && document.contains(st.panel)) return;
+  if (st.fab && st.panel && document.contains(st.fab) && document.contains(st.panel)) {
+    if (st.panel.__mlGen === GEN) return;
+    /* 壳健在但是上一代模块建的：壳上按钮绑的闭包全是旧代码，旧 bug 也跟着活着。
+       拆掉重建让新代码接管（编辑区内容和开合状态先保后还）。
+       若只领养不重建，热更新后新一代修复永远装不进旧按钮——踩过两次。 */
+    const restoreSlot = st.slot || 'scratch';
+    const restore = {
+      wasOpen: st.panel.classList.contains('is-open'),
+      slot: restoreSlot,
+      /* 槽位元数据一起带走：滑块规格/判题模式/恢复源，重建后 applySlot 原样喂回 */
+      opts: {
+        original: st.originals[restoreSlot],
+        resetSource: st.resets[restoreSlot],
+        title: st.slotTitle,
+        prompt: st.prompt,
+        exercise: st.exercise,
+        sliders: st.sliders,
+      },
+    };
+    try {
+      stashCurrent();
+    } catch {
+      /* 保内容失败不阻断重建 */
+    }
+    st.panel.remove();
+    st.fab.remove();
+    document.querySelector('.ml-lightbox')?.remove();
+    st.fab = null;
+    st.panel = null;
+    st._restoreAfterBuild = restore;
+  }
 
   const fabEl = document.getElementById('ml-fab');
   const panelEl = document.getElementById('ml-console');
   if (fabEl && panelEl && panelEl.__mlRefs && document.contains(panelEl)) {
-    /* 壳健在但引用失效（异常兜底）：领养现有节点，绝不拆除——
-       拆了正在使用的浮窗，用户手里的按钮就全变成「点了没反应」。 */
-    Object.assign(st, panelEl.__mlRefs);
-    return;
+    if (panelEl.__mlGen === GEN) {
+      /* 壳健在但引用失效（异常兜底）：领养现有节点，绝不拆除——
+         拆了正在使用的浮窗，用户手里的按钮就全变成「点了没反应」。 */
+      Object.assign(st, panelEl.__mlRefs);
+      return;
+    }
+    /* 旧代残壳：拆掉重建（与上面同一套保内容逻辑） */
+    const restoreSlot2 = st.slot || 'scratch';
+    try {
+      stashCurrent();
+    } catch {
+      /* 同上 */
+    }
+    const restore = {
+      wasOpen: panelEl.classList.contains('is-open'),
+      slot: restoreSlot2,
+      opts: {
+        original: st.originals[restoreSlot2],
+        resetSource: st.resets[restoreSlot2],
+        title: st.slotTitle,
+        prompt: st.prompt,
+        exercise: st.exercise,
+        sliders: st.sliders,
+      },
+    };
+    panelEl.remove();
+    fabEl.remove();
+    document.querySelector('.ml-lightbox')?.remove();
+    st.fab = null;
+    st.panel = null;
+    st._restoreAfterBuild = restore;
   }
 
   /* 真没有壳（或壳残缺）才全新构建。浮窗节点都是我们自己 append 到
@@ -566,8 +740,9 @@ function ensureConsole() {
     fab, panel, editor, status, out, btnRun, btnHint,
     btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode,
   };
-  /* 引用登记在壳上：热更新后新一代模块靠它领养，而不是拆掉重建 */
+  /* 引用登记在壳上：热更新后新一代模块靠它领养或识别跨代重建 */
   panel.__mlRefs = refs;
+  panel.__mlGen = GEN;
   Object.assign(st, refs);
 
   btnBigOut.addEventListener('click', () => {
@@ -751,6 +926,8 @@ function ensureConsole() {
     clearOut();
     stashCurrent();
     const source = editor.value;
+    /* 用户在代码里改了 # sliders: 行：先按新行刷新滑块，再注入参数 */
+    refreshSliderSpec(source);
     const chunks = [];
     try {
       const py = await getPyodide((s) => (status.textContent = s));
@@ -833,11 +1010,26 @@ function ensureConsole() {
     } finally {
       const shouldRerun = st.sliderPending;
       st.sliderPending = false;
+      const sync = st.syncAfterRun;
+      st.syncAfterRun = false;
       btnRun.disabled = false;
       st.running = false;
-      if (shouldRerun) setTimeout(run, 0);
+      if (sync) {
+        /* 「⇄ 从代码同步参数」：本次运行结束后读取代码变量回填滑块；
+           若有变化，用新滑块值再跑一次（与拖动滑块同一套重跑逻辑） */
+        syncSlidersFromCode().then((changed) => {
+          if (changed) {
+            st.sliderPending = true;
+            setTimeout(run, 0);
+          }
+        });
+      } else if (shouldRerun) {
+        setTimeout(run, 0);
+      }
     }
   };
+  /* 供外部（如 renderSliders 的同步按钮）触发一次运行 */
+  st._run = run;
 
   function isExerciseSlot() {
     return !!st.exercise;
@@ -912,6 +1104,17 @@ function ensureConsole() {
   });
 
   applySlot('scratch', {});
+
+  /* 跨代重建后，恢复上一代面板的开合状态与所在槽位（编辑内容已存 drafts） */
+  const restore = st._restoreAfterBuild;
+  if (restore) {
+    st._restoreAfterBuild = null;
+    if (restore.wasOpen) {
+      st.panel.classList.add('is-open');
+      st.fab.classList.add('is-active');
+    }
+    applySlot(restore.slot, restore.opts || {});
+  }
 }
 
 /* ---------- 正文代码块：注入浮窗按钮 / 内嵌测验 ---------- */

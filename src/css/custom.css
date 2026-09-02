@@ -917,6 +917,30 @@ a:hover .ml-chapter.is-done {
   font-weight: 700;
 }
 
+/* 「⇄ 从代码同步参数」：代码运行后把变量值回填到滑块 */
+.ml-console__syncrow {
+  display: flex;
+  justify-content: flex-end;
+  flex-basis: 100%;
+}
+
+.ml-console__syncbtn {
+  cursor: pointer;
+  border: 1px dashed var(--ifm-color-emphasis-400);
+  background: transparent;
+  color: var(--ifm-color-primary);
+  border-radius: 6px;
+  font-size: 0.76rem;
+  padding: 0.14rem 0.6rem;
+  line-height: 1.5;
+  transition: all 0.12s ease;
+}
+
+.ml-console__syncbtn:hover {
+  border-style: solid;
+  background: var(--ifm-color-emphasis-100);
+}
+
 
 /* ---------- 网页原生可视化组件 ---------- */
 

@@ -237,6 +237,15 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 | 系统代理(Clash 等)劫持 localhost 测试请求 | 用 node fetch 验证；文档里提醒用户 TUN 模式加白 |
 | terser 把中文转义成 `\uXXXX` | 在 bundle 里搜中文字符串要同时搜转义形式 |
 | node 脚本里用 String.replace 插入含 `$` 的文本 | `$``、`$'`、$& 是替换特殊序列，会注入整段前缀/后缀（本次已踩：AGENTS.md 被复制一份）。改用 split/join 或函数替换器 |
+| PowerShell 管道 `Get-Content \| node --check` 假语法错误 | 管道会把 UTF-8 重编码成 GBK 毁掉中文（正则里中文变 `???` 报 "Nothing to repeat"）。用 `cmd /c "node --check < file"` 原字节 stdin 验语法 |
+| 「改了代码用户还说没效果」：端口上跑的是旧 dev server 进程 | `npm start` 自带 `--port 9452`；若被旧进程占着，先确认端口上是不是当前代码，必要时追加 `-- --port 3000` 起新实例，或杀旧进程 |
+
+## 调试与 E2E 验证（2026-09-01 定稿）
+
+- **node 探测 Docusaurus dev server 必须带 `Accept: text/html` 请求头**，否则所有非 `/` 页面返回 Express 风格 `Cannot GET /xxx` 404（history fallback 只对 `Accept: text/html` 生效）。浏览器正常但 node fetch 全 404 先查这个。
+- **站点路由剥数字前缀**：真实路由是 `/docs/arithmetic/division` 而非 `/docs/01-arithmetic/40-division`。路由 404 排查顺序：确认客户端 h1 是不是「找不到页面」（history fallback 让任何路径都 HTTP 200，node fetch 200 ≠ 路由存在）→ 查 `.docusaurus/routes.js` 真实注册路径 → `npm run clear`。
+- **999-references.md 的 git stat 假阳性**：被 `gen-references.mjs` 重写后 git 全显示 M，实际内容/哈希与 HEAD 一致。`git add -u; git reset -q` 刷新索引即可。validate 的 references 检查是内容比对（`gen-references.mjs --check`），与 mtime 无关。
+- **tabbit 浏览器 E2E（Windows）**：`"%LOCALAPPDATA%\Tabbit\LocalAgent\bin\tabbit-cli.exe" nodejs --task <任务名> < 脚本.js`。`nodejs` 模式下 stdin 直接给 **JS 代码**（不是 JSON 帧），用 CMD `< file` 重定向传；脚本里用 `page.getByRole`/`page.locator` 操作，监听 `page.on('pageerror')` 抓页面异常。.ps1 含中文路径时无 BOM UTF-8 会乱码，用相对路径 + `Set-Location`。
 
 ## MDX 静默降级（最阴险的坑，构建不报错）
 
@@ -258,6 +267,18 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 - run() 类异步函数必须有 running 重入守卫；练习判题走 _ml_run（全新沙盒），随手算/普通块走 _ml_console_run（持久命名空间）。
 - Pyodide 单例 + PREAMBLE 只注入一次；新增 Python 侧能力往 PREAMBLE 里加 _ml_ 前缀函数。
 - localStorage key 清单：ml-progress（学完标记）/ ml-exercises（判题通过）/ ml-exercise-drafts（旧版遗留，只读兼容）/ ml-console（drafts 多槽位草稿 + pos）。
+
+## 浮窗控制台与滑块系统（2026-09-01 定稿，踩坑实证）
+
+- **滑块规格解析时机**：`parseSliders()` 只在点「▶ 浮窗实验」那一刻执行一次。用户在浮窗编辑器里改 `# sliders:` 行（改初值/范围/步长）必须**每次运行前重解析**——`run()` 读 source 后、注入参数前调 `refreshSliderSpec(source)`：规格有变就整行重建滑块（初值/上限按新行），没变就保持拖动位置。
+- **双向同步语义**：拖滑块 = 滑块→代码（注入 `_ml_extra`）；「⇄ 从代码同步参数」= 代码→滑块（运行后从 `_ml_console_g` 读同名变量，clamp 回填）。代码里给滑块同名变量赋值会覆盖注入值，此时点同步滑块会跳到代码值。
+- **模块级回调必须调 `st._run` 而不是 `run`**：`run` 是 `ensureConsole()` 内部局部常量，`renderSliders()` 等模块级函数够不着——直接调会 `ReferenceError: run is not defined`（260ms 防抖后爆，已踩）。`run` 定义后已 `st._run = run` 暴露。
+- **`toJs({depth:1})` 默认把 Python dict 转成 Map**，`vals[s.name]` 永远 undefined——必须带 `dict_converter: Object.fromEntries`（已踩）。
+- **跨代重建（HMR 结构性坑）**：`consoleState` 挂在 window 上跨热更新共享，旧面板按钮闭包永远是「造壳那一代」的代码——热更新后新修复装不进旧按钮，除非整页刷新。对策：
+  - 模块代次 `window.__mlEnhancerGen` 每次模块重执行 +1，建壳时在 panel 上盖章 `panel.__mlGen = GEN`；
+  - `ensureConsole()` 发现壳是旧代建的（或领养分支 `panelEl.__mlGen !== GEN`）→ `stashCurrent()` 保编辑内容 → 拆壳重建 → 结尾按 `st._restoreAfterBuild` 恢复；
+  - **恢复时必须带完整槽位元数据**：`applySlot(restore.slot, {})` 会丢滑块规格/判题模式/恢复源。restore 要携带 opts = `{original, resetSource, title, prompt, exercise, sliders}`（来自 `st.originals[slot]`/`st.resets[slot]`/`st.slotTitle`/`st.prompt`/`st.exercise`/`st.sliders`）。
+- 同步提示分三态，别一律说「没有可同步的滑块变量」：有赋值变化→「已把代码里的参数同步到滑块，自动重跑」；无赋值但滑块规格变了→「滑块已按代码里的 # sliders: 行更新」；都没有→「代码里没有给滑块变量赋新值，滑块保持不变」。
 
 ## 工作流
 
