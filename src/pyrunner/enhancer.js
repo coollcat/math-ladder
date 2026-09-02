@@ -153,6 +153,59 @@ async function ensurePreamble(py) {
   preambleDone = true;
 }
 
+/* ---------- 给笔记本用的执行入口 ----------
+ * 与浮窗的「▶ 运行」跑在同一个命名空间 _ml_console_g 里：笔记本单元里定义的
+ * 变量在浮窗里能直接用，浮窗里算出来的东西笔记本也能接着用——这是两个面板
+ * 「联动」的全部秘密（重置变量对两边同时生效，这也符合直觉）。
+ * 与浮窗 run() 的差异：不读槽位/滑块/判题，输出交给 onText 回调自行处置。 */
+export async function execInConsole(source, opts = {}) {
+  const onText = typeof opts.onText === 'function' ? opts.onText : null;
+  const setStatus = (s) => {
+    if (typeof opts.status === 'function') opts.status(s);
+  };
+  const py = await getPyodide(setStatus);
+  await ensurePreamble(py);
+  if (opts.helpers) {
+    /* 必须 exec 进 _ml_console_g，不能 py.runPythonAsync(...)：
+       后者跑在 Pyodide 的全局命名空间里，而单元代码是 exec(code, _ml_console_g)，
+       全局定义的 show() 在单元里根本看不到（会 NameError）。 */
+    try {
+      py.globals.set('_ml_helpers_src', opts.helpers);
+      await py.runPythonAsync('exec(compile(_ml_helpers_src, "<helpers>", "exec"), _ml_console_g)');
+    } catch {
+      /* 辅助函数注入失败不阻断主流程 */
+    }
+  }
+  if (/\bmatplotlib\b/.test(source)) {
+    setStatus('加载绘图库…');
+    await py.loadPackage('matplotlib');
+    await py.runPythonAsync("import os; os.environ.setdefault('MPLBACKEND', 'AGG')");
+    try {
+      await py.runPythonAsync(
+        "import matplotlib as _m; _m.rcParams.update({'figure.figsize':(7.2,4.2),'axes.grid':True,'grid.alpha':0.35,'font.size':11,'lines.linewidth':2,'axes.spines.top':False,'axes.spines.right':False})",
+      );
+    } catch {
+      /* 老版本 matplotlib 没有这些 rcParams：忽略 */
+    }
+  }
+  setStatus('运行中…');
+  py.setStdout({ batched: (s) => onText && onText(s, false) });
+  py.setStderr({ batched: (s) => onText && onText(s, true) });
+  py.globals.set('_ml_src', source);
+  const result = await py.runPythonAsync('_ml_console_run(_ml_src)');
+  const arr = typeof result.toJs === 'function' ? result.toJs({ depth: 1 }) : result;
+  if (result && typeof result.destroy === 'function') result.destroy();
+  return { text: arr[0] || '', imgs: arr[1] || [], err: arr[2] || '' };
+}
+
+/** 按需装 Python 包（笔记本的 sympy 用）。 */
+export async function loadPyPackage(name, status) {
+  const py = await getPyodide(typeof status === 'function' ? status : () => {});
+  await ensurePreamble(py);
+  await py.loadPackage(name);
+  return true;
+}
+
 const HINTS = [
   [/NameError/i, 'NameError：有名字没被定义过。检查拼写，或确认前面课程是否讲过它。'],
   [/SyntaxError/i, 'SyntaxError：语法写错了。看报错指向的那一行附近。'],
@@ -161,7 +214,7 @@ const HINTS = [
   [/ZeroDivisionError/i, '除以零了。数学上我们很快会讲到"为什么不能除以零"。'],
 ];
 
-function prettifyError(msg) {
+export function prettifyError(msg) {
   const lines = msg.split('\n');
   const kept = [];
   let skipBlock = false;
@@ -214,6 +267,18 @@ function hashStr(s) {
 /* ---------- 登录态（论文下载 / 学习进度的门禁） ---------- */
 
 import { getAuth, isAuthed } from '../auth';
+/* 进度/练习/续学位置的存储口径统一在 src/learning/progress.js：
+   那边管命名空间与旧 key 迁移，这里只负责读写，避免两处写法漂移。 */
+import {
+  progressNS,
+  nsKey,
+  migrateLegacy as migrateLegacyProgress,
+  readProgress,
+  writeProgress,
+  clearSpace,
+  recordVisit,
+  EXERCISE_KEY,
+} from '../learning/progress';
 
 /* ---------- localStorage 小工具 ---------- */
 
@@ -234,33 +299,10 @@ function saveJSON(key, value) {
 
 /* ---------- 进度命名空间 ----------
  * 进度对所有人开放：未登录存本地「游客空间」，登录后存「账号空间」
- * （同一浏览器多账号互不混淆）。旧版无命名空间的统一 key 一次性迁移到游客空间。 */
-function progressNS() {
-  const a = getAuth();
-  return a && a.u ? ':' + a.u : ':guest';
-}
-
-function nsKey(base) {
-  return base + progressNS();
-}
-
-let nsMigrated = false;
-function migrateLegacyProgress() {
-  if (nsMigrated || typeof window === 'undefined') return;
-  nsMigrated = true;
-  for (const base of ['ml-progress', 'ml-exercises']) {
-    if (localStorage.getItem(base) != null) {
-      if (localStorage.getItem(nsKey(base)) == null) {
-        localStorage.setItem(nsKey(base), localStorage.getItem(base));
-      }
-      localStorage.removeItem(base);
-    }
-  }
-}
-
+ * （同一浏览器多账号互不混淆）。实现见 src/learning/progress.js。 */
 function passStore() {
   migrateLegacyProgress();
-  return loadJSON(nsKey('ml-exercises'), {});
+  return loadJSON(nsKey(EXERCISE_KEY), {});
 }
 
 /* ---------- 浮窗控制台 ---------- */
@@ -576,6 +618,13 @@ export function openInConsole(opts) {
   requestAnimationFrame(() => st.editor.focus());
 }
 
+/* 拆掉笔记本的圆钮与面板（浮窗跨代重建时一起带走，避免留下点了没反应的残壳）。
+   笔记本模块自己会在下次打开时检查 panel 是否还在文档里，不在就重建。 */
+function dropNotebookShell() {
+  document.getElementById('ml-nb-fab')?.remove();
+  document.getElementById('ml-notebook')?.remove();
+}
+
 /* 文档级监听去重：热更新重建浮窗时先摘掉上一实例挂的全局监听，防止重复触发 */
 function bindDocListener(type, handler) {
   const bag = (window.__mlDocHandlers = window.__mlDocHandlers || {});
@@ -613,6 +662,7 @@ function ensureConsole() {
     st.panel.remove();
     st.fab.remove();
     document.querySelector('.ml-lightbox')?.remove();
+    dropNotebookShell();
     st.fab = null;
     st.panel = null;
     st._restoreAfterBuild = restore;
@@ -649,6 +699,7 @@ function ensureConsole() {
     panelEl.remove();
     fabEl.remove();
     document.querySelector('.ml-lightbox')?.remove();
+    dropNotebookShell();
     st.fab = null;
     st.panel = null;
     st._restoreAfterBuild = restore;
@@ -659,6 +710,7 @@ function ensureConsole() {
   fabEl?.remove();
   panelEl?.remove();
   document.querySelector('.ml-lightbox')?.remove();
+  dropNotebookShell();
 
   const fab = document.createElement('button');
   fab.id = 'ml-fab';
@@ -667,6 +719,16 @@ function ensureConsole() {
   fab.title = 'Python 控制台（Alt+P）';
   fab.setAttribute('aria-label', '打开 Python 控制台');
   fab.textContent = 'Py';
+
+  /* 笔记本入口：叠在 Py 按钮正上方（右下角第二个圆钮，位置见 custom.css）。
+     笔记本与浮窗共用同一个 Python 命名空间，变量互相可见。 */
+  const fabNote = document.createElement('button');
+  fabNote.id = 'ml-nb-fab';
+  fabNote.className = 'ml-fab ml-fab--note';
+  fabNote.type = 'button';
+  fabNote.title = '数学笔记本（Alt+N）';
+  fabNote.setAttribute('aria-label', '打开数学笔记本');
+  fabNote.textContent = '笔记';
 
   const panel = document.createElement('div');
   panel.id = 'ml-console';
@@ -728,17 +790,22 @@ function ensureConsole() {
   btnResetNs.className = 'py-runner__btn py-runner__btn--ghost';
   btnResetNs.title = '清空随手算的所有变量';
   btnResetNs.textContent = '重置变量';
-  bar.append(status, btnHint, btnRun, btnResetCode, btnClearOut, btnBigOut, btnResetNs);
+  const btnRepo = document.createElement('button');
+  btnRepo.className = 'py-runner__btn py-runner__btn--ghost ml-console__repo';
+  btnRepo.type = 'button';
+  btnRepo.title = '把编辑器里的代码存进代码仓库（本机 / 账号空间）';
+  btnRepo.textContent = '仓库';
+  bar.append(status, btnHint, btnRun, btnResetCode, btnClearOut, btnBigOut, btnResetNs, btnRepo);
 
   const out = document.createElement('div');
   out.className = 'py-runner__out ml-console__out';
 
   panel.append(head, banner, slidersBox, editor, bar, out);
-  document.body.append(fab, panel);
+  document.body.append(fabNote, fab, panel);
 
   const refs = {
-    fab, panel, editor, status, out, btnRun, btnHint,
-    btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode,
+    fab, fabNote, panel, editor, status, out, btnRun, btnHint,
+    btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode, btnRepo,
   };
   /* 引用登记在壳上：热更新后新一代模块靠它领养或识别跨代重建 */
   panel.__mlRefs = refs;
@@ -843,6 +910,50 @@ function ensureConsole() {
   };
   const isOpen = () => panel.classList.contains('is-open');
 
+  /* ---------- 笔记本 / 代码仓库的公共接口 ----------
+   * 两个面板与浮窗共用同一个 Pyodide 实例、同一个命名空间（execInConsole），
+   * 所以「送到浮窗 / 取回浮窗」只是搬代码，变量本来就通着。 */
+  const toolApi = {
+    exec: execInConsole,
+    prettify: prettifyError,
+    loadPackage: loadPyPackage,
+    getSource: () => (st.editor ? st.editor.value : ''),
+    /* 笔记本单元 → 浮窗：开一个新槽位装进去，不动随手算草稿 */
+    setSource: (src, title) => {
+      openInConsole({
+        key: 'nb',
+        title: title || '笔记本片段',
+        source: src,
+        resetSource: src,
+      });
+    },
+    openConsole: () => setOpen(true),
+    status: (s) => {
+      st.status.textContent = s;
+    },
+    getContext: () => st.slotTitle || '',
+  };
+
+  btnRepo.addEventListener('click', async () => {
+    try {
+      const mod = await import('./repo');
+      mod.openRepo(toolApi);
+    } catch (e) {
+      st.status.textContent = '仓库打不开：' + ((e && e.message) || e);
+    }
+  });
+
+  fabNote.addEventListener('click', async () => {
+    try {
+      st.status.textContent = '正在打开笔记本…';
+      const mod = await import('./notebook');
+      await mod.openNotebook(toolApi);
+      st.status.textContent = '';
+    } catch (e) {
+      st.status.textContent = '笔记本打不开：' + ((e && e.message) || e);
+    }
+  });
+
   fab.addEventListener('click', () => {
     if (!isOpen()) {
       setOpen(true);
@@ -877,6 +988,9 @@ function ensureConsole() {
       } else {
         setOpen(false);
       }
+    } else if (ev.altKey && (ev.key === 'n' || ev.key === 'N')) {
+      ev.preventDefault();
+      fabNote.click();
     }
   });
 
@@ -989,7 +1103,7 @@ function ensureConsole() {
           appendText('✓ 输出与期望一致，通过！进度已保存。', 'ml-exercise__pass');
           const passes = passStore();
           passes[st.slot] = true;
-          saveJSON(nsKey('ml-exercises'), passes);
+          saveJSON(nsKey(EXERCISE_KEY), passes);
           appendText(
             a ? '（账号空间：' + a.u + '）' : '（本地存储 · 登录后进度存入账号空间）',
             'ml-exercise__unauthed',
@@ -1453,7 +1567,9 @@ function enhanceProgress() {
 
   migrateLegacyProgress();
   const ns = progressNS(); // ':guest' 或 ':用户名'
-  const store = loadJSON(nsKey('ml-progress'), {});
+  /* 每到一个课程页就记一次「停在哪」，首页的「继续学习」据此定位 */
+  recordVisit(path);
+  const store = readProgress();
 
   const box = document.createElement('div');
   box.className = 'ml-progress';
@@ -1468,7 +1584,7 @@ function enhanceProgress() {
   };
   btn.addEventListener('click', () => {
     store[path] = !store[path];
-    saveJSON(nsKey('ml-progress'), store);
+    writeProgress(store);
     render();
     document.dispatchEvent(new Event('ml-progress-changed'));
   });
@@ -1481,8 +1597,8 @@ function enhanceProgress() {
   wipe.textContent = ns === ':guest' ? '清除本机学习数据' : '清除本空间学习数据（' + ns.slice(1) + '）';
   wipe.title =
     ns === ':guest'
-      ? '删除本地存的学完标记、练习通过记录与练习草稿（随手算草稿保留）'
-      : '删除该账号空间存的学完标记、练习通过记录与练习草稿（随手算草稿保留）';
+      ? '删除本地存的学完标记、练习通过记录、续学位置与练习草稿（随手算草稿保留）'
+      : '删除该账号空间存的学完标记、练习通过记录、续学位置与练习草稿（随手算草稿保留）';
   wipe.addEventListener('click', () => {
     if (
       !window.confirm(
@@ -1490,9 +1606,7 @@ function enhanceProgress() {
       )
     )
       return;
-    [nsKey('ml-progress'), nsKey('ml-exercises')].forEach((k) =>
-      localStorage.removeItem(k),
-    );
+    clearSpace(); /* 学完标记 / 练习通过 / 续学位置一并清掉（见 learning/progress.js） */
     const cs = consoleStore();
     for (const k of Object.keys(cs.drafts)) {
       if (k.includes('#ex-') || k.includes('#solve-')) delete cs.drafts[k];

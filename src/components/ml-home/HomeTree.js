@@ -9,11 +9,13 @@ import { fitText } from './pillText';
    点击章节胶囊＝聚焦：只保留与它连通的先修/托起章，其余隐藏，
    可见各层横向重新居中；再点一次、点空白或「显示全部」恢复。双击进入本章。 */
 
-const PILL_W = 148;
-const PILL_H = 34;
-const GAP_X = PILL_W + 14;
-const LEVEL_H = 96;
-const TOP_PAD = 26;
+/* 2026-09-02 收一档：76 章铺开原先要滚很久，胶囊与层距同时收窄后
+   一屏能多看三四代；胶囊仍留够 8 个汉字的宽度（fitText 会按需截断）。 */
+const PILL_W = 126;
+const PILL_H = 28;
+const GAP_X = PILL_W + 10;
+const LEVEL_H = 70;
+const TOP_PAD = 16;
 /* 生长动画的最大延迟上限，超过后清零逐节点 delay，筛选切换才能即时响应 */
 const SETTLE_MS = 3200;
 
@@ -307,10 +309,10 @@ export default function HomeTree() {
                   tabIndex={0}
                   aria-pressed={sel === i}
                 >
-                  <rect width={PILL_W} height={PILL_H} rx={17} />
-                  <text x={PILL_W / 2 - 10} y={PILL_H / 2 + 5} textAnchor="middle">{label}</text>
-                  <circle cx={PILL_W - 11} cy={PILL_H / 2} r={9.5} className="ml-ht__count-bg" />
-                  <text x={PILL_W - 11} y={PILL_H / 2 + 4} textAnchor="middle" className="ml-ht__count">{c.count}</text>
+                  <rect width={PILL_W} height={PILL_H} rx={14} />
+                  <text x={PILL_W / 2 - 10} y={PILL_H / 2 + 4} textAnchor="middle">{label}</text>
+                  <circle cx={PILL_W - 11} cy={PILL_H / 2} r={8.5} className="ml-ht__count-bg" />
+                  <text x={PILL_W - 11} y={PILL_H / 2 + 3.5} textAnchor="middle" className="ml-ht__count">{c.count}</text>
                   <title>{`${c.title} · ${c.count} 门课\n第 ${T.lvl[i] + 1} 代——先修链最长要走 ${T.lvl[i]} 步\n点击聚焦血缘，双击进入本章`}</title>
                 </g>
               </g>

@@ -3,7 +3,8 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import { drawSinesFrame } from '../pyrunner/viz';
 import { openInConsole } from '../pyrunner/enhancer';
-import { CHAPTERS, allChapterGroups, siteStats } from '@site/src/components/ml-home/data';
+import { allChapterGroups, siteStats } from '@site/src/components/ml-home/data';
+import { ContinueButton, ProgressStrip } from '@site/src/components/ml-home/LearningEntry';
 import HomeTree from '@site/src/components/ml-home/HomeTree';
 import '../css/home.css';
 
@@ -143,10 +144,6 @@ function ChapterWall() {
 }
 
 export default function Home() {
-  const randomChapter = () => {
-    const ch = CHAPTERS[Math.floor(Math.random() * CHAPTERS.length)];
-    window.location.href = ch.to;
-  };
   const s = siteStats();
   return (
     <Layout
@@ -171,13 +168,9 @@ export default function Home() {
               <Link className="button button--primary button--lg" to="/docs/python-tools/conventions">
                 从第 0 课开始
               </Link>
-              <Link className="button button--secondary button--lg button--outline" to="/tree">
-                看知识树生长
-              </Link>
-              <button type="button" className="button button--secondary button--lg button--outline" onClick={randomChapter}>
-                随机翻一章
-              </button>
+              <ContinueButton />
             </div>
+            <ProgressStrip />
           </div>
           <div className="container">
             <figure className="ml-hero__scope">

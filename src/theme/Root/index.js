@@ -6,7 +6,13 @@ import { scheduleEnhance } from '../../pyrunner/enhancer';
    全文档 querySelectorAll（拖滑块/看输出时尤其明显）。 */
 function isSelfMutation(mutation) {
   const t = mutation.target;
-  return !!(t && t.nodeType === 1 && t.closest && t.closest('#ml-console, .ml-lightbox'));
+  return !!(
+    t &&
+    t.nodeType === 1 &&
+    t.closest &&
+    /* 浮窗控制台 / 笔记本 / 代码仓库都是高频自留地，它们的 DOM 变动不必重扫正文 */
+    t.closest('#ml-console, #ml-notebook, #ml-repo, .ml-lightbox')
+  );
 }
 
 export default function Root({ children }) {

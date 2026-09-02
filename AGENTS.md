@@ -55,6 +55,9 @@ npm run clear      # 清缓存（行为诡异时第一步）
 docs/NN-chapter/MM-lesson.md   # 全部课程内容（纯 markdown，禁用 .mdx）
 docs/17-what-next/             # 「下一程导读」导览章：不入图谱/知识树（gen-graph.mjs 与 ui/server.mjs 均排除 17- 前缀），豁免九段式
 src/pyrunner/enhancer.js       # 核心：浮窗控制台/按钮注入/测验/判题/进度
+src/pyrunner/notebook.js       # 数学笔记本（Markdown+KaTeX 单元 / 与浮窗共用 Python 命名空间），按需动态 import
+src/pyrunner/repo.js           # 代码仓库（浮窗代码的存档柜：本机/账号空间 + 导入导出），按需动态 import
+src/learning/progress.js       # 学习进度/练习通过/续学位置的存储层（命名空间 + 旧 key 迁移），不引图谱数据
 src/pyrunner/viz.js            # 前五卷可视化单体（108 渲染器 / 约 400KB，只读不写）
 src/pyrunner/lab/              # 卷六工程组件系统（新交互一律走这里）
   core.js                      #   底座：themeColors/setupCanvas/buildSliders/anim/audio/onScreen…
@@ -65,11 +68,11 @@ src/pyrunner/lab/              # 卷六工程组件系统（新交互一律走�
 src/theme/Root/index.js        # MutationObserver 入口，路由变化后重扫描
 src/theme/TOCItems/index.js    # 右栏挂件 swizzle：目录上方渲染前置知识 + 学习进度条
 src/theme/DocItem/Layout/index.js  # 文档页布局 swizzle：正文横条前置知识 + RailControls 折叠把手
-src/components/doc-widgets/    # PrereqPanel 前置知识面板、RailControls 左右侧栏折叠控件
+src/components/doc-widgets/    # PrereqPanel 前置知识面板、RailControls 右侧栏折叠控件
 src/pages/index.js             # 首页（演算纸视觉体系，样式全在 home.css 的 .ml-home 作用域内）
 src/pages/tree.js              # /tree 知识树页（章节/单元双模式 + 搜索 + 巨大画布，KnowledgeGraphTree v2）
 src/pages/graph.js             # /graph 知识图谱页（逐课泳道，KnowledgeGraphFull）
-src/components/ml-home/        # 首页数据与组件：data.js(章节/卷册聚合)、full-graph-data.js(生成器产物勿手改)、HomeTree(章级树)、KnowledgeGraphTree(知识树v2)、treeLayout.js(纯布局引擎：排除第0章/章节聚合/重心交叉消减/祖先后代位图)
+src/components/ml-home/        # 首页数据与组件：data.js(章节/卷册聚合)、full-graph-data.js(生成器产物勿手改)、HomeTree(章级树)、KnowledgeGraphTree(知识树v2)、treeLayout.js(纯布局引擎：排除第0章/章节聚合/重心交叉消减/祖先后代位图)、LearningEntry.js(继续学习/进度条，引图谱数据，只在首页用)
 scripts/validate.mjs           # 方法准入 + 依赖顺序校验（构建闸门）
 scripts/references-data.json   # 各章论文/文献数据（单一事实来源，手改这个）
 scripts/gen-references.mjs     # 生成各章 999-references.md 参考资料条目（含 paper 围栏）
@@ -137,22 +140,37 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
   另外下载器 `fetch-papers.mjs` 重试时会轮换浏览器 UA——RAND 一类站点只认浏览器 UA，否则 403。
 - **账号与进度体系（2026-08-30 改版：无申请页、凭据不公示、进度全开放）**：登录页 `/login`（`src/pages/login.js`）**不再展示任何账号或密码**——只有表单 + 一句「账号由站方开通，凭据请联系维护者索取」；站内无注册页、无申请页（原 `/registration` 已删，导航只留「登录」）。追加账号仍用 `node scripts/add-user.mjs <用户名> <显示名> <密码>`（`--list`/`--remove` 见 `REGISTRATION.md`）。账号库 `src/data/accounts.json` 只存 salt+SHA-256 哈希；哈希口径在 `src/auth/index.js`（自实现 SHA-256，已与 node:crypto 做一致性测试）与 add-user.mjs 两侧一致。
 - **进度系统（命名空间存储）**：进度对所有人开放——未登录存本地游客空间 `ml-progress:guest` / `ml-exercises:guest`，登录后存 `ml-progress:<用户名>` 等账号空间（同一浏览器多账号互不混淆）；旧版无命名空间 key 由 `migrateLegacyProgress()` 首扫自动迁移。文末进度按钮标记后 dispatch `ml-progress-changed` 事件，右栏进度条监听同步。`enhanceProgress` 清除按钮只清当前空间。
+- **存储层单一事实来源（2026-09-02）**：`src/learning/progress.js`。三份数据都走它——学完标记 `ml-progress:<ns>`、练习通过 `ml-exercises:<ns>`、**续学位置 `ml-last:<ns>`**（进课程页由 `enhancer.enhanceProgress()` 写入 `recordVisit`）。enhancer 与右栏挂件都 import 它，不要在别处再写一份 localStorage 读写。**它刻意不 import full-graph-data**（222KB 图谱）：enhancer 每页都会跑，引了就打进主包。
+- **首页「继续学习」（2026-09-02）**：`src/components/ml-home/LearningEntry.js` 只被首页引用，可以安全 import 图谱数据。判定顺序：有停留记录且那课未学完 → 回到那课；那课已学完 → 顺延到课程顺序里的下一门未学课；既无停留记录也无学完标记 → 退回「随机翻一章」。水合安全：首渲染一律走随机分支，挂载后才换。按钮下方 `ProgressStrip` 显示已学节数/百分比/存在哪个空间。
 - **论文下载（2026-08-30 改版：双路门禁）**：paper 卡片的「文献页面」对所有人开放；PDF 按钮由 `enhancer.js` 的 `paintPdfButton()` 决定去向——**已登录且有归档副本** → 虚线转实线、文案「⬇ 本地下载（x.x MB）」、`href` 指向 `/papers/xxx.pdf` 并带 `download`；**未登录**（或该条目没归档）→ 文案「⬇ 原站下载 / ⬇ PDF 下载」、新窗口打开原始地址。登录态在别的页面变化后，靠 `ml-auth-changed` 事件整体重刷按钮（`setAuth`/`clearAuth` 会 dispatch），不必等路由切换。
 - **归档现状（2026-08-30）**：211 条条目里 **64 条有 PDF 副本（30.3%）**，共 62 份文件、375 MB（`static/papers/`，不入库）。剩下 147 条绝大多数是「只有 Wikipedia/官网页面」的条目——历史原著只有借阅受限的扫描件、1950–1990 年代期刊论文没有开放获取版本，这些既不编造链接也不硬凑，留 `@page` 即可。
 - **归档流程**：`node scripts/fetch-papers.mjs`（增量抓 PDF 到 `static/papers/`，`--force` 全量、`--check` 体检）→ `node scripts/gen-references.mjs`（把 `@local64` + `@lsize` 写进条目）。两个顺序不能反：生成器只在**磁盘上真有该文件**时才写 `@local64`，所以没跑过下载的克隆会自然退化成「全部走原始地址」，绝不出死链。`static/papers/` 已加进 `.gitignore`（375 MB，可随时重抓），清单 `papers-local.json` 入库。`validate.mjs` 挂了第三条检查：副本缺失只**警告**不拦构建。
   **构建体积提醒**：这 375 MB 会原样进 `build/`。嫌大的话按「体积/价值」删（最大的几份：Sutton & Barto 教材 69.7 MB、Stable Diffusion 39 MB、Fourier 33 MB、Ars Conjectandi 28.4 MB、Cauchy 23.9 MB），删完跑一次 `gen-references.mjs` 就会自动不再引用。
 - **右栏挂件（2026-08-29）**：`src/theme/TOCItems/index.js`（swizzle wrap）在右栏目录上方渲染「前置知识面板 + 学习进度条」；前置知识面板组件抽到 `src/components/doc-widgets/PrereqPanel.js` 供两处复用——正文内实例（`variant="inline"`）桌面隐藏、窄屏横条；右栏实例（`variant="toc"`）窄屏隐藏。阅读区拉宽：`main[class*='docMainContainer']` 容器 1140→1360px、正文列 58%→76%。
+- **侧栏折叠（2026-09-02 定案）**：左侧章节导航**只用 Docusaurus 自带的「收起侧栏」按钮**（侧栏左下角），它会同步驱动 theme 内部的 `docMainContainer` / `docItemWrapper` 宽度；`RailControls` 只保留右侧把手（`ml-side-r-collapsed` 加在 `<html>` 上）。早先在左侧也挂过一个把手，那套 `display:none` 写法与新版 flex 布局打架（点了没反应），已删。折叠右侧后 `custom.css` 要同时松绑三层（`docItemCol` 的 `max-width:75%!important`、隐藏 `col--3`、容器的 1360px 上限置 `none`），少一层就铺不满。左侧章节默认折叠由 `docusaurus.config.js` 的 `sidebarCollapsed: true` 控制（只自动展开当前课所在的那条链）。
+
+### 笔记本 / 代码仓库（2026-09-02 新增）
+
+右下角现在有两个圆钮：**Py**（浮窗控制台，原本就有）与叠在它上方的**笔记**（数学笔记本，`Alt+N`）。
+
+- **共用同一个 Python 命名空间**：笔记本单元跑在 `_ml_console_g` 里，与浮窗「▶ 运行」完全同一套变量——笔记本里 `x = 3`，浮窗里 `print(x)` 就是 3。实现上是 enhancer 新增的 `execInConsole(source, opts)`（导出给 notebook.js 用），与浮窗 `run()` 的差异只是不读槽位/滑块/判题。单元右键式的三个联动按钮：送到浮窗（`openInConsole({key:'nb'})`，不动随手算草稿）、取回浮窗代码、存进仓库。
+- **数学向优化**：笔记单元支持 Markdown + `$...$`/`$$...$$`（KaTeX 按需 `import('katex')`，不进主包）；代码输出里的 `$$...$$` 同样渲染；内置 `show(x)`（`HELPER_PY`，每次运行前注入）把对象转成 LaTeX，装了 sympy 就走 `sympy.latex`。`sympy` 按需 `loadPackage`（约 10MB，按钮触发）。模板下拉里是求导/积分/极限/泰勒/画图/黎曼和/矩阵/蒙特卡洛。
+- **渲染坑**：Markdown 里的公式必须先抽成 token（私有区字符 `U+E000` 包裹下标），等排版完再换回 KaTeX 的 HTML——否则转义、切行、列表包装会把 LaTeX 里的 `<>&` 弄坏。**不要改用 `\u0000`**：构建链路（Rspack/SWC）见到它会在日志里刷 `Character { ... raw: Some(Atom("\0")) }`，且一旦被吞掉，空 token 会让正则把正文里每个数字都当成公式。
+- **存储**：笔记本 `ml-notebook:<ns>`（含多本、多单元；**输出不落盘**，图片 base64 太大）、代码仓库 `ml-repo:<ns>`（条目 = `{id,name,code,from,at}`，上限 200 条，支持 .py 导入与 .json 导出）。都是本机 localStorage 的命名空间隔离，**不是云同步**——换设备要导出/导入。
+- **面板**：两个面板与 `.ml-console` 同构（固定定位 + 头部可拖），层级 笔记本 1056 / 仓库 1057 / 圆钮 1060。enhancer 跨代重建浮窗时会调 `dropNotebookShell()` 一并拆掉 `#ml-nb-fab` 与 `#ml-notebook`；notebook.js 打开时检查 `document.contains(els.panel)`，不在就重建。`Root/index.js` 的 MutationObserver 已把 `#ml-notebook`、`#ml-repo` 加进「自留地」过滤，避免打字时重扫正文。
 
 ### 首页与章级知识树（2026-08 重做）
 
 - 首页视觉 = 「演算纸 × 印章朱砂」：方格纸网格底纹（`.ml-gridbg`）、暖纸底、衬线大标题、朱砂印章/书签条、印刷硬阴影。全部设计变量收在 `.ml-home` 作用域（home.css 顶部），**不要写成全局规则**，避免污染站内其他页面；英雄区规则必须带 `.ml-home .ml-hero` 前缀压过 custom.css 的旧 `.ml-hero`。
 - **标题字体/字号必须走 Infima 变量**：Infima 的标题规则是 `h1:not(#\#):not(#\#)`（双 ID 特异性），任何类选择器都压不过；在 `.ml-home` 上改 `--ifm-heading-font-family / --ifm-h1-font-size / --ifm-h2-font-size`，小标题用 `.ml-home main h3 { --ifm-heading-font-family: ... }` 按元素继承退回无衬线。
 - `HomeTree.js`（章级树）交互：滚动入场逐层生长 + 「重播生长」；**点击章节胶囊＝聚焦**——沿跨章先修边求上/下闭包，无关章节隐藏、可见各层横向重新居中（与 KnowledgeGraphTree 同一套 shifted 算法），绿=先修、橙=托起；双击或信息条按钮进入本章。实现要点：入场动画的逐节点 delay 在 SETTLE_MS 后统一清零（settled 状态），否则筛选切换会被旧延迟拖慢。
+- **首页英雄区按钮（2026-09-02）**：只有「从第 0 课开始」与 `ContinueButton`（有记录→继续学习/下一课，没记录→随机翻一章）；原来的「看知识树生长」已删（/tree 的入口保留在导航栏与下方知识树小节）。按钮下方的 `ProgressStrip` 只在有记录（或未登录的游客空间也有学完标记）时才出现。
+- **树整体收窄一档（2026-09-02）**：三处布局常量是一套，改一个要跟着改另两个——`KnowledgeGraphTree.js` 的 `LESSON_OPTS/CHAPTER_OPTS`、`HomeTree.js` 的 `PILL_W/PILL_H/GAP_X/LEVEL_H/TOP_PAD`、`home.css` 里对应的胶囊字号（`.ml-tr__svg .ml-fg__node text`、`.ml-ht__reveal text`）。现档位：单元模式胶囊 128×26 / 层距 62 / 章块最多 6 列，章节模式 112×26 / 层距 54，首页树 126×28 / 层距 70（`treeLayout.js` 的默认值已同步）。胶囊收窄后 `fitText` 可用宽度变小，字号不跟着降就会顶到圆角。
 
 ### 知识树页 /tree v3（2026-08-31 重做：紧凑块布局 + 渲染直改 DOM；v2 为 08-29 双模式）
 
 - **排除第 0 章**：`treeLayout.js` 的 `filterCh0()` 在模块加载时把 `NODES` 里 `ch === 0`（Python 工具箱）整章剔除，并重映射 `EDGES`/`USE_AGG` 索引——第 0 章不再作为旁支挂根。注意这是**树页的视图层过滤**，不改 `full-graph-data.js` 源数据（/graph 与首页仍含第 0 章）。
-- **单元模式 = 章节块布局（`blockLayout()`）**：章 DAG 决定约 20 个「带」（章粒度最长路径，`chapterLevels()`），每章的课在带内排成 ≤5 列的紧凑网格块——**同章课程永远收在一个矩形块里**（v2 逐课最长路径会把一章拆到 5~8 层）。带内块按章 DAG 重心消叉排序 + 块级中位数对齐松弛（钳位防重叠）。章内边在块内走短弧线（同层弧深度随水平距离缩放、封顶 sagCap）。
+- **单元模式 = 章节块布局（`blockLayout()`）**：章 DAG 决定约 20 个「带」（章粒度最长路径，`chapterLevels()`），每章的课在带内排成 ≤6 列的紧凑网格块（2026-09-02 由 5 列放宽到 6 列，块更接近正方形、横向占地更小）——**同章课程永远收在一个矩形块里**（v2 逐课最长路径会把一章拆到 5~8 层）。带内块按章 DAG 重心消叉排序 + 块级中位数对齐松弛（钳位防重叠）。章内边在块内走短弧线（同层弧深度随水平距离缩放、封顶 sagCap）。
 - **章节模式 = `layeredLayout()`**：坐标分配已改为「层内紧凑槽位（绕中轴居中）+ 层间中位数对齐松弛」——层内零空洞（v2 旧算法「继承父 x + 逐层居中」实测占用率仅 65%、空洞 429 个）。曾试过 Buchheim 紧凑树：本图深窄（46 层、叶子多），占用率反跌到 20%，弃用。
 - **渲染性能**：SVG 结构按模式 `useMemo` 静态化（805 节点 + 1125 边不随悬停/选中重渲染）；悬停/选中/搜索高亮与选中位移全部直改 DOM（`classList` 带 `__cls` 变更缓存、`transform`、`path d`）；React 只管工具栏与信息面板。挂载期事件监听（[] 依赖）经 `fnRef` 调最新闭包；`sel/hot` 在模式切换过渡渲染里可能越界，统一先夹紧（`selS/hotS`）再用。
 - **布局与位图都在模块加载时算一次**（块布局 ~14ms），不随悬停重算；`aggregateChapters()`/`chainOf()`/`popcount()` 照旧。

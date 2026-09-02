@@ -46,7 +46,9 @@ async function createConfig() {
             showLastUpdateTime: false,
             showLastUpdateAuthor: false,
             sidebarCollapsible: true,
-            sidebarCollapsed: false,
+            /* true = 章节默认全部折叠，只自动展开当前课所在的那一条链
+               （早期设成 false，展开 76 章会把左侧栏拉成几千像素的滚动条） */
+            sidebarCollapsed: true,
           },
           blog: false,
           theme: {

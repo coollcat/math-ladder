@@ -19,10 +19,15 @@ import { filterCh0, aggregateChapters, layeredLayout, blockLayout, chainOf, popc
  * ========================================================================= */
 
 /* ---- 布局参数：单元模式胶囊更大、层级更疏；章节模式更紧凑 ----
- * gapX = 层内槽间距（槽位紧凑排列，相邻胶囊留 12px 呼吸）；
- * levelH 收窄后一屏可见代数 ~10 层。同层边下垂量 sag 按层高等比缩放。 */
-const LESSON_OPTS = { pillW: 150, pillH: 30, gapX: 162, levelH: 82, topPad: 26 };
-const CHAPTER_OPTS = { pillW: 132, pillH: 30, gapX: 144, levelH: 72, topPad: 22 };
+ * gapX = 层内槽间距（槽位紧凑排列，相邻胶囊留约 10px 呼吸）；
+ * levelH 收窄后一屏可见代数 ~14 层。同层边下垂量 sag 按层高等比缩放。
+ * 2026-09-02 整体收一档：805 节点的单元模式原先整树宽约 1.6 万像素，
+ * 看着松散；胶囊 150×30→128×26、层距 82→62、章块每行最多 6 个。 */
+const LESSON_OPTS = {
+  pillW: 128, pillH: 26, gapX: 138, levelH: 62, topPad: 18,
+  maxCols: 6, blockGap: 30, rootCh: 1,
+};
+const CHAPTER_OPTS = { pillW: 112, pillH: 26, gapX: 122, levelH: 54, topPad: 16 };
 /* 同层边下垂深度：与 levelH 保持约 0.29 的比例（旧版 34/116） */
 const SAG_RATIO = 0.29;
 
@@ -42,7 +47,7 @@ function buildLesson() {
     born: n.born, uses: n.uses, count: null,
   }));
   const root = nodes.findIndex((n) => n.title.includes('加法与交换律'));
-  const L = blockLayout(FILTERED.nodes.map((n) => n.ch), FILTERED.edges, root < 0 ? 0 : root, { ...LESSON_OPTS, rootCh: 1 });
+  const L = blockLayout(FILTERED.nodes.map((n) => n.ch), FILTERED.edges, root < 0 ? 0 : root, LESSON_OPTS);
   return { nodes, edges: FILTERED.edges, useAgg: FILTERED.useAgg, root, L, pillW: LESSON_OPTS.pillW, pillH: LESSON_OPTS.pillH, sag: Math.round(LESSON_OPTS.levelH * SAG_RATIO), sagCap: Math.round(LESSON_OPTS.levelH * 0.56) };
 }
 

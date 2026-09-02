@@ -131,11 +131,13 @@ export function chapterLevels(chOf, edges, rootCh) {
  * @returns 布局结果：lvl/parent/pos/order/maxL/minX/width/height/trunk/pred/succ/anc/desc
  */
 export function layeredLayout(n, edges, root, opts = {}) {
-  const pillW = opts.pillW ?? 172;
-  const pillH = opts.pillH ?? 36;
-  const gapX = opts.gapX ?? pillW + 16;
-  const levelH = opts.levelH ?? 116;
-  const topPad = opts.topPad ?? 36;
+  /* 默认值与 KnowledgeGraphTree 的 COMPACT 档保持一致（2026-09-02 收窄）：
+     胶囊 128×26、层距 62。老参数（172×36 / 层距 116）铺出来太松散。 */
+  const pillW = opts.pillW ?? 128;
+  const pillH = opts.pillH ?? 26;
+  const gapX = opts.gapX ?? pillW + 10;
+  const levelH = opts.levelH ?? 62;
+  const topPad = opts.topPad ?? 18;
 
   const pred = Array.from({ length: n }, () => []);
   const succ = Array.from({ length: n }, () => []);
@@ -366,14 +368,15 @@ export function layeredLayout(n, edges, root, opts = {}) {
  * @returns 与 layeredLayout 同构：lvl/parent/pos/order/maxL/minX/width/height/trunk/pred/succ/anc/desc
  */
 export function blockLayout(nodeCh, edges, root, opts = {}) {
-  const pillW = opts.pillW ?? 150;
-  const pillH = opts.pillH ?? 30;
-  const gapX = opts.gapX ?? 162;
-  const levelH = opts.levelH ?? 82;
-  const topPad = opts.topPad ?? 26;
+  const pillW = opts.pillW ?? 128;
+  const pillH = opts.pillH ?? 26;
+  const gapX = opts.gapX ?? 138;
+  const levelH = opts.levelH ?? 62;
+  const topPad = opts.topPad ?? 18;
   const rootCh = opts.rootCh ?? 1;
-  const maxCols = opts.maxCols ?? 5;
-  const blockGap = opts.blockGap ?? 56;
+  /* maxCols：章块每行最多几课。5→6 让大方块更接近正方形，横向占地更小 */
+  const maxCols = opts.maxCols ?? 6;
+  const blockGap = opts.blockGap ?? 30;
 
   const n = nodeCh.length;
   const pred = Array.from({ length: n }, () => []);
