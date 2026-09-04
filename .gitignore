@@ -2,6 +2,9 @@ node_modules/
 build/
 build_g2/
 build_verify/
+_build_old/
+_papers_hold/
+math-ladder-build.zip
 .docusaurus/
 .cache-loader/
 *.log

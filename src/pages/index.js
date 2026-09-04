@@ -3,7 +3,8 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import { drawSinesFrame } from '../pyrunner/viz';
 import { openInConsole } from '../pyrunner/enhancer';
-import { CHAPTERS, allChapterGroups, siteStats } from '@site/src/components/ml-home/data';
+import { allChapterGroups, siteStats } from '@site/src/components/ml-home/data';
+import { ContinueButton, ProgressStrip } from '@site/src/components/ml-home/LearningEntry';
 import HomeTree from '@site/src/components/ml-home/HomeTree';
 import '../css/home.css';
 
@@ -122,9 +123,8 @@ function ChapterWall() {
         <div key={g.n} className={'ml-wall__group' + (g.status === 'done' ? '' : ' ml-wall__group--plan')}>
           <div className="ml-wall__head">
             <h3 className="ml-wall__vol">{g.n} · {g.title}</h3>
-            <span className={'badge ' + (g.status === 'done' ? 'badge--primary' : 'badge--secondary')}>
-              {g.rangeLabel}{g.status !== 'done' && ' 已开课'}
-            </span>
+            {/* 2026-09-02：卷首那枚「N 章 · M 课 已开课」徽章去掉了——
+                章节数随时在变，写死的统计反而容易误导，芯片墙上数一数就够。 */}
           </div>
           <p className="ml-wall__desc">{g.desc}</p>
           <div className="ml-wall__chips">
@@ -143,10 +143,6 @@ function ChapterWall() {
 }
 
 export default function Home() {
-  const randomChapter = () => {
-    const ch = CHAPTERS[Math.floor(Math.random() * CHAPTERS.length)];
-    window.location.href = ch.to;
-  };
   const s = siteStats();
   return (
     <Layout
@@ -171,13 +167,9 @@ export default function Home() {
               <Link className="button button--primary button--lg" to="/docs/python-tools/conventions">
                 从第 0 课开始
               </Link>
-              <Link className="button button--secondary button--lg button--outline" to="/tree">
-                看知识树生长
-              </Link>
-              <button type="button" className="button button--secondary button--lg button--outline" onClick={randomChapter}>
-                随机翻一章
-              </button>
+              <ContinueButton />
             </div>
+            <ProgressStrip />
           </div>
           <div className="container">
             <figure className="ml-hero__scope">
@@ -253,7 +245,7 @@ export default function Home() {
 
           <section className="container margin-vert--lg">
             <h2>六卷路线图</h2>
-            <p className="ml-section__lead">从地基到前沿的完整阶梯；已开课的章节都能直接进。</p>
+            <p className="ml-section__lead">从地基到前沿的完整阶梯；点任意一章直接进去。</p>
             <ChapterWall />
           </section>
 

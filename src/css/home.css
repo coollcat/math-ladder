@@ -168,6 +168,50 @@
   box-shadow: 6px 6px 0 var(--ml-ink);
 }
 
+/* 「继续学习」按钮：朱砂描边 + 硬阴影，与「从第 0 课开始」区分开 */
+.ml-home .ml-hero__btns .ml-hero__btn--continue {
+  border-color: var(--ml-vermilion);
+  color: var(--ml-vermilion);
+  box-shadow: 4px 4px 0 var(--ml-hardshadow);
+}
+
+.ml-home .ml-hero__btns .ml-hero__btn--continue:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ml-hardshadow);
+}
+
+/* 按钮下方的学习进度条（有记录才出现，见 LearningEntry.js） */
+.ml-home .ml-hero__progress {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 0;
+  font-size: 0.92rem;
+  opacity: 0.9;
+}
+
+.ml-home .ml-hero__progress-bar {
+  flex: 0 0 190px;
+  height: 8px;
+  border: 1.5px solid var(--ml-ink);
+  border-radius: 6px;
+  background: var(--ml-card);
+  overflow: hidden;
+}
+
+.ml-home .ml-hero__progress-bar i {
+  display: block;
+  height: 100%;
+  background: var(--ml-vermilion);
+  transition: width 0.4s ease;
+}
+
+.ml-home .ml-hero__progress-text strong {
+  font-size: 1.05em;
+  color: var(--ml-vermilion);
+}
+
 /* 示波器纸带：正弦波画在方格纸上 */
 .ml-hero__scope {
   margin: 2.6rem 0 0;
@@ -229,7 +273,7 @@
 .ml-ht__svg {
   display: block;
   width: 100%;
-  min-width: 980px;
+  min-width: 860px;
   height: auto;
 }
 
@@ -293,8 +337,9 @@
   stroke-width: 2.2;
 }
 
+/* 2026-09-02：胶囊由 148×34 收到 126×28，字号同步降一档（15→12.5px） */
 .ml-ht__reveal text {
-  font-size: 15px;
+  font-size: 12.5px;
   fill: var(--ifm-font-color-base);
   pointer-events: none;
 }
@@ -305,7 +350,7 @@
 
 .ml-ht__count {
   font-family: var(--ifm-font-family-monospace);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   fill: var(--ifm-color-primary);
   pointer-events: none;
@@ -697,6 +742,14 @@
   opacity: 0.55;
 }
 
+/* 泳道标签的副行（章名）：比难度那行更淡更小，两行共用 48px 的泳道高 */
+.ml-fg__bandsub {
+  font-size: 9.5px;
+  font-weight: 600;
+  fill: var(--ifm-font-color-base);
+  opacity: 0.38;
+}
+
 .ml-fg__edge {
   fill: none;
   stroke: var(--ifm-color-emphasis-400);
@@ -975,13 +1028,24 @@
 }
 
 /* 树页胶囊字号：比泳道图谱大一档，配合放大后的胶囊。
- * 2026-08-31：胶囊由 172×36 收到 150×30，字号同步降一档，避免文字顶到圆角。 */
+ * 2026-09-02：胶囊再由 150×30 收到 128×26，字号降到 11.5px，避免文字顶到圆角。 */
 .ml-tr__svg .ml-fg__node text {
-  font-size: 12.5px;
+  font-size: 11.5px;
 }
 
 .ml-tr__svg .ml-fg__depth {
-  font-size: 11px;
+  font-size: 10px;
+}
+
+/* 性能：悬停会一次改写上百个胶囊的 class（整条先修链 + 托起的全部子树）。
+   若每颗都做 stroke/filter 补间，整块画布就要连着重绘十几帧——这是悬停发涩的主因。
+   这里只让「直接命中」的那颗做补间，同链节点的描边直接切换。 */
+.ml-tr__svg .ml-fg__node rect {
+  transition: none;
+}
+
+.ml-tr__svg .ml-fg__node.is-hot rect {
+  transition: stroke 0.15s ease, filter 0.15s ease;
 }
 
 .ml-tr__edge {

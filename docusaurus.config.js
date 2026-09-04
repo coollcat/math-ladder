@@ -6,7 +6,9 @@ async function createConfig() {
   /** @type {import('@docusaurus/types').Config} */
   const config = {
     title: '数学阶梯',
-    tagline: '数学阶梯 · 从数感到前沿——覆盖小学直觉、中学工具、大学核心、工程应用与现代 AI 数学的全域数学路径；傅里叶是卷一信号与变换枢纽站而非终点',
+    /* 2026-09-02：目标已经从「到傅里叶」变成「到人工智能与前沿数学」——
+       傅里叶只是卷一信号与变换那一段的枢纽站，不是终点。 */
+    tagline: '数学阶梯 · 从数感到前沿——小学直觉、中学工具、大学核心、工程应用，一路长到人工智能与前沿数学',
     url: process.env.URL || 'http://localhost:9452',
     baseUrl: '/',
     /* 默认 throw（构建闸门）。打包部署时若课文还在补写、存在指向未写页面的链接，
@@ -46,7 +48,9 @@ async function createConfig() {
             showLastUpdateTime: false,
             showLastUpdateAuthor: false,
             sidebarCollapsible: true,
-            sidebarCollapsed: false,
+            /* true = 章节默认全部折叠，只自动展开当前课所在的那一条链
+               （早期设成 false，展开 76 章会把左侧栏拉成几千像素的滚动条） */
+            sidebarCollapsed: true,
           },
           blog: false,
           theme: {
@@ -77,15 +81,11 @@ async function createConfig() {
         },
       },
       navbar: {
+        /* 2026-09-02：顶栏换成自定义实现（src/theme/Navbar/index.js，swizzle 整体接管），
+           链接 / 搜索 / 账号菜单都写在那边的 LINKS 与组件里；这里只留标题，
+           items 留空——再加条目也不会被渲染，改导航请去组件。 */
         title: '数学阶梯',
-        items: [
-          { to: '/', label: '首页', position: 'left' },
-          { to: '/docs/intro', label: '怎么用本站', position: 'left' },
-          { to: '/graph', label: '知识图谱', position: 'left' },
-          { to: '/tree', label: '知识树', position: 'left' },
-          { to: '/login', label: '登录', position: 'right' },
-          { type: 'search', position: 'right' },
-        ],
+        items: [],
       },
       footer: {
         style: 'dark',

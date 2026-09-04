@@ -19,15 +19,24 @@ import { filterCh0, aggregateChapters, layeredLayout, blockLayout, chainOf, popc
  * ========================================================================= */
 
 /* ---- 布局参数：单元模式胶囊更大、层级更疏；章节模式更紧凑 ----
- * gapX = 层内槽间距（槽位紧凑排列，相邻胶囊留 12px 呼吸）；
- * levelH 收窄后一屏可见代数 ~10 层。同层边下垂量 sag 按层高等比缩放。 */
-const LESSON_OPTS = { pillW: 150, pillH: 30, gapX: 162, levelH: 82, topPad: 26 };
-const CHAPTER_OPTS = { pillW: 132, pillH: 30, gapX: 144, levelH: 72, topPad: 22 };
+ * gapX = 层内槽间距（槽位紧凑排列，相邻胶囊留约 10px 呼吸）；
+ * levelH 收窄后一屏可见代数 ~14 层。同层边下垂量 sag 按层高等比缩放。
+ * 2026-09-02 整体收一档：805 节点的单元模式原先整树宽约 1.6 万像素，
+ * 看着松散；胶囊 150×30→128×26、层距 82→62、章块每行最多 6 个。 */
+const LESSON_OPTS = {
+  pillW: 128, pillH: 26, gapX: 138, levelH: 62, topPad: 18,
+  maxCols: 6, blockGap: 30, rootCh: 1,
+};
+const CHAPTER_OPTS = { pillW: 112, pillH: 26, gapX: 122, levelH: 54, topPad: 16 };
 /* 同层边下垂深度：与 levelH 保持约 0.29 的比例（旧版 34/116） */
 const SAG_RATIO = 0.29;
 
 const MIN_K = 0.3;
 const MAX_K = 2;
+
+/* 视口裁剪余量（屏幕像素）：视口四周多留这么多才算「在视野内」。
+ * 留够余量，位移补间途中的节点不会被提前判成出界而突然消失。 */
+const CULL_PAD = 600;
 
 /* 模块加载时一次性排除第 0 章 */
 const FILTERED = filterCh0(NODES, EDGES, USE_AGG);
@@ -42,7 +51,7 @@ function buildLesson() {
     born: n.born, uses: n.uses, count: null,
   }));
   const root = nodes.findIndex((n) => n.title.includes('加法与交换律'));
-  const L = blockLayout(FILTERED.nodes.map((n) => n.ch), FILTERED.edges, root < 0 ? 0 : root, { ...LESSON_OPTS, rootCh: 1 });
+  const L = blockLayout(FILTERED.nodes.map((n) => n.ch), FILTERED.edges, root < 0 ? 0 : root, LESSON_OPTS);
   return { nodes, edges: FILTERED.edges, useAgg: FILTERED.useAgg, root, L, pillW: LESSON_OPTS.pillW, pillH: LESSON_OPTS.pillH, sag: Math.round(LESSON_OPTS.levelH * SAG_RATIO), sagCap: Math.round(LESSON_OPTS.levelH * 0.56) };
 }
 
@@ -174,131 +183,67 @@ export default function KnowledgeGraphTree() {
   const curPosRef = React.useRef(L.pos);
   /* 挂载期事件监听器（[] 依赖）经此 ref 始终调到最新闭包 */
   const fnRef = React.useRef({});
+  /* 着色状态镜像：选中/悬停/搜索命中/入场（直接 DOM 路径读它，不触发渲染） */
+  const stRef = React.useRef({ s: null, h: null, hits: null, grown: false });
+  /* 视口裁剪状态：1 = 已用 display:none 摘出渲染树 */
+  const cullRef = React.useRef({
+    node: new Uint8Array(0), edge: new Uint8Array(0), tedge: new Uint8Array(0),
+  });
+  /* 悬停下标的镜像（事件委托里先比对再决定是否 setState） */
+  const hotRef = React.useRef(-1);
+  /* 平移/缩放的 rAF 合帧句柄 */
+  const rafRef = React.useRef(0);
 
-  /* ---- 视图变换：useBOverride 传入时优先，否则按选中态取动态边界 ---- */
-  const applyView = React.useCallback((useBOverride) => {
-    const vp = vpRef.current;
-    const canvas = canvasRef.current;
-    if (!vp || !canvas) return;
-    const v = view.current;
-    const useB = useBOverride !== undefined
-      ? useBOverride
-      : (selRef.current != null ? boundsRef.current : null);
-    const W = (useB ? useB.width : L.width) * v.k;
-    const H = (useB ? useB.height : L.height) * v.k;
-    const vw = vp.clientWidth;
-    const vh = vp.clientHeight;
-    const pad = 24;
-    if (W <= vw - pad * 2) {
-      const cx = useB ? (useB.minX + useB.maxX) / 2 : L.width / 2 + L.minX;
-      v.x = vw / 2 - cx * v.k;
-    } else {
-      v.x = Math.min(Math.max(v.x, vw - W - pad), pad);
-    }
-    if (H <= vh - pad * 2) {
-      v.y = useB ? (vh - H) / 2 : Math.max((vh - H) / 2, 0);
-    } else {
-      v.y = Math.min(Math.max(v.y, vh - H - pad), pad);
-    }
-    canvas.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.k})`;
-    canvas.style.visibility = 'visible';
-  }, [L]);
+  /* =======================================================================
+   * 直接 DOM：单元素绘制 + 视口裁剪
+   * -----------------------------------------------------------------------
+   * 性能（2026-09-02）：单元模式 805 颗胶囊 / 1125 条边一次性铺在几千像素见方的
+   * 画布上，而默认视野只覆盖其中一小块。原来每次重绘都要为**全树**生成绘制指令，
+   * 每次点击要动 2000 个元素。按视口裁剪后：
+   *   ① 重绘只为可见元素生成绘制指令——屏外元素 display:none；
+   *   ② display:none 上的 transition / animation 一并停掉：入场描画、
+   *      位移补间、边的 d 补间不再为屏外元素空转（最贵的一处）；
+   *   ③ 位置与着色的写入跳过被裁元素，回到视野时再补写。
+   * 所有函数只读 ref + D/L，故整个对象在模式不变时是稳定引用。
+   * ===================================================================== */
+  const ops = React.useMemo(() => {
+    const PW = D.pillW;
+    const PH = D.pillH;
+    const EDG = D.edges;
+    const TED = D.useAgg;
 
-  const zoomAt = React.useCallback((px, py, factor) => {
-    const v = view.current;
-    const k2 = Math.min(MAX_K, Math.max(MIN_K, v.k * factor));
-    if (k2 === v.k) return;
-    v.x = px - ((px - v.x) * k2) / v.k;
-    v.y = py - ((py - v.y) * k2) / v.k;
-    v.k = k2;
-    applyView();
-  }, [applyView]);
+    /* 选中判属集合按 sel 缓存：一次点击内上千次判属不必反复建 Set */
+    let visCache = null;
+    let visKey = -2;
+    const visibleOf = (s) => {
+      if (s == null) return null;
+      if (visKey !== s) { visKey = s; visCache = buildVisible(L, s); }
+      return visCache;
+    };
 
-  const focusRoot = React.useCallback(() => {
-    const vp = vpRef.current;
-    if (!vp) return;
-    view.current.k = 1;
-    view.current.x = vp.clientWidth / 2 + L.minX * view.current.k;
-    view.current.y = 16;
-    applyView();
-  }, [applyView, L]);
-
-  const fitAll = React.useCallback(() => {
-    const vp = vpRef.current;
-    if (!vp) return;
-    const k = Math.min(vp.clientWidth / L.width, vp.clientHeight / L.height, 1);
-    view.current.k = Math.max(0.08, k);
-    view.current.x = (vp.clientWidth - L.width * view.current.k) / 2;
-    view.current.y = (vp.clientHeight - L.height * view.current.k) / 2;
-    applyView();
-  }, [applyView, L]);
-
-  /* 选中后缩放到选中内容的实际边界（boundsRef 由选中 effect 维护） */
-  const fitSel = React.useCallback(() => {
-    const vp = vpRef.current;
-    const b = boundsRef.current;
-    if (!vp || !b) return;
-    const pad = 40;
-    const k = Math.min(
-      (vp.clientWidth - pad * 2) / b.width,
-      (vp.clientHeight - pad * 2) / b.height,
-      1.5,
-    );
-    view.current.k = Math.max(0.15, k);
-    const cx = (b.minX + b.maxX) / 2;
-    const cy = (b.minY + b.maxY) / 2;
-    view.current.x = vp.clientWidth / 2 - cx * view.current.k;
-    view.current.y = vp.clientHeight / 2 - cy * view.current.k;
-    applyView();
-  }, [applyView]);
-
-  /* ---- 直接 DOM：节点/边定位（选中筛选时整树位移） ---- */
-  const applyPositions = React.useCallback((pos) => {
-    curPosRef.current = pos;
-    const els = elsRef.current;
-    const pw = D.pillW;
-    const ph = D.pillH;
-    for (let i = 0; i < els.pos.length; i++) {
-      els.pos[i].style.transform = `translate(${pos[i].x - pw / 2}px, ${pos[i].y - ph / 2}px)`;
-    }
-    for (let k = 0; k < els.edge.length; k++) {
-      const [a, b] = D.edges[k];
-      els.edge[k].setAttribute('d', edgePath(pos[a], pos[b], ph, D.sag, D.sagCap));
-    }
-    for (let k = 0; k < els.tedge.length; k++) {
-      const [a, b] = D.useAgg[k];
-      els.tedge[k].setAttribute('d', tedgePath(pos[a], pos[b], pw, D.sag, D.sagCap));
-    }
-  }, [D]);
-
-  /* ---- 直接 DOM：高亮着色（悬停/选中/搜索/入场） ---- */
-  const paint = React.useCallback((s, h, hitsSet, isGrown) => {
-    const els = elsRef.current;
-    if (!els.node.length) return;
-    const visible = s != null ? buildVisible(L, s) : null;
-
-    for (let i = 0; i < N; i++) {
+    const clsNode = (i, s, h, hits, vis) => {
       let cls = 'ml-fg__node';
-      if (s != null && visible) {
-        if (!visible.has(i)) cls += ' is-off';
+      if (s != null && vis) {
+        if (!vis.has(i)) cls += ' is-off';
         else if (i === s) cls += ' is-hot';
         else if (L.anc[s][i]) cls += ' is-up';
         else cls += ' is-down';
-      } else if (hitsSet) {
-        if (hitsSet.has(i)) cls += ' is-search';
+      } else if (hits) {
+        if (hits.has(i)) cls += ' is-search';
       } else if (h != null) {
         if (i === h) cls += ' is-hot';
         else if (L.anc[h][i]) cls += ' is-up';
         else if (L.desc[h][i]) cls += ' is-down';
       }
-      setCls(els.node[i], cls);
-    }
+      return cls;
+    };
 
-    for (let k = 0; k < els.edge.length; k++) {
-      const [a, b] = D.edges[k];
+    const clsEdge = (k, s, h, vis, grown) => {
+      const a = EDG[k][0];
+      const b = EDG[k][1];
       let cls = 'ml-tr__edge' + (L.trunk.has(k) ? '' : ' ml-tr__edge--branch');
-      if (s != null && visible) {
-        if (!visible.has(a) || !visible.has(b)) cls += ' is-off';
+      if (s != null && vis) {
+        if (!vis.has(a) || !vis.has(b)) cls += ' is-off';
         else {
           const lu = L.anc[s][a] && L.anc[s][b];
           const ld = L.desc[s][a] && L.desc[s][b];
@@ -313,22 +258,284 @@ export default function KnowledgeGraphTree() {
         else if (lu) cls += ' is-up';
         else if (ld) cls += ' is-down';
       }
-      if (isGrown) cls += ' is-in';
-      setCls(els.edge[k], cls);
-    }
+      return grown ? cls + ' is-in' : cls;
+    };
 
-    for (let k = 0; k < els.tedge.length; k++) {
-      const [a, b] = D.useAgg[k];
+    const clsTEdge = (k, s, h, vis, grown) => {
+      const a = TED[k][0];
+      const b = TED[k][1];
       let cls = 'ml-tr__tedge';
-      if (s != null && visible && (!visible.has(a) || !visible.has(b))) cls += ' is-off';
+      if (s != null && vis && (!vis.has(a) || !vis.has(b))) cls += ' is-off';
       else if (h != null && (L.anc[h][a] || L.desc[h][a] || L.anc[h][b] || L.desc[h][b])) cls += ' is-up';
-      if (isGrown) cls += ' is-in';
-      setCls(els.tedge[k], cls);
-    }
+      return grown ? cls + ' is-in' : cls;
+    };
 
-    const rCls = 'ml-tr__reveal' + (isGrown ? ' is-in' : '');
-    for (let i = 0; i < els.reveal.length; i++) setCls(els.reveal[i], rCls);
-  }, [D, L, N]);
+    /* ---- 位置写入（被裁元素跳过，回视野时补写） ---- */
+    const writePos = (i) => {
+      const p = curPosRef.current[i];
+      elsRef.current.pos[i].style.transform = `translate(${p.x - PW / 2}px, ${p.y - PH / 2}px)`;
+    };
+    const writeEdge = (k) => {
+      const p = curPosRef.current;
+      elsRef.current.edge[k].setAttribute('d', edgePath(p[EDG[k][0]], p[EDG[k][1]], PH, D.sag, D.sagCap));
+    };
+    const writeTEdge = (k) => {
+      const p = curPosRef.current;
+      elsRef.current.tedge[k].setAttribute('d', tedgePath(p[TED[k][0]], p[TED[k][1]], PW, D.sag, D.sagCap));
+    };
+
+    /* ---- 着色写入 ---- */
+    const paintNode = (i) => {
+      const el = elsRef.current.node[i];
+      if (!el) return;
+      const { s, h, hits } = stRef.current;
+      setCls(el, clsNode(i, s, h, hits, visibleOf(s)));
+    };
+    const paintEdge = (k) => {
+      const el = elsRef.current.edge[k];
+      if (!el) return;
+      const { s, h, grown } = stRef.current;
+      setCls(el, clsEdge(k, s, h, visibleOf(s), grown));
+    };
+    const paintTEdge = (k) => {
+      const el = elsRef.current.tedge[k];
+      if (!el) return;
+      const { s, h, grown } = stRef.current;
+      setCls(el, clsTEdge(k, s, h, visibleOf(s), grown));
+    };
+    const paintReveal = (i) => {
+      const el = elsRef.current.reveal[i];
+      if (el) setCls(el, 'ml-tr__reveal' + (stRef.current.grown ? ' is-in' : ''));
+    };
+
+    let prevPos = null;
+    let graceT = 0;
+    const applyPositions = (pos) => {
+      prevPos = curPosRef.current;
+      curPosRef.current = pos;
+      /* 位移补间（.ml-tr__pos 0.55s）期间，裁剪窗口取「旧位置 ∪ 新位置」：
+         否则正在飞向屏外的胶囊会被立刻 display:none，看起来像凭空消失。 */
+      graceT = Date.now() + 700;
+      const els = elsRef.current;
+      const c = cullRef.current;
+      for (let i = 0; i < els.pos.length; i++) if (!c.node[i]) writePos(i);
+      for (let k = 0; k < els.edge.length; k++) if (!c.edge[k]) writeEdge(k);
+      for (let k = 0; k < els.tedge.length; k++) if (!c.tedge[k]) writeTEdge(k);
+    };
+
+    const paintAll = () => {
+      const els = elsRef.current;
+      const c = cullRef.current;
+      const { s, h, hits, grown } = stRef.current;
+      const vis = visibleOf(s);
+      for (let i = 0; i < els.node.length; i++) {
+        if (!c.node[i]) setCls(els.node[i], clsNode(i, s, h, hits, vis));
+      }
+      for (let k = 0; k < els.edge.length; k++) {
+        if (!c.edge[k]) setCls(els.edge[k], clsEdge(k, s, h, vis, grown));
+      }
+      for (let k = 0; k < els.tedge.length; k++) {
+        if (!c.tedge[k]) setCls(els.tedge[k], clsTEdge(k, s, h, vis, grown));
+      }
+      const rc = 'ml-tr__reveal' + (grown ? ' is-in' : '');
+      for (let i = 0; i < els.reveal.length; i++) setCls(els.reveal[i], rc);
+    };
+
+    /* ---- 视口裁剪 ----
+     * 元素坐标 → 屏幕：sx = v.x + ex * k，反解出可视区间；
+     * 边的包围盒取两端点 ± 下垂余量（同层弧线最深 sagCap）。 */
+    const updateCull = () => {
+      const vp = vpRef.current;
+      const els = elsRef.current;
+      const c = cullRef.current;
+      if (!vp || els.pos.length !== c.node.length) return;
+      const v = view.current;
+      const pos = curPosRef.current;
+      const k = v.k;
+      const pad = CULL_PAD / k;
+      const x0 = -v.x / k - pad;
+      const x1 = (vp.clientWidth - v.x) / k + pad;
+      const y0 = -v.y / k - pad;
+      const y1 = (vp.clientHeight - v.y) / k + pad;
+      const hw = PW / 2 + 6;
+      const hh = PH / 2 + 6;
+      const sagPad = D.sagCap + PH / 2 + 8;
+      /* 补间宽限期内：旧位置还在窗口里就不裁 */
+      const old = (Date.now() < graceT && prevPos && prevPos.length === pos.length) ? prevPos : null;
+
+      const nodeOut = (p) => {
+        const ex = p.x - L.minX;
+        return (ex + hw < x0 || ex - hw > x1 || p.y + hh < y0 || p.y - hh > y1) ? 1 : 0;
+      };
+
+      for (let i = 0; i < c.node.length; i++) {
+        let hid = nodeOut(pos[i]);
+        if (hid && old) hid = nodeOut(old[i]);
+        if (c.node[i] === hid) continue;
+        c.node[i] = hid;
+        const el = els.pos[i];
+        if (hid) el.style.display = 'none';
+        else { el.style.display = ''; writePos(i); paintNode(i); paintReveal(i); }
+      }
+      /* 边的包围盒：两端点围起来的矩形，纵向再放宽一个下垂量（同层弧线最深 sagCap） */
+      const edgeOut = (p, ia, ib) => {
+        const pa = p[ia];
+        const pb = p[ib];
+        const ax = pa.x - L.minX;
+        const bx = pb.x - L.minX;
+        return (
+          Math.max(ax, bx) + 8 < x0 || Math.min(ax, bx) - 8 > x1
+          || Math.max(pa.y, pb.y) + sagPad < y0 || Math.min(pa.y, pb.y) - 8 > y1
+        ) ? 1 : 0;
+      };
+      const cullList = (flags, pair, list, write, repaint) => {
+        for (let k2 = 0; k2 < flags.length; k2++) {
+          let hid = edgeOut(pos, pair[k2][0], pair[k2][1]);
+          if (hid && old) hid = edgeOut(old, pair[k2][0], pair[k2][1]);
+          if (flags[k2] === hid) continue;
+          flags[k2] = hid;
+          const el = list[k2];
+          if (hid) el.style.display = 'none';
+          else { el.style.display = ''; write(k2); repaint(k2); }
+        }
+      };
+      cullList(c.edge, EDG, els.edge, writeEdge, paintEdge);
+      cullList(c.tedge, TED, els.tedge, writeTEdge, paintTEdge);
+    };
+
+    return { applyPositions, paintAll, updateCull };
+  }, [D, L]);
+
+  /* ---- 坐标有两套，混用就会「点了不居中」 ----
+   *   世界坐标：布局算出来的 p.x / p.y，x 以 0 为中轴，所以 L.minX 是负数；
+   *   元素坐标：SVG 的 viewBox="minX 0 width height" 把世界坐标平移成
+   *             [0, width] × [0, height]，画布的 CSS transform 作用在这一层。
+   * 换算：元素 x = 世界 x − L.minX；元素 y = 世界 y（viewBox 的 y 起点是 0）。
+   * 选中后 shiftPositions 给的 bounds 是**世界坐标**，必须先 toElem 再算中心，
+   * 否则整块内容会偏出去 |L.minX| × k 像素——单元模式 minX ≈ −2500，一偏就飞了。 */
+  const toElem = React.useCallback(
+    (b) =>
+      b
+        ? { minX: b.minX - L.minX, maxX: b.maxX - L.minX, minY: b.minY, maxY: b.maxY }
+        : { minX: 0, maxX: L.width, minY: 0, maxY: L.height },
+    [L],
+  );
+
+  /* ---- 视图变换 ----
+   * useBOverride：传入则用它的边界，否则选中态下用 boundsRef（选中子树）；
+   * opts.center：世界坐标点，给了就把它摆到视口正中，否则按内容边界居中；
+   * opts.noClamp：不把内容压回视口内（fitSel / jumpTo 用）——选中的连通路径
+   *   常常比视口大，这时让它四周均匀溢出才是「居中」；拖动/缩放仍然要夹住，
+   *   不然用户一拖就把画布甩没了。
+   * 夹取的上界是 `pad − e.minX * k` 而不是 pad：内容在元素坐标里未必从 0 开始。 */
+  const applyView = React.useCallback(
+    (useBOverride, opts) => {
+      const vp = vpRef.current;
+      const canvas = canvasRef.current;
+      if (!vp || !canvas) return;
+      const v = view.current;
+      const useB =
+        useBOverride !== undefined ? useBOverride : selRef.current != null ? boundsRef.current : null;
+      const e = toElem(useB);
+      const W = (e.maxX - e.minX) * v.k;
+      const H = (e.maxY - e.minY) * v.k;
+      const vw = vp.clientWidth;
+      const vh = vp.clientHeight;
+      const pad = 24;
+      const noClamp = !!(opts && opts.noClamp);
+      const c = opts && opts.center;
+      const cx = c ? c.x - L.minX : (e.minX + e.maxX) / 2;
+      const cy = c ? c.y : (e.minY + e.maxY) / 2;
+      if (W <= vw - pad * 2 || noClamp) {
+        v.x = vw / 2 - cx * v.k;
+      } else {
+        v.x = Math.min(Math.max(v.x, vw - pad - e.maxX * v.k), pad - e.minX * v.k);
+      }
+      if (H <= vh - pad * 2 || noClamp) {
+        v.y = vh / 2 - cy * v.k;
+      } else {
+        v.y = Math.min(Math.max(v.y, vh - pad - e.maxY * v.k), pad - e.minY * v.k);
+      }
+      canvas.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.k})`;
+      canvas.style.visibility = 'visible';
+    },
+    [L, toElem],
+  );
+
+  /* 变换落盘 + 重算裁剪，成对调用（缩放/定位/拖动后视野变了，裁剪窗口随之变）。
+   * scheduleView 把一帧内的多次 pointermove / wheel 合并成一次写入。 */
+  const paintView = React.useCallback((b, opts) => {
+    applyView(b, opts);
+    ops.updateCull();
+  }, [applyView, ops]);
+
+  const scheduleView = React.useCallback(() => {
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = 0;
+      paintView();
+    });
+  }, [paintView]);
+
+  const zoomAt = React.useCallback((px, py, factor, defer) => {
+    const v = view.current;
+    const k2 = Math.min(MAX_K, Math.max(MIN_K, v.k * factor));
+    if (k2 === v.k) return;
+    v.x = px - ((px - v.x) * k2) / v.k;
+    v.y = py - ((py - v.y) * k2) / v.k;
+    v.k = k2;
+    if (defer) scheduleView();
+    else paintView();
+  }, [paintView, scheduleView]);
+
+  const focusRoot = React.useCallback(() => {
+    const vp = vpRef.current;
+    if (!vp) return;
+    view.current.k = 1;
+    view.current.x = vp.clientWidth / 2 + L.minX * view.current.k;
+    view.current.y = 16;
+    paintView();
+  }, [paintView, L]);
+
+  const fitAll = React.useCallback(() => {
+    const vp = vpRef.current;
+    if (!vp) return;
+    const k = Math.min(vp.clientWidth / L.width, vp.clientHeight / L.height, 1);
+    view.current.k = Math.max(0.08, k);
+    view.current.x = (vp.clientWidth - L.width * view.current.k) / 2;
+    view.current.y = (vp.clientHeight - L.height * view.current.k) / 2;
+    paintView();
+  }, [paintView, L]);
+
+  /* 选中后缩放到选中内容的实际边界（boundsRef 由选中 effect 维护） */
+  const fitSel = React.useCallback(() => {
+    const vp = vpRef.current;
+    const b = boundsRef.current;
+    if (!vp || !b) return;
+    const pad = 40;
+    const fitK = Math.min(
+      (vp.clientWidth - pad * 2) / b.width,
+      (vp.clientHeight - pad * 2) / b.height,
+      1.5,
+    );
+    /* 缩放下限 0.42：连通路径常常纵贯全树，一路缩到 0.16 连字都看不清了。
+       宁可只显示局部、也要保住「选中的那个正好在中间」——
+       想看整树另有「全览」按钮，想看局部就滚轮。 */
+    const k = Math.max(0.42, fitK);
+    view.current.k = k;
+    const fits =
+      b.width * k <= vp.clientWidth - pad * 2 && b.height * k <= vp.clientHeight - pad * 2;
+    /* 装得下 → 整块连通路径居中；装不下 → 把选中节点自己摆到视口中心 */
+    const p = selRef.current != null ? curPosRef.current[selRef.current] : null;
+    paintView(b, { center: fits || !p ? null : p, noClamp: true });
+  }, [paintView]);
+
+  /* ---- 直接 DOM：高亮着色（悬停/选中/搜索/入场） ----
+   * 只写状态镜像再调用 ops.paintAll；被视口裁掉的元素不写（回视野时补写）。 */
+  const paint = React.useCallback((s, h, hitsSet, isGrown) => {
+    stRef.current = { s, h, hits: hitsSet, grown: isGrown };
+    ops.paintAll();
+  }, [ops]);
 
   /* 搜索 */
   const ql = q.trim().toLowerCase();
@@ -374,7 +581,6 @@ export default function KnowledgeGraphTree() {
         width={L.width}
         height={L.height}
         className="ml-tr__svg"
-        onClick={(e) => { if (!dragRef.current.moved && e.target === e.currentTarget) setSel(null); }}
       >
         {D.edges.map(([a, b], k) => (
           <path
@@ -429,10 +635,7 @@ export default function KnowledgeGraphTree() {
               >
                 <g
                   className="ml-fg__node"
-                  onMouseEnter={() => setHot(i)}
-                  onFocus={() => setHot(i)}
-                  onClick={(e) => { e.stopPropagation(); if (!dragRef.current.moved) (selRef.current === i ? setSel(null) : jumpToRef.current(i)); }}
-                  onKeyDown={(e) => { if (e.key === 'Enter') (selRef.current === i ? setSel(null) : jumpToRef.current(i)); }}
+                  data-i={i}
                   role="link"
                   tabIndex={0}
                 >
@@ -461,14 +664,22 @@ export default function KnowledgeGraphTree() {
     els.edge = Array.from(svg.querySelectorAll('.ml-tr__edge'));
     els.tedge = Array.from(svg.querySelectorAll('.ml-tr__tedge'));
     els.reveal = Array.from(svg.querySelectorAll('.ml-tr__reveal'));
-    /* 缓存复位，强制重刷一次 class */
+    /* 缓存复位，强制重刷一次 class；裁剪状态与 display 一并复位
+       （React 可能复用同一批 DOM 节点，残留的 display:none 会让新树缺块） */
     [...els.pos, ...els.node, ...els.edge, ...els.tedge, ...els.reveal].forEach((el) => { el.__cls = undefined; });
+    [...els.pos, ...els.edge, ...els.tedge].forEach((el) => { el.style.display = ''; });
+    cullRef.current = {
+      node: new Uint8Array(els.pos.length),
+      edge: new Uint8Array(els.edge.length),
+      tedge: new Uint8Array(els.tedge.length),
+    };
     /* 模式刚切换时 curPos 可能是上一模式的数组（长度不符），回退到本模式原始位置 */
     const cur = curPosRef.current && curPosRef.current.length === N ? curPosRef.current : L.pos;
     curPosRef.current = cur;
-    applyPositions(cur);
+    ops.applyPositions(cur);
     paint(selRef.current != null && selRef.current < N ? selRef.current : null, null, null, false);
-  }, [svgTree, applyPositions, paint, L, N]);
+    ops.updateCull();
+  }, [svgTree, ops, paint, L, N]);
 
   /* [2] 选中变化：镜像 ref → 位移 → 动态边界 → fit */
   React.useEffect(() => {
@@ -476,13 +687,14 @@ export default function KnowledgeGraphTree() {
     const vis = selS == null ? null : buildVisible(L, selS);
     const { pos, bounds } = shiftPositions(L, vis);
     boundsRef.current = bounds;
-    applyPositions(pos);
-    if (selS != null && bounds) {
-      const t = setTimeout(() => fitSel(), 80);
-      return () => clearTimeout(t);
-    }
-    return undefined;
-  }, [selS, L, toolMode, applyPositions, fitSel]);
+    ops.applyPositions(pos);
+    ops.updateCull();
+    const timers = [];
+    if (selS != null && bounds) timers.push(setTimeout(() => fitSel(), 80));
+    /* 位移补间（0.55s）走完后再收紧一次裁剪窗口 */
+    timers.push(setTimeout(() => ops.updateCull(), 760));
+    return () => timers.forEach(clearTimeout);
+  }, [selS, L, toolMode, ops, fitSel]);
 
   /* [3] 悬停/选中/搜索/入场：重刷高亮（直接 DOM，不触发 SVG 重渲染） */
   React.useEffect(() => {
@@ -491,8 +703,13 @@ export default function KnowledgeGraphTree() {
 
   /* fnRef 永远指向最新一轮闭包（供挂载期事件监听器调用） */
   React.useEffect(() => {
-    fnRef.current = { applyView, zoomAt, focusRoot };
+    fnRef.current = { applyView, paintView, scheduleView, zoomAt, focusRoot, ops };
   });
+
+  /* 卸载时收掉未执行的合帧 */
+  React.useEffect(() => () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  }, []);
 
   /* 挂载/切模式后定位到根节点 */
   React.useEffect(() => {
@@ -506,7 +723,7 @@ export default function KnowledgeGraphTree() {
     const onChg = () => {
       const doc = document;
       setIsFull(!!(doc.fullscreenElement || doc.webkitFullscreenElement));
-      fnRef.current.applyView();
+      fnRef.current.paintView();
     };
     document.addEventListener('fullscreenchange', onChg);
     document.addEventListener('webkitfullscreenchange', onChg);
@@ -559,7 +776,7 @@ export default function KnowledgeGraphTree() {
         const d = Math.hypot(a.x - b.x, a.y - b.y);
         const rect = vp.getBoundingClientRect();
         const mid = { x: (a.x + b.x) / 2 - rect.left, y: (a.y + b.y) / 2 - rect.top };
-        if (pinchDist > 0 && d > 0) fnRef.current.zoomAt(mid.x, mid.y, d / pinchDist);
+        if (pinchDist > 0 && d > 0) fnRef.current.zoomAt(mid.x, mid.y, d / pinchDist, true);
         pinchDist = d;
         dragRef.current.moved = true;
         return;
@@ -574,7 +791,7 @@ export default function KnowledgeGraphTree() {
       }
       view.current.x = dragRef.current.vx + dx;
       view.current.y = dragRef.current.vy + dy;
-      fnRef.current.applyView();
+      fnRef.current.scheduleView();
     };
     const onUp = (e) => {
       pointers.delete(e.pointerId);
@@ -582,16 +799,17 @@ export default function KnowledgeGraphTree() {
       if (e.pointerId === dragRef.current.id) dragRef.current.id = -1;
       vp.classList.remove('is-grabbing');
     };
+    /* 滚轮/捏合会一帧来好几个事件：合到 rAF 里只写一次 transform + 裁剪 */
     const onWheel = (e) => {
       e.preventDefault();
       const rect = vp.getBoundingClientRect();
-      fnRef.current.zoomAt(e.clientX - rect.left, e.clientY - rect.top, Math.exp(-e.deltaY * 0.0016));
+      fnRef.current.zoomAt(e.clientX - rect.left, e.clientY - rect.top, Math.exp(-e.deltaY * 0.0016), true);
     };
     const onDbl = (e) => {
       const rect = vp.getBoundingClientRect();
       fnRef.current.zoomAt(e.clientX - rect.left, e.clientY - rect.top, 1.5);
     };
-    const onResize = () => fnRef.current.applyView();
+    const onResize = () => fnRef.current.paintView();
     vp.addEventListener('pointerdown', onDown);
     vp.addEventListener('pointermove', onMove);
     vp.addEventListener('pointerup', onUp);
@@ -614,6 +832,7 @@ export default function KnowledgeGraphTree() {
   React.useEffect(() => {
     setSel(null);
     setHot(null);
+    hotRef.current = -1;
     setQ('');
     setToolMode(false);
     setGrown(false);
@@ -623,23 +842,85 @@ export default function KnowledgeGraphTree() {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [mode]);
 
+  /* ---- 节点交互：事件委托 ----
+   * 原先每个胶囊挂 4 个 React 事件 props（单元模式 805×4 = 3220 个闭包，
+   * 且 React 的 mouseenter/leave 要为每个节点走一遍合成事件路径）。
+   * 改成在 svg 根上挂 4 个原生监听器，用 data-i 反查下标；
+   * 悬停先比 hotRef，没换节点就不 setState。 */
+  React.useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return undefined;
+    const idxOf = (t) => {
+      const g = t && t.closest ? t.closest('.ml-fg__node') : null;
+      if (!g) return -1;
+      const i = Number(g.dataset.i);
+      return Number.isNaN(i) ? -1 : i;
+    };
+    const toggle = (i) => {
+      if (selRef.current === i) setSel(null);
+      else jumpToRef.current(i);
+    };
+    const onClick = (e) => {
+      if (dragRef.current.moved) return;
+      const i = idxOf(e.target);
+      /* 空白（svg 本身）＝取消聚焦 */
+      if (i < 0) {
+        if (e.target === e.currentTarget) setSel(null);
+        return;
+      }
+      toggle(i);
+    };
+    const onOver = (e) => {
+      const i = idxOf(e.target);
+      /* 只在「进入胶囊」时更新，与原先的 onMouseEnter 口径一致：
+         移到空白处仍保留上一条信息面板，离开整个视口才清除。 */
+      if (i < 0 || i === hotRef.current) return;
+      hotRef.current = i;
+      setHot(i);
+    };
+    const onFocusIn = (e) => {
+      const i = idxOf(e.target);
+      if (i < 0 || i === hotRef.current) return;
+      hotRef.current = i;
+      setHot(i);
+    };
+    const onKey = (e) => {
+      if (e.key !== 'Enter') return;
+      const i = idxOf(e.target);
+      if (i < 0) return;
+      toggle(i);
+    };
+    svg.addEventListener('click', onClick);
+    svg.addEventListener('mouseover', onOver);
+    svg.addEventListener('focusin', onFocusIn);
+    svg.addEventListener('keydown', onKey);
+    return () => {
+      svg.removeEventListener('click', onClick);
+      svg.removeEventListener('mouseover', onOver);
+      svg.removeEventListener('focusin', onFocusIn);
+      svg.removeEventListener('keydown', onKey);
+    };
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [D]);
+
   /* 跳转定位：先按筛选后的位置直接平移缩放（不等 React），随后 setSel 触发位移/高亮 */
-  const jumpTo = React.useCallback((i, targetK) => {
-    const vis = buildVisible(L, i);
-    const { bounds: sb } = shiftPositions(L, vis);
-    const vp = vpRef.current;
-    if (vp && sb) {
-      const k = targetK != null ? Math.max(view.current.k, targetK) : view.current.k;
-      view.current.k = k;
-      const cx = (sb.minX + sb.maxX) / 2;
-      const cy = (sb.minY + sb.maxY) / 2;
-      view.current.x = vp.clientWidth / 2 - cx * k;
-      view.current.y = Math.max(16, vp.clientHeight / 2 - cy * k);
-      applyView(sb);
-    }
-    setSel(i);
-    setHot(null);
-  }, [L, applyView]);
+  const jumpTo = React.useCallback(
+    (i, targetK) => {
+      const vis = buildVisible(L, i);
+      /* 注意要用**位移后**的坐标：筛选会把各层重新居中，节点位置会变 */
+      const { pos, bounds: sb } = shiftPositions(L, vis);
+      if (vpRef.current && sb) {
+        /* 先把点中的这个摆到视口正中（不等 React），随后 setSel 触发的
+           effect 会用 fitSel 再精确居中一次；两次走同一套换算。 */
+        view.current.k = targetK != null ? Math.max(view.current.k, targetK) : view.current.k;
+        paintView(sb, { center: pos[i], noClamp: true });
+      }
+      setSel(i);
+      setHot(null);
+      hotRef.current = -1;
+    },
+    [L, paintView],
+  );
   React.useEffect(() => { jumpToRef.current = jumpTo; }, [jumpTo]);
 
   const onSearchEnter = () => {
@@ -719,7 +1000,11 @@ export default function KnowledgeGraphTree() {
         </span>
       </div>
 
-      <div className="ml-tr__viewport" ref={vpRef} onMouseLeave={() => setHot(null)}>
+      <div
+        className="ml-tr__viewport"
+        ref={vpRef}
+        onMouseLeave={() => { hotRef.current = -1; setHot(null); }}
+      >
         <div className="ml-tr__canvas" ref={canvasRef}>
           {svgTree}
         </div>
