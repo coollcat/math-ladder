@@ -1,0 +1,64 @@
+# =============================================================================
+#  数学阶梯 · 云同步服务（systemd unit）
+#
+#  安装（先把下面两处按实际机器改掉）：
+#    sudo cp deploy/math-ladder-sync.service /etc/systemd/system/
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable --now math-ladder-sync     ← 开机自启 + 立刻启动
+#
+#  日常：
+#    sudo systemctl status  math-ladder-sync
+#    sudo journalctl -u math-ladder-sync -f           ← 跟着看日志
+#    sudo systemctl restart math-ladder-sync
+#    sudo systemctl disable --now math-ladder-sync    ← 停掉并取消自启
+#
+#  ⚠️ 装之前必须核两处：
+#    1. ExecStart 里 node 的绝对路径 —— 用 `command -v node` 查。用 nvm / 手动解压方式
+#       装的 Node 常常不在 /usr/bin/node，写错的表现是 status 里 203/EXEC，服务秒退。
+#    2. User —— 这里写 www-data（Debian/Ubuntu 的 nginx 用户）；CentOS/RHEL 改成 nginx。
+#       这个用户必须对 server/data/ 目录有写权限（原子写要在里面建临时文件再改名）。
+#
+#  ⚠️ 这个文件是给 Linux 用的，必须是 LF 换行。在 Windows 上编辑过就先跑：
+#       sed -i 's/\r$//' /etc/systemd/system/math-ladder-sync.service
+# =============================================================================
+
+[Unit]
+Description=数学阶梯 云同步服务
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+User=www-data
+Group=www-data
+
+# 进程的工作目录。服务里所有相对路径（--data ./server/data）都以它为基准，
+# 目录写错的表现是「起来了但数据写到了别处」，很难发现。
+WorkingDirectory=/var/www/math-ladder
+
+# 端口与数据目录走命令行参数；服务端同样认 ML_SYNC_PORT / ML_SYNC_DATA 两个环境变量，
+# 二选一即可，别两边给不一样的值。同步服务零第三方依赖，不需要 npm install。
+ExecStart=/usr/bin/node server/sync-server.mjs --port 8787 --data ./server/data
+Environment=NODE_ENV=production
+
+# 崩了就拉起来。服务本身无状态（数据全在文件里，写盘是原子的），重启不会丢东西。
+Restart=always
+RestartSec=5
+
+# 日志全部交给 journald，服务自己不写日志文件 —— 省掉一套 logrotate 配置，
+# 也避免多一个需要清权限的目录。
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=math-ladder-sync
+
+# 最小权限：拿不到新特权、看不见 /home、系统目录只读，只有数据目录可写。
+# 账号库与用户数据都在 server/data 下，这是服务唯一需要写的地方。
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/www/math-ladder/server/data
+
+[Install]
+WantedBy=multi-user.target

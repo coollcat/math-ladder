@@ -12,3 +12,6 @@ build_verify/
 static/papers/
 
 .workbuddy/
+
+# 云同步后端数据（账号库/令牌/每账号数据），绝不入库
+server/data/
