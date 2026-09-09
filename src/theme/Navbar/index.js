@@ -29,6 +29,7 @@ const LINKS = [
   { to: '/docs/intro', label: '怎么用本站', icon: 'book', startsWith: '/docs' },
   { to: '/graph', label: '知识图谱', icon: 'graph' },
   { to: '/tree', label: '知识树', icon: 'tree' },
+  { to: '/function', label: '看见函数', icon: 'curve' },
 ];
 
 /* 外观三态：亮 / 暗 / 自动（跟随系统）。

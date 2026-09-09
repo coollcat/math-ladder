@@ -5,6 +5,8 @@
    注意：每个条目必须是 **静态字面量** 的 () => import('...')，
    不能用变量拼路径——webpack 靠静态分析分包，变量路径会退化成整包加载。 */
 
+/* ch00 是通用工具分册，放不属于某一章的站级组件（如「看见函数」） */
+import ch00 from './registries/ch00.js';
 import ch68 from './registries/ch68.js';
 import ch69 from './registries/ch69.js';
 import ch70 from './registries/ch70.js';
@@ -15,7 +17,7 @@ import ch74 from './registries/ch74.js';
 import ch75 from './registries/ch75.js';
 
 /* 同名以「后加载的章」为准；分册之间不应重名，validate.mjs 会查重 */
-export const RENDERERS = Object.assign({}, ch68, ch69, ch70, ch71, ch72, ch73, ch74, ch75);
+export const RENDERERS = Object.assign({}, ch00, ch68, ch69, ch70, ch71, ch72, ch73, ch74, ch75);
 
 export const RENDERER_NAMES = Object.keys(RENDERERS);
 
