@@ -24,5 +24,22 @@ export default function Root({ children }) {
     scheduleEnhance();
     return () => mo.disconnect();
   }, []);
+
+  /* 云同步在这里拉起：Root 是站点级入口，每个路由都会走一次。
+     用动态 import 是刻意的——同步是可选增强（后端可能压根没部署），
+     不该进主包；拉起来之后它把监听挂在 document/window 上，闭包被全局对象
+     持有着，之后路由怎么切、组件怎么卸载，同步都还在（boot 幂等）。
+     必须放在 useEffect 里：模块顶层会在 SSR 阶段执行，那时没有 window。
+     catch 掉：chunk 加载失败也只当站点没有云同步，本地功能一个不少。 */
+  useEffect(() => {
+    import('../../sync')
+      .then((m) => {
+        if (m && typeof m.boot === 'function') m.boot();
+      })
+      .catch(() => {
+        /* 没有云同步也要照常学习 */
+      });
+  }, []);
+
   return <>{children}</>;
 }

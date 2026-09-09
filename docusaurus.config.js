@@ -32,6 +32,13 @@ async function createConfig() {
       defaultLocale: 'zh-Hans',
       locales: ['zh-Hans'],
     },
+    /* 云同步服务的地址。默认同源 /api（nginx 反代到本机的 Node 同步服务）；
+       服务独立部署到别的域名/端口时，构建时用 ML_SYNC_API=http://host:8787/api 覆盖。
+       前端在 src/auth/index.js 的 syncApiBase() 里读它——**后端是可选的增强**，
+       没部署时站点照常能用，只是数据留在本机。 */
+    customFields: {
+      syncApi: process.env.ML_SYNC_API || '/api',
+    },
     markdown: {
       format: 'detect',
     },

@@ -230,6 +230,28 @@ function tokenize(src) {
   return toks;
 }
 
+/* ---------- 自变量 ----------
+ * 2D 只有一个自变量 x；3D 曲面是 z = f(x, y)，要两个。
+ * 谁当自变量由调用方通过 compile(src, { vars }) 指定，其余自由标识符一律当参数。
+ * 大写写法（X、Y）也认，从别处粘过来的式子不至于报「不认识」。 */
+const DEFAULT_VARS = ['x'];
+
+function normalizeVars(v) {
+  if (!v || !v.length) return DEFAULT_VARS.slice();
+  return v.slice();
+}
+
+function matchVar(name, vars) {
+  for (let i = 0; i < vars.length; i += 1) {
+    if (name === vars[i]) return vars[i];
+  }
+  const up = name.toUpperCase();
+  for (let i = 0; i < vars.length; i += 1) {
+    if (up === vars[i].toUpperCase()) return vars[i];
+  }
+  return null;
+}
+
 /* ---------- Pratt parser ----------
  * 每个中缀算符记 [左绑定力, 右绑定力]：爬升时把 minBp 与左绑定力比，
  * 递归右子树时把右绑定力当 minBp 传下去。左绑定力 < 右绑定力 → 左结合。
@@ -251,7 +273,8 @@ const BP = {
 
 /* AST 节点统一成 {k: 类别, ...}，k 取值：
  *   num / var / const / neg / add / sub / mul / div / pow / fact / abs / call */
-function parse(src) {
+function parse(src, vars) {
+  const VARS = normalizeVars(vars);
   const toks = tokenize(src);
   let p = 0;
   const peek = () => toks[p];
@@ -330,8 +353,10 @@ function parse(src) {
       if (Object.prototype.hasOwnProperty.call(CONSTS, name)) {
         return { k: 'const', name, v: CONSTS[name] };
       }
-      /* 自变量 x：x(x+1) 是乘法，不是函数调用，所以先于函数名判断 */
-      if (name === 'x' || name === 'X') return { k: 'var', name: 'x' };
+      /* 自变量：x(x+1) 是乘法，不是函数调用，所以先于函数名判断。
+         y 只在 3D（vars 里带 y）时是自变量，2D 下仍然是可调参数。 */
+      const asVar = matchVar(name, VARS);
+      if (asVar) return { k: 'var', name: asVar };
 
       const isFn1 = Object.prototype.hasOwnProperty.call(FN1, name);
       const isFnN = Object.prototype.hasOwnProperty.call(FN_N, name);
@@ -393,7 +418,7 @@ function parse(src) {
   return ast;
 }
 
-/* ---------- 收集参数（除 x 以外的自由标识符） ---------- */
+/* ---------- 收集参数（除自变量以外的自由标识符） ---------- */
 
 function collectParams(ast) {
   const set = new Set();
@@ -424,51 +449,58 @@ function collectParams(ast) {
 
 /* ---------- 编译成 JS 函数 ---------- */
 
-function codegen(node) {
+function codegen(node, vars) {
   switch (node.k) {
     case 'num':
       return '(' + node.v + ')';
     case 'const':
       return '(' + (isFinite(node.v) ? node.v : 'Infinity') + ')';
     case 'var':
-      return node.name === 'x' ? 'x' : 'P[' + JSON.stringify(node.name) + ']';
+      /* 自变量直接当形参名，参数走 P[...] */
+      return vars.indexOf(node.name) >= 0
+        ? node.name
+        : 'P[' + JSON.stringify(node.name) + ']';
+    /* 每一层递归都要把 vars 传下去，漏一层就认不出自变量了 */
     case 'neg':
-      return '(-' + codegen(node.a) + ')';
+      return '(-' + codegen(node.a, vars) + ')';
     case 'add':
-      return '(' + codegen(node.a) + '+' + codegen(node.b) + ')';
+      return '(' + codegen(node.a, vars) + '+' + codegen(node.b, vars) + ')';
     case 'sub':
-      return '(' + codegen(node.a) + '-' + codegen(node.b) + ')';
+      return '(' + codegen(node.a, vars) + '-' + codegen(node.b, vars) + ')';
     case 'mul':
-      return '(' + codegen(node.a) + '*' + codegen(node.b) + ')';
+      return '(' + codegen(node.a, vars) + '*' + codegen(node.b, vars) + ')';
     case 'div':
-      return '(' + codegen(node.a) + '/' + codegen(node.b) + ')';
+      return '(' + codegen(node.a, vars) + '/' + codegen(node.b, vars) + ')';
     case 'mod':
-      return 'S.mod(' + codegen(node.a) + ',' + codegen(node.b) + ')';
+      return 'S.mod(' + codegen(node.a, vars) + ',' + codegen(node.b, vars) + ')';
     case 'pow':
-      return 'S.pow(' + codegen(node.a) + ',' + codegen(node.b) + ')';
+      return 'S.pow(' + codegen(node.a, vars) + ',' + codegen(node.b, vars) + ')';
     case 'fact':
-      return 'S.fact(' + codegen(node.a) + ')';
+      return 'S.fact(' + codegen(node.a, vars) + ')';
     case 'abs':
-      return 'Math.abs(' + codegen(node.a) + ')';
+      return 'Math.abs(' + codegen(node.a, vars) + ')';
     case 'call':
       if (Object.prototype.hasOwnProperty.call(FN_N, node.name)) {
-        return 'S.' + node.name + '(' + node.args.map(codegen).join(',') + ')';
+        return 'S.' + node.name + '(' + node.args.map((a) => codegen(a, vars)).join(',') + ')';
       }
-      return 'S.' + node.name + '(' + codegen(node.args[0]) + ')';
+      return 'S.' + node.name + '(' + codegen(node.args[0], vars) + ')';
     default:
       throw new ParseError('内部错误：未知节点 ' + node.k, 0);
   }
 }
 
 /**
- * 编译。(src, params) → { fn, params, ast, tex, text }
- * fn(x, P) 里 P 是参数对象；编译出来的代码只认 S（函数表）和 P，
+ * 编译。
+ *   compile(src)                —— 一元：fn(P, x)
+ *   compile(src, {vars:['x','y']}) —— 二元（3D 曲面）：fn(P, x, y)
+ * P 是参数对象。编译出来的代码只认 S（函数表）、P 和自变量这几个形参，
  * 因此即使算式来自用户输入也碰不到全局作用域。
  */
-export function compile(src) {
-  const ast = parse(src);
+export function compile(src, opts) {
+  const vars = normalizeVars(opts && opts.vars);
+  const ast = parse(src, vars);
   const params = collectParams(ast);
-  const body = codegen(ast);
+  const body = codegen(ast, vars);
   const scope = Object.assign({ pow: Math.pow, mod: FN_N.mod.fn, fact: factorial }, FN1);
   Object.keys(FN_N).forEach((k) => {
     /* log 两边都占了一个名字，交给下面那个看参数个数分派的版本 */
@@ -477,12 +509,12 @@ export function compile(src) {
   scope.log = (...a) => (a.length === 1 ? log10(a[0]) : Math.log(a[1]) / Math.log(a[0]));
   let fn;
   try {
-    /* eslint-disable-next-line no-new-func */
-    fn = new Function('S', 'P', 'x', 'return ' + body + ';').bind(null, scope);
+    /* 形参数就是自变量表，所以 3D 自动生成 (S, P, x, y) => … */
+    fn = new Function('S', 'P', ...vars, 'return ' + body + ';').bind(null, scope);
   } catch (e) {
     throw new ParseError('算式没法变成可计算的形式：' + (e && e.message ? e.message : e), 0);
   }
-  return { fn, params, ast, src };
+  return { fn, params, ast, src, vars };
 }
 
 /* ---------- AST → LaTeX ---------- */
@@ -517,7 +549,7 @@ function numTex(v) {
 }
 
 function nameTex(name) {
-  if (name === 'x') return 'x';
+  if (name === 'x' || name === 'y') return name;
   if (Object.prototype.hasOwnProperty.call(CONSTS, name)) {
     if (name === 'pi' || name === 'π') return '\\pi';
     if (name === 'tau' || name === 'τ') return '\\tau';
@@ -667,9 +699,12 @@ function parenText(node, min) {
 
 /* ---------- 对外便利接口 ---------- */
 
-/** 一次性把文本算成 { fn, tex, params, text }；失败抛 ParseError。 */
-export function build(src) {
-  const c = compile(src);
+/**
+ * 一次性把文本算成 { fn, tex, params, text, vars }；失败抛 ParseError。
+ * 第二个参数透传给 compile，3D 用法：build('sin(x)*cos(y)', { vars: ['x','y'] })。
+ */
+export function build(src, opts) {
+  const c = compile(src, opts);
   /* 参数默认值 1：先让图画出来，滑块再慢慢调 */
   const defaults = {};
   c.params.forEach((p) => { defaults[p] = 1; });
@@ -682,6 +717,16 @@ export function build(src) {
 export function evalAt(compiled, x, params) {
   try {
     return compiled.fn(params || compiled.defaults, x);
+  } catch (e) {
+    void e;
+    return NaN;
+  }
+}
+
+/** 二元求值（3D 曲面用） */
+export function evalAt2(compiled, x, y, params) {
+  try {
+    return compiled.fn(params || compiled.defaults, x, y);
   } catch (e) {
     void e;
     return NaN;

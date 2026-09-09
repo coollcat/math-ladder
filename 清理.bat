@@ -6,6 +6,7 @@ cd /d "%~dp0"
 REM ============================================
  REM 数学阶梯 · 项目清理工具
  REM 只删可再生的缓存与产物, 不碰任何源码/文档
+ REM ⚠ server\data 是账号与学习数据的唯一账本, 任何清理都不碰它
  REM 本文件必须保存为 UTF-8 无 BOM + CRLF, 勿改编码/换行
  REM ============================================
 
@@ -28,7 +29,7 @@ call :showsize ".docusaurus"         "开发服务器缓存"
 call :showsize "build"               "生产构建产物"
 echo.
 echo   [1] 轻量清理: 仅构建缓存 —— 下次构建自动重建, 最安全
-echo   [2] 标准清理: 轻量 + 开发缓存 + 构建产物 —— 部署前需重新 build
+echo   [2] 标准清理: 轻量 + 开发缓存 + 构建产物 + 打包残留 —— 部署前需重新 build
 echo   [3] 深度清理: 标准 + 删除 node_modules 并重装依赖 —— 需联网等几分钟
 echo   [0] 退出
 echo.
@@ -56,8 +57,12 @@ if exist "node_modules\.cache" rd /s /q "node_modules\.cache"
 if exist ".docusaurus" rd /s /q ".docusaurus"
 if exist "build" rd /s /q "build"
 if exist "build_g2" rd /s /q "build_g2"
+rem 出包脚本的临时目录（旧 build 挪存 / zip 暂存 / 论文挪存），不影响源码
+if exist "_build_old" rd /s /q "_build_old"
+if exist "_zip_stage" rd /s /q "_zip_stage"
+if exist "_papers_hold" rd /s /q "_papers_hold"
 del /q /f "*.log" 2>nul
-echo   完成。需要部署时先执行: npm run build
+echo   完成。需要部署时先执行: 构建Linux部署包.bat（或 npm run build）
 echo.
 pause
 goto menu

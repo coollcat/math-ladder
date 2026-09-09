@@ -16,9 +16,24 @@
  *   }
  *   ```
  *
+ * 3D（z = f(x, y)）写法，注意 domain 与 view 二选一：
+ *
+ *   ```lab
+ *   {
+ *     "type": "see-function",
+ *     "title": "马鞍面：沿 x 走是上坡，沿 y 走是下坡",
+ *     "funcs": ["x*y"],
+ *     "mode": "3d",
+ *     "domain": 4,
+ *     "height": 420
+ *   }
+ *   ```
+ *
  * 字段：
- *   funcs    初始式子数组（可多条叠加，最多 6 条）
- *   view     [x0, x1]，初始横向视野
+ *   funcs    初始式子数组。2D 可多条叠加（最多 6 条）；3D 只画第一条
+ *   mode     "2d"（默认）或 "3d"。3D 下 y 是第二个自变量，2D 下它是可调参数
+ *   view     [x0, x1]，2D 的初始横向视野
+ *   domain   3D 的 xy 域半边长，域 = [-domain, domain]²
  *   params   参数初值，键名要和式子里的字母对上
  *   height   画布高度（像素），课文里默认 360
  *   keypad   是否带符号键盘，默认关（课文里通常只读，不必占一大块）
@@ -38,6 +53,8 @@ export default function render(host, spec) {
     height: spec.height || 360,
     presets: spec.presets === true,
     keypad: spec.keypad === true,
+    mode: spec.mode === '3d' ? '3d' : '2d',
+    domain: spec.domain,
   });
   return {
     destroy() {

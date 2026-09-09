@@ -244,7 +244,7 @@
 
 .ml-tree-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
@@ -1082,9 +1082,13 @@
   animation-delay: var(--rvd, 0s);
 }
 
-/* 筛选隐藏必须压过 is-branch.is-in 的入场透明度 */
-.ml-tr__edge.is-off,
-.ml-tr__tedge.is-off {
+/* 筛选隐藏必须压过 .is-in / .is-up / .is-direct 的入场透明度。
+   两条靠后的规则（.ml-tr__edge--branch.is-in、.ml-tr__tedge.is-in）与这里
+   同为「两个类」的特异性，按源码顺序后来者胜——选中后无关的连线就擦不掉了。
+   所以提权到 .ml-tr__svg 三档（0,3,0 > 0,2,0），顺序不再影响结果。 */
+.ml-tr__svg .ml-tr__edge.is-off,
+.ml-tr__svg .ml-tr__edge--branch.is-off,
+.ml-tr__svg .ml-tr__tedge.is-off {
   opacity: 0;
   pointer-events: none;
 }

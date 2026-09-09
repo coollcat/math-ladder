@@ -16,7 +16,7 @@
  * 依赖：Pyodide 与执行入口由 enhancer 通过 api 注入（见 enhancer 的 toolApi）。
  * ========================================================================= */
 
-import { nsKey, progressNS } from '../learning/progress';
+import { nsKey, progressNS, notifyDataDirty } from '../learning/progress';
 import { saveSnippet } from './repo';
 /* KaTeX 的加载与输出公式渲染和浮窗共用一份（mathout.js），别各拉各的 */
 import { getKatex } from './mathout';
@@ -364,6 +364,8 @@ function persist() {
   } catch {
     /* 配额满：笔记本太大时放弃写入，界面仍可用 */
   }
+  /* 只 dispatch，不 import sync：云同步监听这个事件，攒 2 秒推一次 */
+  notifyDataDirty();
 }
 
 function scheduleSave() {
@@ -1077,4 +1079,82 @@ export function closeNotebook() {
 
 export function isNotebookOpen() {
   return !!(els && els.panel.classList.contains('is-open'));
+}
+
+/* =========================================================================
+ * 跨空间读写（备份面板专用）
+ * -------------------------------------------------------------------------
+ * 刻意不做成「先 load() 再读」：load() 在没有数据时会自动造一个入门笔记本，
+ * 那样导出的备份里就永远多一本用户没写过的《我的笔记本》。
+ * ========================================================================= */
+
+function keyFor(ns) {
+  return NB_KEY + ':' + ns;
+}
+
+/** 偷看某个空间的笔记本数据；没有就返回 null（不创建、不落盘）。 */
+export function peekNotebook(ns) {
+  if (typeof window === 'undefined') return null;
+  try {
+    const v = JSON.parse(window.localStorage.getItem(keyFor(ns)) || 'null');
+    return v && Array.isArray(v.books) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 往某个空间写笔记本。
+ * mode: 'merge' 按本子 id（其次按标题）合并，单元按 id 去重；
+ *       'replace' 整个空间覆盖成传入的内容。
+ * 写的是当前打开的那个空间时，内存里那份要跟着换，否则面板还显示旧内容。
+ */
+export function writeNotebook(ns, incoming, mode = 'merge') {
+  if (typeof window === 'undefined') return { ok: false, error: 'no-window' };
+  const k = keyFor(ns);
+  const cur = peekNotebook(ns);
+  const inc = (incoming && Array.isArray(incoming.books) && incoming.books) || [];
+  let books;
+
+  if (mode === 'replace' || !cur) {
+    books = inc.filter((b) => b && Array.isArray(b.cells));
+  } else {
+    books = cur.books.slice();
+    const byId = new Map();
+    const byTitle = new Map();
+    books.forEach((b) => {
+      byId.set(b.id, b);
+      byTitle.set(b.title, b);
+    });
+    for (const b of inc) {
+      if (!b || !Array.isArray(b.cells)) continue;
+      const hit = byId.get(b.id) || byTitle.get(b.title);
+      if (hit) {
+        const ids = new Set(hit.cells.map((c) => c.id));
+        for (const c of b.cells) if (!ids.has(c.id)) hit.cells.push(c);
+      } else {
+        books.push(b);
+        byId.set(b.id, b);
+        byTitle.set(b.title, b);
+      }
+    }
+  }
+  if (books.length > MAX_BOOKS) books = books.slice(0, MAX_BOOKS);
+  const out = { v: 1, books, activeId: (cur && cur.activeId) || (books[0] && books[0].id) || null };
+  try {
+    window.localStorage.setItem(k, JSON.stringify(out));
+  } catch {
+    return { ok: false, error: 'quota' };
+  }
+  /* 备份导入/云端合并都算本地改动，要跟着上云；
+     云同步自己写回时 sync 那边有开关，不会把它当成新改动再推一次。 */
+  notifyDataDirty();
+  if (nsKey(NB_KEY) === k) {
+    data = null;
+    if (els) {
+      renderBooks();
+      renderCells();
+    }
+  }
+  return { ok: true, books: books.length, cells: books.reduce((n, b) => n + b.cells.length, 0) };
 }

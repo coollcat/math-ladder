@@ -2366,5 +2366,229 @@
       "d": "四个开关摆成 H 形就能让电机正反转：H 桥一课的换向、刹车、滑行三态都从这张拓扑图读出来。",
       "p": "https://en.wikipedia.org/wiki/H_bridge"
     }
+  ],
+  "69-digital-systems": [
+    {
+      "t": "An Investigation of the Laws of Thought（思维的规律）",
+      "a": "George Boole（乔治·布尔）",
+      "y": 1854,
+      "v": "伦敦首版",
+      "g": "原著",
+      "d": "把逻辑变成代数：AND/OR/NOT 从此有了运算律。第 20 课那三块积木的全套公理都在这本书里。",
+      "p": "https://en.wikipedia.org/wiki/George_Boole"
+    },
+    {
+      "t": "A Symbolic Analysis of Relay and Switching Circuits（继电器与开关电路的符号分析）",
+      "a": "Claude Shannon（克劳德·香农）",
+      "y": 1937,
+      "v": "Transactions of the AIEE",
+      "g": "论文",
+      "d": "硕士论文让布尔代数与开关电路正式结婚——「用电路做逻辑」是数字系统的起点。",
+      "p": "https://en.wikipedia.org/wiki/Claude_Shannon"
+    },
+    {
+      "t": "The Map Method for Synthesis of Combinational Logic Circuits（组合逻辑综合的图方法）",
+      "a": "Maurice Karnaugh（莫里斯·卡诺）",
+      "y": 1953,
+      "v": "Bell System Technical Journal",
+      "g": "论文",
+      "d": "把真值表排成格雷码网格，相邻合并圈组化简——第 30 课那张图的原始论文。",
+      "p": "https://en.wikipedia.org/wiki/Karnaugh_map"
+    },
+    {
+      "t": "Computer Architecture: A Quantitative Approach（计算机体系结构：量化研究方法）",
+      "a": "John Hennessy & David Patterson",
+      "y": 2019,
+      "v": "第 6 版，Morgan Kaufmann",
+      "g": "教材",
+      "d": "「量化」二字是本章 150–170 课的方法论：流水线收益、缓存命中率、存储层次，全部用数字说话。",
+      "p": "https://en.wikipedia.org/wiki/Computer_architecture"
+    },
+    {
+      "t": "Cache（缓存）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "局部性原理、命中/缺失、替换策略与写策略的通用条目——160 课 cacheSim 模拟的就是这套机制的骨架。",
+      "p": "https://en.wikipedia.org/wiki/Cache_(computing)"
+    },
+    {
+      "t": "Interrupt（中断）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "中断请求、屏蔽、优先级与嵌套的标准术语表——170 课时间线上每一个动作都能在这对上正式名字。",
+      "p": "https://en.wikipedia.org/wiki/Interrupt"
+    }
+  ],
+  "73-audio-acoustics": [
+    {
+      "t": "Loudness, its Definition, Measurement and Calculation（响度：定义、测量与计算）",
+      "a": "Harvey Fletcher & Wilden Munson",
+      "y": 1933,
+      "v": "Journal of the Acoustical Society of America",
+      "g": "论文",
+      "d": "等响曲线族的原始测量：40 课那条「人耳不平直」的曲线，就是这组数据的 smoothing 版。",
+      "p": "https://en.wikipedia.org/wiki/Equal-loudness_contour"
+    },
+    {
+      "t": "Collected Papers on Acoustics（声学论文集）",
+      "a": "Wallace Clement Sabine（华莱士·克莱门特·赛宾）",
+      "y": 1922,
+      "v": "哈佛大学出版社",
+      "g": "原著",
+      "d": "混响时间公式 RT60 = 0.161·V/A 的出生地：110 课的赛宾账就是从这里算起的。",
+      "p": "https://en.wikipedia.org/wiki/Wallace_Clement_Sabine"
+    },
+    {
+      "t": "Natural Sounding Artificial Reverberation（自然听觉的人工混响）",
+      "a": "Manfred R. Schroeder（曼弗雷德·施罗德）",
+      "y": 1962,
+      "v": "Journal of the Audio Engineering Society",
+      "g": "论文",
+      "d": "用全通与梳状滤波器造混响的开山之作——120 课的延迟与梳状滤波正是它的积木。",
+      "p": "https://en.wikipedia.org/wiki/Reverberation"
+    },
+    {
+      "t": "Psychoacoustics: Facts and Models（心理声学：事实与模型）",
+      "a": "Eberhard Zwicker & Hugo Fastl",
+      "y": 1999,
+      "v": "第 3 版，Springer",
+      "g": "教材",
+      "d": "Bark 刻度、掩蔽曲线与响度模型的系统参考：40 课等响与掩蔽话题的深造入口。",
+      "p": "https://en.wikipedia.org/wiki/Bark_scale"
+    },
+    {
+      "t": "Dynamic range compression（动态范围压缩）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "阈值、比率、拐点、启动与释放的标准术语——130 课压缩器的全部旋钮在这对得上行业叫法。",
+      "p": "https://en.wikipedia.org/wiki/Dynamic_range_compression"
+    },
+    {
+      "t": "Binaural recording（双耳录音）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "ITD 与 ILD 两种定位线索的人头录音实践——140 课声像实验的双耳版本。",
+      "p": "https://en.wikipedia.org/wiki/Binaural_recording"
+    }
+  ],
+  "74-speech-audio": [
+    {
+      "t": "Acoustic Theory of Speech Production（语音产生的声学理论）",
+      "a": "Gunnar Fant（贡纳·凡特）",
+      "y": 1960,
+      "v": "Mouton",
+      "g": "原著",
+      "d": "源-滤波模型的完整理论：声门源与声道滤波可分离——10 课整章的奠基文献。",
+      "p": "https://en.wikipedia.org/wiki/Source%E2%80%93filter_model_of_speech_production"
+    },
+    {
+      "t": "Comparison of Parametric Representations for Monosyllabic Word Recognition（单音节词识别的参数表示比较）",
+      "a": "Steven Davis & Paul Mermelstein",
+      "y": 1980,
+      "v": "IEEE Trans. ASSP",
+      "g": "论文",
+      "d": "MFCC 的「身份证」论文：这组对比实验让梅尔倒谱成了语音识别三十年的默认特征。",
+      "p": "https://en.wikipedia.org/wiki/Mel-frequency_cepstrum"
+    },
+    {
+      "t": "Linear Prediction of Speech（语音的线性预测）",
+      "a": "John Markel & A. H. Gray Jr.",
+      "y": 1976,
+      "v": "Springer",
+      "g": "教材",
+      "d": "LPC 的系统教材：自相关法、反射系数与共振峰提取——80 课全部内容的出处。",
+      "p": "https://en.wikipedia.org/wiki/Linear_predictive_coding"
+    },
+    {
+      "t": "A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition（隐马尔可夫模型教程）",
+      "a": "Lawrence Rabiner（劳伦斯·拉宾纳）",
+      "y": 1989,
+      "v": "Proceedings of the IEEE",
+      "g": "论文",
+      "d": "史上被引最多的教程之一：130 课「第一代识别」的维特比、前后向与训练全套算法都讲透了。",
+      "p": "https://en.wikipedia.org/wiki/Hidden_Markov_model"
+    },
+    {
+      "t": "Deep Neural Networks for Acoustic Modeling in Speech Recognition（深度神经网络声学建模）",
+      "a": "Geoffrey Hinton 等",
+      "y": 2012,
+      "v": "IEEE Signal Processing Magazine",
+      "g": "论文",
+      "d": "四篇联合文章终结了 GMM 时代：130 课三代路线的分水岭就在这里。",
+      "p": "https://en.wikipedia.org/wiki/Speech_recognition"
+    },
+    {
+      "t": "Psychoacoustics（心理声学）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "掩蔽、临界频带与绝对听阈的通用综述——100 课掩蔽实验背后的全部听觉现象。",
+      "p": "https://en.wikipedia.org/wiki/Psychoacoustics"
+    }
+  ],
+  "75-image-video": [
+    {
+      "t": "Digital Image Processing（数字图像处理）",
+      "a": "Rafael Gonzalez & Richard Woods",
+      "y": 2018,
+      "v": "第 4 版，Pearson",
+      "g": "教材",
+      "d": "本章 10–60 课的标准教材：像素、卷积、边缘、频域一个不缺——想深造从这本开始。",
+      "p": "https://en.wikipedia.org/wiki/Digital_image_processing"
+    },
+    {
+      "t": "Discrete Cosine Transform（离散余弦变换）",
+      "a": "Nasir Ahmed, T. Natarajan & K. R. Rao",
+      "y": 1974,
+      "v": "IEEE Trans. Computers",
+      "g": "论文",
+      "d": "「比傅里叶更懂能量集中」的变换：70 课的 8×8 块与 80 课的 JPEG 都建立在它之上。",
+      "p": "https://en.wikipedia.org/wiki/Discrete_cosine_transform"
+    },
+    {
+      "t": "A Computational Approach to Edge Detection（边缘检测的计算方法）",
+      "a": "John Canny（约翰·坎尼）",
+      "y": 1986,
+      "v": "IEEE Trans. PAMI",
+      "g": "论文",
+      "d": "把边缘检测写成三准则优化（好检测、好定位、单响应）：50 课 canny 实验的原始论文。",
+      "p": "https://en.wikipedia.org/wiki/Canny_edge_detector"
+    },
+    {
+      "t": "The JPEG Still Picture Compression Standard（JPEG 静态图像压缩标准）",
+      "a": "Gregory Wallace（格雷戈里·华莱士）",
+      "y": 1991,
+      "v": "Communications of the ACM",
+      "g": "论文",
+      "d": "JPEG 标准的自述：色度子采样、DCT、量化矩阵与 Z 字扫描的完整流程——80 课把这条流水线拆开给你看。",
+      "p": "https://en.wikipedia.org/wiki/JPEG"
+    },
+    {
+      "t": "Motion estimation（运动估计）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "块匹配、搜索策略与运动矢量的行业术语——110 课 SAD 搜索的标准背景。",
+      "p": "https://en.wikipedia.org/wiki/Motion_estimation"
+    },
+    {
+      "t": "Coding Theorems for a Discrete Source With a Fidelity Criterion（保真度准则下的离散信源编码定理）",
+      "a": "Claude Shannon（克劳德·香农）",
+      "y": 1959,
+      "v": "IRE National Convention Record",
+      "g": "论文",
+      "d": "率失真理论的起点：40 章香农信息论的应用收口——140 课 R(D) 曲线的理论出身。",
+      "p": "https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_theory"
+    }
   ]
 }

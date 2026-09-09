@@ -593,6 +593,108 @@ export function blockLayout(nodeCh, edges, root, opts = {}) {
   return { lvl, parent, pos, order, maxL, minX, width, height, trunk, pred, succ, anc, desc };
 }
 
+/**
+ * 筛选后重新排版（知识树选中节点时用）。
+ * ---------------------------------------------------------------------------
+ * 与知识图谱页同一口径：**筛选 = 重排**，不是把无关节点擦淡留在原位。
+ *   ① 空层整层撤掉，剩下的层往上靠 —— 只做「每层横向平移」的话，纵向仍按原层距
+ *      摊在几十层上，选中一个节点后画面大半是空的层间距；
+ *   ② 层内把可见节点压成连续槽位，消掉被筛掉节点留下的空洞（保留原间距时，
+ *      同层两颗可见胶囊可能隔着一整屏空白）；
+ *   ③ 层内原本多行的（单元模式的章块是 cols×rows 网格）按 y 分簇保留，
+ *      行距收一档（0.72 层距），层与层之间仍留足 levelH，代际关系看得出来。
+ * 每行都绕 x=0 居中，故整层共用一根中轴；收尾再整体挪一次，把内容框回原 viewBox
+ * （原布局的层带平移量、不是绕 0 居中，直接按中轴摆会顶出框外被 SVG 裁掉）。
+ *
+ * @param {object} L        layeredLayout / blockLayout 的结果
+ * @param {?Set<number>} visible 可见节点下标；null 表示不筛选
+ * @param {object} opts     { gapX, levelH, topPad, pillW, pillH }（与布局时同一套）
+ * @returns {{pos: Array, bounds: ?object}} bounds 为世界坐标下的内容边界
+ */
+export function compactLayout(L, visible, opts = {}) {
+  if (!visible) return { pos: L.pos, bounds: null };
+  const gapX = opts.gapX ?? 138;
+  const levelH = opts.levelH ?? 62;
+  const topPad = opts.topPad ?? 18;
+  const rowGap = Math.round(levelH * 0.72);
+  const out = L.pos.map((p) => ({ ...p }));
+
+  /* 按层分组：只留还有可见节点的层，层序照旧（先修在上、后继在下） */
+  const byD = new Map();
+  visible.forEach((i) => {
+    const d = L.pos[i].lvl;
+    if (!byD.has(d)) byD.set(d, []);
+    byD.get(d).push(i);
+  });
+  const levels = [...byD.keys()].sort((a, b) => a - b);
+
+  let cy = topPad;
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  levels.forEach((d) => {
+    /* 层内先把「同一行」的节点归堆：按原 y 排序，拉开超过 0.6 个层距就换行 */
+    const list = byD.get(d)
+      .slice()
+      .sort((a, b) => L.pos[a].y - L.pos[b].y || L.pos[a].x - L.pos[b].x || a - b);
+    const rows = [];
+    list.forEach((i) => {
+      const last = rows[rows.length - 1];
+      if (!last || L.pos[i].y - last.y0 > levelH * 0.6) rows.push({ y0: L.pos[i].y, list: [i] });
+      else last.list.push(i);
+    });
+    rows.forEach((r, ri) => {
+      r.list.sort((a, b) => L.pos[a].x - L.pos[b].x || a - b);
+      const mid = (r.list.length - 1) / 2;
+      const y = cy + ri * rowGap;
+      r.list.forEach((i, k) => {
+        out[i].x = (k - mid) * gapX;
+        out[i].y = y;
+      });
+      if (out[r.list[0]].x < minX) minX = out[r.list[0]].x;
+      if (out[r.list[r.list.length - 1]].x > maxX) maxX = out[r.list[r.list.length - 1]].x;
+    });
+    const bottom = cy + (rows.length - 1) * rowGap;
+    if (cy < minY) minY = cy;
+    if (bottom > maxY) maxY = bottom;
+    cy = bottom + levelH;
+  });
+
+  /* 整体归位：原布局的层是带平移量（中位数松弛）的，并不绕 0 居中，
+     把每层硬摆到中轴会顶出 viewBox——SVG 会直接裁掉框外内容（胶囊凭空少一排）。
+     重排后每层槽位数只减不增、层号只减不增，故包围盒一定不比原布局大，
+     总能整体挪回框内；万一算出来更大（数据异常）就居中，两边均匀溢出。 */
+  const padX = (opts.pillW ?? 128) / 2 + 16;
+  const padY = (opts.pillH ?? 26) / 2 + 28;
+  const loX = L.minX + padX;
+  const hiX = L.minX + L.width - padX;
+  const hiY = L.height - padY;
+  const clampShift = (lo, hi, lo0, hi0) =>
+    (hi - lo >= hi0 - lo0
+      ? Math.min(Math.max(0, lo - lo0), hi - hi0)
+      : (lo + hi) / 2 - (lo0 + hi0) / 2);
+  const dx = clampShift(loX, hiX, minX, maxX);
+  const dy = clampShift(0, hiY, minY, maxY);
+  if (dx || dy) {
+    visible.forEach((i) => {
+      out[i].x += dx;
+      out[i].y += dy;
+    });
+    minX += dx;
+    maxX += dx;
+    minY += dy;
+    maxY += dy;
+  }
+
+  const pad = 80;
+  const bounds = { minX: minX - pad, maxX: maxX + pad, minY: minY - pad, maxY: maxY + pad };
+  bounds.width = bounds.maxX - bounds.minX;
+  bounds.height = bounds.maxY - bounds.minY;
+  return { pos: out, bounds };
+}
+
 /** 从 sel 沿主父回溯的最长先修链（下标数组，含 sel）。 */
 export function chainOf(sel, parent) {
   if (sel == null || sel < 0) return [];

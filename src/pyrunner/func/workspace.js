@@ -15,13 +15,18 @@ import { build } from './expr.js';
 import { texToText, toDisplayTex, isLatex, countPlaceholders } from './latex.js';
 import * as A from './analyze.js';
 import { createPlot, themeColors } from './plot.js';
+import { createSurface } from './surface.js';
 import { buildKeypad, nextPlaceholder } from './keypad.js';
 import { getKatex } from '../mathout';
 
 const MAX_FUNCS = 6;
 
+/* 3D 只画第一条曲线：两个曲面互相穿插时画家算法排不对顺序，
+   叠在一起反而看不清，不如只留一条 */
+const MAX_FUNCS_3D = 1;
+
 /* 开场就能点的例子：每一个都对应一种「值得看见」的形状 */
-const PRESETS = [
+const PRESETS2D = [
   { name: '抽样函数', funcs: ['sin(x)/x'], view: [-12, 12] },
   { name: '三次曲线', funcs: ['x^3-3*x'], view: [-4, 4] },
   { name: '高斯钟形', funcs: ['exp(-x^2)'], view: [-4, 4] },
@@ -32,6 +37,21 @@ const PRESETS = [
   { name: '尖点', funcs: ['abs(x)-1'], view: [-5, 5] },
   { name: '对数', funcs: ['ln(x)', 'log(x)'], view: [0.01, 8] },
   { name: '切线的割线', funcs: ['sin(x)', 'x'], view: [-4, 4] },
+];
+
+/* 3D 的例子。domain 是 xy 平面的半边长（域 = [-domain, domain]²），
+   每个形状合适的域差得远：马鞍面 4 就够，涟漪要到 10 才铺得开几个波 */
+const PRESETS3D = [
+  { name: '马鞍面', funcs: ['x*y'], domain: 4 },
+  { name: '抛物面', funcs: ['x^2+y^2'], domain: 3 },
+  { name: '高斯钟', funcs: ['exp(-x^2-y^2)'], domain: 3 },
+  { name: '波浪', funcs: ['sin(x)*cos(y)'], domain: 6 },
+  { name: '涟漪', funcs: ['sin(sqrt(x^2+y^2))'], domain: 10 },
+  { name: '3D 抽样函数', funcs: ['sin(sqrt(x^2+y^2))/sqrt(x^2+y^2)'], domain: 12 },
+  { name: '交叉涟漪', funcs: ['sin(x*y)'], domain: 4 },
+  { name: '尖谷', funcs: ['abs(x)+abs(y)'], domain: 4 },
+  { name: '双曲抛物', funcs: ['(x^2-y^2)/4'], domain: 4 },
+  { name: '调高度', funcs: ['a*(x^2+b*y^2)'], params: { a: 1, b: -1 }, domain: 3 },
 ];
 
 function el(tag, cls, text) {
@@ -69,12 +89,22 @@ export function createWorkspace(host, opts) {
     activeId: null,
     area: null,          /* [a,b] 积分区间 */
     areaMode: false,
+    mode: o.mode === '3d' ? '3d' : '2d',
+    domain: o.domain || 4,   /* 3D 的 xy 域半边长 */
     show: {
       grid: true,
       zeros: o.zeros !== false,
       extrema: o.extrema !== false,
     },
+    show3: {
+      wire: true,
+      box: true,
+      extrema: true,
+    },
   };
+
+  /* 自变量表：2D 只有 x，3D 是 z = f(x, y) */
+  const vars = () => (state.mode === '3d' ? ['x', 'y'] : ['x']);
 
   /* ---------- 骨架 ---------- */
 
@@ -92,19 +122,25 @@ export function createWorkspace(host, opts) {
   btnAdd.type = 'button';
   addRow.appendChild(btnAdd);
 
-  /* 预设条是「给第一次来的人引路」用的，嵌进课文时通常关掉（课文自带上下文） */
+  /* 预设条是「给第一次来的人引路」用的，嵌进课文时通常关掉（课文自带上下文）。
+     2D / 3D 各有一套例子，切模式时整条重画。 */
   let presetBox = null;
   if (o.presets !== false) {
     presetBox = el('div', 'ml-fn__presets');
     presetBox.appendChild(el('div', 'ml-fn__subhead', '试试这些'));
-    const presetRow = el('div', 'ml-fn__presetrow');
-    PRESETS.forEach((p) => {
+  }
+  function renderPresets() {
+    if (!presetBox) return;
+    const old = presetBox.querySelector('.ml-fn__presetrow');
+    if (old) old.remove();
+    const row = el('div', 'ml-fn__presetrow');
+    (state.mode === '3d' ? PRESETS3D : PRESETS2D).forEach((p) => {
       const b = el('button', 'ml-fn__chip', p.name);
       b.type = 'button';
       b.addEventListener('click', () => applyPreset(p));
-      presetRow.appendChild(b);
+      row.appendChild(b);
     });
-    presetBox.appendChild(presetRow);
+    presetBox.appendChild(row);
   }
 
   /* 键盘在课文里默认收起：占地方，且课文通常只演示一个给定式子 */
@@ -130,10 +166,20 @@ export function createWorkspace(host, opts) {
   const infoBox = el('div', 'ml-fn__info');
   right.appendChild(infoBox);
 
+  /* 画布高度：课文里写 height 就用；没写就交给 CSS（.ml-fn__plot 的
+     440/360/300 响应式高度）——别在这里抢着给默认值，否则 CSS 变窄了
+     画布还是 420，底部会被 plothost 的 overflow:hidden 切掉一截。 */
   const plot = createPlot(plotHost, {
-    height: o.height || 420,
+    height: o.height,
     view: o.view ? { x0: o.view[0], x1: o.view[1], y0: -6, y1: 6 } : { x0: -12, x1: 12, y0: -3, y1: 3 },
   });
+
+  /* 3D 曲面与 2D 画布同处一个坑里，谁在场上谁显示——
+     换来的是两套交互不用互相迁就，切模式时也不用重建 DOM */
+  const surfaceHost = el('div', 'ml-fn__surfhost is-off');
+  plotHost.appendChild(surfaceHost);
+  const surface = createSurface(surfaceHost, { height: o.height });
+  const plotWrap = plot.el;
 
   /* ---------- 工具栏 ---------- */
 
@@ -197,8 +243,110 @@ export function createWorkspace(host, opts) {
     }
   });
 
-  toolbar.append(tbFit, tbZoomIn, tbZoomOut, tbReset,
+  /* 2D 那组：定视野、标零点极值、量面积 */
+  const tb2d = el('div', 'ml-fn__tbgroup');
+  tb2d.append(tbFit, tbZoomIn, tbZoomOut, tbReset,
     el('span', 'ml-fn__tsep'), tGrid.b, tZero.b, tExtr.b, tArea.b);
+
+  /* 3D 那组：换视角、开关参照物、调域的大小 */
+  const tb3d = el('div', 'ml-fn__tbgroup');
+  const mkView = (label, title, a, e) => {
+    const b = el('button', 'ml-fn__btn', label);
+    b.type = 'button';
+    b.title = title;
+    b.addEventListener('click', () => surface.setAngles(a, e));
+    return b;
+  };
+  const tWire = mkToggle('网格线', '在曲面上画格线，起伏看得更清楚',
+    () => state.show3.wire, (v) => { state.show3.wire = v; });
+  const tBox = mkToggle('参照框', '画底面网格与包围盒，给高度一个参照',
+    () => state.show3.box, (v) => { state.show3.box = v; });
+  const tExtr3 = mkToggle('极值', '标出曲面上的局部最高与最低',
+    () => state.show3.extrema !== false, (v) => { state.show3.extrema = v; });
+
+  const domainRow = el('div', 'ml-fn__domain');
+  const domainRange = document.createElement('input');
+  domainRange.type = 'range';
+  domainRange.min = '0.5';
+  domainRange.max = '20';
+  domainRange.step = '0.5';
+  domainRange.value = String(state.domain);
+  const domainVal = el('span', 'ml-fn__paramval', '±' + state.domain);
+  domainRange.addEventListener('input', () => {
+    state.domain = parseFloat(domainRange.value);
+    domainVal.textContent = '±' + state.domain;
+    scheduleRecompute();
+  });
+  const domainLab = el('span', 'ml-fn__domainlab', '域');
+  domainLab.title = 'xy 平面上取多大的方块来画（± 这个值）';
+  domainRow.append(domainLab, domainRange, domainVal);
+
+  /* 高度夸张：z 方向的放大倍数。曲面起伏往往比 xy 跨度小一个量级，
+     不夸张就是一张平板——这是 zScale 唯一的入口，改式子/改域都不动它 */
+  const zRow = el('div', 'ml-fn__domain');
+  const zScaleRange = document.createElement('input');
+  zScaleRange.type = 'range';
+  zScaleRange.min = '0.1';
+  zScaleRange.max = '2.5';
+  zScaleRange.step = '0.05';
+  zScaleRange.value = String(surface.zScale);
+  const zScaleVal = el('span', 'ml-fn__paramval', '×' + fmtNum(surface.zScale, 2));
+  zScaleRange.addEventListener('input', () => {
+    const v = parseFloat(zScaleRange.value);
+    zScaleVal.textContent = '×' + fmtNum(v, 2);
+    surface.setZScale(v);
+  });
+  const zScaleLab = el('span', 'ml-fn__domainlab', '高度');
+  zScaleLab.title = '把 z 方向拉高或压扁（高度夸张）。起伏太扁看不见就拉高，想看真实比例就压到 ×0.25 附近';
+  zRow.append(zScaleLab, zScaleRange, zScaleVal);
+
+  tb3d.append(
+    mkView('等轴', '回到默认视角', -0.9, 0.52),
+    mkView('俯视', '从正上方往下看，形状像等高线图', 0, Math.PI / 2 - 0.02),
+    mkView('平视', '压低到几乎水平，侧看起伏', 0, 0.03),
+    el('span', 'ml-fn__tsep'), tWire.b, tBox.b, tExtr3.b,
+    el('span', 'ml-fn__tsep'), domainRow, zRow);
+
+  /* 模式切换：2D 与 3D 的自变量表不同（后者多一个 y），
+     切过去必须把所有式子按新的自变量表重新编译一遍 */
+  const modeSeg = el('div', 'ml-fn__seg');
+  const modeBtns = [
+    { v: '2d', label: '平面 y = f(x)' },
+    { v: '3d', label: '立体 z = f(x, y)' },
+  ].map((m) => {
+    const b = el('button', 'ml-fn__segbtn', m.label);
+    b.type = 'button';
+    b.addEventListener('click', () => setMode(m.v));
+    modeSeg.appendChild(b);
+    return { b, v: m.v };
+  });
+
+  toolbar.append(modeSeg, tb2d, tb3d);
+
+  function setMode(v) {
+    if (state.mode === v) return;
+    state.mode = v;
+    /* 3D 只画一条：多曲面互相穿插时排序排不对，叠着反而是添乱 */
+    if (v === '3d' && state.funcs.length > MAX_FUNCS_3D) {
+      state.funcs = state.funcs.slice(0, MAX_FUNCS_3D);
+      renderCards();
+    }
+    syncMode();
+    renderPresets();
+    refreshAll();
+  }
+
+  function syncMode() {
+    const d3 = state.mode === '3d';
+    modeBtns.forEach((x) => x.b.classList.toggle('is-on', state.mode === x.v));
+    tb2d.classList.toggle('is-off', d3);
+    tb3d.classList.toggle('is-off', !d3);
+    plotWrap.classList.toggle('is-off', d3);
+    surfaceHost.classList.toggle('is-off', !d3);
+    btnAdd.classList.toggle('is-off', d3);
+    if (d3) surface.draw();
+    else plot.draw();
+  }
 
   /* ---------- 函数卡片 ---------- */
 
@@ -229,7 +377,9 @@ export function createWorkspace(host, opts) {
     const head = el('div', 'ml-fn__cardhead');
     const dot = el('span', 'ml-fn__dot');
     dot.style.background = colorOf(fu);
-    const name = el('span', 'ml-fn__fname', 'f' + subDigits(index + 1) + '(x) =');
+    /* 3D 里式子是 z = f(x, y)，卡片标题得跟着变，否则会以为 y 是参数 */
+    const argTxt = state.mode === '3d' ? '(x, y) =' : '(x) =';
+    const name = el('span', 'ml-fn__fname', 'f' + subDigits(index + 1) + argTxt);
 
     const btns = el('div', 'ml-fn__cardbtns');
     const bEye = el('button', 'ml-fn__icon', '◉');
@@ -384,7 +534,8 @@ export function createWorkspace(host, opts) {
     try {
       /* LaTeX 写的先翻成算式文本，手打的直接用 */
       const src = isLatex(raw) ? texToText(raw) : raw;
-      fu.compiled = build(src);
+      /* 自变量表跟着模式走：3D 下 y 是自变量，2D 下它只是个可调参数 */
+      fu.compiled = build(src, { vars: vars() });
       fu.error = null;
       fu.tex = fu.compiled.tex;
     } catch (e) {
@@ -482,6 +633,10 @@ export function createWorkspace(host, opts) {
   }
 
   function recompute() {
+    if (state.mode === '3d') {
+      recompute3();
+      return;
+    }
     const v = plot.view;
     /* 采样比视野宽一圈：拖动时先有得画，不用等重新采样 */
     const pad = (v.x1 - v.x0) * 0.2;
@@ -521,6 +676,40 @@ export function createWorkspace(host, opts) {
     refreshInfo();
   }
 
+  /* ---------- 3D 重算 ---------- */
+
+  /* 曲面网格分辨率。40×40 = 1600 个面片，静止时一帧画得完；
+     拖动时 surface 内部会跳格降到 1/4，帧率才跟得上。 */
+  const GRID_N = 40;
+
+  function recompute3() {
+    const d = Math.max(0.05, state.domain);
+    state.funcs.forEach((fu) => {
+      if (!fu.compiled || !fu.visible) {
+        fu.result3 = null;
+        return;
+      }
+      const f = A.makeFn(fu.compiled, state.params);
+      const g = A.grid2(f, -d, d, -d, d, GRID_N, GRID_N);
+      /* 补可去奇点：sin(√(x²+y²))/√(x²+y²) 在原点正是 0/0 */
+      const healed = A.healGrid2(g);
+      const r = A.zRange(g.z);
+      fu.result3 = {
+        f,
+        g,
+        zlo: r.lo,
+        zhi: r.hi,
+        /* 一个有限值都没有（如 ln(x²+y²-100) 域只有 3）：别拿
+           默认的 [-1,1] 假装有高度，让读数明说「算不出来」 */
+        empty: !!r.empty,
+        healed,
+        extrema: A.extrema2(g, 8),
+      };
+    });
+    refreshPlot();
+    refreshInfo();
+  }
+
   /* ---------- 画图 ---------- */
 
   function sliceRange(xs, ys, a, b) {
@@ -538,6 +727,10 @@ export function createWorkspace(host, opts) {
   }
 
   function refreshPlot() {
+    if (state.mode === '3d') {
+      refreshPlot3();
+      return;
+    }
     const curves = [];
     const marks = [];
     const areas = [];
@@ -603,6 +796,75 @@ export function createWorkspace(host, opts) {
     paintReadout(null);
   }
 
+  /* ---------- 3D 画图 ---------- */
+
+  /* 当前 3D 曲面与悬停读数。refreshPlot3 每次更新，onHover 只读 */
+  let curFu3 = null;
+  let cur3 = null;
+  let hover3 = null;
+
+  function refreshPlot3() {
+    /* 只画第一条：两个曲面互相穿插时画家算法排不对顺序，叠着反而是添乱 */
+    const fu = state.funcs.find((x) => x.result3);
+    if (!fu) {
+      curFu3 = null;
+      cur3 = null;
+      hover3 = null;
+      surface.setData({ mesh: null, marks: [] });
+      paintReadout3();
+      return;
+    }
+    const r = fu.result3;
+    curFu3 = fu;
+    cur3 = r;
+    const marks = state.show3.extrema === false ? [] : (r.extrema || []).map((e) => ({
+      x: e.x,
+      y: e.y,
+      z: e.z,
+      color: e.type === 'max' ? '#d1483f' : '#2f8f5b',
+      label: (e.type === 'max' ? '极大 ' : '极小 ') + fmtNum(e.z, 3),
+    }));
+    surface.setData({
+      mesh: r.g,
+      zlo: r.zlo,
+      zhi: r.zhi,
+      marks,
+      wire: state.show3.wire,
+      box: state.show3.box,
+      /* 悬停探针的求值函数：surface 只管几何，z 值由这边给 */
+      at: r.f,
+    });
+    paintReadout3();
+  }
+
+  function paintReadout3() {
+    readRow.innerHTML = '';
+    if (!curFu3 || !cur3) {
+      readRow.appendChild(el('span', 'ml-fn__hint',
+        '拖动旋转 · 滚轮缩放 · 双击回到默认视角'));
+      return;
+    }
+    if (cur3.empty) {
+      readRow.appendChild(el('span', 'ml-fn__hint',
+        '这块区域里一个值都算不出来——检查式子，或把「域」调大试试'));
+      return;
+    }
+    const item = el('span', 'ml-fn__lgitem');
+    const dot = el('span', 'ml-fn__dot');
+    dot.style.background = colorOf(curFu3);
+    item.append(dot, el('span', 'ml-fn__lgname', 'f(x, y)'));
+    item.appendChild(el('span', 'ml-fn__lgval',
+      ' ∈ [' + fmtNum(cur3.zlo, 3) + ', ' + fmtNum(cur3.zhi, 3) + ']'));
+    readRow.appendChild(item);
+    if (hover3) {
+      readRow.appendChild(el('span', 'ml-fn__hoverx',
+        'f(' + fmtNum(hover3.x, 3) + ', ' + fmtNum(hover3.y, 3) + ') = ' + fmtNum(hover3.z)));
+    } else {
+      readRow.appendChild(el('span', 'ml-fn__hint',
+        '拖动旋转 · 滚轮缩放 · 双击回到默认视角 · 光标放在画布上可读出任一点的值'));
+    }
+  }
+
   /* ---------- 读数与图例 ---------- */
 
   function paintReadout(hover) {
@@ -639,6 +901,10 @@ export function createWorkspace(host, opts) {
   /* ---------- 性质面板 ---------- */
 
   function refreshInfo() {
+    if (state.mode === '3d') {
+      refreshInfo3();
+      return;
+    }
     infoBox.innerHTML = '';
     const vis = state.funcs.filter((fu) => fu.compiled);
     if (!vis.length) {
@@ -778,6 +1044,84 @@ export function createWorkspace(host, opts) {
     });
   }
 
+  /* ---------- 3D 性质面板 ---------- */
+
+  function refreshInfo3() {
+    infoBox.innerHTML = '';
+    const fu = state.funcs[0];
+    if (!fu || !fu.compiled) {
+      infoBox.classList.add('is-empty');
+      return;
+    }
+    infoBox.classList.remove('is-empty');
+    infoBox.appendChild(el('div', 'ml-fn__subhead', '长相'));
+
+    const sec = el('div', 'ml-fn__infosec');
+    const head = el('div', 'ml-fn__infohead');
+    const dot = el('span', 'ml-fn__dot');
+    dot.style.background = colorOf(fu);
+    head.append(dot, el('span', 'ml-fn__infoname', 'z = f(x, y)'));
+    if (fu.error) {
+      head.appendChild(el('span', 'ml-fn__infobad', fu.error));
+      sec.appendChild(head);
+      infoBox.appendChild(sec);
+      return;
+    }
+    if (fu.tex) {
+      const texBox = el('span', 'ml-fn__infotex', '');
+      head.appendChild(texBox);
+      getKatex()
+        .then((katex) => {
+          try {
+            texBox.innerHTML = katex.renderToString(fu.tex, { throwOnError: false });
+          } catch (e) { void e; }
+        })
+        .catch(() => {});
+    }
+    sec.appendChild(head);
+
+    const r = fu.result3;
+    if (!r) {
+      sec.appendChild(el('div', 'ml-fn__note', '（已隐藏）'));
+      infoBox.appendChild(sec);
+      return;
+    }
+
+    const grid = el('div', 'ml-fn__kv');
+    const put = (k, val, cls) => {
+      const item = el('div', 'ml-fn__kvitem' + (cls ? ' ' + cls : ''));
+      item.append(el('span', 'ml-fn__k', k), el('span', 'ml-fn__v', val));
+      grid.appendChild(item);
+    };
+
+    put('高度范围',
+      r.empty ? '这块区域里算不出值' : '[' + fmtNum(r.zlo, 4) + ', ' + fmtNum(r.zhi, 4) + ']',
+      r.empty ? 'is-mute' : '');
+    put('中心高度', fmtNum(r.f(0, 0), 6));
+
+    const ex = r.extrema || [];
+    put('极大值', ex.filter((e) => e.type === 'max').slice(0, 4)
+      .map((e) => fmtNum(e.z, 4) + ' @(' + fmtNum(e.x, 2) + ', ' + fmtNum(e.y, 2) + ')').join('；')
+      || '视野内没有', ex.some((e) => e.type === 'max') ? '' : 'is-mute');
+    put('极小值', ex.filter((e) => e.type === 'min').slice(0, 4)
+      .map((e) => fmtNum(e.z, 4) + ' @(' + fmtNum(e.x, 2) + ', ' + fmtNum(e.y, 2) + ')').join('；')
+      || '视野内没有', ex.some((e) => e.type === 'min') ? '' : 'is-mute');
+
+    /* 补了多少个算不出来的点，说一声，免得用户以为图本来就是那样 */
+    if (r.healed > 0) {
+      infoBox.appendChild(el('div', 'ml-fn__note',
+        '有 ' + r.healed + ' 个格子原本算不出来（多半是可去奇点），已按周围的高度补上。'));
+    }
+    sec.appendChild(grid);
+    infoBox.appendChild(sec);
+
+    /* 提示还有空位没填 */
+    if (isLatex(fu.src) && countPlaceholders(fu.src) > 0) {
+      infoBox.appendChild(el('div', 'ml-fn__note is-warn',
+        '还有 ' + countPlaceholders(fu.src) + ' 个空位没填，先按 1 算着，填完再看。'));
+    }
+  }
+
   /* ---------- 串联 ---------- */
 
   const scheduleParse = debounce((fu) => {
@@ -796,6 +1140,11 @@ export function createWorkspace(host, opts) {
 
   plot.onView(() => scheduleRecomputeDebounced());
   plot.onHover((h) => paintReadout(h));
+  /* 3D 的悬停读数：surface 反解出 (x,y) 并用 at 求出 z，这里只剩展示 */
+  surface.onHover((h) => {
+    hover3 = h;
+    paintReadout3();
+  });
   plot.onSelect((r, done) => {
     state.area = r ? [Math.min(r[0], r[1]), Math.max(r[0], r[1])] : null;
     refreshPlot();
@@ -816,6 +1165,15 @@ export function createWorkspace(host, opts) {
   }
 
   function applyPreset(p) {
+    /* 预设自己带模式：点 3D 的例子就切到立体，反之切回平面 */
+    const presetMode = p.domain !== undefined ? '3d' : '2d';
+    const modeChanged = state.mode !== presetMode;
+    if (modeChanged) state.mode = presetMode;
+    if (p.domain !== undefined) {
+      state.domain = p.domain;
+      domainRange.value = String(p.domain);
+      domainVal.textContent = '±' + p.domain;
+    }
     state.funcs = p.funcs.map((src, i) => makeFunc(src, i));
     state.params = Object.assign({}, p.params || {});
     state.area = null;
@@ -824,6 +1182,10 @@ export function createWorkspace(host, opts) {
     plot.setSelection(null);
     tArea.sync();
     if (p.view) plot.setView({ x0: p.view[0], x1: p.view[1] }, true);
+    if (modeChanged) {
+      syncMode();
+      renderPresets();
+    }
     renderCards();
     state.funcs.forEach(parseOne);
     syncParams();
@@ -831,8 +1193,10 @@ export function createWorkspace(host, opts) {
     state.activeId = state.funcs[0].id;
     syncActive();
     recompute();
-    plot.fitY(0.12);
-    recompute();
+    if (state.mode === '2d') {
+      plot.fitY(0.12);
+      recompute();
+    }
   }
 
   function refreshAll() {
@@ -856,20 +1220,30 @@ export function createWorkspace(host, opts) {
   const initial = o.funcs && o.funcs.length ? o.funcs : ['sin(x)/x'];
   state.funcs = initial.map((src, i) => makeFunc(src, i));
   renderCards();
+  renderPresets();
+  syncMode();
   if (o.view) plot.setView({ x0: o.view[0], x1: o.view[1] }, true);
   refreshAll();
-  plot.fitY(0.12);
+  if (state.mode === '2d') plot.fitY(0.12);
   recompute();
 
   return {
     el: root,
-    /** 外部换式子用（嵌进课文时方便） */
-    setFuncs(list, view) {
-      state.funcs = (list || []).map((src, i) => makeFunc(src, i));
-      if (view) plot.setView({ x0: view[0], x1: view[1] }, true);
+    /** 外部换式子用（嵌进课文时方便）。第二参数可以是 [x0,x1] 或 {view, mode, domain} */
+    setFuncs(list, opts) {
+      const op = Array.isArray(opts) ? { view: opts } : (opts || {});
+      if (op.mode && op.mode !== state.mode) {
+        state.mode = op.mode === '3d' ? '3d' : '2d';
+        syncMode();
+        renderPresets();
+      }
+      if (op.domain !== undefined) state.domain = op.domain;
+      const cap = state.mode === '3d' ? MAX_FUNCS_3D : MAX_FUNCS;
+      state.funcs = (list || []).slice(0, cap).map((src, i) => makeFunc(src, i));
+      if (op.view) plot.setView({ x0: op.view[0], x1: op.view[1] }, true);
       renderCards();
       refreshAll();
-      plot.fitY(0.12);
+      if (state.mode === '2d') plot.fitY(0.12);
       recompute();
     },
     getView() { return plot.view; },
@@ -880,5 +1254,5 @@ export function createWorkspace(host, opts) {
   };
 }
 
-export { PRESETS };
+export { PRESETS2D, PRESETS3D };
 export default createWorkspace;

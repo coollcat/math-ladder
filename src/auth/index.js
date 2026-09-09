@@ -1,16 +1,32 @@
 /* ============================================================
- * 数学阶梯 · 本地账号体系
+ * 数学阶梯 · 账号体系（校验在服务端，前端只管登录态）
  *
- * 设计定位：本站为静态站 + 私有部署场景。
- * - 不开放公开注册：账号由站方本地 agent 用 scripts/add-user.mjs 统一开通，
- *   账号库是 src/data/accounts.json（构建时打进 bundle，只存 salt + 哈希，不存明文）。
- * - 登录态存 localStorage `ml-auth`（浏览器本机，不上传）。
- * - 受登录门禁的能力：论文 PDF 的**本站归档副本**下载、学习进度的记录与管理（ml-progress / ml-exercises）。
- *   未登录用户可正常浏览全部课程内容、打开文献页面，PDF 下载按钮会指向原始出处
- *   （不暴露本站归档路径）；登录后同一按钮改为从 static/papers/ 取本地副本。
- * - 注意：静态站没有服务端会话，这套门禁是「产品级权限入口」而非安全边界；
- *   真正的机密文件应放在未公开的存储位置，链接只发给已授权者。
+ * 设计定位：静态站 + 一台私有服务器（可选）。
+ * - 不开放公开注册：账号由站方在服务器上用
+ *   `node server/sync-server.mjs --add-user <用户名> <显示名> <密码>` 开通，
+ *   账号库只留在服务器的数据目录里（server/data/accounts.json，不入库、不进 bundle）。
+ * - 校验走 POST /api/login（见 loginRemote）。**前端不再 import accounts.json**，
+ *   账号库一个字节都不打进 bundle——这是本次最大的安全收益：
+ *   打开 DevTools 也抄不走任何账号哈希或明文。
+ *   前端不再保留任何能校验密码的代码（那套已于 2026-09-04 删除），
+ *   也不做本地校验兜底：连不上服务器就是**不登录**，一切按游客处理。
+ * - 登录失败只有一句「用户名或密码不对」：不区分「没这个账号」与「密码错」
+ *   （服务端两条路径跑同样的哈希，账号不存在时走诱饵 salt），杜绝枚举账号名单。
+ * - 服务器连不上是另一种情况：不是登录失败，提示「已切换到本地模式」并留在登录页。
+ * - 登录态存 localStorage `ml-auth`：{ u, name, token, at }。
+ *   老格式（没有 token）也算已登录，只是不能云同步。
+ * - 受登录门禁的能力：论文 PDF 的**本站归档副本**下载、学习进度的记录与管理
+ *   （ml-progress / ml-exercises）。未登录用户可正常浏览全部课程内容、打开文献
+ *   页面，PDF 下载按钮会指向原始出处（不暴露本站归档路径）；登录后同一按钮改为
+ *   从 static/papers/ 取本地副本。
+ * - 注意：这套门禁是「产品级权限入口」而非安全边界；真正的机密文件应放在
+ *   未公开的存储位置，链接只发给已授权者。
  * ============================================================ */
+
+/* 同步服务地址由 docusaurus.config.js 的 customFields.syncApi 给出（默认 /api），
+   构建时可用环境变量 ML_SYNC_API 覆盖（服务独立部署到别的域名/端口时用）。
+   这里读的是 Docusaurus 生成的那份配置，与运行时页面用的是同一个值。 */
+import siteConfig from '@generated/docusaurus.config';
 
 export const AUTH_KEY = 'ml-auth';
 
@@ -27,95 +43,144 @@ function notifyAuthChange() {
   }
 }
 
-/* ---------- 精简 SHA-256（同步实现，http 部署下 crypto.subtle 不可用时的兜底） ----------
- * node 端 scripts/add-user.mjs 用 node:crypto 生成同算法哈希，两侧已做一致性测试。 */
-function utf8Bytes(str) {
-  const out = [];
-  for (let i = 0; i < str.length; i++) {
-    let c = str.charCodeAt(i);
-    if (c < 0x80) out.push(c);
-    else if (c < 0x800) {
-      out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
-    } else if (c >= 0xd800 && c < 0xdc00 && i + 1 < str.length) {
-      const c2 = str.charCodeAt(++i);
-      c = 0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff);
-      out.push(
-        0xf0 | (c >> 18),
-        0x80 | ((c >> 12) & 0x3f),
-        0x80 | ((c >> 6) & 0x3f),
-        0x80 | (c & 0x3f),
-      );
-    } else {
-      out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
-    }
-  }
-  return out;
+/* 这里原先有一整套本地校验（sha256Hex / hashPassword / userIndex / safeEqual /
+   verifyAccount / 诱饵 salt）。2026-09-04 账号库迁到服务端后已整体删除：
+   前端一旦还留着「能校验密码」的代码，将来就会被顺手复活成本地兜底，
+   而账号库已经不在 bundle 里了，那套代码既无用又是不确定性的温床。
+   服务端有自己的一份同算法实现（server/sync-server.mjs），站方的
+   scripts/add-user.mjs 也自带一份，都不依赖这里。 */
+
+/* ============================================================
+ * 远端登录（2026-09-04 新增）
+ *
+ * 账号库在服务器上，前端只负责把用户名密码递过去、把令牌收下来。
+ * 三种结果必须分清：
+ *   - 用户名或密码不对 → 一句通用提示（服务端对「没这个账号」也返回同一个错，
+ *     前端绝不能再细分）；
+ *   - 服务端限流 → 用服务端给的秒数冷却；
+ *   - 连不上服务器 → 不是「登录失败」，是「没有服务器可问」，登录页会切本地模式。
+ * 任何网络异常都在这里吞掉，绝不让异常冒到 UI 上去。
+ * ============================================================ */
+
+/** 云同步接口的基址（默认同源 /api，由 nginx 反代到本机的 Node 服务）。 */
+export function syncApiBase() {
+  const cf = (siteConfig && siteConfig.customFields) || {};
+  return String(cf.syncApi || '/api').replace(/\/+$/, '');
 }
 
-const K = [
-  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
-];
-
-export function sha256Hex(message) {
-  const bytes = utf8Bytes(message);
-  const bitLen = bytes.length * 8;
-  bytes.push(0x80);
-  while (bytes.length % 64 !== 56) bytes.push(0);
-  for (let i = 7; i >= 0; i--) bytes.push((i >= 4 ? 0 : (bitLen / 2 ** (i * 8))) & 0xff);
-  /* 长度字段（64 位大端）：bitLen 超过 32 位时用除法避免位运算截断 */
-  const lenBytes = [];
-  let n = bitLen;
-  for (let i = 0; i < 8; i++) {
-    lenBytes.unshift(n % 256);
-    n = Math.floor(n / 256);
+/**
+ * 向服务端换取令牌。
+ * 返回：{ ok: true, user, name, token }
+ *     | { ok: false, reason: 'bad' | 'ratelimited' | 'nobackend', retryAfter? }
+ */
+export async function loginRemote(user, pass) {
+  if (typeof window === 'undefined') return { ok: false, reason: 'nobackend' };
+  const clean = String(user || '').trim();
+  try {
+    const res = await fetch(syncApiBase() + '/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: clean, pass: String(pass || '') }),
+    });
+    const json = await res.json().catch(() => null);
+    /* 回的不是 JSON（nginx 的 404 页、反代的错误页）＝这儿没有同步服务 */
+    if (!json || typeof json !== 'object') return { ok: false, reason: 'nobackend' };
+    if (res.status === 429) {
+      return { ok: false, reason: 'ratelimited', retryAfter: Number(json.retryAfter) || 30 };
+    }
+    if (res.status === 200 && json.ok && json.token) {
+      return {
+        ok: true,
+        user: String(json.user || clean.toLowerCase()),
+        name: String(json.name || clean),
+        token: String(json.token),
+      };
+    }
+    return { ok: false, reason: 'bad' };
+  } catch {
+    /* 连不上 / 断网 / 超时 */
+    return { ok: false, reason: 'nobackend' };
   }
-  bytes.splice(bytes.length - 8, 8, ...lenBytes);
-
-  let h0 = 0x6a09e667, h1 = 0xbb67ae85, h2 = 0x3c6ef372, h3 = 0xa54ff53a,
-    h4 = 0x510e527f, h5 = 0x9b05688c, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
-  const w = new Array(64);
-
-  for (let off = 0; off < bytes.length; off += 64) {
-    for (let i = 0; i < 16; i++) {
-      w[i] =
-        (bytes[off + i * 4] << 24) |
-        (bytes[off + i * 4 + 1] << 16) |
-        (bytes[off + i * 4 + 2] << 8) |
-        bytes[off + i * 4 + 3];
-    }
-    for (let i = 16; i < 64; i++) {
-      const s0 = ((w[i - 15] >>> 7) | (w[i - 15] << 25)) ^ ((w[i - 15] >>> 18) | (w[i - 15] << 14)) ^ (w[i - 15] >>> 3);
-      const s1 = ((w[i - 2] >>> 17) | (w[i - 2] << 15)) ^ ((w[i - 2] >>> 19) | (w[i - 2] << 13)) ^ (w[i - 2] >>> 10);
-      w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
-    }
-    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
-    for (let i = 0; i < 64; i++) {
-      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
-      const ch = (e & f) ^ (~e & g);
-      const t1 = (h + S1 + ch + K[i] + w[i]) | 0;
-      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
-      const maj = (a & b) ^ (a & c) ^ (b & c);
-      const t2 = (S0 + maj) | 0;
-      h = g; g = f; f = e; e = (d + t1) | 0;
-      d = c; c = b; b = a; a = (t1 + t2) | 0;
-    }
-    h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0;
-    h4 = (h4 + e) | 0; h5 = (h5 + f) | 0; h6 = (h6 + g) | 0; h7 = (h7 + h) | 0;
-  }
-  return [h0, h1, h2, h3, h4, h5, h6, h7]
-    .map((x) => (x >>> 0).toString(16).padStart(8, '0'))
-    .join('');
 }
 
-export function hashPassword(salt, password) {
-  return sha256Hex(salt + ':' + password);
+/** 通知服务端吊销令牌。失败无所谓：本地照清，顶多让令牌自己过期。 */
+export async function logoutRemote() {
+  if (typeof window === 'undefined') return;
+  const a = getAuth();
+  if (!a || !a.token) return;
+  try {
+    await fetch(syncApiBase() + '/logout', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + a.token },
+    });
+  } catch {
+    /* 服务端不可用：清本地就够，异常不许冒出去 */
+  }
+}
+
+/** 令牌失效（服务端 401）时只摘掉令牌：人还是登录状态，只是不再同步。 */
+export function dropToken() {
+  if (typeof window === 'undefined') return;
+  const a = getAuth();
+  if (!a || !a.token) return;
+  setAuth({ u: a.u, name: a.name, at: a.at });
+}
+
+/* ---------- 失败节流（防暴力试密码，纯本地、换浏览器即失效） ---------- */
+
+const FAIL_KEY = 'ml-auth-fail';
+const FAIL_LIMIT = 5; /* 连续失败到这个数开始冷却 */
+const FAIL_BASE_MS = 30000; /* 首次冷却 30 秒，之后每次翻倍 */
+const FAIL_MAX_MS = 15 * 60 * 1000; /* 封顶 15 分钟 */
+
+function readFail() {
+  if (typeof window === 'undefined') return { n: 0, until: 0 };
+  try {
+    const f = JSON.parse(window.localStorage.getItem(FAIL_KEY) || 'null');
+    return f && typeof f === 'object' ? { n: f.n || 0, until: f.until || 0 } : { n: 0, until: 0 };
+  } catch {
+    return { n: 0, until: 0 };
+  }
+}
+
+/* 当前还要冷却多少毫秒（0 = 可以再试） */
+export function failCooldown() {
+  const f = readFail();
+  return Math.max(0, (f.until || 0) - Date.now());
+}
+
+/**
+ * 记一次登录失败，返回新的剩余冷却毫秒。
+ * forcedMs：服务端限流给的毫秒数（429 响应里的 retryAfter）。有它就用它——
+ * 服务端是按 IP 记的，比本地这个「换浏览器就失效」的计数器准；
+ * 两个值取大的那个，免得服务端说等 5 分钟、本地却只等 30 秒。
+ */
+export function noteFailure(forcedMs) {
+  if (typeof window === 'undefined') return 0;
+  const f = readFail();
+  const n = (f.n || 0) + 1;
+  let until = 0;
+  if (n >= FAIL_LIMIT) {
+    const step = Math.min(FAIL_BASE_MS * 2 ** (n - FAIL_LIMIT), FAIL_MAX_MS);
+    until = Date.now() + step;
+  }
+  const forced = Number(forcedMs) || 0;
+  if (forced > 0) until = Math.max(until, Date.now() + forced);
+  try {
+    window.localStorage.setItem(FAIL_KEY, JSON.stringify({ n, until }));
+  } catch {
+    /* 隐私模式下写不进去：退化成不限流 */
+  }
+  return Math.max(0, until - Date.now());
+}
+
+export function clearFailures() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(FAIL_KEY);
+  } catch {
+    /* 同上 */
+  }
 }
 
 /* ---------- 登录态 ---------- */
@@ -139,6 +204,13 @@ export function setAuth(auth) {
 
 export function clearAuth() {
   if (typeof window === 'undefined') return;
+  /* 先通知服务端吊销令牌，失败也继续清本地（logoutRemote 内部吞掉所有异常）。
+     刻意不 await：登出是个同步的 UI 动作，不能等网络。 */
+  try {
+    logoutRemote();
+  } catch {
+    /* 兜底：理论上不会抛 */
+  }
   window.localStorage.removeItem(AUTH_KEY);
   notifyAuthChange();
 }
@@ -167,3 +239,9 @@ export function safeRedirect(target) {
   }
   return '/';
 }
+
+/* 云同步**不在这里**拉起。
+   本模块是纯工具层（登录态 + 令牌），不该承担「启动后台任务」这种副作用——
+   被 import 就产生副作用是隐式行为，将来谁 import auth 都会顺带拉起同步。
+   拉起的地方是站点级入口 src/theme/Root/index.js（每个路由都会走），
+   那里用 useEffect + 动态 import 显式 boot，层次清楚，也不进主包。 */

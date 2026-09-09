@@ -3,7 +3,7 @@ import { useHistory } from '@docusaurus/router';
 import { NODES, EDGES, USE_AGG } from './full-graph-data';
 import { allChapterGroups } from './data';
 import { fitText } from './pillText';
-import { filterCh0, aggregateChapters, layeredLayout, blockLayout, chainOf, popcount } from './treeLayout';
+import { filterCh0, aggregateChapters, layeredLayout, blockLayout, compactLayout, chainOf, popcount } from './treeLayout';
 
 /* =========================================================================
  * 知识树 v3：章节模式 / 单元模式 双版本 + 搜索 + 巨大画布（平移/缩放）
@@ -52,7 +52,12 @@ function buildLesson() {
   }));
   const root = nodes.findIndex((n) => n.title.includes('加法与交换律'));
   const L = blockLayout(FILTERED.nodes.map((n) => n.ch), FILTERED.edges, root < 0 ? 0 : root, LESSON_OPTS);
-  return { nodes, edges: FILTERED.edges, useAgg: FILTERED.useAgg, root, L, pillW: LESSON_OPTS.pillW, pillH: LESSON_OPTS.pillH, sag: Math.round(LESSON_OPTS.levelH * SAG_RATIO), sagCap: Math.round(LESSON_OPTS.levelH * 0.56) };
+  return {
+    nodes, edges: FILTERED.edges, useAgg: FILTERED.useAgg, root, L,
+    pillW: LESSON_OPTS.pillW, pillH: LESSON_OPTS.pillH,
+    sag: Math.round(LESSON_OPTS.levelH * SAG_RATIO), sagCap: Math.round(LESSON_OPTS.levelH * 0.56),
+    gapX: LESSON_OPTS.gapX, levelH: LESSON_OPTS.levelH, topPad: LESSON_OPTS.topPad,
+  };
 }
 
 /* ---- 构建章节级布局 ---- */
@@ -65,7 +70,12 @@ function buildChapter() {
   }));
   const root = nodes.findIndex((c) => c.ch === 1);
   const L = layeredLayout(nodes.length, agg.edges, root < 0 ? 0 : root, CHAPTER_OPTS);
-  return { nodes, edges: agg.edges, useAgg: [], root, L, pillW: CHAPTER_OPTS.pillW, pillH: CHAPTER_OPTS.pillH, sag: Math.round(CHAPTER_OPTS.levelH * SAG_RATIO), sagCap: Math.round(CHAPTER_OPTS.levelH * 0.56) };
+  return {
+    nodes, edges: agg.edges, useAgg: [], root, L,
+    pillW: CHAPTER_OPTS.pillW, pillH: CHAPTER_OPTS.pillH,
+    sag: Math.round(CHAPTER_OPTS.levelH * SAG_RATIO), sagCap: Math.round(CHAPTER_OPTS.levelH * 0.56),
+    gapX: CHAPTER_OPTS.gapX, levelH: CHAPTER_OPTS.levelH, topPad: CHAPTER_OPTS.topPad,
+  };
 }
 
 const LESSON = buildLesson();
@@ -80,37 +90,7 @@ function buildVisible(L, i) {
   return s;
 }
 
-/* 筛选后逐层重新居中（保持层内相对顺序，整体平移到中轴）
- * 返回 { pos, bounds }：pos 是平移后的坐标数组，bounds 是选中内容的实际边界。 */
-function shiftPositions(L, visible) {
-  if (!visible) return { pos: L.pos, bounds: null };
-  const byD = new Map();
-  L.pos.forEach((_, i) => {
-    if (!visible.has(i)) return;
-    const d = L.pos[i].lvl;
-    if (!byD.has(d)) byD.set(d, []);
-    byD.get(d).push(i);
-  });
-  const out = L.pos.map((p) => ({ ...p }));
-  byD.forEach((list) => {
-    const xs = list.map((i) => L.pos[i].x);
-    const mid = (Math.min(...xs) + Math.max(...xs)) / 2;
-    list.forEach((i) => { out[i].x -= mid; });
-  });
-  const vis = [...visible];
-  const xs = vis.map((i) => out[i].x);
-  const ys = vis.map((i) => out[i].y);
-  const pad = 80;
-  const bounds = {
-    minX: Math.min(...xs) - pad,
-    maxX: Math.max(...xs) + pad,
-    minY: Math.min(...ys) - pad,
-    maxY: Math.max(...ys) + pad,
-  };
-  bounds.width = bounds.maxX - bounds.minX;
-  bounds.height = bounds.maxY - bounds.minY;
-  return { pos: out, bounds };
-}
+/* 筛选后的重排在 treeLayout.compactLayout（纯函数，可单测）：撤空层 + 压实槽位 */
 
 /* 边路径：向下/向上/同层三种曲线。
  * 同层边（章粒度分层后大量出现）下垂深度随水平距离放大——
@@ -411,7 +391,7 @@ export default function KnowledgeGraphTree() {
    *   元素坐标：SVG 的 viewBox="minX 0 width height" 把世界坐标平移成
    *             [0, width] × [0, height]，画布的 CSS transform 作用在这一层。
    * 换算：元素 x = 世界 x − L.minX；元素 y = 世界 y（viewBox 的 y 起点是 0）。
-   * 选中后 shiftPositions 给的 bounds 是**世界坐标**，必须先 toElem 再算中心，
+   * 选中后 compactLayout 给的 bounds 是**世界坐标**，必须先 toElem 再算中心，
    * 否则整块内容会偏出去 |L.minX| × k 像素——单元模式 minX ≈ −2500，一偏就飞了。 */
   const toElem = React.useCallback(
     (b) =>
@@ -643,7 +623,7 @@ export default function KnowledgeGraphTree() {
                   <text x={10} y={D.pillH / 2 + 5} className="ml-fg__depth">{gen}</text>
                   <text x={tx} y={D.pillH / 2 + 5} textAnchor="middle">{label}</text>
                   {rightBadge}
-                  <title>{`${n.title}\n第 ${gen} 代 · 先修深度第 ${gen} 层${isCh ? `\n本章 ${n.count} 门课` : ''}${n.born.length ? '\n诞生：' + n.born.join('、') : ''}${n.uses.length ? '\n使用：' + n.uses.join('、') : ''}\n点击聚焦连通路径`}</title>
+                  <title>{`${n.title}\n第 ${gen} 代 · 先修深度第 ${gen} 层${isCh ? `\n本章 ${n.count} 门课` : ''}${n.born.length ? '\n诞生：' + n.born.join('、') : ''}${n.uses.length ? '\n使用：' + n.uses.join('、') : ''}\n点击只看与它连通的${isCh ? '章' : '课'}（自动紧凑重排）`}</title>
                 </g>
               </g>
             </g>
@@ -685,7 +665,7 @@ export default function KnowledgeGraphTree() {
   React.useEffect(() => {
     selRef.current = selS;
     const vis = selS == null ? null : buildVisible(L, selS);
-    const { pos, bounds } = shiftPositions(L, vis);
+    const { pos, bounds } = compactLayout(L, vis, D);
     boundsRef.current = bounds;
     ops.applyPositions(pos);
     ops.updateCull();
@@ -694,7 +674,7 @@ export default function KnowledgeGraphTree() {
     /* 位移补间（0.55s）走完后再收紧一次裁剪窗口 */
     timers.push(setTimeout(() => ops.updateCull(), 760));
     return () => timers.forEach(clearTimeout);
-  }, [selS, L, toolMode, ops, fitSel]);
+  }, [selS, D, L, toolMode, ops, fitSel]);
 
   /* [3] 悬停/选中/搜索/入场：重刷高亮（直接 DOM，不触发 SVG 重渲染） */
   React.useEffect(() => {
@@ -907,8 +887,8 @@ export default function KnowledgeGraphTree() {
   const jumpTo = React.useCallback(
     (i, targetK) => {
       const vis = buildVisible(L, i);
-      /* 注意要用**位移后**的坐标：筛选会把各层重新居中，节点位置会变 */
-      const { pos, bounds: sb } = shiftPositions(L, vis);
+      /* 注意要用**重排后**的坐标：筛选会撤掉空层并压实槽位，节点位置会变 */
+      const { pos, bounds: sb } = compactLayout(L, vis, D);
       if (vpRef.current && sb) {
         /* 先把点中的这个摆到视口正中（不等 React），随后 setSel 触发的
            effect 会用 fitSel 再精确居中一次；两次走同一套换算。 */
@@ -919,7 +899,7 @@ export default function KnowledgeGraphTree() {
       setHot(null);
       hotRef.current = -1;
     },
-    [L, paintView],
+    [D, L, paintView],
   );
   React.useEffect(() => { jumpToRef.current = jumpTo; }, [jumpTo]);
 
@@ -1021,7 +1001,7 @@ export default function KnowledgeGraphTree() {
           <button type="button" title="鸟瞰全树" onClick={fitAll}>▣</button>
         </div>
 
-        <span className="ml-tr__hint">拖动画布 · 滚轮缩放 · 双击放大 · 悬停看先修链 · 点击聚焦</span>
+        <span className="ml-tr__hint">拖动画布 · 滚轮缩放 · 双击放大 · 悬停看先修链 · 点击只看连通路径（自动重排）</span>
       </div>
 
       <div className="ml-tr__legend">
@@ -1055,8 +1035,8 @@ export default function KnowledgeGraphTree() {
         ) : (
           <p className="ml-fg__hint">
             {mode === 'chapter'
-              ? '章节模式把先修线聚合到章：点任一章节只看它的先修与托起；双击或「进入本章」阅读。'
-              : '单元模式逐课展开：根是「加法与交换律」，数字徽标＝第几代。悬停看先修链，点击聚焦连通路径，再点恢复。'}
+              ? '章节模式把先修线聚合到章：点任一章只看它的先修与托起并自动紧凑重排；双击或「进入本章」阅读。'
+              : '单元模式逐课展开：根是「加法与交换律」，数字徽标＝第几代。悬停看先修链，点击只看连通路径并自动紧凑重排，再点恢复。'}
             已排除第 0 章「Python 工具箱」（纯工具/附录，不参与数学先修链）。
           </p>
         )}

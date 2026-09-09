@@ -184,11 +184,6 @@ export default function Home() {
             <div className="ml-tree-head">
               <div>
                 <h2>一棵会生长的知识树</h2>
-                <p className="ml-section__lead">
-                  根是「算术四则」，每往下一层，先修链就长一代——从加法一路长到强化学习与工程控制。
-                  点击任意章节：只保留它的先修（绿）与托起（橙），无关章节隐去、相关层自动居中；
-                  双击进入本章。想逐课细看，去知识树和知识图谱。
-                </p>
               </div>
               <div className="ml-tree-head__links">
                 <Link className="button button--primary button--sm" to="/tree">

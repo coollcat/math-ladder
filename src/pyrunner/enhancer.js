@@ -680,7 +680,9 @@ export function openInConsole(opts) {
    panel 是否还在文档里，不在就重建，所以这里只管拆。 */
 function dropNotebookShell() {
   document.getElementById('ml-nb-fab')?.remove();
+  document.getElementById('ml-bk-fab')?.remove();
   document.getElementById('ml-notebook')?.remove();
+  document.getElementById('ml-backup')?.remove();
   document.getElementById('ml-formula')?.remove();
   document.getElementById('ml-repo')?.remove();
 }
@@ -791,6 +793,17 @@ function ensureConsole() {
   fabNote.setAttribute('aria-label', '打开数学笔记本');
   fabNote.innerHTML = iconSvg('notebook', 24);
 
+  /* 数据面板入口：右下角第三个圆钮（备份 / 还原 / 空间搬家）。
+     它管的是「进度、笔记本、代码仓库」这类只存在本机的东西，
+     与控制台/笔记本同层圆钮组，图标一眼能分。 */
+  const fabData = document.createElement('button');
+  fabData.id = 'ml-bk-fab';
+  fabData.className = 'ml-fab ml-fab--data';
+  fabData.type = 'button';
+  fabData.title = '数据 · 备份与搬家（Alt+D）';
+  fabData.setAttribute('aria-label', '打开数据备份面板');
+  fabData.innerHTML = iconSvg('database', 22);
+
   const panel = document.createElement('div');
   panel.id = 'ml-console';
   panel.className = 'ml-console';
@@ -867,10 +880,10 @@ function ensureConsole() {
   out.className = 'py-runner__out ml-console__out';
 
   panel.append(head, banner, slidersBox, editor, bar, out);
-  document.body.append(fabNote, fab, panel);
+  document.body.append(fabData, fabNote, fab, panel);
 
   const refs = {
-    fab, fabNote, panel, editor, status, out, btnRun, btnHint,
+    fab, fabNote, fabData, panel, editor, status, out, btnRun, btnHint,
     btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode, btnRepo, btnFx,
   };
   /* 引用登记在壳上：热更新后新一代模块靠它领养或识别跨代重建 */
@@ -1047,6 +1060,15 @@ function ensureConsole() {
     }
   });
 
+  fabData.addEventListener('click', async () => {
+    try {
+      const mod = await import('./backup');
+      mod.openBackup();
+    } catch (e) {
+      st.status.textContent = '数据面板打不开：' + ((e && e.message) || e);
+    }
+  });
+
   fab.addEventListener('click', () => {
     if (!isOpen()) {
       setOpen(true);
@@ -1084,6 +1106,9 @@ function ensureConsole() {
     } else if (ev.altKey && (ev.key === 'n' || ev.key === 'N')) {
       ev.preventDefault();
       fabNote.click();
+    } else if (ev.altKey && (ev.key === 'd' || ev.key === 'D')) {
+      ev.preventDefault();
+      fabData.click();
     }
   });
 

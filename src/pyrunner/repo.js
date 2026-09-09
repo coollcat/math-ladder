@@ -11,7 +11,7 @@
  * api 由 enhancer 传入：{ getSource, setSource, getContext, status }。
  * ========================================================================= */
 
-import { nsKey, progressNS } from '../learning/progress';
+import { nsKey, progressNS, notifyDataDirty } from '../learning/progress';
 import { watchPanel, bringToFront } from './zorder';
 
 const REPO_KEY = 'ml-repo';
@@ -38,6 +38,8 @@ function save(data) {
   } catch (e) {
     return e;
   }
+  /* 只 dispatch，不 import sync：云同步那边监听这个事件，攒 2 秒推一次 */
+  notifyDataDirty();
   return null;
 }
 
@@ -401,4 +403,73 @@ export function closeRepo() {
 
 export function isRepoOpen() {
   return !!(els && els.panel.classList.contains('is-open'));
+}
+
+/* =========================================================================
+ * 跨空间读写（备份面板专用）
+ * 不经过 load()：load() 会把坏数据兜底成空仓库，导出时那样会把用户的
+ * 「数据坏了」悄悄改写成「仓库是空的」，掩盖问题。
+ * ========================================================================= */
+
+function keyFor(ns) {
+  return REPO_KEY + ':' + ns;
+}
+
+/** 偷看某个空间的代码仓库；没有/坏了返回 null。 */
+export function peekRepo(ns) {
+  if (typeof window === 'undefined') return null;
+  try {
+    const v = JSON.parse(window.localStorage.getItem(keyFor(ns)) || 'null');
+    return v && Array.isArray(v.items) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 往某个空间写代码仓库。
+ * mode: 'merge' 按**代码内容**去重（与面板里「导入」同一条口径：内容相同的
+ * 片段不重复存）；'replace' 整个覆盖。
+ */
+export function writeRepo(ns, incoming, mode = 'merge') {
+  if (typeof window === 'undefined') return { ok: false, error: 'no-window' };
+  const k = keyFor(ns);
+  const cur = peekRepo(ns);
+  const inc = ((incoming && incoming.items) || []).filter((it) => it && typeof it.code === 'string');
+  let items;
+
+  if (mode === 'replace' || !cur) {
+    items = inc.map((it) => ({
+      id: newId(),
+      name: String(it.name || '导入').slice(0, 60),
+      code: it.code,
+      from: String(it.from || '').slice(0, 80),
+      at: Number(it.at) || Date.now(),
+    }));
+  } else {
+    items = cur.items.slice();
+    const seen = new Set(items.map((i) => i.code));
+    for (const it of inc) {
+      if (seen.has(it.code)) continue;
+      seen.add(it.code);
+      items.push({
+        id: newId(),
+        name: String(it.name || '导入').slice(0, 60),
+        code: it.code,
+        from: String(it.from || '').slice(0, 80),
+        at: Number(it.at) || Date.now(),
+      });
+    }
+  }
+  if (items.length > MAX_ITEMS) items = items.slice(0, MAX_ITEMS);
+  try {
+    window.localStorage.setItem(k, JSON.stringify({ v: 1, items }));
+  } catch {
+    return { ok: false, error: 'quota' };
+  }
+  /* 备份导入也算本地改动，要跟着上云；
+     云同步自己写回时 sync 那边有开关，不会把它当成新改动再推一次。 */
+  notifyDataDirty();
+  if (storeKey() === k && els) renderList();
+  return { ok: true, items: items.length };
 }

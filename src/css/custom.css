@@ -1637,10 +1637,27 @@ a:hover .ml-chapter.is-done {
   background: var(--ifm-color-emphasis-700);
 }
 
+/* 数据面板圆钮：右下角第三个（备份 / 还原 / 空间搬家），位置叠在笔记本之上。
+   间距口径同笔记本那颗：下沿 = 上一颗下沿 + 44 高 + 22 空隙。 */
+.ml-fab--data {
+  bottom: calc(1.4rem + 132px);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ifm-color-emphasis-800);
+}
+
+.ml-fab--data:hover {
+  background: var(--ifm-color-emphasis-700);
+}
+
 /* ---- 共用面板骨架 ---- */
 
 .ml-notebook,
-.ml-repo {
+.ml-repo,
+.ml-backup {
   position: fixed;
   left: 50%;
   z-index: 1056;
@@ -1654,12 +1671,14 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-notebook.is-open,
-.ml-repo.is-open {
+.ml-repo.is-open,
+.ml-backup.is-open {
   display: flex;
 }
 
 [data-theme='dark'] .ml-notebook,
-[data-theme='dark'] .ml-repo {
+[data-theme='dark'] .ml-repo,
+[data-theme='dark'] .ml-backup {
   background: #171b21;
   border-color: #2c3340;
 }
@@ -1680,6 +1699,14 @@ a:hover .ml-chapter.is-done {
   height: min(76vh, 720px);
 }
 
+/* 数据面板：比仓库窄一点（内容是一行行的统计 + 按钮，不需要横向铺开） */
+.ml-backup {
+  top: 9vh;
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 2rem));
+  height: min(80vh, 720px);
+}
+
 /* 整页模式：铺满视口（拖拽在 JS 侧已拦掉） */
 .ml-notebook.is-fullpage {
   left: 0;
@@ -1698,7 +1725,8 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-notebook__head,
-.ml-repo__head {
+.ml-repo__head,
+.ml-backup__head {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1712,7 +1740,8 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-notebook__brand,
-.ml-repo__title {
+.ml-repo__title,
+.ml-backup__title {
   flex-shrink: 0;
   font-weight: 700;
 }
@@ -1760,7 +1789,8 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-notebook__close,
-.ml-repo__close {
+.ml-repo__close,
+.ml-backup__close {
   margin-left: auto;
   border: none;
   background: transparent;
@@ -1783,7 +1813,8 @@ a:hover .ml-chapter.is-done {
 /* ---- 工具条 ---- */
 
 .ml-notebook__bar,
-.ml-repo__bar {
+.ml-repo__bar,
+.ml-backup__bar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1794,7 +1825,8 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-notebook__bar .py-runner__btn,
-.ml-repo__bar .py-runner__btn {
+.ml-repo__bar .py-runner__btn,
+.ml-backup__bar .py-runner__btn {
   padding: 0.18rem 0.6rem;
   font-size: 0.78rem;
 }
@@ -1998,7 +2030,8 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-notebook__foot,
-.ml-repo__foot {
+.ml-repo__foot,
+.ml-backup__foot {
   flex-shrink: 0;
   min-height: 1.7rem;
   padding: 0.35rem 0.8rem;
@@ -2084,6 +2117,232 @@ a:hover .ml-chapter.is-done {
   color: var(--ifm-color-danger-dark, #b3261e);
 }
 
+/* =========================================================================
+ * 数据面板（backup.js）：备份 / 还原 / 空间搬家
+ * -------------------------------------------------------------------------
+ * 面板骨架、头部、工具条、底栏都复用上面 .ml-notebook / .ml-repo 那套共用
+ * 规则，这里只写它独有的三样：说明条、迁移提示、空间卡片。
+ * ========================================================================= */
+
+.ml-backup__ns {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  cursor: help;
+}
+
+.ml-backup__mode {
+  flex: 0 1 auto;
+  font-size: 0.78rem;
+  padding: 0.15rem 0.35rem;
+  border-radius: 6px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+}
+
+.ml-backup__body {
+  flex: 1;
+  overflow: auto;
+  padding: 0.6rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ml-backup__note {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  opacity: 0.72;
+}
+
+.ml-backup__tip {
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: var(--ifm-alert-background-color-warning, #fff8e6);
+  border: 1px solid var(--ifm-alert-border-color-warning, #d9a300);
+}
+
+[data-theme='dark'] .ml-backup__tip {
+  background: rgba(255, 193, 7, 0.12);
+  border-color: rgba(255, 193, 7, 0.42);
+}
+
+/* ---- 云端状态行（backup.js 顶上那一条） ----
+ * 三种语气共用一个骨架，只换状态点的颜色与整行底色：
+ *   is-ok   已同步（绿）  is-warn 有改动没同步（琥珀，与 .ml-backup__tip 同一套告警色）
+ *   is-muted 未登录 / 只在本地生效（中性灰）
+ * 状态点在最左、动作按钮在最右，中间文案再长也只换行，不会把按钮挤下去。 */
+
+.ml-backup__cloud {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  margin: 0.45rem 0.7rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  background: var(--ifm-color-emphasis-100);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* 站点没部署同步服务（或压根没连上过）：整行不出现，静默降级 */
+.ml-backup__cloud.is-hidden {
+  display: none;
+}
+
+.ml-backup__cloud-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ifm-color-emphasis-500);
+}
+
+.ml-backup__cloud-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ml-backup__cloud-act {
+  flex-shrink: 0;
+  padding: 0.14rem 0.5rem;
+  font-size: 0.76rem;
+}
+
+/* 失败原因（「数据太大，单账号 4 MB 上限」这类）：独占一行写在下面 */
+.ml-backup__cloud-why {
+  flex: 1 1 100%;
+  font-size: 0.76rem;
+  opacity: 0.75;
+}
+
+.ml-backup__cloud.is-ok {
+  background: rgba(25, 135, 84, 0.1);
+  border-color: rgba(25, 135, 84, 0.35);
+}
+
+.ml-backup__cloud.is-ok .ml-backup__cloud-dot {
+  background: #198754;
+}
+
+.ml-backup__cloud.is-warn {
+  background: var(--ifm-alert-background-color-warning, #fff8e6);
+  border-color: var(--ifm-alert-border-color-warning, #d9a300);
+}
+
+.ml-backup__cloud.is-warn .ml-backup__cloud-dot {
+  background: #d9a300;
+}
+
+[data-theme='dark'] .ml-backup__cloud.is-ok {
+  background: rgba(25, 135, 84, 0.16);
+  border-color: rgba(25, 135, 84, 0.45);
+}
+
+[data-theme='dark'] .ml-backup__cloud.is-warn {
+  background: rgba(255, 193, 7, 0.12);
+  border-color: rgba(255, 193, 7, 0.42);
+}
+
+/* 正在同步：让状态点跳动。同步是静默的，没有这个动画，点了「立即同步」
+   会以为按钮没反应。 */
+.ml-backup__cloud.is-syncing .ml-backup__cloud-dot {
+  animation: ml-cloud-pulse 1s ease-in-out infinite;
+}
+
+@keyframes ml-cloud-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-backup__cloud.is-syncing .ml-backup__cloud-dot {
+    animation: none;
+  }
+}
+
+.ml-backup__space {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 10px;
+}
+
+.ml-backup__space-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ml-backup__spacename {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.ml-backup__spacename.is-current {
+  color: var(--ifm-color-primary);
+}
+
+.ml-backup__tags {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.ml-backup__tag {
+  font-size: 0.7rem;
+  padding: 0.02rem 0.4rem;
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-200);
+  opacity: 0.85;
+}
+
+.ml-backup__tag.is-current {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  opacity: 1;
+}
+
+.ml-backup__stat {
+  font-size: 0.8rem;
+  opacity: 0.78;
+}
+
+.ml-backup__acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.ml-backup__acts .py-runner__btn {
+  padding: 0.16rem 0.55rem;
+  font-size: 0.76rem;
+}
+
+.ml-backup__danger {
+  color: var(--ifm-color-danger-dark, #b3261e);
+}
+
 @media (max-width: 768px) {
   .ml-fab--note {
     bottom: calc(0.9rem + 58px);
@@ -2091,8 +2350,15 @@ a:hover .ml-chapter.is-done {
     height: 40px;
   }
 
+  .ml-fab--data {
+    bottom: calc(0.9rem + 116px);
+    width: 40px;
+    height: 40px;
+  }
+
   .ml-notebook,
-  .ml-repo {
+  .ml-repo,
+  .ml-backup {
     left: 0.5rem;
     right: 0.5rem;
     width: auto;

@@ -12,7 +12,7 @@ import './style.css';
  * 但注意课文是纯 markdown，得靠 lab 围栏（见 lab/components/see-function.js）。
  * ========================================================================= */
 
-export default function FunctionLab({ funcs, view, height, title }) {
+export default function FunctionLab({ funcs, view, height, title, mode, domain }) {
   const hostRef = useRef(null);
   const instRef = useRef(null);
 
@@ -22,7 +22,8 @@ export default function FunctionLab({ funcs, view, height, title }) {
     import('@site/src/pyrunner/func/workspace.js')
       .then((mod) => {
         if (dead || !hostRef.current) return;
-        inst = mod.createWorkspace(hostRef.current, { funcs, view, height });
+        /* mode='3d' 时式子是 z = f(x, y)，domain 是 xy 域的半边长 */
+        inst = mod.createWorkspace(hostRef.current, { funcs, view, height, mode, domain });
         instRef.current = inst;
       })
       .catch((e) => {

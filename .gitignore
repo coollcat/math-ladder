@@ -1,5 +1,6 @@
 node_modules/
 build/
+
 build_g2/
 build_verify/
 _build_old/
@@ -11,10 +12,29 @@ math-ladder-build.zip
 .DS_Store
 .env
 
+# 账号明文台账（站方本地 --list 用；账号库本体只存索引哈希，进 bundle）
+scripts/accounts-index.json
+src/data/accounts.json.tmp
+
 # 归档的论文 PDF（体积大，用 scripts/fetch-papers.mjs 重新拉取）
 static/papers/
 
-.workbuddy/
-
-# 云同步后端数据（账号库/令牌/每账号数据），绝不入库
+# 云同步服务端数据：账号库（accounts.json）、登录令牌（tokens.json）、
+# 每账号一份的学习数据（store/*.json）。含账号哈希与用户私人数据，绝不入库；
+# 备份方式见 deploy/README-部署.md（打包 server/data/ 这一个目录即可）
 server/data/
+
+# 同步服务的测试残留（防御性：正常流程会清掉，但别指望每次都清干净）：
+#   _testdata/ 的目录结构与真实数据目录一模一样，里面的 accounts.json / tokens.json
+#     同样是账号哈希 —— 测试账号的哈希也是哈希，规范 §1「数据文件必须不入库」
+#     对它的精神同样成立；
+#   _test.out 是测试输出，留着只会一直脏 git status。
+# 刻意没写成 server/_*：server/_test-sync.mjs 是测试**脚本**本身，那类东西该入库。
+server/_testdata/
+server/_test.out
+
+# 打包暂存目录：build 脚本在没有 tar.exe 时才建它，打完即删
+_zip_stage/
+
+# 本地工具记忆目录（勿入库）
+.workbuddy/

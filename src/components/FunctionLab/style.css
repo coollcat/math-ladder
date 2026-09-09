@@ -277,6 +277,64 @@
   background: var(--ml-fn-line);
 }
 
+/* 2D / 3D 模式切换 */
+.ml-fn__seg {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--ml-fn-line);
+  border-radius: 9px;
+  background: var(--ml-fn-paper);
+}
+
+.ml-fn__segbtn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ml-fn-mute);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.ml-fn__segbtn.is-on {
+  background: var(--ml-fn-vermilion);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 工具栏里按模式切换的两组按钮 */
+.ml-fn__tbgroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.ml-fn__tbgroup.is-off,
+.ml-fn__surfhost.is-off,
+.ml-fn__plot.is-off {
+  display: none;
+}
+
+/* 3D 的「域」滑块：跟参数滑块同款读数，但更紧凑 */
+.ml-fn__domain {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ml-fn__domainlab {
+  font-size: 0.8rem;
+  color: var(--ml-fn-mute);
+}
+
+.ml-fn__domain input[type='range'] {
+  width: 90px;
+  margin: 0;
+  accent-color: var(--ml-fn-vermilion);
+}
+
 /* ---- 画布 ---- */
 
 .ml-fn__plothost {

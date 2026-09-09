@@ -1,9 +1,12 @@
-[
-  {
-    "user": "admin",
-    "name": "站主",
-    "salt": "69459984f3a9717f",
-    "hash": "c1a3f44be9e5d1bf3d7caf363360e1ffaedd942ce2f36c0db1260c1d4f6646c6",
-    "createdAt": "2026-08-29"
-  }
-]
+{
+  "lookupSalt": "3734c04b9a0f5e35",
+  "decoySalt": "3b39b34e7a74a346",
+  "users": [
+    {
+      "u": "3a3f7c3ac4fa40e1a8c17a0dad0750097d064fb8bd6efd953d31af22a3f1aef8",
+      "salt": "69459984f3a9717f",
+      "hash": "c1a3f44be9e5d1bf3d7caf363360e1ffaedd942ce2f36c0db1260c1d4f6646c6",
+      "createdAt": "2026-08-29"
+    }
+  ]
+}

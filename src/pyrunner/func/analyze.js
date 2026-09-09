@@ -17,13 +17,17 @@ const BASE_N = 640;
 /* 自适应细分最多补多少点——拖滑块时每帧都要重采，不能没上限 */
 const REFINE_BUDGET = 2600;
 
-/** 把编译结果包成「只吐有限数或 NaN」的安全函数 */
+/**
+ * 把编译结果包成「只吐有限数或 NaN」的安全函数。
+ * 同时兼容一元与二元：一元时第二个参数传了也无所谓（多余的实参被忽略），
+ * 于是 2D 与 3D 能共用同一套参数/预设机制。
+ */
 export function makeFn(compiled, params) {
   const P = params || compiled.defaults || {};
-  return function f(x) {
+  return function f(x, y) {
     let v;
     try {
-      v = compiled.fn(P, x);
+      v = compiled.fn(P, x, y);
     } catch (e) {
       void e;
       return NaN;
@@ -445,4 +449,259 @@ export function endValues(f, x0, x1) {
   };
   const span = (x1 - x0) * 0.002;
   return { left: probe(x0, span), right: probe(x1, -span) };
+}
+
+/* =========================================================================
+ * 3D：二元采样与网格上的性质（z = f(x, y)）
+ * -------------------------------------------------------------------------
+ * 曲面不像曲线那样能「自适应细分」——一张 48×48 的网格已经 2300 多个格子，
+ * 再细分收益很低、代价很高。所以这里只做规则网格采样，
+ * 细腻度靠格子数调，奇点靠 healGrid2 补。
+ *
+ * 网格存成一维 Float64Array，索引 i*(ny+1)+j：i 沿 x 走，j 沿 y 走。
+ * 这样切片、跳采样（拖动时降精度）都很直接。
+ * ========================================================================= */
+
+/** 规则网格采样。z 的长度是 (nx+1)*(ny+1) */
+export function grid2(f, x0, x1, y0, y1, nx, ny) {
+  const NX = Math.max(2, nx | 0);
+  const NY = Math.max(2, ny | 0);
+  const xs = new Float64Array(NX + 1);
+  const ys = new Float64Array(NY + 1);
+  const z = new Float64Array((NX + 1) * (NY + 1));
+  const hx = (x1 - x0) / NX;
+  const hy = (y1 - y0) / NY;
+  for (let i = 0; i <= NX; i += 1) xs[i] = x0 + i * hx;
+  for (let j = 0; j <= NY; j += 1) ys[j] = y0 + j * hy;
+  for (let i = 0; i <= NX; i += 1) {
+    for (let j = 0; j <= NY; j += 1) {
+      z[i * (NY + 1) + j] = f(xs[i], ys[j]);
+    }
+  }
+  return { xs, ys, z, nx: NX, ny: NY };
+}
+
+/**
+ * 补掉孤立的「算不出来」。
+ * 与 2D 的 healIsolated 同一个道理，只是邻居从左右两个变成上下左右四个：
+ * sin(sqrt(x²+y²))/sqrt(x²+y²) 在原点正是 0/0，不补的话曲面中心会破个洞。
+ * 只补四邻齐全、且彼此挨得近的点——真极点（1/(x²+y²)）两边的落差会很大，
+ * 那种不能补，补了就是在悬崖上铺一块平板。
+ */
+export function healGrid2(g) {
+  const { nx, ny, z } = g;
+  const stride = ny + 1;
+  let healed = 0;
+  for (let i = 1; i < nx; i += 1) {
+    for (let j = 1; j < ny; j += 1) {
+      const k = i * stride + j;
+      if (Number.isFinite(z[k])) continue;
+      const l = z[k - 1];
+      const r = z[k + 1];
+      const d = z[k - stride];
+      const u = z[k + stride];
+      if (![l, r, d, u].every(Number.isFinite)) continue;
+      const lo = Math.min(l, r, d, u);
+      const hi = Math.max(l, r, d, u);
+      const scale = Math.max(Math.abs(lo), Math.abs(hi), 1e-9);
+      /* 条件一：四邻自己得差不多高，否则这个洞本来就在斜坡上 */
+      if (hi - lo > scale * 0.25) continue;
+
+      /* 条件二：四邻往外再走一步，值不能塌下去。
+         这条是分辨「可去奇点」与「真极点」的关键——
+         1/(x²+y²) 在原点四邻对称、四个值完全相等，光看条件一会误判成平地，
+         但往外一步就从 400 掉到 100（75% 的落差），那是一座尖峰不是一块平板。
+         sin(r)/r 在原点往外一步只掉 0.1%，是平的，可以放心补。 */
+      /* 两侧都要看守不守得住边界：z[k-2] 在 j==1 时会串到上一行的末尾
+         （索引合法但位置错了，比越界更隐蔽），负索引则靠 undefined→NaN 侥幸跳过。
+         显式给 NaN 才是「这一侧没有第二步」的正确表达。 */
+      const l2 = j >= 2 ? z[k - 2] : NaN;
+      const r2 = j + 2 <= ny ? z[k + 2] : NaN;
+      const d2 = i >= 2 ? z[k - 2 * stride] : NaN;
+      const u2 = i + 2 <= nx ? z[k + 2 * stride] : NaN;
+      if (![l2, r2, d2, u2].every(Number.isFinite)) continue;
+      const drop = Math.max(
+        Math.abs(l - l2), Math.abs(r - r2), Math.abs(d - d2), Math.abs(u - u2),
+      );
+      if (drop > scale * 0.5) continue;
+
+      z[k] = (l + r + d + u) / 4;
+      healed += 1;
+    }
+  }
+  return healed;
+}
+
+/**
+ * z 的上下界：用分位数而不是极值。
+ * 1/(x²+y²) 在原点那几个值能到 1e8，拿它当上界整张图会被压成一张平板。
+ * 一个有限值都没有时返回 empty: true——这种曲面画不出任何面片，
+ * 调用方该说的是「算不出来」，而不是展示默认的 [-1, 1] 假装有高度。
+ */
+export function zRange(z, padRatio) {
+  const finite = [];
+  for (let i = 0; i < z.length; i += 1) if (Number.isFinite(z[i])) finite.push(z[i]);
+  if (!finite.length) return { lo: -1, hi: 1, empty: true };
+  finite.sort((a, b) => a - b);
+  const cut = Math.max(1, Math.floor(finite.length * 0.01));
+  let lo = finite[cut];
+  let hi = finite[finite.length - 1 - cut];
+  if (!(hi > lo)) {
+    const c = (lo + hi) / 2 || 0;
+    lo = c - 1;
+    hi = c + 1;
+  }
+  const pad = (hi - lo) * (padRatio === undefined ? 0.08 : padRatio);
+  return { lo: lo - pad, hi: hi + pad, empty: false };
+}
+
+/**
+ * 网格上的局部极大 / 极小。
+ * 判据是「比 8 个邻居都高（低）就」——曲面是规则的，这样找又快又够用；
+ * 鞍点不报（它在一个方向上是极大、另一个方向上是极小，本来就没什么好标的）。
+ *
+ * 但涟漪的环形脊沿环每隔几格就出一个「极大」，尖谷的谷线整条都是「极小」
+ * ——直接报会沿圈撒一串点。所以同类候选满足下面任一条就并成一群，
+ * 一群只报最极端的那个：
+ *   一、挨得近（4 格内，可传递）——谷线、山脊这类候选密集的线状结构；
+ *   二、近等高面连通——从候选出发只走「高度与它相差不到 1%」的格子，
+ *       涟漪环带这种近平的通道能整圈走通；独立峰之间隔着深谷，走不过去。
+ *   （环在对角扇区会有十几格的候选空洞，光靠规则一连不上，所以要有二。）
+ */
+export function extrema2(g, limit) {
+  const { nx, ny, xs, ys, z } = g;
+  const stride = ny + 1;
+  const cand = [];
+  for (let i = 1; i < nx; i += 1) {
+    for (let j = 1; j < ny; j += 1) {
+      const k = i * stride + j;
+      const v = z[k];
+      if (!Number.isFinite(v)) continue;
+      let isMax = true;
+      let isMin = true;
+      for (let di = -1; di <= 1 && (isMax || isMin); di += 1) {
+        for (let dj = -1; dj <= 1; dj += 1) {
+          if (di === 0 && dj === 0) continue;
+          const w = z[(i + di) * stride + (j + dj)];
+          if (!Number.isFinite(w)) { isMax = false; isMin = false; break; }
+          if (w > v) isMax = false;
+          if (w < v) isMin = false;
+        }
+      }
+      if (isMax || isMin) cand.push({ i, j, z: v, type: isMax ? 'max' : 'min' });
+    }
+  }
+  const n = cand.length;
+  if (!n) return limit ? [] : [];
+
+  /* 并查集 */
+  const parent = new Int32Array(n);
+  for (let q = 0; q < n; q += 1) parent[q] = q;
+  const find = (a) => {
+    while (parent[a] !== a) {
+      parent[a] = parent[parent[a]];
+      a = parent[a];
+    }
+    return a;
+  };
+  const union = (a, b) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent[rb] = ra;
+  };
+
+  /* 规则一：同类候选距离 ≤ 4 格（按格长量，与域大小无关） */
+  const cell = Math.max(
+    Math.abs(xs[nx] - xs[0]) / nx,
+    Math.abs(ys[ny] - ys[0]) / ny,
+    1e-12,
+  );
+  const rad2 = (cell * 4) * (cell * 4);
+  for (let a = 0; a < n; a += 1) {
+    for (let b = a + 1; b < n; b += 1) {
+      if (cand[a].type !== cand[b].type) continue;
+      const dx = xs[cand[b].i] - xs[cand[a].i];
+      const dy = ys[cand[b].j] - ys[cand[a].j];
+      if (dx * dx + dy * dy < rad2) union(a, b);
+    }
+  }
+
+  /* 规则二：近等高面连通。每个候选当一次种子，泛滥碰到的同类候选并入。
+     stamp 复用一块访问表，免得每个种子都新开数组。 */
+  const seenCell = new Int32Array(z.length);
+  let stamp = 0;
+  for (let s = 0; s < n; s += 1) {
+    const zs = cand[s].z;
+    const tol = Math.max(Math.abs(zs), 1) * 0.01;
+    stamp += 1;
+    const stack = [cand[s].i * stride + cand[s].j];
+    seenCell[stack[0]] = stamp;
+    while (stack.length) {
+      const c = stack.pop();
+      const ci = (c / stride) | 0;
+      const cj = c % stride;
+      for (let di = -1; di <= 1; di += 1) {
+        for (let dj = -1; dj <= 1; dj += 1) {
+          if (di === 0 && dj === 0) continue;
+          const ni = ci + di;
+          const nj = cj + dj;
+          if (ni < 0 || ni > nx || nj < 0 || nj > ny) continue;
+          const nk = ni * stride + nj;
+          if (seenCell[nk] === stamp) continue;
+          const w = z[nk];
+          if (!Number.isFinite(w) || Math.abs(w - zs) > tol) continue;
+          seenCell[nk] = stamp;
+          stack.push(nk);
+        }
+      }
+    }
+    for (let q = 0; q < n; q += 1) {
+      if (q === s || cand[q].type !== cand[s].type) continue;
+      if (seenCell[cand[q].i * stride + cand[q].j] === stamp) union(s, q);
+    }
+  }
+
+  /* 每群取最极端者（极大取最高、极小取最低） */
+  const best = [];
+  for (let q = 0; q < n; q += 1) {
+    const r = find(q);
+    const cur = best[r];
+    if (!cur || (cand[q].type === 'max' ? cand[q].z > cur.z : cand[q].z < cur.z)) {
+      best[r] = cand[q];
+    }
+  }
+  const out = [];
+  for (let q = 0; q < n; q += 1) {
+    if (best[find(q)] === cand[q]) out.push({ x: xs[cand[q].i], y: ys[cand[q].j], z: cand[q].z, type: cand[q].type });
+  }
+  /* 极大在前；同类里极大按高度降序、极小按高度升序（最深的先）。
+     极小不能按 |z| 降序排：谷底尖端 z=0 会被排到最后、被截断掉，
+     显示出来的反而全是谷线远端的「极小」。 */
+  out.sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'max' ? -1 : 1;
+    return a.type === 'max' ? b.z - a.z : a.z - b.z;
+  });
+  return limit ? out.slice(0, limit) : out;
+}
+
+/**
+ * 中心差分求偏导。
+ * 分母是「前后两点之间的距离」而不是它的一半——(f(x+h) - f(x-h)) / 2h 里的
+ * 2h 恰好就是 x_{i+1} - x_{i-1}，再乘一次 2 就会得到一半的结果。
+ * 曲面的法线由它给出：z = f(x,y) 的法线方向是 (-fx, -fy, 1)。
+ */
+export function gradient2(g, i, j) {
+  const { nx, ny, xs, ys, z } = g;
+  const stride = ny + 1;
+  const k = i * stride + j;
+  if (i <= 0 || i >= nx || j <= 0 || j >= ny) return null;
+  const zxp = z[(i + 1) * stride + j];
+  const zxn = z[(i - 1) * stride + j];
+  const zyp = z[k + 1];
+  const zyn = z[k - 1];
+  if (![zxp, zxn, zyp, zyn].every(Number.isFinite)) return null;
+  const hx = xs[i + 1] - xs[i - 1];
+  const hy = ys[j + 1] - ys[j - 1];
+  if (!(Math.abs(hx) > 0) || !(Math.abs(hy) > 0)) return null;
+  return { fx: (zxp - zxn) / hx, fy: (zyp - zyn) / hy };
 }
