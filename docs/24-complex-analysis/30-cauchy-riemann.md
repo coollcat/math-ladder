@@ -147,7 +147,7 @@ print(round(2 * x, 6))
 # @hint: z=x+iy 时 z^3=(x^3-3xy^2)+(3x^2*y-y^3)i。代入 x=2,y=3 后检查符号。
 x = 2.0
 y = 3.0
-u = x ** 3 + 3 * x * y ** 2
+u = x ** 3 - 3 * x * y ** 2  # (x+iy)^3 实部：x^3 - 3xy^2，注意中间是减号
 v = 3 * x ** 2 * y - y ** 3
 print(u)
 print(v)

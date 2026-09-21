@@ -138,8 +138,8 @@ upper = 0.0
 for i in range(n):
     left = a + i * width
     right = left + width
-    lower = lower + f(right) * width
-    upper = upper + f(left) * width
+    lower = lower + f(right) * width  # ← BUG：递增函数下和应用左端点，这里 left/right 用反了
+    upper = upper + f(left) * width   # ← BUG：递增函数上和应用右端点，需要交换
 
 print(round(lower, 4))
 print(round(upper, 4))
