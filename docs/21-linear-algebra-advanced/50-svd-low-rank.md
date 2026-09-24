@@ -118,7 +118,7 @@ print(round(ratio, 3))
 # @title: 练习：选择最优低秩近似
 # @check: rank-1
 # @check: 0.692
-# @hint: rank-1 只保留最大奇异值；比例用 sigma1 的平方除以所有奇异值平方和。
+# @hint: 最优 rank-1 只保留 sigma1，所以 best 改成 "rank-1"；保留能量比例是 sigma1**2 / (sigma1**2 + sigma2**2)。
 sigma1 = 3.0
 sigma2 = 2.0
 best = "rank-2"

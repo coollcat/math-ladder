@@ -47,7 +47,7 @@ exits: []
 
 **数字灰度图像**是一个二元函数，定义在离散网格上：
 
-$$f : \{0, 1, \dots, W-1\} \times \{0, 1, \dots, H-1\} \longrightarrow \{0, 1, \dots, 255\}$$
+$$f : \lbrace 0, 1, \dots, W-1\rbrace \times \lbrace 0, 1, \dots, H-1\rbrace \longrightarrow \lbrace 0, 1, \dots, 255\rbrace$$
 
 | 符号 | 名字 | 含义 |
 | --- | --- | --- |

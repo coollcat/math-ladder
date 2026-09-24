@@ -6,7 +6,7 @@ prereqs:
 volume: 5
 layer: L10
 track:
-  - deep-learning
+  - information-learning
 stage: research-elective
 difficulty: 5
 introduces_math: []
@@ -239,13 +239,13 @@ RoPE 中低维度对的旋转频率和高维度对相比如何？
 
 二维旋转矩阵的集合构成**特殊正交群 SO(2)**：
 
-$$\text{SO}(2) = \{R \in \mathbb{R}^{2\times 2} \mid R^T R = I, \det R = 1\}$$
+$$\text{SO}(2) = \lbrace R \in \mathbb{R}^{2\times 2} \mid R^T R = I, \det R = 1\rbrace$$
 
 SO(2) 是**阿贝尔群**（交换群）：$R_\alpha R_\beta = R_{\alpha+\beta} = R_\beta R_\alpha$。
 
 正是这个交换性保证了 $R_m^T R_n = R_{n-m}$——相对位置性质的群论根源。
 
-更深层的联系：SO(2) 同构于单位复数群 $\{e^{i\theta}\}$，这就是为什么复数视角如此自然。对于更高维的 $d$，RoPE 将向量拆成 $d/2$ 个独立的 SO(2) 旋转——每个频率 $\theta_i$ 对应 SO(2) 的一个"表示"。
+更深层的联系：SO(2) 同构于单位复数群 $\lbrace e^{i\theta}\rbrace$，这就是为什么复数视角如此自然。对于更高维的 $d$，RoPE 将向量拆成 $d/2$ 个独立的 SO(2) 旋转——每个频率 $\theta_i$ 对应 SO(2) 的一个"表示"。
 
 </details>
 

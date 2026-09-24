@@ -171,7 +171,7 @@ plt.tight_layout()
 # @title: 练习：一百颗骰子的平均会多稳
 # @check: 0.1708
 # @check: 1.99
-# @hint: 均值标准误 = σ/√n，σ 是方差开根号；z 分数 = (目标值 − μ) ÷ 标准误
+# @hint: 先取 sigma = sqrt(var)，再算 se = sigma / sqrt(n)；z 分数 = (3.84 - mu) / se。
 import math
 
 mu = 3.5

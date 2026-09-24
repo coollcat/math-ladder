@@ -44,7 +44,7 @@ exits:
 
 $$G/\ker f \cong \operatorname{im} f$$
 
-其中 $\operatorname{im}f=\{f(g):g\in G\}$ 是 $f$ 的像。
+其中 $\operatorname{im}f=\lbrace f(g):g\in G\rbrace$ 是 $f$ 的像。
 
 同构映射 $\bar{f}:G/\ker f\to\operatorname{im}f$ 定义为
 
@@ -52,8 +52,8 @@ $$\bar{f}(g\ker f)=f(g).$$
 
 | 符号 | 含义 |
 | --- | --- |
-| $\ker f$ | 同态的核：$\{g\in G:f(g)=e_H\}$ |
-| $\operatorname{im} f$ | 同态的像：$\{f(g):g\in G\}$ |
+| $\ker f$ | 同态的核：$\lbrace g\in G:f(g)=e_H\rbrace$ |
+| $\operatorname{im} f$ | 同态的像：$\lbrace f(g):g\in G\rbrace$ |
 | $G/\ker f$ | $G$ 模核的商群 |
 | $\bar{f}$ | 诱导的同构映射 |
 
@@ -62,17 +62,17 @@ $$\bar{f}(g\ker f)=f(g).$$
 **例**：$f:\mathbb{Z}\to\mathbb{Z}_6$，$f(x)=x\bmod 6$。
 
 1. $f$ 是同态：$f(a+b)=(a+b)\bmod 6=(a\bmod 6+b\bmod 6)\bmod 6=f(a)+f(b)$；
-2. $\ker f=\{x\in\mathbb{Z}:x\bmod 6=0\}=6\mathbb{Z}$；
-3. $\operatorname{im}f=\{0,1,2,3,4,5\}=\mathbb{Z}_6$（$f$ 是满射）；
+2. $\ker f=\lbrace x\in\mathbb{Z}:x\bmod 6=0\rbrace=6\mathbb{Z}$；
+3. $\operatorname{im}f=\lbrace 0,1,2,3,4,5\rbrace=\mathbb{Z}_6$（$f$ 是满射）；
 4. 第一同构定理：$\mathbb{Z}/6\mathbb{Z}\cong\mathbb{Z}_6$；
 5. 验证：$\bar{f}(3+6\mathbb{Z})=f(3)=3$，$\bar{f}(9+6\mathbb{Z})=f(9)=3$，同一个陪集映到同一个值。
 
 **例**：$f:\mathbb{Z}_8\to\mathbb{Z}_4$，$f(x)=x\bmod 4$。
 
 1. 验证同态：$f((a+b)\bmod 8)=(a+b)\bmod 4$，$f(a)+f(b)=(a\bmod 4+b\bmod 4)\bmod 4$，相等；
-2. $\ker f=\{0,4\}$；
-3. $\operatorname{im}f=\{0,1,2,3\}=\mathbb{Z}_4$；
-4. $\mathbb{Z}_8/\{0,4\}\cong\mathbb{Z}_4$。
+2. $\ker f=\lbrace 0,4\rbrace$；
+3. $\operatorname{im}f=\lbrace 0,1,2,3\rbrace=\mathbb{Z}_4$；
+4. $\mathbb{Z}_8/\lbrace 0,4\rbrace\cong\mathbb{Z}_4$。
 
 ## 5. 动手实验
 

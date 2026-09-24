@@ -49,9 +49,9 @@ CFL 由 CFG（上下文无关文法）或 PDA（下推自动机）识别。CFG �
 
 **不封闭定理**：CFL 对交和补不封闭。
 
-设 $L_1=\{a^nb^nc^m:n,m\ge0\}$，$L_2=\{a^mb^nc^n:m,n\ge0\}$，两者都是 CFL（分别由 CFG $S_1\to AB,\ A\to aAb\mid\varepsilon,\ B\to cB\mid\varepsilon$ 和类似文法生成）。但
+设 $L_1=\lbrace a^nb^nc^m:n,m\ge0\rbrace$，$L_2=\lbrace a^mb^nc^n:m,n\ge0\rbrace$，两者都是 CFL（分别由 CFG $S_1\to AB,\ A\to aAb\mid\varepsilon,\ B\to cB\mid\varepsilon$ 和类似文法生成）。但
 
-$$L_1\cap L_2=\{a^nb^nc^n:n\ge0\}$$
+$$L_1\cap L_2=\lbrace a^nb^nc^n:n\ge0\rbrace$$
 
 由上一课已知这不是 CFL。因此 CFL 对交不封闭。
 
@@ -59,17 +59,17 @@ $$L_1\cap L_2=\{a^nb^nc^n:n\ge0\}$$
 
 ## 4. 分步例题
 
-**例**：证明 $L_1=\{a^nb^nc^m:n,m\ge0\}$ 是 CFL。
+**例**：证明 $L_1=\lbrace a^nb^nc^m:n,m\ge0\rbrace$ 是 CFL。
 
 1. 构造 CFG：$S\to AB$，$A\to aAb\mid\varepsilon$，$B\to cB\mid\varepsilon$；
-2. $A$ 生成 $\{a^nb^n:n\ge0\}$，$B$ 生成 $\{c^m:m\ge0\}$；
+2. $A$ 生成 $\lbrace a^nb^n:n\ge0\rbrace$，$B$ 生成 $\lbrace c^m:m\ge0\rbrace$；
 3. $S$ 先调用 $A$ 生成匹配的 $a,b$，再调用 $B$ 生成任意多 $c$；
 4. 所有串形如 $a^nb^nc^m$，且 $n,m$ 独立，确实是 CFL。
 
 **例**：用 CFG 构造证明并运算封闭。
 
 1. 设 $G_1=(V_1,\Sigma,R_1,S_1)$ 生成 $L_1$，$G_2=(V_2,\Sigma,R_2,S_2)$ 生成 $L_2$（假设 $V_1\cap V_2=\varnothing$）；
-2. 构造 $G=(V_1\cup V_2\cup\{S\},\Sigma,R_1\cup R_2\cup\{S\to S_1\mid S_2\},S)$；
+2. 构造 $G=(V_1\cup V_2\cup\lbrace S\rbrace,\Sigma,R_1\cup R_2\cup\lbrace S\to S_1\mid S_2\rbrace,S)$；
 3. $S$ 选 $S_1$ 则生成 $L_1$ 的串，选 $S_2$ 则生成 $L_2$ 的串；
 4. 所以 $L(G)=L_1\cup L_2$。
 
@@ -221,4 +221,4 @@ CFL 对以下哪种运算不封闭？
 
 CFL 的工具箱已经齐备：泵引理划边界，封闭性做组合。接下来进入代数结构的领域，看看群论如何用"正规子群"把一个群切成整齐的碎片。
 
-→ [正规子群与商群](../../33-algebraic-structures/37-normal-subgroup-quotient.md)
+→ [正规子群与商群](../33-algebraic-structures/37-normal-subgroup-quotient.md)

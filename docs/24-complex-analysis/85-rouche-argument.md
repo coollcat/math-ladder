@@ -253,4 +253,4 @@ $F(\gamma)$ 不绕原点，所以卷绕数为 0。即 $g$ 的零点数 - $f$ 的
 
 从复分析回到测度论——σ-代数是现代概率和积分理论的基石，它回答"哪些集合可以被测量"。
 
-→ [σ-代数与 Borel 集](../../25-measure-lebesgue/15-sigma-algebra.md)
+→ [σ-代数与 Borel 集](../25-measure-lebesgue/15-sigma-algebra.md)

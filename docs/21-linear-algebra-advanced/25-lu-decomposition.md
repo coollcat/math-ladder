@@ -5,7 +5,8 @@ prereqs:
   - linalg-advanced/rank-nullspace
 introduces_math: []
 introduces_builtin: []
-introduces_import: []
+introduces_import:
+  - time
 volume: 2
 layer: L6
 track:
@@ -155,7 +156,7 @@ print(f"验证 Ax = {A @ x}")
 
 ```python title="解 1000×1000 方程组：LU 分解 vs np.linalg.solve"
 import numpy as np
-import time
+import time  # time：测量代码运行耗时
 
 n = 500
 np.random.seed(42)

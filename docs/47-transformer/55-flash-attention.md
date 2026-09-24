@@ -2,11 +2,12 @@
 title: Flash Attention
 lesson_id: transformer/flash-attention
 prereqs:
-  - transformer/multihead-attention
+  - transformer/self-attention
+  - transformer/positional-encoding
 volume: 5
 layer: L10
 track:
-  - deep-learning
+  - information-learning
 stage: research-elective
 difficulty: 5
 introduces_math: []

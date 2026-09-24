@@ -6,7 +6,7 @@ prereqs:
 volume: 4
 layer: L6
 track:
-  - probability-measure
+  - probability-statistics
 stage: university-core
 difficulty: 4
 introduces_math: []
@@ -240,4 +240,4 @@ $$P(\exists h\in\mathcal{H}:|\hat{R}(h)-R(h)|\ge t)\le2|\mathcal{H}|\exp(-2nt^2)
 
 概率不等式帮我们在理论上控制误差。下一课回到实验现场：当你只有小样本时，如何用 t 检验判断两组数据是否有显著差异？
 
-→ [t 检验](../../38-statistical-inference/25-t-test.md)
+→ [t 检验](../38-statistical-inference/25-t-test.md)

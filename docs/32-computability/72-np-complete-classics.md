@@ -11,7 +11,8 @@ stage: university-core
 difficulty: 4
 introduces_math: []
 introduces_builtin: []
-introduces_import: []
+introduces_import:
+  - itertools
 introduces_concepts:
   - subset-sum
   - vertex-cover
@@ -44,7 +45,7 @@ exits:
 
 | 问题 | 输入 | 问的是 | 归约自 |
 | --- | --- | --- | --- |
-| **子集和**（Subset Sum） | 集合 $S=\{a_1,\ldots,a_n\}$，目标 $t$ | 是否存在子集使其元素之和 $=t$？ | 3-SAT |
+| **子集和**（Subset Sum） | 集合 $S=\lbrace a_1,\ldots,a_n\rbrace$，目标 $t$ | 是否存在子集使其元素之和 $=t$？ | 3-SAT |
 | **顶点覆盖**（Vertex Cover） | 图 $G=(V,E)$，整数 $k$ | 是否存在大小 $\le k$ 的顶点集覆盖所有边？ | 3-SAT |
 | **Hamilton 路径** | 图 $G=(V,E)$ | 是否存在恰好经过每个顶点一次的路径？ | 顶点覆盖 |
 | **0/1 背包**（Knapsack） | $n$ 件物品重量 $w_i$、价值 $v_i$，容量 $W$ | 是否存在总重 $\le W$ 且总价值最大？ | 子集和 |
@@ -55,7 +56,7 @@ exits:
 
 **例：子集和 → 0/1 背包的归约直觉**
 
-给定子集和实例：$S=\{3,5,7,8\}$，$t=15$。问是否存在子集和为 15。
+给定子集和实例：$S=\lbrace 3,5,7,8\rbrace$，$t=15$。问是否存在子集和为 15。
 
 构造背包实例：4 件物品重量 $(3,5,7,8)$、价值也取 $(3,5,7,8)$、容量 $W=15$。
 
@@ -150,12 +151,12 @@ DP 对小 $t$ 很快，但注意：如果 $t$ 是 200 位整数，DP 数组要�
 
 ## 6. 练习
 
-**练习 1**：用动态规划判断 $\{2,3,7,8,10\}$ 中是否存在子集和为 11。
+**练习 1**：用动态规划判断 $\lbrace 2,3,7,8,10\rbrace$ 中是否存在子集和为 11。
 
 <details>
 <summary>点开查看逐步解答</summary>
 
-DP 表从 dp[0]=True 开始。加入 2：dp[2]=True。加入 3：dp[3]=True，dp[5]=True。加入 7：dp[7]=True，dp[9]=True，dp[10]=True，dp[12]（超界跳过）。加入 8：dp[8]=True，dp[10]已有，dp[11]=True（因为 dp[3]=True 且 3+8=11）。所以有解：$\{3,8\}$。
+DP 表从 dp[0]=True 开始。加入 2：dp[2]=True。加入 3：dp[3]=True，dp[5]=True。加入 7：dp[7]=True，dp[9]=True，dp[10]=True，dp[12]（超界跳过）。加入 8：dp[8]=True，dp[10]已有，dp[11]=True（因为 dp[3]=True 且 3+8=11）。所以有解：$\lbrace 3,8\rbrace$。
 </details>
 
 **练习 2**：补全顶点覆盖的暴力搜索——代码能跑但结果不对：
@@ -226,7 +227,7 @@ Karp 1972 年的论文用 21 个归约串联起 NP 完全版图。其中 3-SAT �
 
 给定 3-SAT 实例（子句 $C_1,\ldots,C_m$，变量 $x_1,\ldots,x_n$），构造图 $G$：
 1. 每个变量 $x_i$ 造一个"小对"：两个顶点 $v_i,\bar{v}_i$，连一条边——这对中必须选一个（代表变量取真或假）；
-2. 每个子句 $C_j=\{\ell_1,\ell_2,\ell_3\}$ 造一个"三角形"：三个顶点两两相连——三角形至少要选两个才能覆盖三条边；
+2. 每个子句 $C_j=\lbrace \ell_1,\ell_2,\ell_3\rbrace$ 造一个"三角形"：三个顶点两两相连——三角形至少要选两个才能覆盖三条边；
 3. 把三角形的每个顶点连向对应文字的小对顶点。
 
 令 $k=n+2m$（每对选 1 个 + 每三角选 2 个）。可证：$G$ 有大小 $\le k$ 的顶点覆盖当且仅当 3-SAT 可满足。构造是多项式时间的——因为图的大小与公式大小线性相关。
@@ -239,4 +240,4 @@ Karp 1972 年的论文用 21 个归约串联起 NP 完全版图。其中 3-SAT �
 
 NP 完全告诉我们"这些问题很难精确求解"，但它们的代数根基——有限域的结构——可以反过来帮助我们。下一课回到代数，看有限域 $F_{p^m}$ 如何从不可约多项式中诞生。
 
-→ [有限域 $F_{p^m}$ 构造](../../33-algebraic-structures/67-finite-field-construction.md)
+→ [有限域 $F_{p^m}$ 构造](../33-algebraic-structures/67-finite-field-construction.md)

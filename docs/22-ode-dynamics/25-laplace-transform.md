@@ -44,7 +44,7 @@ Laplace 变换就像一把"翻译器"：
 
 **Laplace 变换**：对函数 $f(t)$（$t \geq 0$），
 
-$$\mathcal{L}\{f(t)\} = F(s) = \int_0^\infty e^{-st} f(t)\, dt$$
+$$\mathcal{L}\lbrace f(t)\rbrace = F(s) = \int_0^\infty e^{-st} f(t)\, dt$$
 
 其中 $s$ 是复数参数（实际应用中取实部充分大的实数即可）。
 
@@ -61,17 +61,17 @@ $$\mathcal{L}\{f(t)\} = F(s) = \int_0^\infty e^{-st} f(t)\, dt$$
 
 **微分性质**：
 
-$$\mathcal{L}\{f'(t)\} = sF(s) - f(0)$$
+$$\mathcal{L}\lbrace f'(t)\rbrace = sF(s) - f(0)$$
 
-$$\mathcal{L}\{f''(t)\} = s^2F(s) - sf(0) - f'(0)$$
+$$\mathcal{L}\lbrace f''(t)\rbrace = s^2F(s) - sf(0) - f'(0)$$
 
-**卷积性质**：$\mathcal{L}\{f * g\} = F(s) \cdot G(s)$。
+**卷积性质**：$\mathcal{L}\lbrace f * g\rbrace = F(s) \cdot G(s)$。
 
 ## 4. 分步例题
 
 **例**：解 $y'' + 3y' + 2y = e^{-t}$，$y(0) = 0$，$y'(0) = 1$。
 
-**第一步**：两边取 Laplace 变换。记 $Y = \mathcal{L}\{y\}$：
+**第一步**：两边取 Laplace 变换。记 $Y = \mathcal{L}\lbrace y\rbrace$：
 
 $$[s^2Y - s \cdot 0 - 1] + 3[sY - 0] + 2Y = \frac{1}{s+1}$$
 
@@ -83,7 +83,7 @@ $$(s^2 + 3s + 2)Y = 1 + \frac{1}{s+1} = \frac{s+2}{s+1}$$
 
 $$Y = \frac{s+2}{(s+1)(s^2+3s+2)} = \frac{s+2}{(s+1)^2(s+2)} = \frac{1}{(s+1)^2}$$
 
-**第四步**：反变换。$\frac{1}{(s+1)^2} = \mathcal{L}\{te^{-t}\}$。
+**第四步**：反变换。$\frac{1}{(s+1)^2} = \mathcal{L}\lbrace te^{-t}\rbrace$。
 
 $$y(t) = te^{-t}$$
 
@@ -212,18 +212,18 @@ print(f"y(1) = {y(1)}")
 print(f"y(5) = {y(5)}")
 ```
 
-**练习 2**：求 $\mathcal{L}\{t \sin(2t)\}$。
+**练习 2**：求 $\mathcal{L}\lbrace t \sin(2t)\rbrace$。
 
 <details>
 <summary>点开查看解答</summary>
 
-利用 $\mathcal{L}\{t f(t)\} = -F'(s)$。
+利用 $\mathcal{L}\lbrace t f(t)\rbrace = -F'(s)$。
 
-$F(s) = \mathcal{L}\{\sin(2t)\} = \frac{2}{s^2 + 4}$。
+$F(s) = \mathcal{L}\lbrace \sin(2t)\rbrace = \frac{2}{s^2 + 4}$。
 
 $F'(s) = \frac{-4s}{(s^2+4)^2}$。
 
-所以 $\mathcal{L}\{t\sin(2t)\} = -F'(s) = \frac{4s}{(s^2+4)^2}$。
+所以 $\mathcal{L}\lbrace t\sin(2t)\rbrace = -F'(s) = \frac{4s}{(s^2+4)^2}$。
 </details>
 
 ## 7. 选读：Laplace 变换为什么有效
@@ -231,7 +231,7 @@ $F'(s) = \frac{-4s}{(s^2+4)^2}$。
 <details>
 <summary>选读 · 收敛条件与存在性</summary>
 
-$\mathcal{L}\{f\}(s) = \int_0^\infty e^{-st}f(t)\,dt$ 的存在条件：$f$ 在 $[0, \infty)$ 上分段连续，且存在常数 $M, \alpha$ 使 $|f(t)| \leq Me^{\alpha t}$。此时积分对所有 $s > \alpha$ 收敛。
+$\mathcal{L}\lbrace f\rbrace(s) = \int_0^\infty e^{-st}f(t)\,dt$ 的存在条件：$f$ 在 $[0, \infty)$ 上分段连续，且存在常数 $M, \alpha$ 使 $|f(t)| \leq Me^{\alpha t}$。此时积分对所有 $s > \alpha$ 收敛。
 
 这个条件比 Fourier 变换宽松得多——$f$ 可以指数增长，只要 $e^{-st}$ 衰减得更快就行。这就是为什么 Laplace 变换在工程中更常用：物理系统的响应通常是指数有界的，条件自动满足。
 

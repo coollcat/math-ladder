@@ -4,12 +4,13 @@ lesson_id: math-language/partial-order-well-order
 prereqs:
   - math-language/sets-relations-functions
 introduces_math: []
-introduces_builtin: []
+introduces_builtin:
+  - min
 introduces_import: []
-volume: 1
+volume: 2
 layer: L4
 track:
-  - discrete-structures
+  - discrete-computing
 stage: university-core
 difficulty: 3
 introduces_concepts:
@@ -39,7 +40,7 @@ exits:
 - **偏序**：有些能比，有些不能——元素排成一棵树或一个有向无环图。
 - **良序**：任意非空子集都有"最矮的人"——不管你怎么挑一堆人，总能找到最小的。
 
-自然数 $\{0, 1, 2, 3, \ldots\}$ 按 $\leq$ 既是全序又是良序；幂集 $\mathcal{P}(S)$ 按 $\subseteq$ 是偏序但不是全序（$\{1\}$ 和 $\{2\}$ 不可比）。
+自然数 $\lbrace 0, 1, 2, 3, \ldots\rbrace$ 按 $\leq$ 既是全序又是良序；幂集 $\mathcal{P}(S)$ 按 $\subseteq$ 是偏序但不是全序（$\lbrace 1\rbrace$ 和 $\lbrace 2\rbrace$ 不可比）。
 
 ## 3. 正式定义
 
@@ -60,7 +61,7 @@ exits:
 
 ## 4. 分步例题
 
-**例 1**：画出 $\{1, 2, 3, 4, 6, 12\}$ 按整除关系 $|$ 的哈斯图。
+**例 1**：画出 $\lbrace 1, 2, 3, 4, 6, 12\rbrace$ 按整除关系 $|$ 的哈斯图。
 
 1. 列出覆盖关系（$a \prec b$ 且中间没有 $c$ 使 $a \prec c \prec b$）：
    - $1 \mid 2$，$1 \mid 3$
@@ -195,19 +196,19 @@ plt.tight_layout()
 
 (a) $(\mathbb{Q}^+, \leq)$
 (b) $(\mathbb{Q}^+, |)$（整除）
-(c) $(\{1, 2, 4, 8, 16\}, |)$
+(c) $(\lbrace 1, 2, 4, 8, 16\rbrace, |)$
 
 <details>
 <summary>点开查看解答</summary>
 
-(a) 全序（任意两个正有理数可比），但**不是**良序：子集 $\{1, 1/2, 1/3, \ldots\}$ 没有最小元。
+(a) 全序（任意两个正有理数可比），但**不是**良序：子集 $\lbrace 1, 1/2, 1/3, \ldots\rbrace$ 没有最小元。
 
 (b) 偏序，但不是全序（$2 \nmid 3$ 且 $3 \nmid 2$）。
 
 (c) 全序（$1 \mid 2 \mid 4 \mid 8 \mid 16$），也是良序（有限全序集自动良序）。
 </details>
 
-**练习 2**：画出 $\{2, 3, 4, 6, 8, 12\}$ 按整除关系的哈斯图，并找出所有极大元和极小元。
+**练习 2**：画出 $\lbrace 2, 3, 4, 6, 8, 12\rbrace$ 按整除关系的哈斯图，并找出所有极大元和极小元。
 
 ```exercise
 # @title: 整除哈斯图
@@ -243,7 +244,7 @@ print(f"极大元 = {set(maximal)}")
 
 **强归纳法**：若 $P(0)$ 成立，且 $\forall k\,[(\forall j < k,\; P(j)) \Rightarrow P(k)]$，则 $\forall n,\; P(n)$。
 
-二者等价。从良序推出强归纳法：假设 $P$ 不恒真，令 $S = \{n \in \mathbb{N} \mid \neg P(n)\}$，$S$ 非空，取 $n_0 = \min S$。则 $P(0), P(1), \ldots, P(n_0-1)$ 全真，由归纳步得 $P(n_0)$ 真——矛盾。
+二者等价。从良序推出强归纳法：假设 $P$ 不恒真，令 $S = \lbrace n \in \mathbb{N} \mid \neg P(n)\rbrace$，$S$ 非空，取 $n_0 = \min S$。则 $P(0), P(1), \ldots, P(n_0-1)$ 全真，由归纳步得 $P(n_0)$ 真——矛盾。
 
 从强归纳推出良序：设 $A \subseteq \mathbb{N}$ 非空但无最小元。令 $P(n) = "n \notin A"$。$P(0)$ 真（否则 0 是 $A$ 的最小元）。若 $\forall j < k,\; P(j)$，则 $k \notin A$（否则 $k$ 是 $A$ 的最小元）。由强归纳，$P(n)$ 对所有 $n$ 成立，即 $A = \emptyset$——矛盾。
 

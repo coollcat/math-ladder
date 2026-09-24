@@ -10,7 +10,7 @@ volume: 2
 layer: L10
 track:
   - analysis-change
-  - probability-discrete
+  - probability-statistics
 stage: university-core
 difficulty: 4
 introduces_concepts:
@@ -61,24 +61,24 @@ exits:
 
 ## 4. 分步例题
 
-**例 1**：$X = \{1, 2, 3\}$ 上有哪些 σ-代数？
+**例 1**：$X = \lbrace 1, 2, 3\rbrace$ 上有哪些 σ-代数？
 
-1. 最小的：$\{\emptyset, X\}$（只有空集和全集）。
-2. 若包含 $\{1\}$，则必含 $\{2,3\}$（补集），进一步必含 $\{1,2\}$, $\{3\}$, $\{2\}$, $\{1,3\}$, $\emptyset$, $X$——整个幂集 $\mathcal{P}(X)$。
+1. 最小的：$\lbrace \emptyset, X\rbrace$（只有空集和全集）。
+2. 若包含 $\lbrace 1\rbrace$，则必含 $\lbrace 2,3\rbrace$（补集），进一步必含 $\lbrace 1,2\rbrace$, $\lbrace 3\rbrace$, $\lbrace 2\rbrace$, $\lbrace 1,3\rbrace$, $\emptyset$, $X$——整个幂集 $\mathcal{P}(X)$。
 3. 有限集上的 σ-代数一定是有限代数（因为可数并退化为有限并）。
 
 **例 2**：$[0,1]$ 中的 Borel 集有哪些？
 
 1. 所有开区间 $(a,b)$ 是 Borel 集。
 2. 所有闭区间 $[a,b]$ 是 Borel 集（$[a,b] = (a,b)^c \cap \ldots$ 用开集的可数交表示）。
-3. 所有单点集 $\{x\}$ 是 Borel 集（$\{x\} = \bigcap_{n=1}^\infty (x-1/n, x+1/n)$）。
+3. 所有单点集 $\lbrace x\rbrace$ 是 Borel 集（$\lbrace x\rbrace = \bigcap_{n=1}^\infty (x-1/n, x+1/n)$）。
 4. $\mathbb{Q}$ 是 Borel 集（可数集 = 可数个单点集的并）。
 5. 但存在不是 Borel 的集合（虽然很难构造）。
 
-**例 3**：$\sigma(\{(0,1)\})$ 是什么？
+**例 3**：$\sigma(\lbrace (0,1)\rbrace)$ 是什么？
 
 1. 包含 $(0,1)$，必含 $(0,1)^c = (-\infty, 0] \cup [1, \infty)$。
-2. 只需对这两块做可数并/交/补——结果是 $\{\emptyset, (0,1), (0,1)^c, \mathbb{R}\}$。
+2. 只需对这两块做可数并/交/补——结果是 $\lbrace \emptyset, (0,1), (0,1)^c, \mathbb{R}\rbrace$。
 3. 验证：这四集合确实构成 σ-代数。
 
 ## 5. 动手实验
@@ -219,7 +219,7 @@ Borel σ-代数是由什么生成的？
 ? Borel σ-代数 B(R) 是由 R 上所有开集生成的最小 σ-代数。它包含所有开集、闭集、区间、可数集等"自然"集合。
 ```
 
-**练习 1**：证明 $\{A \subseteq \mathbb{R} \mid A \text{ 可数或 } A^c \text{ 可数}\}$ 是 $\mathbb{R}$ 上的 σ-代数。
+**练习 1**：证明 $\lbrace A \subseteq \mathbb{R} \mid A \text{ 可数或 } A^c \text{ 可数}\rbrace$ 是 $\mathbb{R}$ 上的 σ-代数。
 
 ```exercise
 # @title: 可数-余可数 σ-代数
@@ -243,7 +243,7 @@ print(f"补集封闭: True")
 print(f"可数并封闭: True")
 ```
 
-**练习 2**：$\sigma(\{(0,1), (2,3)\})$ 包含哪些集合？
+**练习 2**：$\sigma(\lbrace (0,1), (2,3)\rbrace)$ 包含哪些集合？
 
 <details>
 <summary>点开查看解答</summary>
@@ -257,7 +257,7 @@ print(f"可数并封闭: True")
 - $A^c \cap B^c = (A \cup B)^c = (-\infty,0] \cup [1,2] \cup [3,\infty)$
 - $A \cap B^c = (0,1)$（已含）
 - $A^c \cup B = (-\infty,0] \cup [1,3)$
-- 等等——共 16 个集合，对应 $\{A, B\}$ 生成的 4 个"原子"区域的所有组合。
+- 等等——共 16 个集合，对应 $\lbrace A, B\rbrace$ 生成的 4 个"原子"区域的所有组合。
 
 四个原子：$(0,1)$，$(2,3)$，$[1,2]$，$(-\infty,0] \cup [3,\infty)$。σ-代数是这四个原子的所有并集，共 $2^4 = 16$ 个。
 

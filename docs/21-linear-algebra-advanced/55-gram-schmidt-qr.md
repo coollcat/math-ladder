@@ -259,4 +259,4 @@ print(f"e1·e2 = {np.dot(e1, e2):.2e}")   # 应接近 0
 
 矩阵分解之后，我们转向微分方程——Laplace 变换把微分方程变成代数方程，是工程中最强大的求解工具之一。
 
-→ [Laplace 变换求解 ODE](../../22-ode-dynamics/25-laplace-transform.md)
+→ [Laplace 变换求解 ODE](../22-ode-dynamics/25-laplace-transform.md)

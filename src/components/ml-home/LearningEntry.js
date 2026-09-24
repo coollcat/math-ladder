@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from '@docusaurus/Link';
 import { NODES } from './full-graph-data';
-import { CHAPTERS } from './data';
+import { allChapterGroups } from './data';
 import {
   readProgress,
   readLast,
@@ -23,6 +23,7 @@ import {
  * ========================================================================= */
 
 const BY_PATH = new Map(NODES.map((n) => [n.to, n]));
+const RANDOM_CHAPTERS = allChapterGroups().flatMap((group) => group.chapters);
 
 export function pickContinueTarget() {
   const done = readProgress();
@@ -62,7 +63,8 @@ export function ContinueButton() {
   }, []);
 
   const randomChapter = () => {
-    const ch = CHAPTERS[Math.floor(Math.random() * CHAPTERS.length)];
+    if (!RANDOM_CHAPTERS.length) return;
+    const ch = RANDOM_CHAPTERS[Math.floor(Math.random() * RANDOM_CHAPTERS.length)];
     window.location.href = ch.to;
   };
 

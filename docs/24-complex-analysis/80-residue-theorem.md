@@ -141,7 +141,7 @@ print(f"{round(residue.real, 3)} {round(residue.imag, 3)}")
 # @title: 练习：求有理函数的两个留数之和
 # @check: 8.0
 # @check: 50.265
-# @hint: 函数是 3/(z-1)+5/(z+2)。围道 |z|=3 包含两个极点吗？先判断再求和。
+# @hint: 3/(z-1) 的留数是 +3，5/(z+2) 的留数是 +5；两个极点的绝对值都小于 3，所以 residue_sum = 3.0 + 5.0。
 import math
 
 residue_sum = -3.0 + 5.0      # 请检查第一个符号是否正确

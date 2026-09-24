@@ -63,15 +63,11 @@ $n$ 个周期性任务 $\tau_i = (C_i, T_i)$，$C_i$ 为执行时间，$T_i$ 为
 
 CPU 利用率：
 
-$$
-U = \sum_{i=1}^{n} \frac{C_i}{T_i}
-$$
+$$U = \sum_{i=1}^{n} \frac{C_i}{T_i}$$
 
 RMS 充分条件（Liu & Layland, 1973）：
 
-$$
-U \le n\left(2^{1/n} - 1\right)
-$$
+$$U \le n\left(2^{1/n} - 1\right)$$
 
 | $n$ | 上界 |
 | ---: | ---: |

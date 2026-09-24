@@ -6,7 +6,7 @@ prereqs:
 volume: 4
 layer: L7
 track:
-  - data-inference
+  - probability-statistics
 stage: university-core
 difficulty: 3
 introduces_math: []

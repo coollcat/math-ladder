@@ -2,7 +2,9 @@
 title: AR/MA 时间序列模型
 lesson_id: stochastic-processes/time-series-models
 prereqs:
-  - stochastic-processes/time-series-stationarity
+  - stochastic-processes/stationary-distribution
+  - stochastic-processes/sample-paths
+  - probability-advanced/expectation
 volume: 4
 layer: L6
 track:
@@ -246,4 +248,4 @@ $$\nabla X_t = X_t - X_{t-1}, \qquad \nabla^2 X_t = \nabla(\nabla X_t)$$
 
 ARMA 假设方差恒定，但金融市场里"波动率会聚集"——大涨大跌扎堆出现。下一课我们用 GARCH 模型来捕捉这种时变波动率。
 
-→ [GARCH 波动率模型](./95-garch-volatility.md)
+→ [GARCH 波动率模型](/docs/stochastic-processes/garch-volatility)

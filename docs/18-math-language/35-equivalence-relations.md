@@ -5,11 +5,12 @@ prereqs:
   - math-language/sets-relations-functions
 introduces_math: []
 introduces_builtin: []
-introduces_import: []
-volume: 1
+introduces_import:
+  - numpy
+volume: 2
 layer: L4
 track:
-  - discrete-structures
+  - discrete-computing
 stage: university-core
 difficulty: 3
 introduces_concepts:
@@ -59,11 +60,11 @@ exits:
 
 对 $a \in S$，$a$ 的**等价类**为：
 
-$$[a] = \{x \in S \mid x \sim a\}$$
+$$[a] = \lbrace x \in S \mid x \sim a\rbrace$$
 
 所有等价类构成的集合叫**商集**，记作 $S/{\sim}$：
 
-$$S/{\sim} = \{[a] \mid a \in S\}$$
+$$S/{\sim} = \lbrace [a] \mid a \in S\rbrace$$
 
 **模等价**是最常见的等价关系：$a \equiv b \pmod{n}$ 当且仅当 $n \mid (a-b)$。此时商集 $\mathbb{Z}/n\mathbb{Z}$ 恰好有 $n$ 个等价类。
 
@@ -77,12 +78,12 @@ $$S/{\sim} = \{[a] \mid a \in S\}$$
 
 **例 2**：列出 $\mathbb{Z}/4\mathbb{Z}$ 的所有等价类。
 
-- $[0] = \{\ldots, -8, -4, 0, 4, 8, \ldots\}$
-- $[1] = \{\ldots, -7, -3, 1, 5, 9, \ldots\}$
-- $[2] = \{\ldots, -6, -2, 2, 6, 10, \ldots\}$
-- $[3] = \{\ldots, -5, -1, 3, 7, 11, \ldots\}$
+- $[0] = \lbrace \ldots, -8, -4, 0, 4, 8, \ldots\rbrace$
+- $[1] = \lbrace \ldots, -7, -3, 1, 5, 9, \ldots\rbrace$
+- $[2] = \lbrace \ldots, -6, -2, 2, 6, 10, \ldots\rbrace$
+- $[3] = \lbrace \ldots, -5, -1, 3, 7, 11, \ldots\rbrace$
 
-商集 $\mathbb{Z}/4\mathbb{Z} = \{[0], [1], [2], [3]\}$，共 4 个元素。
+商集 $\mathbb{Z}/4\mathbb{Z} = \lbrace [0], [1], [2], [3]\rbrace$，共 4 个元素。
 
 ## 5. 动手实验
 
@@ -107,7 +108,7 @@ for r in sorted(classes):
 
 ```python title="用邻接矩阵可视化等价关系"
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy as np  # numpy：数值数组与矩阵运算库
 
 n = 8
 # 按模 3 分组的等价关系

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -318,6 +318,15 @@ const metadataPioneerCount = lessons.filter((L) =>
 ).length;
 const enforceNewMetadata = metadataPioneerCount >= 2;
 
+function expectedVolume(chNum) {
+  if (chNum <= 16) return 1;
+  if (chNum <= 26) return 2;
+  if (chNum <= 35) return 3;
+  if (chNum <= 42) return 4;
+  if (chNum <= 67) return 5;
+  return 6;
+}
+
 if (!listMode) {
   const idSet = new Map();
   for (const L of lessons) {
@@ -350,7 +359,14 @@ if (!listMode) {
         );
       }
     };
-    if (L.volume != null) checkScalar('volume', L.volume);
+    if (L.volume != null) {
+      checkScalar('volume', L.volume);
+      if (L.order.chNum >= 18 && Number(L.volume) !== expectedVolume(L.order.chNum)) {
+        errors.push(
+          `${L.rel}: volume "${L.volume}" 与第 ${L.order.chNum} 章所属卷不一致（应为 ${expectedVolume(L.order.chNum)}）`,
+        );
+      }
+    }
     if (L.layer != null) checkScalar('layer', L.layer);
     if (L.track.length) {
       for (const item of L.track) checkScalar('track', item);

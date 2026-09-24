@@ -150,8 +150,8 @@ for (const file of markdown) {
       pythonBlocks += 1;
       if (/^\s*input\s*\(/m.test(block.code)) problems.push(`${relative}:${block.line}: input()`);
       if (/^\s*while\s+True\s*:/m.test(block.code)) problems.push(`${relative}:${block.line}: while True`);
-      const compiled = spawnSync('python', ['-I', '-c', "import sys; compile(sys.stdin.read(), '<lesson>', 'exec')"], {
-        input: block.code,
+      const compiled = spawnSync('python', ['-I', '-X', 'utf8', '-c', "import sys; compile(sys.stdin.read(), '<lesson>', 'exec')"], {
+        input: Buffer.from(block.code, 'utf8'),
         encoding: 'utf8',
       });
       if (compiled.status !== 0) {

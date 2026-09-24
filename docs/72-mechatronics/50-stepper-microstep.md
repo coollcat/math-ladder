@@ -49,9 +49,7 @@ exits:
 
 步进电机的两相绕组 A、B 中的电流理想值是一个**连续旋转的电流矢量**：
 
-$$
-I_A = I_0 \sin\theta,\qquad I_B = I_0 \cos\theta
-$$
+$$I_A = I_0 \sin\theta,\qquad I_B = I_0 \cos\theta$$
 
 其中 $\theta$ 是**电角度**（与机械角度的比值等于极对数），$I_0$ 是额定电流。电流矢量的合成方向就是定子磁场方向，转子始终被吸引到与磁场对齐的位置。
 
@@ -68,9 +66,7 @@ $$
 
 量化误差：实际电角度 $\hat\theta$ 被量化到最近的微步格点：
 
-$$
-\hat\theta = \text{round}\!\left(\frac{\theta}{q}\right) \cdot q,\qquad q = \frac{90°}{m}
-$$
+$$\hat\theta = \text{round}\!\left(\frac{\theta}{q}\right) \cdot q,\qquad q = \frac{90°}{m}$$
 
 位置误差峰峰 = $q = 90°/m$（电角度），机械上 = $\theta_\text{full}/m$。
 
@@ -152,15 +148,11 @@ print(f"{step:.3f}")
 
 微步的物理极限来自**静摩擦**。假设转子的静摩擦力矩为 $T_f$，保持力矩为 $T_h$。微步 $k$ 对应的力矩差为：
 
-$$
-\Delta T(k) = T_h \sin\!\left(\frac{90°}{m} \cdot k\right)
-$$
+$$\Delta T(k) = T_h \sin\!\left(\frac{90°}{m} \cdot k\right)$$
 
 当 $m$ 足够大时，$\sin(90°/m) \approx 90°/m$（弧度制），$\Delta T \propto 1/m$。一旦 $\Delta T < T_f$，转子就**不动**——电流变了但位置没变。这个临界细分数：
 
-$$
-m_\text{max} \approx \frac{T_h \cdot \pi/2}{T_f}
-$$
+$$m_\text{max} \approx \frac{T_h \cdot \pi/2}{T_f}$$
 
 典型值：$T_h = 0.5$ N·m、$T_f = 0.02$ N·m → $m_\text{max} \approx 39$。所以 16 细分常用、32 细分少见、256 细分纯属"分辨率虚高"。
 

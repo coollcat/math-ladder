@@ -68,11 +68,7 @@ $$L_\rho(x,z,u)=f(x)+g(z)+u^{\mathsf T}(Ax+Bz-c)+\frac{\rho}{2}\|Ax+Bz-c\|^2$$
 
 **ADMM 迭代格式**（三步循环）：
 
-$$\begin{aligned}
-x^{k+1}&=\arg\min_x\; L_\rho(x,z^k,u^k) \\
-z^{k+1}&=\arg\min_z\; L_\rho(x^{k+1},z,u^k) \\
-u^{k+1}&=u^k+\rho(Ax^{k+1}+Bz^{k+1}-c)
-\end{aligned}$$
+$$\begin{aligned} x^{k+1}&=\arg\min_x\; L_\rho(x,z^k,u^k) \\ z^{k+1}&=\arg\min_z\; L_\rho(x^{k+1},z,u^k) \\ u^{k+1}&=u^k+\rho(Ax^{k+1}+Bz^{k+1}-c) \end{aligned}$$
 
 每步极小化只涉及一半变量——交替方向之名由此而来。
 

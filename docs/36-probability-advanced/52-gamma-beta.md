@@ -6,7 +6,7 @@ prereqs:
 volume: 4
 layer: L6
 track:
-  - probability-measure
+  - probability-statistics
 stage: university-core
 difficulty: 4
 introduces_math: []

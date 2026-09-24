@@ -48,7 +48,7 @@ $$gN = Ng$$
 
 **商群**：设 $N\trianglelefteq G$，定义
 
-$$G/N = \{gN : g \in G\}$$
+$$G/N = \lbrace gN : g \in G\rbrace$$
 
 即所有左陪集的集合，运算定义为
 
@@ -69,15 +69,15 @@ $$(aN)(bN) = (ab)N$$
 
 **例 1**：证明 $n\mathbb{Z}$ 是 $\mathbb{Z}$ 的正规子群，并求 $\mathbb{Z}/n\mathbb{Z}$。
 
-1. $n\mathbb{Z}=\{nk:k\in\mathbb{Z}\}$ 是 $\mathbb{Z}$ 的子群（对加法封闭）；
+1. $n\mathbb{Z}=\lbrace nk:k\in\mathbb{Z}\rbrace$ 是 $\mathbb{Z}$ 的子群（对加法封闭）；
 2. $\mathbb{Z}$ 是阿贝尔群，任何子群都正规（$gN=Ng$ 自动成立）；
-3. $\mathbb{Z}/n\mathbb{Z}$ 的元素是陪集 $\{0+n\mathbb{Z},\ 1+n\mathbb{Z},\ \ldots,\ (n-1)+n\mathbb{Z}\}$；
+3. $\mathbb{Z}/n\mathbb{Z}$ 的元素是陪集 $\lbrace 0+n\mathbb{Z},\ 1+n\mathbb{Z},\ \ldots,\ (n-1)+n\mathbb{Z}\rbrace$；
 4. 这正是 $\mathbb{Z}_n$——模 $n$ 剩余类群；
 5. 运算：$(a+n\mathbb{Z})+(b+n\mathbb{Z})=(a+b)+n\mathbb{Z}$，即模 $n$ 加法。
 
 **例 2**：$A_3$ 是 $S_3$ 的正规子群。
 
-1. $S_3=\{e,(12),(13),(23),(123),(132)\}$，$A_3=\{e,(123),(132)\}$；
+1. $S_3=\lbrace e,(12),(13),(23),(123),(132)\rbrace$，$A_3=\lbrace e,(123),(132)\rbrace$；
 2. $|A_3|=3$，$|S_3|=6$，指数为 2；
 3. 指数为 2 的子群一定正规（左陪集只有 $N$ 和 $G\setminus N$，右陪集也是如此）；
 4. $S_3/A_3\cong\mathbb{Z}_2$。
@@ -214,6 +214,8 @@ for sg in sorted(subgroups, key=len):
 - 所有子群都正规 [*]
 - 只有指数为素数的子群正规
 ? 阿贝尔群中 gN = Ng 对所有 g 恒成立，所以任何子群都自动正规。Z_n 的子群全部是正规子群。
+```
+
 ```quiz
 商群 G/N 的元素是什么？
 - G 中的单个元素
@@ -227,7 +229,7 @@ for sg in sorted(subgroups, key=len):
 <details>
 <summary>选读 · 单群：不能再分解的积木</summary>
 
-若群 $G$ 没有非平凡正规子群（即只有 $\{e\}$ 和 $G$ 自身是正规子群），则称 $G$ 为**单群**。
+若群 $G$ 没有非平凡正规子群（即只有 $\lbrace e\rbrace$ 和 $G$ 自身是正规子群），则称 $G$ 为**单群**。
 
 单群在群论中的地位类似于素数在数论中：任何群都可以通过正规子群逐层"分解"成单群的扩张（若尔当-赫尔德定理）。有限单群的分类是 20 世纪代数最宏大的工程之一，最终清单包括循环群 $\mathbb{Z}_p$（$p$ 素数）、交错群 $A_n$（$n\ge5$）、16 个李型族、26 个散在群。
 

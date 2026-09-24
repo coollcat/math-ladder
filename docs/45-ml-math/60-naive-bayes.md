@@ -49,9 +49,9 @@ exits:
 
 ## 3. 正式定义
 
-给定特征向量 $x=(x_1,\ldots,x_d)$ 和类别 $y\in\{0,1\}$（二分类），贝叶斯分类器选择
+给定特征向量 $x=(x_1,\ldots,x_d)$ 和类别 $y\in\lbrace 0,1\rbrace$（二分类），贝叶斯分类器选择
 
-$$\hat{y}=\arg\max_{c\in\{0,1\}}\; P(y=c)\prod_{j=1}^{d}P(x_j\mid y=c)$$
+$$\hat{y}=\arg\max_{c\in\lbrace 0,1\rbrace}\; P(y=c)\prod_{j=1}^{d}P(x_j\mid y=c)$$
 
 | 符号 | 名字 | 含义 |
 | --- | --- | --- |

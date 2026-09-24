@@ -6,10 +6,10 @@ prereqs:
 introduces_math: []
 introduces_builtin: []
 introduces_import: []
-volume: 1
+volume: 2
 layer: L5
 track:
-  - discrete-structures
+  - discrete-computing
   - analysis-change
 stage: university-core
 difficulty: 4
@@ -65,11 +65,11 @@ $$x_1 = 0.d_{11}d_{12}d_{13}\ldots$$
 $$x_2 = 0.d_{21}d_{22}d_{23}\ldots$$
 $$x_3 = 0.d_{31}d_{32}d_{33}\ldots$$
 
-构造一个新数 $y = 0.e_1 e_2 e_3 \ldots$，其中 $e_n \neq d_{nn}$（比如 $e_n = 5$ 若 $d_{nn} \neq 5$，否则 $e_n = 6$）。则 $y$ 与每个 $x_n$ 至少在第 $n$ 位不同，所以 $y \notin \{x_1, x_2, \ldots\}$——矛盾。
+构造一个新数 $y = 0.e_1 e_2 e_3 \ldots$，其中 $e_n \neq d_{nn}$（比如 $e_n = 5$ 若 $d_{nn} \neq 5$，否则 $e_n = 6$）。则 $y$ 与每个 $x_n$ 至少在第 $n$ 位不同，所以 $y \notin \lbrace x_1, x_2, \ldots\rbrace$——矛盾。
 
 ## 4. 分步例题
 
-**例 1**：证明偶数集 $2\mathbb{N} = \{0, 2, 4, 6, \ldots\}$ 可数。
+**例 1**：证明偶数集 $2\mathbb{N} = \lbrace 0, 2, 4, 6, \ldots\rbrace$ 可数。
 
 1. 构造映射 $f: \mathbb{N} \to 2\mathbb{N}$，$f(n) = 2n$。
 2. 单射：若 $f(a) = f(b)$，则 $2a = 2b$，所以 $a = b$。✓
@@ -213,7 +213,7 @@ for n in range(5):
 
 (a) **可数**。先按长度分组，每组有限，再把各组拼起来（可数个有限集的并仍可数）。
 
-(b) **不可数**。这就是 $\{0,1\}^\mathbb{N}$，可用对角线论证：假设列出了所有序列 $s_1, s_2, \ldots$，构造 $t$ 使 $t_n \neq (s_n)_n$，则 $t$ 不在列表中。
+(b) **不可数**。这就是 $\lbrace 0,1\rbrace^\mathbb{N}$，可用对角线论证：假设列出了所有序列 $s_1, s_2, \ldots$，构造 $t$ 使 $t_n \neq (s_n)_n$，则 $t$ 不在列表中。
 
 (c) **可数**。每个整系数多项式由有限个整数确定（$\mathbb{Z}^k$ 可数），每个多项式只有有限个根，可数个有限集的并仍可数。
 </details>
@@ -237,4 +237,4 @@ $$\nexists\, S \subseteq \mathbb{R},\quad \aleph_0 < |S| < \mathfrak{c}$$
 
 我们已经学会了区分"大小不同的无穷"。现在回到分析学——当数列有无穷多个聚点时，如何精确描述它的"最终趋势"？
 
-→ [上极限与下极限](../../19-real-analysis/28-limsup-liminf.md)
+→ [上极限与下极限](../19-real-analysis/28-limsup-liminf.md)

@@ -171,7 +171,7 @@ print(f"理论期望 1/p = {round(1 / p, 4)}")
 ```exercise
 # @title: 练习：安静的下一分钟
 # @check: 0.1353
-# @hint: 泊松 P(0) = e^(−λ)·λ⁰/0! = e^(−λ)；λ=2 时给 math.exp 的参数应该是负的那个
+# @hint: P(0)=exp(-lam)*lam**0/0!，而 lam**0 和 0! 都等于 1；因此 prob_zero 直接写 math.exp(-lam)。
 import math
 
 lam = 2

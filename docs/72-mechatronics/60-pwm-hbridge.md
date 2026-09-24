@@ -67,23 +67,17 @@ exits:
 
 PWM 方波的端电压 $V_\text{ab}(t)$ 是周期为 $T = 1/f_\text{sw}$ 的方波，占空比 $D \in [0,1]$：
 
-$$
-V_\text{ab}(t) = \begin{cases} V_\text{bus} & 0 \le t < D \cdot T \\ 0 & D \cdot T \le t < T \end{cases}
-$$
+$$V_\text{ab}(t) = \begin{cases} V_\text{bus} & 0 \le t < D \cdot T \\ 0 & D \cdot T \le t < T \end{cases}$$
 
 平均电压 $\bar V = D \cdot V_\text{bus}$。
 
 电枢回路的微分方程（$L$ 为电感、$R$ 为电阻、$E = K_e \omega$ 为反电动势）：
 
-$$
-L \frac{dI}{dt} = V_\text{ab}(t) - R \cdot I - E
-$$
+$$L \frac{dI}{dt} = V_\text{ab}(t) - R \cdot I - E$$
 
 稳态时电流在一个 PWM 周期内的纹波峰峰值为（近似三角波，$T_\text{on} = D \cdot T$）：
 
-$$
-\Delta I_\text{pp} \approx \frac{(V_\text{bus} - E - R\bar I) \cdot D \cdot T}{L} \approx \frac{V_\text{bus} \cdot D \cdot (1-D)}{L \cdot f_\text{sw}}
-$$
+$$\Delta I_\text{pp} \approx \frac{(V_\text{bus} - E - R\bar I) \cdot D \cdot T}{L} \approx \frac{V_\text{bus} \cdot D \cdot (1-D)}{L \cdot f_\text{sw}}$$
 
 | 符号 | 含义 | 典型值 |
 | --- | --- | --- |

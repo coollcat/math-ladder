@@ -49,7 +49,7 @@ K-means 聚类就是为这类"没有标准答案的分组"而设计的：你告�
 
 ## 3. 正式定义
 
-给定数据集 $\{x_1,\ldots,x_n\}\subset\mathbb{R}^d$ 和聚类数 $K$，K-means 最小化**组内平方和**（SSE, Sum of Squared Errors）：
+给定数据集 $\lbrace x_1,\ldots,x_n\rbrace\subset\mathbb{R}^d$ 和聚类数 $K$，K-means 最小化**组内平方和**（SSE, Sum of Squared Errors）：
 
 $$J=\sum_{k=1}^{K}\sum_{x_i\in C_k}\|x_i-\mu_k\|^2$$
 
@@ -63,7 +63,7 @@ $$J=\sum_{k=1}^{K}\sum_{x_i\in C_k}\|x_i-\mu_k\|^2$$
 **算法步骤**（Lloyd 算法）：
 
 1. **初始化**：随机选 $K$ 个点作为初始中心 $\mu_1^{(0)},\ldots,\mu_K^{(0)}$；
-2. **分配步**：对每个 $x_i$，计算到所有中心的距离，分配到最近的簇 $C_k^{(t)}=\{x_i:\|x_i-\mu_k^{(t)}\|\le\|x_i-\mu_j^{(t)}\|,\;\forall j\}$；
+2. **分配步**：对每个 $x_i$，计算到所有中心的距离，分配到最近的簇 $C_k^{(t)}=\lbrace x_i:\|x_i-\mu_k^{(t)}\|\le\|x_i-\mu_j^{(t)}\|,\;\forall j\rbrace$；
 3. **更新步**：重新计算每个簇的中心 $\mu_k^{(t+1)}=\frac{1}{\lvert C_k^{(t)}\rvert}\sum_{x_i\in C_k^{(t)}}x_i$；
 4. 重复 2-3 直到簇分配不再变化（或 $J$ 的变化小于阈值）。
 

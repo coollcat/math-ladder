@@ -162,7 +162,7 @@ plt.title("det(J) 热力图：红色线附近行列式接近 0")
 {
   "type": "plot",
   "title": "隐函数 F(x,y) = x² + y² - r² = 0",
-  "expr": "sqrt(max(r*r - x*x, 0))",
+  "expr": "sqrt((r*r - x*x + abs(r*r - x*x))/2)",
   "xmin": -3,
   "xmax": 3,
   "ymin": -3,
@@ -245,4 +245,4 @@ Jacobian 不可逆时，线性近似退化（把空间压扁了），局部信�
 
 矩阵分解是线性代数的核心工具。高斯消元的矩阵形式就是 LU 分解——把一个矩阵拆成"下三角 × 上三角"。
 
-→ [LU 分解](../../21-linear-algebra-advanced/25-lu-decomposition.md)
+→ [LU 分解](../21-linear-algebra-advanced/25-lu-decomposition.md)

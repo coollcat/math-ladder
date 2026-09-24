@@ -6,7 +6,7 @@ prereqs:
 volume: 5
 layer: L9
 track:
-  - deep-learning
+  - information-learning
 stage: university-core
 difficulty: 4
 introduces_math: []

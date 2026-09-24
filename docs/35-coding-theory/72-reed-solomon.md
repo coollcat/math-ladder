@@ -256,4 +256,4 @@ QR 码使用 RS(255,k) 的截短版本,纠错分四个等级:L(7%)、M(15%)、Q(
 
 RS 码在有限域上用多项式做编码,纠错能力来自代数结构。但当问题是"哪些问题根本不可计算"时--从编码理论回到计算理论,看 NP 完全的经典案例如何在不同问题间架起归约桥梁。
 
-→ [NP 完全经典案例](../../32-computability/72-np-complete-classics.md)
+→ [NP 完全经典案例](../32-computability/72-np-complete-classics.md)

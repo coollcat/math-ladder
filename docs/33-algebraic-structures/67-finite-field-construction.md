@@ -47,7 +47,7 @@ $\mathbb{Z}/p\mathbb{Z}$（$p$ 素数）是最简单的有限域——整数模 
 **构造 $F_{p^m}$**：
 
 1. 选 $F_p$ 上的 $m$ 次**不可约多项式** $f(x)$（即在 $F_p$ 上无法分解为更低次多项式的乘积）；
-2. 定义 $F_{p^m}=\{a_0+a_1\alpha+\cdots+a_{m-1}\alpha^{m-1}\mid a_i\in F_p\}$，其中 $\alpha$ 是 $f(x)$ 的一个根；
+2. 定义 $F_{p^m}=\lbrace a_0+a_1\alpha+\cdots+a_{m-1}\alpha^{m-1}\mid a_i\in F_p\rbrace$，其中 $\alpha$ 是 $f(x)$ 的一个根；
 3. 加法：逐系数模 $p$ 相加；
 4. 乘法：多项式乘法后模 $f(x)$ 取余。
 
@@ -68,7 +68,7 @@ $\mathbb{Z}/p\mathbb{Z}$（$p$ 素数）是最简单的有限域——整数模 
 **例**：构造 $F_{2^3}=F_8$。
 
 1. 选 $F_2$ 上的 3 次不可约多项式：$f(x)=x^3+x+1$（在 $F_2$ 上无法分解——验证：$f(0)=1\ne0$，$f(1)=1+1+1=1\ne0$，无一次因子；二次不可约多项式只有 $x^2+x+1$，$(x^2+x+1)(x+1)=x^3+1\ne f(x)$）；
-2. 元素：$\{0,1,\alpha,\alpha+1,\alpha^2,\alpha^2+1,\alpha^2+\alpha,\alpha^2+\alpha+1\}$，共 $2^3=8$ 个；
+2. 元素：$\lbrace 0,1,\alpha,\alpha+1,\alpha^2,\alpha^2+1,\alpha^2+\alpha,\alpha^2+\alpha+1\rbrace$，共 $2^3=8$ 个；
 3. 乘法规则：$\alpha^3=\alpha+1$（因为 $f(\alpha)=0$，即 $\alpha^3+\alpha+1=0$，在 $F_2$ 中 $-1=1$）；
 4. 计算 $\alpha^5$：$\alpha^3=\alpha+1$，$\alpha^4=\alpha(\alpha+1)=\alpha^2+\alpha$，$\alpha^5=\alpha(\alpha^2+\alpha)=\alpha^3+\alpha^2=\alpha^2+\alpha+1$；
 5. 验证本原性：$\alpha^7=(\alpha^3)^2\cdot\alpha=(\alpha+1)^2\alpha=(\alpha^2+1)\alpha=\alpha^3+\alpha=\alpha+1+\alpha=1$ ✓。$\alpha$ 的阶为 7=$2^3-1$，所以 $\alpha$ 确实是本原元素。
@@ -239,4 +239,4 @@ print(gf16_mul(7, 11))  # 11
 
 有限域是编码和密码的"地基"。从代数回到概率：当系统随时间演化、状态之间的转移带有随机性——下一课进入连续时间马尔可夫链，看"跳"与"停"如何统一。
 
-→ [连续时间马尔可夫链](../../37-stochastic-processes/75-ctmc.md)
+→ [连续时间马尔可夫链](../37-stochastic-processes/75-ctmc.md)

@@ -15,7 +15,7 @@ difficulty: 4
 
 ## 课程路线
 
-主线十一站，按顺序学习：
+主线十四站，按顺序学习：
 
 1. [马尔可夫链：状态与转移](./10-markov-chain.md)——健忘的链条：转移矩阵与分布演化；
 2. [多步转移与 Chapman-Kolmogorov](./20-chapman-kolmogorov.md)——让矩阵幂把时间折叠起来；
@@ -25,9 +25,12 @@ difficulty: 4
 6. [样本路径与有限维分布](./55-sample-paths.md)——随机过程既是时间的函数也是随机变量族，有限维分布是它的完整指纹；
 7. [布朗运动入门](./60-brownian-motion.md)——连续弥漫的原型：√t 法则与处处无切线的轨迹；
 8. [泊松过程与等待时间](./70-poisson-process.md)——离散蹦豆的原型：计数、指数间隔与无记忆性；
-9. [隐马尔可夫模型与 Viterbi 解码](./80-hmm-viterbi.md)——状态看不见、只听见发射，Viterbi 用动态规划找回最可能的路径；
-10. [时间序列与平稳性](./85-time-series-stationarity.md)——统计量不随时间漂移，才敢用过去预测未来；
-11. [鞅直觉：公平游戏的账本](./90-martingale-intuition.md)——下一步的条件期望等于当前值，随机分析的核心概念。
+9. [连续时间马尔可夫链](./75-ctmc.md)——把状态跳转与指数等待时间放进同一套生成元；
+10. [隐马尔可夫模型与 Viterbi 解码](./80-hmm-viterbi.md)——状态看不见、只听见发射，Viterbi 用动态规划找回最可能的路径；
+11. [时间序列与平稳性](./85-time-series-stationarity.md)——统计量不随时间漂移，才敢用过去预测未来；
+12. [AR/MA 时间序列模型](./82-time-series-models.md)——用过去观测值与噪声冲击给序列建立可计算的模型；
+13. [鞅直觉：公平游戏的账本](./90-martingale-intuition.md)——下一步的条件期望等于当前值，随机分析的核心概念；
+14. [GARCH 波动率模型](/docs/stochastic-processes/garch-volatility)——让波动率也拥有记忆，解释金融收益的聚集现象。
 
 ## 前置回望
 
@@ -44,7 +47,7 @@ difficulty: 4
 
 :::note[生产状态]
 
-已建成 11 门正式课：马尔可夫性质与转移矩阵 / Chapman-Kolmogorov / 平稳分布与遍历性 / 常返暂过与吸收态 / PageRank / 样本路径与有限维分布 / 布朗运动入门 / 泊松过程与等待时间 / 隐马尔可夫模型与 Viterbi 解码 / 时间序列与平稳性 / 鞅直觉，本章齐线收官。布朗运动入门同时是 66-stochastic-analysis 的先修门——该章已解锁。
+已建成 14 门正式课：马尔可夫性质与转移矩阵 / Chapman-Kolmogorov / 平稳分布与遍历性 / 常返暂过与吸收态 / PageRank / 样本路径与有限维分布 / 布朗运动入门 / 泊松过程与等待时间 / 连续时间马尔可夫链 / 隐马尔可夫模型与 Viterbi 解码 / 时间序列与平稳性 / ARMA 时间序列模型 / 鞅直觉 / GARCH 波动率模型，本章齐线收官。布朗运动入门同时是 66-stochastic-analysis 的先修门——该章已解锁。
 
 :::
 

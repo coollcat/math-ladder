@@ -251,4 +251,4 @@ GCM 用 CTR 做加密、用 GHASH（基于伽罗瓦域乘法的通用哈希）�
 
 分组模式解决了"怎么锁一大块"，但纠错码解决的是"怎么让数据在噪声中存活"。当信道不只是噪声而是**恶意篡改**时——下一课把舞台搬进有限域，看 Reed-Solomon 码如何用多项式拯救 CD 刮痕和太空信号。
 
-→ [Reed-Solomon 码](../../35-coding-theory/72-reed-solomon.md)
+→ [Reed-Solomon 码](../35-coding-theory/72-reed-solomon.md)

@@ -6,7 +6,7 @@ prereqs:
 introduces_math: []
 introduces_builtin: []
 introduces_import: []
-volume: 1
+volume: 2
 layer: L7
 track:
   - analysis-change
@@ -48,11 +48,11 @@ exits:
 
 ## 3. 正式定义
 
-设 $\{a_n\}$ 是有界数列。定义**尾部上确界**：
+设 $\lbrace a_n\rbrace$ 是有界数列。定义**尾部上确界**：
 
-$$b_n = \sup\{a_k \mid k \geq n\} = \sup_{k \geq n} a_k$$
+$$b_n = \sup\lbrace a_k \mid k \geq n\rbrace = \sup_{k \geq n} a_k$$
 
-$\{b_n\}$ 是递减数列（尾部越短，上确界越小），且有下界，由单调收敛定理有极限。定义：
+$\lbrace b_n\rbrace$ 是递减数列（尾部越短，上确界越小），且有下界，由单调收敛定理有极限。定义：
 
 $$\limsup_{n \to \infty} a_n = \lim_{n \to \infty} b_n = \lim_{n \to \infty} \sup_{k \geq n} a_k$$
 
@@ -60,7 +60,7 @@ $$\limsup_{n \to \infty} a_n = \lim_{n \to \infty} b_n = \lim_{n \to \infty} \su
 
 $$\liminf_{n \to \infty} a_n = \lim_{n \to \infty} \inf_{k \geq n} a_k$$
 
-**等价刻画**：$\limsup a_n$ 是 $\{a_n\}$ 所有收敛子列的极限中的**最大值**。
+**等价刻画**：$\limsup a_n$ 是 $\lbrace a_n\rbrace$ 所有收敛子列的极限中的**最大值**。
 
 **核心定理**：
 
@@ -77,7 +77,7 @@ $$\lim a_n \text{ 存在} \iff \liminf a_n = \limsup a_n$$
 1. 写出几项：$a_1 = -2$，$a_2 = 1.5$，$a_3 = -1.33$，$a_4 = 1.25$，……
 2. 偶数子列 $a_{2k} = 1 + 1/(2k) \to 1$。
 3. 奇数子列 $a_{2k-1} = -(1 + 1/(2k-1)) \to -1$。
-4. 所有子列极限的集合为 $\{-1, 1\}$（其他子列必收敛到这两个值之一）。
+4. 所有子列极限的集合为 $\lbrace -1, 1\rbrace$（其他子列必收敛到这两个值之一）。
 5. $\limsup a_n = 1$，$\liminf a_n = -1$。
 
 **例 2**：求 $a_n = \sin(n)$ 的 $\limsup$ 和 $\liminf$。
@@ -227,7 +227,7 @@ print(f"(b) limsup = {limsup_b}, liminf = {liminf_b}")
 
 $\cos(n\pi/4)$ 按周期 8 循环：$\cos(0)=1$，$\cos(\pi/4)=\frac{\sqrt{2}}{2}$，$\cos(\pi/2)=0$，……，$\cos(7\pi/4)=\frac{\sqrt{2}}{2}$，然后重复。
 
-子列极限的集合是 $\{1, \frac{\sqrt{2}}{2}, 0, -\frac{\sqrt{2}}{2}, -1\}$。
+子列极限的集合是 $\lbrace 1, \frac{\sqrt{2}}{2}, 0, -\frac{\sqrt{2}}{2}, -1\rbrace$。
 
 $\limsup = 1 \neq -1 = \liminf$，所以数列**不收敛**。
 </details>
@@ -237,7 +237,7 @@ $\limsup = 1 \neq -1 = \liminf$，所以数列**不收敛**。
 <details>
 <summary>选读 · 为什么 $\limsup$ 是子列极限的最大值</summary>
 
-**定理**：$\limsup_{n\to\infty} a_n = \max\{\text{所有收敛子列的极限}\}$。
+**定理**：$\limsup_{n\to\infty} a_n = \max\lbrace \text{所有收敛子列的极限}\rbrace$。
 
 **证明**：记 $L = \limsup a_n = \lim_{n\to\infty} \sup_{k\geq n} a_k$。
 
@@ -253,4 +253,4 @@ $\limsup = 1 \neq -1 = \liminf$，所以数列**不收敛**。
 
 从数列的极限，我们走向函数的极限、导数、积分——多元函数的世界里，一个全新的工具等待着我们：反函数定理和隐函数定理。
 
-→ [反函数定理与隐函数定理](../../20-multivariable-calc/68-inverse-implicit-function.md)
+→ [反函数定理与隐函数定理](../20-multivariable-calc/68-inverse-implicit-function.md)

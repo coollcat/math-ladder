@@ -255,4 +255,4 @@ print(f"estimated position: {x_est[0,0]:.2f}")
 
 卡尔曼滤波假设系统是线性的，但现实中很多系统高度非线性（如机器人关节运动、化学反应动力学）。**扩展卡尔曼滤波（EKF）** 通过在每个工作点做局部线性化来处理非线性——代价是可能引入线性化误差。
 
-→ [扩展卡尔曼滤波](./88-extended-kalman-filter.md)
+→ [扩展卡尔曼滤波](/docs/control/extended-kalman-filter)

@@ -53,9 +53,7 @@ exits:
 
 有限状态机是一个五元组：
 
-$$
-M = (S,\ \Sigma,\ \delta,\ s_0,\ F)
-$$
+$$M = (S,\ \Sigma,\ \delta,\ s_0,\ F)$$
 
 | 符号 | 含义 |
 | --- | --- |
@@ -76,9 +74,7 @@ $$
 
 响应延迟对比：
 
-$$
-t_\text{poll} = \frac{T_\text{poll}}{2} + t_\text{debounce},\qquad t_\text{event} = t_\text{ISR} + t_\text{queue}
-$$
+$$t_\text{poll} = \frac{T_\text{poll}}{2} + t_\text{debounce},\qquad t_\text{event} = t_\text{ISR} + t_\text{queue}$$
 
 典型值：$t_\text{poll} \approx 15$ ms（轮询周期 10 ms + 消抖 10 ms）、$t_\text{event} \approx 0.1$ ms。
 

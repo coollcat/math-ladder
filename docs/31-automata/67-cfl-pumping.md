@@ -61,7 +61,7 @@ $$w=uvxyz$$
 | 泵动 | $xy^iz$ | $uv^ixy^iz$ |
 | 直觉 | 一段重复 | 两段同步重复 |
 
-## 4. 分步例题：证明 $L=\{a^nb^nc^n:n\ge0\}$ 不是 CFL
+## 4. 分步例题：证明 $L=\lbrace a^nb^nc^n:n\ge0\rbrace$ 不是 CFL
 
 1. 假设 $L$ 是 CFL，设泵长为 $p$；
 2. 取坏串 $w=a^pb^pc^p$，显然 $|w|=3p\ge p$ 且 $w\in L$；

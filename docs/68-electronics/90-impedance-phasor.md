@@ -31,7 +31,7 @@ exits:
 **相量法是电路分析史上最划算的一笔交易。**
 ## 2. 直觉解释
 回忆欧拉公式 $e^{j\theta} = \cos\theta + j\sin\theta$。一个以角频率 $\omega$ 旋转的复矢量，它在虚轴上的投影就是正弦波：
-$v(t) = V_p\cos(\omega t + \phi) = \Re\left\lbraceV_p e^{j\phi} \cdot e^{j\omega t}\right\rbrace$
+$v(t) = V_p\cos(\omega t + \phi) = \Re\left\lbrace V_p e^{j\phi} \cdot e^{j\omega t}\right\rbrace$
 关键的一步来了：**在同一个电路里，所有信号都以同一个 $\omega$ 旋转**。既然旋转是大家共有的，就可以把它"约掉"——只保留**幅度和初始相位**那部分复数 $\tilde{V} = V_p e^{j\phi}$。这个不随时间转的复数，就是**相量**。
 于是：
 - 正弦量 → 复平面上一个**固定的点**；
@@ -139,11 +139,12 @@ print(round(Z, 3))
 4. **品质因数**：$Q = \dfrac{X_L}{R} = \dfrac{31.4}{10} = 3.14$。
 $Q = 3.14$ 意味着谐振时电容与电感两端的电压是电源电压的 3.14 倍——**串联谐振是"电压放大器"**。工频下做到 $Q = 100$ 并不难，那时 220 V 的电源会在电容上产生 22 kV。电力系统里这叫"铁磁谐振过电压"，是真实的事故类型。
 </details>
+
 ## 7. 选读：为什么微积分变成了乘除
 <details>
 <summary>选读 · 相量法的合法性证明</summary>
-设线性电路在正弦稳态下，各处电压电流都是同频正弦。对任意支路量取 $x(t) = \Re\lbrace\tilde{X}e^{j\omega t}\rbrace$，则
-$\frac{dx}{dt} = \Re\lbracej\omega \tilde{X} e^{j\omega t}\rbrace$
+设线性电路在正弦稳态下，各处电压电流都是同频正弦。对任意支路量取 $x(t) = \Re\lbrace \tilde{X}e^{j\omega t}\rbrace$，则
+$\frac{dx}{dt} = \Re\lbrace j\omega \tilde{X} e^{j\omega t}\rbrace$
 所以微分算子 $d/dt$ 作用在相量上等价于**乘以 $j\omega$**。把这条规则代进元件关系：
 - 电容：$i = C\dfrac{dv}{dt} \Rightarrow j\omega C\,\tilde{V} = \tilde{I} \Rightarrow \dfrac{\tilde{V}}{\tilde{I}} = \dfrac{1}{j\omega C}$；
 - 电感：$v = L\dfrac{di}{dt} \Rightarrow \tilde{V} = j\omega L\,\tilde{I} \Rightarrow \dfrac{\tilde{V}}{\tilde{I}} = j\omega L$。
@@ -151,6 +152,7 @@ $\frac{dx}{dt} = \Re\lbracej\omega \tilde{X} e^{j\omega t}\rbrace$
 **合法性依赖两个前提**：(1) 电路是线性的（所以同频正弦激励只产生同频正弦响应）；(2) 已进入稳态（暂态分量已衰减完）。研究上电瞬间的行为还得回到第 70、80 课的时域分析——**相量法与瞬态分析是互补的两半，不是替代关系。**
 顺带一提：把 $j\omega$ 换成复频率 $s = \sigma + j\omega$，就得到了**拉普拉斯变换**视角下的阻抗 $Z(s) = R + sL + 1/(sC)$，这正是传递函数与滤波器设计的起点。
 </details>
+
 ## 8. 下一站
 阻抗是复数，功率却必须是实数。电压与电流之间的那个夹角 $\phi$，决定了有多少能量真正在干活。
 → [交流功率与功率因数](100-ac-power.md)
