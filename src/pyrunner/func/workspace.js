@@ -1147,6 +1147,10 @@ export function createWorkspace(host, opts) {
   });
   plot.onSelect((r, done) => {
     state.area = r ? [Math.min(r[0], r[1]), Math.max(r[0], r[1])] : null;
+    /* refreshPlot 照跑（填充区域要跟着选区走），但它排的重绘会与画布
+       自己那一次合并成同一帧，所以不再是一帧画两遍。
+       真正贵的是性质面板——重建整棵 DOM 加每条曲线一次 KaTeX——
+       那个等松手（done）再算，拖的时候看选区和填充就够了。 */
     refreshPlot();
     if (done) refreshInfo();
   });
@@ -1249,6 +1253,9 @@ export function createWorkspace(host, opts) {
     getView() { return plot.view; },
     destroy() {
       plot.destroy();
+      /* 曲面也在场：漏了它，它的 ResizeObserver 与 MutationObserver
+         会一直挂着，工作区早就拆了它还在监听 documentElement */
+      surface.destroy();
       if (root.parentNode) root.parentNode.removeChild(root);
     },
   };

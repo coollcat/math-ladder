@@ -258,14 +258,19 @@ function matchVar(name, vars) {
  *
  *   加减 1/2    乘除 3/4    一元负号 5    幂 6/3    后缀 ! 8
  *
- * 三个要紧的后果：
+ * 四个要紧的后果：
  *   - 幂左绑定力 6 高于一元负号的 5，所以 -x^2 是 -(x^2)，不是 (-x)^2；
  *   - 幂右绑定力 3 低于 6，所以 a^b^c 归成 a^(b^c)（右结合）；
- *   - 幂右侧下限 3 恰好等于隐式乘法的绑定力，于是 2^3x 读作 2^(3x)
- *     （手写体里 ^ 后面的东西一直管到下一个加减号，这样才符合直觉）。 */
+ *   - 幂右侧只吞**隐式乘法**：2^3x 读作 2^(3x)，手写体里 ^ 后面的一串
+ *     本来就该一直管到下一个加减号；
+ *   - 但**显式**写的 * / 不属于那一串：x^3/3 必须是 (x^3)/3 而不是 x^(3/3)。
+ *     显式乘除被吞进去是纯亏——它与课本、与所有计算器都不一致，而且
+ *     latex.js 生成的文本正是带显式 * 的，吞掉它会让「预览所见」与
+ *     「算出来的值」对不上。这条靠 parseExpr 的 powRhs 标志挡住，
+ *     光靠绑定力分不开（隐式与显式乘法共用同一档绑定力）。 */
 const BP = {
   '+': [1, 2], '-': [1, 2],
-  '*': [3, 4], '/': [3, 4],
+  '*': [3, 4], '/': [3, 4], '%': [3, 4],
   '^': [6, 3],
   '!': [8, 0],
   unary: 5,
@@ -290,7 +295,12 @@ function parse(src, vars) {
     const t = peek();
     return t.t === T_NUM || t.t === T_NAME || t.t === T_LP;
   }
-  function parseExpr(minBp) {
+  /**
+   * powRhs：正在解析某个 ^ 的右子树。这一层要挡住显式写的 * / %，
+   * 让 x^3/3 归成 (x^3)/3；隐式乘法仍然吞（2^3x 是 2^(3x)），
+   * 右结合的 ^ 也仍然吞（a^b^c 是 a^(b^c)）。
+   */
+  function parseExpr(minBp, powRhs) {
     let left = null;
     const t = peek();
     if (t.t === T_OP && (t.v === '-' || t.v === '+')) {
@@ -311,8 +321,9 @@ function parse(src, vars) {
       if (tk.t === T_OP && (tk.v === '+' || tk.v === '-' || tk.v === '*' || tk.v === '/' || tk.v === '^' || tk.v === '%')) {
         const [lbp, rbp] = BP[tk.v];
         if (lbp < minBp) break;
+        if (powRhs && (tk.v === '*' || tk.v === '/' || tk.v === '%')) break;
         next();
-        const right = parseExpr(rbp);
+        const right = parseExpr(rbp, tk.v === '^');
         left = {
           k: tk.v === '+' ? 'add' : tk.v === '-' ? 'sub' : tk.v === '*' ? 'mul'
             : tk.v === '/' ? 'div' : tk.v === '^' ? 'pow' : 'mod',

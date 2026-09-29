@@ -559,8 +559,17 @@ export function createSurface(host, opts) {
 
   /* ---------- 交互 ---------- */
 
+  /* 位置缓存：getBoundingClientRect 会强制同步布局，挂在每次 pointermove
+     上就是布局抖动。画布位置只在滚动或改尺寸时动，缓存起来，
+     拖动开始时再刷一次。 */
+  let rectCache = null;
+  const dropRect = () => { rectCache = null; };
+  const ac = new AbortController();
+  const opt = { signal: ac.signal };
+  window.addEventListener('scroll', dropRect, Object.assign({ passive: true }, opt));
+
   function toLocal(ev) {
-    const r = canvas.getBoundingClientRect();
+    const r = rectCache || (rectCache = canvas.getBoundingClientRect());
     return { px: ev.clientX - r.left, py: ev.clientY - r.top };
   }
 
@@ -616,6 +625,7 @@ export function createSurface(host, opts) {
 
   let drag = null;
   canvas.addEventListener('pointerdown', (ev) => {
+    dropRect(); /* 可能刚滚过页，位置缓存作废旧值 */
     const { px, py } = toLocal(ev);
     drag = { px, py, az, el };
     try { canvas.setPointerCapture(ev.pointerId); } catch (e) { void e; }
@@ -626,7 +636,7 @@ export function createSurface(host, opts) {
       lod = 2;
       draw();
     }
-  });
+  }, opt);
   canvas.addEventListener('pointermove', (ev) => {
     const { px, py } = toLocal(ev);
     if (drag) {
@@ -636,8 +646,8 @@ export function createSurface(host, opts) {
       return;
     }
     updateHover(px, py);
-  });
-  canvas.addEventListener('pointerleave', clearHover);
+  }, opt);
+  canvas.addEventListener('pointerleave', clearHover, opt);
   const endDrag = () => {
     if (!drag) return;
     drag = null;
@@ -646,15 +656,16 @@ export function createSurface(host, opts) {
     draw();
     cbView.forEach((f) => f({ az, el, zoom }));
   };
-  canvas.addEventListener('pointerup', endDrag);
-  canvas.addEventListener('pointercancel', endDrag);
+  canvas.addEventListener('pointerup', endDrag, opt);
+  canvas.addEventListener('pointercancel', endDrag, opt);
 
   canvas.addEventListener('wheel', (ev) => {
     ev.preventDefault();
     zoom = Math.min(6, Math.max(0.35, zoom * Math.exp((ev.deltaY > 0 ? 1 : -1) * 0.12)));
-    draw();
+    /* 滚轮也能连发一串，同样合并到帧里，别每次都重画 1900 个面片 */
+    requestDraw();
     cbView.forEach((f) => f({ az, el, zoom }));
-  }, { passive: false });
+  }, Object.assign({ passive: false }, opt));
 
   canvas.addEventListener('dblclick', (ev) => {
     ev.preventDefault();
@@ -663,7 +674,7 @@ export function createSurface(host, opts) {
     zoom = 1;
     draw();
     cbView.forEach((f) => f({ az, el, zoom }));
-  });
+  }, opt);
 
   return {
     el: wrap,
@@ -697,6 +708,8 @@ export function createSurface(host, opts) {
     /** 悬停探针：回调收到 {x, y, z} 或 null（域外、算不出、正平视时） */
     onHover(f) { cbHover.push(f); },
     destroy() {
+      ac.abort(); /* 一次摘掉 canvas 上的全部监听器与 window 的滚动失效 */
+      if (rafId2) { cancelAnimationFrame(rafId2); rafId2 = 0; }
       if (ro) ro.disconnect();
       mo.disconnect();
       if (wrap.parentNode) wrap.parentNode.removeChild(wrap);

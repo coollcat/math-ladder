@@ -129,7 +129,7 @@ export function createPlot(host, opts) {
   let ro = null;
   if (window.ResizeObserver) {
     ro = new ResizeObserver(() => {
-      if (fit()) draw();
+      if (fit()) { dropRect(); draw(); }
     });
     ro.observe(wrap);
   }
@@ -139,6 +139,33 @@ export function createPlot(host, opts) {
     draw();
   });
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  /* ---------- 重绘节流 ----------
+   * 高刷鼠标每秒能发一百多个 pointermove，每个都全量重画一遍是在白烧 CPU。
+   * 合并成一帧一次。surface.js 早就这么做了（那里叫 requestDraw），
+   * 这里补上，免得两块画布的手感差一截。 */
+  let rafId = 0;
+  function requestDraw() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = 0;
+      draw();
+    });
+  }
+
+  /* ---------- 位置缓存 ----------
+   * getBoundingClientRect 会强制浏览器同步布局，放进每次 pointermove
+   * 就是布局抖动。画布的位置只在滚动或改变尺寸时才动，缓存起来，
+   * 拖动开始时再刷一次。 */
+  let rectCache = null;
+  const dropRect = () => { rectCache = null; };
+
+  /* 事件统一挂在一个 signal 上，destroy 时一次摘干净——
+     光靠移除 wrap 只能让 canvas 上的监听器随元素回收，
+     window 上那个（滚动失效）会一直活着。 */
+  const ac = new AbortController();
+  const opt = { signal: ac.signal };
+  window.addEventListener('scroll', dropRect, Object.assign({ passive: true }, opt));
 
   /* ---------- 坐标换算 ---------- */
   const spanX = () => view.x1 - view.x0;
@@ -380,7 +407,7 @@ export function createPlot(host, opts) {
     if (!(nx.x1 > nx.x0)) return view;
     if (!(nx.y1 > nx.y0)) return view;
     view = nx;
-    draw();
+    requestDraw();
     if (!silent) cbView.forEach((f) => f(view));
     return view;
   }
@@ -441,29 +468,32 @@ export function createPlot(host, opts) {
   /* ---------- 鼠标 / 触摸 ---------- */
 
   function toLocal(ev) {
-    const r = canvas.getBoundingClientRect();
+    const r = rectCache || (rectCache = canvas.getBoundingClientRect());
     return { px: (ev.clientX - r.left) * (W / r.width), py: (ev.clientY - r.top) * (H / r.height) };
   }
 
   let drag = null;
   let picking = null;
   canvas.addEventListener('pointerdown', (ev) => {
+    dropRect(); /* 可能刚滚过页，位置缓存作废旧值 */
     const { px, py } = toLocal(ev);
     try { canvas.setPointerCapture(ev.pointerId); } catch (e) { void e; }
     if (dragMode === 'select') {
       picking = { from: ix(px) };
       selRange = [picking.from, picking.from];
-      draw();
+      requestDraw();
       return;
     }
     drag = { px, py, x0: view.x0, x1: view.x1, y0: view.y0, y1: view.y1 };
     canvas.classList.add('is-dragging');
-  });
+  }, opt);
   canvas.addEventListener('pointermove', (ev) => {
     const { px, py } = toLocal(ev);
     if (picking) {
       selRange = [picking.from, ix(px)];
-      draw();
+      /* 只画自己：选区带是画布自己的事。回调那边若再 setData 就会
+         一帧画两遍（曲线数据并没变），所以那边只在拖完时才刷新。 */
+      requestDraw();
       cbSelect.forEach((f) => f(selRange, false));
       return;
     }
@@ -481,9 +511,9 @@ export function createPlot(host, opts) {
       if (y !== null && Number.isFinite(y)) points.push({ y, color: c.color });
     });
     hover = { x, py, points };
-    draw();
+    requestDraw();
     cbHover.forEach((f) => f(hover));
-  });
+  }, opt);
   const endDrag = () => {
     if (picking) {
       const r = selRange;
@@ -491,7 +521,7 @@ export function createPlot(host, opts) {
       /* 拖得太短（手抖点一下）就不算选区 */
       if (r && Math.abs(r[1] - r[0]) < (view.x1 - view.x0) * 0.005) {
         selRange = null;
-        draw();
+        requestDraw();
         cbSelect.forEach((f) => f(null, true));
       } else {
         cbSelect.forEach((f) => f(r, true));
@@ -502,14 +532,14 @@ export function createPlot(host, opts) {
     drag = null;
     canvas.classList.remove('is-dragging');
   };
-  canvas.addEventListener('pointerup', endDrag);
-  canvas.addEventListener('pointercancel', endDrag);
+  canvas.addEventListener('pointerup', endDrag, opt);
+  canvas.addEventListener('pointercancel', endDrag, opt);
   canvas.addEventListener('pointerleave', () => {
     if (drag || picking) return;
     hover = null;
-    draw();
+    requestDraw();
     cbHover.forEach((f) => f(null));
-  });
+  }, opt);
 
   canvas.addEventListener('wheel', (ev) => {
     ev.preventDefault();
@@ -517,12 +547,12 @@ export function createPlot(host, opts) {
     const factor = Math.exp((ev.deltaY > 0 ? 1 : -1) * 0.16);
     const mode = ev.shiftKey ? 'x' : ev.ctrlKey || ev.metaKey ? 'y' : null;
     zoomAt(px, py, factor, mode);
-  }, { passive: false });
+  }, Object.assign({ passive: false }, opt));
 
   canvas.addEventListener('dblclick', (ev) => {
     ev.preventDefault();
     if (o.onReset) o.onReset();
-  });
+  }, opt);
 
   /* ---------- 对外 ---------- */
 
@@ -540,7 +570,10 @@ export function createPlot(host, opts) {
       marks = (d && d.marks) || [];
       areas = (d && d.areas) || [];
       showGrid = !d || d.showGrid !== false;
-      draw();
+      /* 走 requestDraw：拖选区时画布自己也排了一次重绘，
+         这里再同步 draw 就是一帧画两遍。合到同一帧里，
+         画出来的是数据已更新后的那一幅。 */
+      requestDraw();
     },
     setHover(h) {
       hover = h;
@@ -562,6 +595,8 @@ export function createPlot(host, opts) {
     },
     get selection() { return selRange ? [selRange[0], selRange[1]] : null; },
     destroy() {
+      ac.abort(); /* 一次摘掉 canvas 上的全部监听器与 window 的滚动失效 */
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
       if (ro) ro.disconnect();
       mo.disconnect();
       if (wrap.parentNode) wrap.parentNode.removeChild(wrap);

@@ -265,9 +265,11 @@ export function texToText(tex) {
     if (v === '\\middle') throw new TexError('不支持 \\middle');
 
     if (v === '\\placeholder') {
-      /* 键盘留的空位：算的时候先当 1，让曲线立刻画出来，UI 另外提示「还没填完」 */
-      readArg();
-      push(items, { kind: 'atom', text: '1' });
+      /* 键盘留的空位。光标是落在花括号里的，所以里面填了什么就得用什么——
+         早先这里把内容读出来就扔了、一律当 1，于是键盘拼出来的公式全是
+         常数曲线，还不报错。空着的才退化成 1，好让曲线立刻画出来。 */
+      const a = readArg().trim();
+      push(items, { kind: 'atom', text: a ? '(' + a + ')' : '1' });
       return;
     }
     if (v === '\\infty') { push(items, { kind: 'atom', text: 'inf' }); return; }
@@ -337,8 +339,8 @@ export function texToText(tex) {
     }
     if (t.t === C_CMD) {
       if (t.v === '\\placeholder') {
-        readArg();
-        return '1';
+        const a = readArg().trim();
+        return a ? '(' + a + ')' : '1';
       }
       if (Object.prototype.hasOwnProperty.call(GREEK, t.v)) return GREEK[t.v];
       if (t.v === '\\pi') return 'pi';
@@ -428,6 +430,14 @@ export function texToText(tex) {
           if (last.kind !== 'func') throw new TexError('下标只能跟在函数后面，比如 \\log_2 x');
           items.push(Object.assign({}, last, { sub: arg }));
         }
+        /* 带上标/下标的函数再紧跟一对括号：\sin^2(x)、\log_2(x)、\sin^{-1}(x)。
+           上面的处理把 func 弹出来又塞了回去，这一步若不管，后面的 “(”
+           会当成结构性字符走掉，函数只能捞到再后面的 x——
+           于是 \sin^2(x) 拼出 (sin(x))^(2)(x)，多乘一个 x 还不报错。 */
+        const cur = items[items.length - 1];
+        if (cur && cur.kind === 'func' && peek().t === C_CHAR && peek().v === '(') {
+          items[items.length - 1] = { kind: 'atom', text: applyFunc(cur, readParenGroup('(', ')')) };
+        }
         continue;
       }
       readItem(items);
@@ -444,10 +454,22 @@ export function texToText(tex) {
   return out;
 }
 
-/** 键盘留的空位有几个（用来提示「还有空格没填」） */
+/**
+ * 还有几个空位没填（用来提示「先按 1 算着」）。
+ * 只数**空着的**：`\placeholder{2}` 已经填了 2，不该再报缺。
+ * 光按 `\placeholder` 出现次数数的话，填完了也永久挂着提示，
+ * 用户对着一条自己明明填好的式子找不到毛病出在哪。
+ */
 export function countPlaceholders(tex) {
-  const m = tex.match(/\\placeholder/g);
-  return m ? m.length : 0;
+  const re = /\\placeholder[ \t]*(?:\{([^{}]*)\})?/g;
+  let n = 0;
+  let m = re.exec(tex);
+  while (m) {
+    const inner = m[1];
+    if (inner === undefined || !inner.trim()) n += 1;
+    m = re.exec(tex);
+  }
+  return n;
 }
 
 /**
