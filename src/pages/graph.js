@@ -1,6 +1,5 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link';
 import KnowledgeGraphRadial from '@site/src/components/ml-home/KnowledgeGraphRadial';
 
 /* =========================================================================
@@ -26,8 +25,8 @@ export default function GraphPage() {
           连的是章与章之间的先修关系，一律朝外画，看上去就是「整门学问从圆心长出去」。
         </p>
         <p className="ml-rg__lead">
-          一颗圆点只能告诉你「哪一章在哪一层」；想看<strong>每一章里面到底讲了什么、课与课怎么连</strong>，
-          去<Link to="/chapters">章簇详图</Link>——同一套分层骨架，但一章展开成一个簇，全站课程都铺在图上。
+          一颗圆点只能告诉你「哪一章在哪一层」；<strong>点击任意章的圆点</strong>，这一章的每一门课会
+          从服务器加载、在图上原位展开成一小圈课点——再点空白处收起，随时回到全景。
         </p>
         <KnowledgeGraphRadial />
       </main>

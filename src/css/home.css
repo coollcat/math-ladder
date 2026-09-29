@@ -1326,8 +1326,8 @@
  *   最后），所以这里的每条规则都必须带 .ml-rg 前缀——否则会漏到别的页面去。
  * ========================================================================= */
 .ml-rg {
-  /* 七卷配色已提到全站令牌（src/css/custom.css 的 --ml-vol1…7，
-     章簇详图 /chapters 共用同一套），这里只做别名，不再各写一份 hex */
+  /* 七卷配色已提到全站令牌（src/css/custom.css 的 --ml-vol1…7），
+     这里只做别名，不再各写一份 hex */
   --rg-v1: var(--ml-vol1); /* 卷一 数学地基：墨蓝 */
   --rg-v2: var(--ml-vol2); /* 卷二 高等数学核心：青碧 */
   --rg-v3: var(--ml-vol3); /* 卷三 离散数学与计算：藤黄 */
@@ -2332,683 +2332,84 @@
 }
 
 /* =========================================================================
- * 知识图谱 · 章簇详图（/chapters）  2026-09-29 新增
+ * 知识图谱 · 课级钻取（2026-09-29 第五回路新增）
  * -------------------------------------------------------------------------
- * 与 /graph 同族、粒度更细：一章一个簇（章为簇心，课绕它排开）。
- * 布局算法见 src/components/ml-home/clusterLayout.js 的头注释；
- * 「文字反向缩放」的三档细节见 ChapterClusterGraph.js 的头注释。
- *
- * ⚠ 与 .ml-rg 同一条纪律：home.css 构建后与全站样式同表（排在最后），
- *   所以这里的每条规则都必须带 .ml-cc 前缀——否则会漏到别的页面去。
- *   七卷配色走全站令牌 --ml-vol1…7（custom.css），这里只做别名。
+ * 点击章 → fetch static/graph-chapters/NN.json → 本章课绕章点排成一圈。
+ * 沿用 .ml-rg 前缀纪律：构建后与全站样式同表，每条规则都必须带作用域前缀。
  * ========================================================================= */
-.ml-cc {
-  --cc-v1: var(--ml-vol1);
-  --cc-v2: var(--ml-vol2);
-  --cc-v3: var(--ml-vol3);
-  --cc-v4: var(--ml-vol4);
-  --cc-v5: var(--ml-vol5);
-  --cc-v6: var(--ml-vol6);
-  --cc-v7: var(--ml-vol7);
-  --cc-up: var(--ml-up);
-  --cc-down: var(--ml-down);
-  --cc-search: var(--ml-search, #6b4ea3);
+.ml-rg__drill {
+  --rg-drill: var(--vc, var(--ifm-color-primary));
 }
 
-/* ---- 工具条 ---- */
-
-.ml-cc__bar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.6rem;
+.ml-rg__dedge {
+  stroke: var(--rg-drill);
+  stroke-width: 0.8;
+  opacity: 0.5;
+  fill: none;
 }
 
-.ml-cc__search {
-  flex: 1 1 240px;
-  min-width: 0;
-  max-width: 380px;
-  height: 34px;
-  padding: 0 0.7rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: var(--ml-radius-ctl);
-  background: var(--ifm-background-color);
-  color: var(--ifm-font-color-base);
-  font-family: inherit;
-  font-size: 0.85rem;
-}
-
-.ml-cc__search:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: 1px;
-}
-
-.ml-cc__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 32px;
-  padding: 0.2rem 0.65rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 999px;
-  background: var(--ifm-background-color);
-  color: var(--ifm-font-color-base);
-  font-size: 0.78rem;
-  line-height: 1;
-  white-space: nowrap;
+.ml-rg__ldot {
   cursor: pointer;
-  transition: background var(--ml-t-fast) var(--ml-ease), border-color var(--ml-t-fast) var(--ml-ease);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ml-rg-ldot-in 0.3s var(--ml-ease, ease) both;
+  animation-delay: var(--d, 0s);
 }
 
-.ml-cc__chip:hover {
-  border-color: var(--ifm-color-primary);
-}
-
-.ml-cc__chip input {
-  margin: 0;
-  accent-color: var(--ifm-color-primary);
-}
-
-.ml-cc__chip--btn {
-  font-family: inherit;
-}
-
-.ml-cc__chip--btn.is-on {
-  border-color: var(--ifm-color-primary);
-  background: color-mix(in srgb, var(--ifm-color-primary) 12%, transparent);
-  font-weight: 700;
-}
-
-.ml-cc__chip:focus-visible,
-.ml-cc__chip--btn:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: 1px;
-}
-
-.ml-cc__meta {
-  margin-left: auto;
-  font-size: 0.78rem;
-  color: var(--ifm-color-emphasis-600);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---- 画布 + 侧栏 ---- */
-
-.ml-cc__layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.7rem;
-  align-items: start;
-}
-
-.ml-cc__layout.has-outline {
-  grid-template-columns: minmax(0, 1fr) 300px;
-}
-
-.ml-cc__stage {
-  position: relative;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: var(--ml-radius-surface);
-  /* 比同心环那版更「深空」一点：这一页星点密，中心暗下来更像星图 */
-  background: radial-gradient(circle at 50% 46%, var(--ifm-background-color) 0%, var(--ifm-color-emphasis-100) 78%);
-  overflow: hidden;
-}
-
-.ml-cc__svg {
-  display: block;
-  width: 100%;
-  height: min(78vh, 820px);
-  height: min(78dvh, 820px);
-  min-height: 340px;
-  cursor: grab;
-  touch-action: none;
-}
-
-.ml-cc__svg:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -2px;
-}
-
-.ml-cc__svg.is-grabbing {
-  cursor: grabbing;
-}
-
-/* ---- 环带 ---- */
-
-.ml-cc__ring {
-  fill: none;
-  stroke: var(--ifm-color-emphasis-300);
-  stroke-width: 1;
-  stroke-dasharray: 3 6;
-  opacity: 0.55;
-}
-
-.ml-cc__ringnum {
-  fill: var(--ifm-color-emphasis-400);
-  font-size: 40px;
-  font-weight: 700;
-  opacity: 0.22;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* ---- 章级 / 课级连线 ---- */
-
-.ml-cc__edge {
-  fill: none;
-  stroke: var(--ifm-color-emphasis-400);
-  stroke-width: 1.1;
-  opacity: 0.5;
-  transition: opacity var(--ml-t-base) var(--ml-ease), stroke var(--ml-t-base) var(--ml-ease);
-}
-
-.ml-cc__edge.is-weak {
-  stroke-dasharray: 2 4;
-  opacity: 0.3;
-}
-
-.ml-cc__edge.is-up {
-  stroke: var(--cc-up);
-  stroke-width: 2;
-  opacity: 0.95;
-}
-
-.ml-cc__edge.is-down {
-  stroke: var(--cc-down);
-  stroke-width: 2;
-  opacity: 0.95;
-}
-
-.ml-cc__edge.is-off {
-  opacity: 0.07;
-}
-
-/* 弱边（单课支撑的交叉引用）被高亮时仍走虚线、比强边轻一档：同色不同「分量」，
-   免得读者把「这一门课顺手引用了别章」读成「这一章依赖那一章」。 */
-.ml-cc__edge.is-weak.is-up,
-.ml-cc__edge.is-weak.is-down {
-  stroke-dasharray: 3 3;
-  opacity: 0.7;
-}
-
-.ml-cc__ledge {
-  fill: none;
-  stroke: var(--cc-down);
-  stroke-width: 1;
-  opacity: 0.5;
-}
-
-.ml-cc__ledge.is-in {
-  stroke: var(--ifm-color-emphasis-500);
-  stroke-width: 1.1;
-  opacity: 0.7;
-}
-
-/* ---- 章簇 ---- */
-
-.ml-cc__disc {
-  fill: color-mix(in srgb, var(--cc-c) 12%, transparent);
-  stroke: color-mix(in srgb, var(--cc-c) 42%, transparent);
+.ml-rg__ldot circle {
+  fill: var(--rg-drill);
+  stroke: var(--ifm-background-color);
   stroke-width: 1.2;
-  transition: fill var(--ml-t-base) var(--ml-ease), stroke var(--ml-t-base) var(--ml-ease);
+  transition: stroke-width 0.15s var(--ml-ease, ease);
 }
 
-.ml-cc__hub {
-  fill: color-mix(in srgb, var(--cc-c) 26%, transparent);
-  stroke: var(--cc-c);
-  stroke-width: 1;
-  transition: fill var(--ml-t-base) var(--ml-ease);
+.ml-rg__ldot:hover circle {
+  stroke-width: 2.6;
 }
 
-.ml-cc__num {
-  fill: var(--ifm-font-color-base);
-  font-size: 12px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-  user-select: none;
-}
-
-.ml-cc__dot {
-  fill: var(--cc-c);
-  opacity: 0.85;
-}
-
-/* 悬停/选中态：绿＝托起它的先修，橙＝被它托起的后续（与 /graph 同一套语义色） */
-.ml-cc__cluster.is-off .ml-cc__disc,
-.ml-cc__cluster.is-off .ml-cc__dots,
-.ml-cc__cluster.is-off .ml-cc__label,
-.ml-cc__cluster.is-off .ml-cc__num {
-  opacity: 0.16;
-}
-
-.ml-cc__cluster.is-off .ml-cc__disc {
-  fill: transparent;
-}
-
-.ml-cc__cluster.is-up .ml-cc__disc {
-  stroke: var(--cc-up);
-  stroke-width: 2;
-  fill: var(--ml-up-bg);
-}
-
-.ml-cc__cluster.is-down .ml-cc__disc {
-  stroke: var(--cc-down);
-  stroke-width: 2;
-  fill: var(--ml-down-bg);
-}
-
-.ml-cc__cluster.is-hot .ml-cc__disc {
-  stroke: var(--ifm-color-primary);
-  stroke-width: 2.4;
-  fill: color-mix(in srgb, var(--cc-c) 22%, transparent);
-}
-
-.ml-cc__cluster.is-hit .ml-cc__disc {
-  stroke: var(--cc-search);
-  stroke-width: 2.2;
-}
-
-.ml-cc__cluster {
-  cursor: pointer;
-}
-
-/* 章名：反向缩放过的标签，屏幕上恒定字号。缩得太远时整批收起——
-   78 个标签挤在一屏里必然叠成一团，不如让位给圆盘与颜色。 */
-.ml-cc__label {
-  fill: var(--ifm-font-color-base);
-  font-size: 12px;
+/* 课名标签：纸色描边垫底，压在连线或邻章残影上也读得清 */
+.ml-rg__ldot text {
+  font-size: 9.5px;
   font-weight: 600;
+  fill: var(--ifm-font-color-base);
   paint-order: stroke;
   stroke: var(--ifm-background-color);
   stroke-width: 3px;
   stroke-linejoin: round;
   pointer-events: none;
-  user-select: none;
 }
 
-.is-far .ml-cc__labelbox,
-.is-far .ml-cc__num {
-  display: none;
-}
-
-/* ---- 课点悬停提示 ---- */
-
-.ml-cc__tipbg {
-  fill: var(--ifm-color-emphasis-900, #26324b);
-  opacity: 0.92;
-}
-
-.ml-cc__tiptext {
-  fill: var(--ifm-background-color);
-  font-size: 12px;
-  font-weight: 600;
+.ml-rg__dcount {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--rg-drill);
+  paint-order: stroke;
+  stroke: var(--ifm-background-color);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
   pointer-events: none;
-  user-select: none;
 }
 
-/* ---- 缩放控件 ---- */
-
-.ml-cc__ctrls {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.25rem 0.3rem;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: var(--ml-radius-ctl);
-  background: color-mix(in srgb, var(--ifm-background-color) 88%, transparent);
-  backdrop-filter: blur(4px);
+.ml-rg__dloading {
+  fill: none;
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 7;
+  stroke-linecap: round;
+  opacity: 0.75;
+  animation: ml-rg-dload 1.1s linear infinite;
 }
 
-.ml-cc__ctrls button {
-  min-width: 32px;
-  min-height: 30px;
-  padding: 0 0.4rem;
-  border: 1px solid transparent;
-  border-radius: var(--ml-radius-ctl);
-  background: transparent;
-  color: var(--ifm-font-color-base);
-  font-family: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background var(--ml-t-fast) var(--ml-ease);
-}
-
-.ml-cc__ctrls button:hover {
-  background: var(--ifm-color-emphasis-100);
-}
-
-.ml-cc__ctrls button:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -2px;
-}
-
-.ml-cc__zoom {
-  min-width: 46px;
-  text-align: right;
-  font-size: 0.75rem;
-  color: var(--ifm-color-emphasis-600);
-  font-variant-numeric: tabular-nums;
-}
-
-.ml-cc__hint {
-  margin: 0;
-  padding: 0.5rem 0.7rem;
-  border-top: 1px solid var(--ifm-color-emphasis-200);
-  background: color-mix(in srgb, var(--ifm-background-color) 70%, transparent);
-  font-size: 0.78rem;
-  line-height: 1.7;
-  color: var(--ifm-color-emphasis-700);
-}
-
-/* ---- 目录侧栏 ---- */
-
-.ml-cc__outline {
-  max-height: min(78vh, 820px);
-  overflow: auto;
-  padding: 0.5rem;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: var(--ml-radius-surface);
-  background: var(--ifm-background-color);
-}
-
-.ml-cc__ogroup + .ml-cc__ogroup {
-  margin-top: 0.6rem;
-}
-
-.ml-cc__ohead {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.3rem 0.35rem;
-  border-bottom: 1px dashed var(--ifm-color-emphasis-200);
-  font-size: 0.78rem;
-  color: var(--ifm-color-emphasis-700);
-}
-
-.ml-cc__ringno {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--ifm-color-emphasis-200);
-  color: var(--ifm-color-emphasis-800);
-  font-style: normal;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.ml-cc__oname {
-  font-weight: 700;
-}
-
-.ml-cc__odiff {
-  margin-left: auto;
-  font-size: 0.7rem;
-  color: var(--ifm-color-emphasis-600);
-  font-variant-numeric: tabular-nums;
-}
-
-.ml-cc__olist {
-  margin: 0.25rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ml-cc__oitem {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  width: 100%;
-  min-height: 28px;
-  border: 0;
-  border-radius: var(--ml-radius-ctl);
-  background: transparent;
-  color: var(--ifm-font-color-base);
-  font-family: inherit;
-  font-size: 0.82rem;
-  text-align: left;
-  padding: 0.15rem 0.4rem;
-  cursor: pointer;
-  transition: background var(--ml-t-fast) var(--ml-ease);
-}
-
-.ml-cc__oitem:hover {
-  background: var(--ifm-color-emphasis-100);
-}
-
-.ml-cc__oitem:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -2px;
-}
-
-.ml-cc__oitem.is-hit {
-  background: color-mix(in srgb, var(--cc-search) 14%, transparent);
-}
-
-.ml-cc__oitem.is-on {
-  background: color-mix(in srgb, var(--ifm-color-primary) 14%, transparent);
-  font-weight: 700;
-}
-
-.ml-cc__onum {
-  flex: none;
-  font-size: 0.7rem;
-  font-style: normal;
-  color: var(--ifm-color-emphasis-600);
-  font-variant-numeric: tabular-nums;
-}
-
-.ml-cc__otitle {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ml-cc__ocount {
-  flex: none;
-  font-size: 0.68rem;
-  color: var(--ifm-color-emphasis-600);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---- 卷色图例 ---- */
-
-.ml-cc__legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.9rem;
-  margin: 0.7rem 0;
-  font-size: 0.8rem;
-  color: var(--ifm-color-emphasis-700);
-}
-
-.ml-cc__legend-lead {
-  font-weight: 700;
-}
-
-.ml-cc__lgitem {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.ml-cc__lgitem em {
-  font-style: normal;
-  font-size: 0.72rem;
-  color: var(--ifm-color-emphasis-600);
-}
-
-.ml-cc__swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--cc-c);
-  flex: none;
-}
-
-/* ---- 面板 ---- */
-
-.ml-cc__panel {
-  margin-top: 0.6rem;
-  padding: 0.8rem 0.9rem;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: var(--ml-radius-surface);
-  background: var(--ifm-background-color);
-}
-
-.ml-cc__phead h3 {
-  margin: 0 0 0.2rem;
-  font-size: 1.02rem;
-}
-
-.ml-cc__pmeta {
-  margin: 0 0 0.6rem;
-  font-size: 0.78rem;
-  color: var(--ifm-color-emphasis-600);
-}
-
-.ml-cc__pcols {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.6rem 1.2rem;
-}
-
-.ml-cc__pcol h4,
-.ml-cc__ph4 {
-  margin: 0 0 0.3rem;
-  font-size: 0.82rem;
-  color: var(--ifm-color-emphasis-700);
-}
-
-.ml-cc__ph4 {
-  margin-top: 0.7rem;
-}
-
-.ml-cc__plist {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.82rem;
-}
-
-.ml-cc__plist--lessons {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0.1rem 1rem;
-}
-
-.ml-cc__plist--lessons li {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ml-cc__plist button {
-  width: 100%;
-  border: 0;
-  border-radius: var(--ml-radius-ctl);
-  background: transparent;
-  color: var(--ifm-font-color-base);
-  font-family: inherit;
-  font-size: 0.82rem;
-  text-align: left;
-  padding: 0.15rem 0.3rem;
-  cursor: pointer;
-}
-
-.ml-cc__plist button:hover {
-  background: var(--ifm-color-emphasis-100);
-}
-
-.ml-cc__plist button:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -2px;
-}
-
-.ml-cc__pempty {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--ifm-color-emphasis-600);
-}
-
-.ml-cc__pactions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.8rem;
-}
-
-/* ---- 窄屏：目录改成上下堆叠，画布优先 ---- */
-
-@media (max-width: 996px) {
-  .ml-cc__layout.has-outline {
-    grid-template-columns: 1fr;
-  }
-
-  .ml-cc__outline {
-    max-height: 320px;
-  }
-}
-
-/* ---- 入场动画：透明度错峰 + 描边生长 ----
- * 挂在 .ml-cc__svg.is-enter 上，到点（组件里 ENTER_MS）整批摘掉，点选/开关重建不重播。
- * 刻意不碰 transform：验收脚本用 getBoundingClientRect 量「全览装得下」，
- * transform 半程会量到假尺寸；透明度与 stroke-dashoffset 不影响几何。
- * 描边生长靠 pathLength={1}（组件里已加）把 dash 单位归一化。 */
-.ml-cc__svg.is-enter .ml-cc__cluster {
-  opacity: 0;
-  animation: ml-cc-cluster-in 0.55s var(--ml-ease-spring, cubic-bezier(0.2, 0.9, 0.3, 1.5)) both;
-  animation-delay: calc(var(--cc-ri, 1) * 110ms + 120ms);
-}
-
-.ml-cc__svg.is-enter .ml-cc__disc {
-  animation: ml-cc-disc-in 0.55s var(--ml-ease-spring, cubic-bezier(0.2, 0.9, 0.3, 1.5)) both;
-  animation-delay: calc(var(--cc-ri, 1) * 110ms + 120ms);
-  /* 圆盘以自身圆心缩放（fill-box：取元素自己的包围盒），父级坐标系不动 */
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.ml-cc__svg.is-enter .ml-cc__ring {
-  opacity: 0;
-  animation: ml-cc-fade 0.6s var(--ml-ease) both;
-}
-
-.ml-cc__svg.is-enter .ml-cc__ringnum {
-  opacity: 0;
-  animation: ml-cc-fade 0.6s var(--ml-ease) 0.5s both;
-}
-
-.ml-cc__svg.is-enter .ml-cc__edge {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: ml-cc-edge-draw 0.7s var(--ml-ease) 0.45s both;
-}
-
-@keyframes ml-cc-cluster-in {
-  from {
-    opacity: 0;
-  }
-
+@keyframes ml-rg-dload {
   to {
-    opacity: 1;
+    stroke-dashoffset: -24;
   }
 }
 
-@keyframes ml-cc-disc-in {
+@keyframes ml-rg-ldot-in {
   from {
     opacity: 0;
-    transform: scale(0.72);
+    transform: scale(0.4);
   }
 
   to {
@@ -3017,65 +2418,13 @@
   }
 }
 
-@keyframes ml-cc-fade {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+.ml-rg__hint--err {
+  color: var(--ml-down, #e8871e);
 }
-
-@keyframes ml-cc-edge-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-/* ---- 减少动态偏好：取消一切过渡 ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .ml-cc__disc,
-  .ml-cc__hub,
-  .ml-cc__dot,
-  .ml-cc__edge,
-  .ml-cc__oitem,
-  .ml-cc__ctrls button {
-    transition: none;
-  }
-
-  /* 入场动画一并取消：直接呈现终态 */
-  .ml-cc__svg.is-enter .ml-cc__cluster,
-  .ml-cc__svg.is-enter .ml-cc__disc,
-  .ml-cc__svg.is-enter .ml-cc__ring,
-  .ml-cc__svg.is-enter .ml-cc__ringnum {
+  .ml-rg__ldot,
+  .ml-rg__dloading {
     animation: none;
-    opacity: 1;
   }
-
-  .ml-cc__svg.is-enter .ml-cc__edge {
-    animation: none;
-    stroke-dasharray: none;
-    stroke-dashoffset: 0;
-  }
-}
-
-/* 章簇详图页导语：与 /graph 导语同一套纸感排版 */
-.ml-cc__lead {
-  max-width: 62ch;
-  margin: 0 0 1rem;
-  font-size: 0.92rem;
-  line-height: 1.85;
-  color: var(--ifm-color-emphasis-700);
-}
-
-.ml-cc__lead--sub {
-  margin-top: -0.6rem;
-  font-size: 0.86rem;
-  color: var(--ifm-color-emphasis-600);
 }

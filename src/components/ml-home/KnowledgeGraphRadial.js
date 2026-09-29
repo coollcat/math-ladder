@@ -28,6 +28,7 @@
 
 import React from 'react';
 import { useHistory } from '@docusaurus/router';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import { NODES, EDGES, DEPTH } from './full-graph-data.js';
 import { allChapterGroups } from './data.js';
 import { chapterModel, layoutRings, closure, chainTo } from './ringLayout.js';
@@ -125,7 +126,13 @@ export default function KnowledgeGraphRadial() {
   const [ringFilter, setRingFilter] = React.useState(null);
   const [zoomPct, setZoomPct] = React.useState(100);
   const [outline, setOutline] = React.useState(true); /* 目录侧栏（窄屏默认收起） */
+  /* 课级钻取（2026-09-29）：{ n, data, err }。
+     data 是 static/graph-chapters/NN.json 的内容——**点击时才从服务器 fetch**，
+     拿到后本章每门课在图上原位展开成一圈课点。 */
+  const [drill, setDrill] = React.useState(null);
+  const drillCache = React.useRef(new Map()); /* 本会话内缓存，同一章不重复请求 */
   const history = useHistory();
+  const baseUrl = useBaseUrl('/');
 
   const svgRef = React.useRef(null);
   const gRef = React.useRef(null);
@@ -407,20 +414,56 @@ export default function KnowledgeGraphRadial() {
 
   const volumes = React.useMemo(() => allChapterGroups().map((g, i) => ({ i, n: g.n, title: g.title })), []);
 
-  const lock = React.useCallback((n) => {
-    setPicked((cur) => (cur === n ? null : n));
-    setHot(null);
-  }, []);
+  /* ---- 课级钻取 ----
+     点击章 → fetch static/graph-chapters/NN.json → 原位展开本章课点。
+     再点同一章 / 点空白 / Esc / 「显示全部」都收起。
+     缓存命中时立即用缓存渲染，fetch 只发一次。 */
+  const closeDrill = React.useCallback(() => setDrill(null), []);
+
+  const openDrill = React.useCallback(
+    (n) => {
+      setDrill((cur) => {
+        if (cur && cur.n === n) return null; /* 再点同一章 = 收起 */
+        return { n, data: drillCache.current.get(n) ?? null, err: null };
+      });
+      if (drillCache.current.has(n)) return;
+      const url = `${baseUrl}graph-chapters/${String(n).padStart(2, '0')}.json`;
+      fetch(url)
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
+        .then((data) => {
+          drillCache.current.set(n, data);
+          /* 竞态守卫：只写给当前展开的那一章（期间用户可能已切到别章或收起） */
+          setDrill((cur) => (cur && cur.n === n ? { n, data, err: null } : cur));
+        })
+        .catch((e) => {
+          setDrill((cur) => (cur && cur.n === n ? { n, data: null, err: String((e && e.message) || e) } : cur));
+        });
+    },
+    [baseUrl],
+  );
+
+  const lock = React.useCallback(
+    (n) => {
+      setPicked((cur) => (cur === n ? null : n));
+      setHot(null);
+      openDrill(n); /* openDrill 自带「同章再点收起」的开关语义，与 picked 同步 */
+    },
+    [openDrill],
+  );
 
   const focusAndCenter = React.useCallback(
     (n, k) => {
       setPicked(n);
       setHot(null);
+      openDrill(n);
       centerOn(n, k);
       const el = btnRefs.current.get(n);
       if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
     },
-    [centerOn],
+    [centerOn, openDrill],
   );
 
   const onSvgKey = (e) => {
@@ -444,6 +487,7 @@ export default function KnowledgeGraphRadial() {
     if (e.key === 'Escape') {
       setPicked(null);
       setHot(null);
+      closeDrill();
       return;
     }
     if (e.key === '+' || e.key === '=') zoomAt(0, 0, 1.3);
@@ -504,6 +548,7 @@ export default function KnowledgeGraphRadial() {
               setQ('');
               setVolFilter(null);
               setRingFilter(null);
+              closeDrill();
               resetView();
             }}
           >
@@ -528,12 +573,13 @@ export default function KnowledgeGraphRadial() {
             viewBox={`${-geo.size / 2} ${-geo.size / 2} ${geo.size} ${geo.size}`}
             tabIndex={0}
             role="application"
-            aria-label="知识图谱：方向键在章节间移动，回车锁定，Esc 取消"
+            aria-label="知识图谱：方向键在章节间移动，回车锁定并展开本章课点，Esc 取消"
             onKeyDown={onSvgKey}
             onClick={(e) => {
               if (drag.current.moved) return;
               if (e.target.closest('.ml-rg__node')) return;
               setPicked(null);
+              closeDrill();
             }}
           >
             <g ref={gRef} transform="translate(0 0) scale(1)">
@@ -629,10 +675,83 @@ export default function KnowledgeGraphRadial() {
                         {shortLabel(c.short, geo.labelBudget[c.ring])}
                       </text>
                     )}
-                    <title>{`${c.title}\n第 ${c.n} 章 · 第 ${c.ring + 1} 环（${M.rings[c.ring].name}）· 难度 ${c.diff} · ${c.count} 门课\n直接先修 ${c.pred.length} 章 · 直接托起 ${c.succ.length} 章\n单击锁定焦点，双击居中放大`}</title>
+                    <title>{`${c.title}\n第 ${c.n} 章 · 第 ${c.ring + 1} 环（${M.rings[c.ring].name}）· 难度 ${c.diff} · ${c.count} 门课\n直接先修 ${c.pred.length} 章 · 直接托起 ${c.succ.length} 章\n单击锁定并展开本章课点（课数据从服务器加载），双击居中放大`}</title>
                   </g>
                 );
               })}
+
+              {/* 课级钻取（2026-09-29）：点击章后 fetch static/graph-chapters/NN.json，
+                  本章每门课绕章点排成一圈小课点，章内先修线画短线。
+                  其它章已被焦点逻辑退隐（is-off），课圈是画面上唯一的细节层。 */}
+              {drill &&
+                drill.data &&
+                (() => {
+                  const p = geo.pos.get(drill.n);
+                  const c = M.byN.get(drill.n);
+                  if (!p || !c) return null;
+                  const list = drill.data.lessons;
+                  const nL = list.length;
+                  /* 圈半径：章点半径打底 + 课数开方撑周长，保证 13 课的章也不挤 */
+                  const rr = dotR(c.count) + 18 + Math.sqrt(nL) * 2.4;
+                  const posOf = (i) => {
+                    const ang = -Math.PI / 2 + (nL ? (i / nL) * Math.PI * 2 : 0);
+                    return { x: p.x + Math.cos(ang) * rr, y: p.y + Math.sin(ang) * rr, ang };
+                  };
+                  return (
+                    <g className="ml-rg__drill" style={{ '--vc': `var(${VOL_COLORS[c.vi] || VOL_COLORS[0]})` }}>
+                      {drill.data.edges.map(([a, b], k) => {
+                        const A = posOf(a);
+                        const B = posOf(b);
+                        return <line key={`de${k}`} className="ml-rg__dedge" x1={A.x} y1={A.y} x2={B.x} y2={B.y} />;
+                      })}
+                      {list.map((l, i) => {
+                        const pt = posOf(i);
+                        const cos = Math.cos(pt.ang);
+                        const anchor = cos > 0.25 ? 'start' : cos < -0.25 ? 'end' : 'middle';
+                        const lx = pt.x + (anchor === 'start' ? 6 : anchor === 'end' ? -6 : 0);
+                        const ly = pt.y + (anchor === 'middle' ? (Math.sin(pt.ang) >= 0 ? 11 : -6) : 3.5);
+                        return (
+                          <g
+                            key={l.id}
+                            className="ml-rg__ldot"
+                            style={{ '--d': `${Math.min(i * 0.018, 0.5)}s` }}
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              history.push(l.to);
+                            }}
+                            role="link"
+                            tabIndex={-1}
+                            aria-label={l.title}
+                          >
+                            <circle cx={pt.x} cy={pt.y} r={3.4} />
+                            {labels && (
+                              <text x={lx} y={ly} textAnchor={anchor}>
+                                {shortLabel(l.title, 6)}
+                              </text>
+                            )}
+                            <title>{`${l.title}\n点击进入这一课`}</title>
+                          </g>
+                        );
+                      })}
+                      <text className="ml-rg__dcount" x={p.x} y={p.y + rr + 13} textAnchor="middle">
+                        {`${drill.data.title} · ${nL} 门课`}
+                      </text>
+                    </g>
+                  );
+                })()}
+
+              {/* 钻取加载中：章点外套一圈虚线在流动 */}
+              {drill &&
+                !drill.data &&
+                !drill.err &&
+                (() => {
+                  const p = geo.pos.get(drill.n);
+                  const c = M.byN.get(drill.n);
+                  if (!p) return null;
+                  return (
+                    <circle className="ml-rg__dloading" cx={p.x} cy={p.y} r={(c ? dotR(c.count) : 10) + 18} />
+                  );
+                })()}
 
               {/* 圆心枢纽 */}
               <g className="ml-rg__hub">
@@ -665,9 +784,16 @@ export default function KnowledgeGraphRadial() {
 
           <p className="ml-rg__hint">
             <strong>半径</strong>＝层级（第几环＝爬多高），<strong>颜色</strong>＝所属卷。
-            悬停看直接先修（绿）与托起（橙），单击锁定并给出「地基 → 本章」的来路，
+            悬停看直接先修（绿）与托起（橙）；<strong>单击任意章</strong>锁定并当场展开这一章的每一门课
+            （课数据从服务器按需加载），点课点直接进课，再点章或点空白收起。
             方向键换章、拖动画布、滚轮缩放、双击居中。
           </p>
+          {drill && drill.err && (
+            <p className="ml-rg__hint ml-rg__hint--err">
+              「{M.byN.get(drill.n)?.title}」的课数据加载失败（{drill.err}）——请确认静态服务器托管着
+              <code> graph-chapters/ </code>目录，然后重试。
+            </p>
+          )}
         </div>
 
         {/* ---------- 目录侧栏：74 颗圆点不是导航界面，这份清单才是 ---------- */}
@@ -852,9 +978,13 @@ export default function KnowledgeGraphRadial() {
             )}
 
             <details className="ml-rg__courses">
-              <summary>{`本章 ${info.c.count} 门课（点开看课表）`}</summary>
+              <summary>
+                {drill && drill.n === focus && drill.data
+                  ? `本章 ${drill.data.lessons.length} 门课（已从服务器加载）`
+                  : `本章 ${info.c.count} 门课（点开看课表）`}
+              </summary>
               <ol>
-                {info.lessons.map((l) => (
+                {(drill && drill.n === focus && drill.data ? drill.data.lessons : info.lessons).map((l) => (
                   <li key={l.id}>
                     <a href={l.to}>{l.title}</a>
                   </li>
