@@ -205,7 +205,23 @@ if (target) {
   ok(s3 === 0, `Esc 收起钻取（剩 ${s3} 颗课点）`);
 }
 
-/* 3.7 全局健康 */
+/* 3.7 全部炸开：按钮切换 → 1029 课点全铺 → 收回 */
+await page.goto(`${base}/graph/`, { waitUntil: 'load' });
+await page.waitForSelector('.ml-rg__node', { timeout: 20000 });
+const burstBtn = page.locator('.ml-rg__bar button', { hasText: '全部炸开' });
+ok((await burstBtn.count()) > 0, '工具条有「全部炸开」按钮（默认章节模式）');
+await burstBtn.first().click();
+await page.waitForFunction(() => document.querySelectorAll('.ml-rg__ldot').length >= 1000, null, { timeout: 30000 });
+const s4 = await page.evaluate(() => document.querySelectorAll('.ml-rg__ldot').length);
+ok(s4 >= 1020, `炸开后课点 ${s4} 颗（≥1020，应约 1029）`);
+const backBtn = page.locator('.ml-rg__bar button', { hasText: '收回课点' });
+ok((await backBtn.count()) > 0, '炸开态按钮文案变「收回课点」');
+await backBtn.first().click();
+await page.waitForTimeout(400);
+const s5 = await page.evaluate(() => document.querySelectorAll('.ml-rg__ldot').length);
+ok(s5 === 0, `收回课点回到章节模式（剩 ${s5} 颗课点）`);
+
+/* 3.8 全局健康 */
 ok(pageErrors.length === 0, `零 pageerror（${pageErrors.length}）`);
 ok(consoleErrors.length === 0, `零 console error（${consoleErrors.length}${consoleErrors.length ? '：' + consoleErrors[0] : ''}）`);
 ok(failedReq.length === 0, `零失败请求（${failedReq.length}${failedReq.length ? '：' + failedReq[0] : ''}）`);
