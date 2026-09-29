@@ -1599,11 +1599,13 @@
     stroke-width var(--ml-t-base) var(--ml-ease);
 }
 
-/* 单课交叉引用：更细更淡的虚线。默认整条不画——它们不是层级关系。 */
+/* 单课交叉引用：更细更淡的虚线。默认整条不画——它们不是层级关系。
+   ⚠ 边都带 pathLength={1}（入场描边用），dasharray 是「路径长比例」不是像素：
+   这里 2% 实 / 3% 空，在 300–500px 的边上 ≈ 6–10px 的碎虚线观感。 */
 .ml-rg__edge.is-weak {
   stroke-width: 0.9;
   opacity: 0.16;
-  stroke-dasharray: 3 5;
+  stroke-dasharray: 0.02 0.03;
   stroke-dashoffset: 0;
 }
 
@@ -1629,18 +1631,22 @@
   stroke-width: 2.2;
 }
 
-/* 主链：从地基到焦点那一条路，加粗 + 中点流动的虚线，读起来有方向 */
+/* 主链：从地基到焦点那一条路，加粗 + 小段虚线沿路径流动，读起来有方向。
+   ⚠ dash 值必须按 pathLength={1} 的归一化单位给（路径长的比例）：
+   之前写 6 6（像素直觉），在归一化坐标下整条线只有不到一段 dash——
+   dashoffset 一滚，整条链边以动画周期整条明灭，看起来就是「线段频繁闪烁」。
+   0.012 0.012 ≈ 1.2% 实 / 1.2% 空；keyframes 滚 6 个周期（0.024×6）≈ 原 15px/s 的流速。 */
 .ml-rg__edge.is-chain {
   stroke: var(--rg-up);
   opacity: 1;
   stroke-width: 3;
-  stroke-dasharray: 6 6;
+  stroke-dasharray: 0.012 0.012;
   animation: ml-rg-flow 1.6s linear infinite;
 }
 
 @keyframes ml-rg-flow {
   to {
-    stroke-dashoffset: -24;
+    stroke-dashoffset: -0.144;
   }
 }
 
