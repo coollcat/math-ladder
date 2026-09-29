@@ -218,11 +218,19 @@
   border-color: var(--ml-fn-vermilion);
 }
 
+/* 全站最重要的输入控件原先只有 1px 边框变色这一条焦点提示，而且
+   `outline:none` 的 (0,2,0) 压过全站兜底规则 (0,1,0)——键盘用户看不到焦点。
+   画在框内，免得被卡片裁掉。 */
+.ml-fn__src:focus-visible {
+  outline: 2px solid var(--ml-fn-vermilion);
+  outline-offset: -2px;
+}
+
 .ml-fn__err {
   display: none;
   margin-top: 5px;
   font-size: 0.78rem;
-  color: var(--ml-fn-vermilion);
+  color: var(--ml-danger);
 }
 
 .ml-fn__err.is-show {
@@ -648,35 +656,51 @@
 .ml-fnpage {
   --ml-fn-paper: #fdfbf6;
   --ml-fn-vermilion: #c2401c;
+  /* 这几个变量原先只定义在 .ml-fn 上，而 .ml-fnpage__help 是 .ml-fn 的**兄弟**，
+     拿不到它们 → 暗色下边框恒为 rgba(38,50,75,.14)，跟深底只差 1.04:1，
+     帮助面板在暗色里完全没有边界。这里补齐。 */
+  --ml-fn-line: rgba(38, 50, 75, 0.14);
+  --ml-fn-mute: rgba(38, 50, 75, 0.6);
+  --ml-fn-soft: rgba(38, 50, 75, 0.06);
+  --ml-fn-grid: rgba(35, 48, 80, 0.07);
+  /* 标题阶梯：h2/h3 的 font-size 写在类上永远不生效（Infima 是双 ID 特异性），
+     必须改父作用域的变量。原先「怎么写」帮助区比设计意图大 1.4–2 倍。 */
+  --ifm-h2-font-size: 1.1rem;
+  --ifm-h3-font-size: 0.92rem;
+  --ifm-heading-margin-bottom: 0.3rem;
 }
 
 [data-theme='dark'] .ml-fnpage {
   --ml-fn-paper: #1b202a;
   --ml-fn-vermilion: #e4704d;
+  --ml-fn-line: rgba(148, 163, 184, 0.22);
+  --ml-fn-mute: rgba(221, 227, 238, 0.64);
+  --ml-fn-soft: rgba(148, 163, 184, 0.1);
+  --ml-fn-grid: rgba(148, 163, 184, 0.09);
 }
 
 .ml-fnpage__lead {
   max-width: 62ch;
+  margin: 0 0 1rem;
   font-size: 0.95rem;
   line-height: 1.85;
+  color: var(--ifm-color-emphasis-700);
 }
 
 .ml-fnpage__help {
   margin-top: 28px;
   padding: 14px 18px;
-  border: 1px solid var(--ml-fn-line, rgba(38, 50, 75, 0.14));
-  border-radius: 12px;
+  border: 1px solid var(--ml-fn-line);
+  border-radius: var(--ml-radius-panel);
   background: var(--ml-fn-paper);
 }
 
 .ml-fnpage__help h2 {
   margin-top: 0;
-  font-size: 1.1rem;
 }
 
 .ml-fnpage__help h3 {
   margin: 16px 0 6px;
-  font-size: 0.92rem;
   color: var(--ml-fn-vermilion);
 }
 
@@ -694,11 +718,12 @@
   font-size: 0.9em;
 }
 
+/* 错误红收进令牌：原先 #d1483f 在暗底上只有 3.2–3.7:1，且没有暗色版 */
 .ml-fnlab__err {
   padding: 10px 14px;
-  border: 1px dashed #d1483f;
-  border-radius: 10px;
-  color: #d1483f;
+  border: 1px dashed var(--ml-danger);
+  border-radius: var(--ml-radius-card);
+  color: var(--ml-danger);
   font-size: 0.86rem;
 }
 

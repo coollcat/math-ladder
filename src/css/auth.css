@@ -1,9 +1,17 @@
 /* 登录页样式（仅 /login 页面使用，类名带 ml-auth 前缀避免污染全站） */
 
+/* 宽度放宽：账号卡片保持自己的可读宽度，下面的数据面板靠右挂，
+   两者共用一条中轴，视线从「你好，X」自然滑到「数据 · 备份与搬家」。 */
 .ml-auth {
-  max-width: 520px;
+  max-width: 860px;
   margin: 0 auto;
   padding: 0 1rem 3rem;
+}
+
+/* 账号卡片不跟着撑满 860px——一行 60 多个汉字的说明读起来很累 */
+.ml-auth > .ml-auth__card {
+  max-width: 520px;
+  margin: 0 auto;
 }
 
 .ml-auth__title {
@@ -39,10 +47,13 @@
 .ml-auth__field input {
   padding: 0.6rem 0.8rem;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
+  /* 全站输入框都是 --ml-radius-ctl（6px），这里原本是 8px——
+     登录页两个框比站内其它框圆一档，切换页面时能看出来 */
+  border-radius: var(--ml-radius-ctl);
   font-size: 1rem;
   background: var(--ifm-background-color);
   color: var(--ifm-font-color-base);
+  transition: border-color var(--ml-t-fast) var(--ml-ease), box-shadow var(--ml-t-fast) var(--ml-ease);
 }
 
 .ml-auth__field input:focus {
@@ -64,7 +75,7 @@
 }
 
 .ml-auth__error {
-  color: #d33;
+  color: var(--ml-danger);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -93,4 +104,101 @@
   display: flex;
   gap: 0.75rem;
   margin-top: 1.25rem;
+}
+
+/* =========================================================================
+ * 数据面板入口（备份 / 搬家）
+ * -------------------------------------------------------------------------
+ * 2026-09-29：面板本体已经搬到**页面右上角**（顶栏那颗「数据」钮，点开落在
+ * 钮的下方）。这里只留一句说明 + 一颗直达按钮，不再自己挂一份面板——
+ * 同一套 UI 两个落点，改一处忘一处是迟早的事。
+ * ========================================================================= */
+
+.ml-auth__data {
+  margin: 1.75rem 0 0 auto; /* 靠右 */
+  width: min(100%, 620px);
+  scroll-margin-top: 5rem; /* 顶栏是 fixed 的，scrollIntoView 别被它盖住 */
+  /* 标题是 <h2>，而 Infima 的标题规则是双 ID 特异性（h2:not(#\#):not(#\#)），
+     任何类选择器都压不过——想让这块的标题是 1.02rem，只能改父作用域的变量。
+     此前 .ml-auth__data-title{font-size:1.02rem} 从来没生效过，实际渲染 1.5rem，
+     是紧挨着的正文（0.86rem）的 1.74 倍。 */
+  --ifm-h2-font-size: 1.02rem;
+  --ifm-heading-font-weight: 700;
+  --ifm-heading-margin-bottom: 0.3rem;
+}
+
+.ml-auth__data-head {
+  position: relative;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  background: var(--ifm-card-background-color, #fff);
+  box-shadow: var(--ml-shadow-soft);
+}
+
+.ml-auth__data-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem;
+}
+
+/* 暗色：原先这个文件一条暗色规则都没有，卡片投影 rgba(0,0,0,.05) 等于没有 */
+[data-theme='dark'] .ml-auth__card {
+  box-shadow: var(--ml-shadow-soft);
+}
+
+[data-theme='dark'] .ml-auth__data-head {
+  box-shadow: var(--ml-shadow-soft);
+}
+
+.ml-auth__data-lead {
+  margin: 0 0 0.75rem;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-auth__data-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--ifm-color-primary);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-primary);
+  border-radius: 999px;
+  padding: 0.28rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.ml-auth__data-open:hover {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.ml-auth__data-open:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* 窄屏：不再靠右，跟卡片一样铺满，免得右侧留出一条难看的空白 */
+@media (max-width: 720px) {
+  .ml-auth__data {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-auth__data-open {
+    transition: none;
+  }
+
+  .ml-auth__data-open:hover {
+    transform: none;
+  }
 }

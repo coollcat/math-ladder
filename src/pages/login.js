@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import { useHistory } from '@docusaurus/router';
@@ -15,6 +15,38 @@ import {
 import { syncHint, onSyncChange, syncNow } from '../sync';
 
 import '../css/auth.css';
+
+/* =========================================================================
+ * 数据面板（备份 / 还原 / 空间搬家）的登录页入口
+ * -------------------------------------------------------------------------
+ * 2026-09-29 二次搬迁：面板本体已经搬到**页面右上角**（顶栏那颗「数据」钮，
+ *   见 src/theme/Navbar/DataMenu.js）——登录后任何页面随手可得，面板就落在
+ *   钮的下方。这一块不再自己挂一份面板，只留一句说明 + 一颗按钮把人送过去。
+ *
+ * 为什么不再内嵌一份：同一套 UI 两个落点，改一处忘一处是迟早的事；而且
+ *   「登录后进度看着像没了」这个时刻，右上角那颗钮离眼睛更近。
+ * ========================================================================= */
+function DataEntry({ authed }) {
+  return (
+    <section className="ml-auth__data" id="ml-data-panel">
+      <div className="ml-auth__data-head">
+        <h2 className="ml-auth__data-title">数据 · 备份与搬家</h2>
+        <p className="ml-auth__data-lead">
+          学习进度、笔记本、代码仓库都存在这台浏览器的「空间」里。换设备、清缓存之前，
+          用<strong>导出成文件</strong>把它们带走；{authed ? '登录前后数据不互通时，用' : '登录之后，用'}
+          <strong>搬家</strong>把游客空间的数据挪进账号。
+        </p>
+        <button
+          type="button"
+          className="ml-auth__data-open"
+          onClick={() => window.dispatchEvent(new Event('ml-open-data'))}
+        >
+          打开数据面板（页面右上角）
+        </button>
+      </div>
+    </section>
+  );
+}
 
 /* 失败提示只有这一句。绝不区分「没这个账号」和「密码不对」——
    分两句等于把账号名单摆出来让人一个个试。
@@ -159,11 +191,16 @@ export default function LoginPage() {
   const history = useHistory();
   const [auth, setAuthState] = useState(null);
   const [redirect, setRedirect] = useState('/');
+  const dataAnchor = useRef(null);
 
   useEffect(() => {
     setAuthState(getAuth());
     const params = new URLSearchParams(window.location.search);
     setRedirect(safeRedirect(params.get('redirect')));
+    /* ?panel=data：这块说明滚到眼前（面板本体在右上角，顶栏会自己打开它） */
+    if (params.get('panel') === 'data' && dataAnchor.current) {
+      dataAnchor.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }, []);
 
   const handleOk = (a) => {
@@ -198,8 +235,9 @@ export default function LoginPage() {
               </p>
               <SyncLine />
               <p className="ml-auth__hint ml-auth__muted">
-                登录只是换了一个抽屉：登录前在游客状态下攒的进度、笔记本和代码还在游客空间里，不会自动跟过来。
-                点页面右下角第三个圆钮（<strong>数据</strong>）可以把它们搬进当前账号，也能导出成文件带走。
+                登录只是换了一个抽屉：登录前在游客状态下攒的进度、笔记本和代码还在游客空间里，
+                不会自动跟过来。下面「数据 · 备份与搬家」那一块就是干这个的——一键搬进当前账号，
+                也能导出成文件带走。
               </p>
               <div className="ml-auth__actions">
                 <Link className="button button--primary" to="/docs/intro">
@@ -225,8 +263,8 @@ export default function LoginPage() {
                 <p className="ml-auth__muted">
                   登录后，学习进度、数学笔记本和代码仓库会跟着账号在你的设备之间自动同步。
                   本站没有部署同步服务（或它没起来）时登录不可用，一切按游客处理：课程、浮窗、
-                  判题、进度记录照常开放，只是数据留在这台浏览器——换设备请用右下角
-                  「数据」圆钮里的<strong>导出备份</strong>。
+                  判题、进度记录照常开放，只是数据留在这台浏览器——换设备请用下面
+                  「数据 · 备份与搬家」里的<strong>导出备份</strong>。
                 </p>
                 <p className="ml-auth__muted">
                   账号由站方开通，不对外公开注册，凭据请联系本站维护者索取。
@@ -234,6 +272,12 @@ export default function LoginPage() {
               </div>
             </div>
           )}
+
+          {/* 数据面板说明：面板本体在页面右上角（顶栏「数据」钮），这里只负责
+              把「东西在哪、怎么带走」说清楚，并给一颗直达按钮。 */}
+          <div ref={dataAnchor}>
+            <DataEntry authed={!!auth} />
+          </div>
         </div>
       </main>
     </Layout>

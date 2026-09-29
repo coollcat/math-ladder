@@ -259,13 +259,15 @@ if (names.length) {
 }
 
 /* 4. 数据面板（备份 / 还原 / 空间搬家）在不在产物里。
-   它是 enhancer 里动态 import 的：chunk 没分出来时页面不报错，
-   只表现为「右下角第三个圆钮点了没反应」，在本地 dev 下也容易漏看。 */
+   它是动态 import 的：chunk 没分出来时页面不报错，只表现为「点了没反应」，
+   在本地 dev 下也容易漏看。**入口 2026-09-29 从右下角圆钮搬到顶栏右上角**，
+   所以这里认的标记也跟着换（旧标记 ml-bk-fab / .ml-fab--data 已不存在）。 */
 const NEEDLES = [
   ['math-ladder-backup', '备份文件的格式标识'],
-  ['ml-bk-fab', '数据面板圆钮'],
+  ['ml-nav__databtn', '顶栏右上角的数据入口钮'],
+  ['ml-open-data', '打开数据面板的窗口事件（Alt+D / 账号菜单 / 登录页按钮共用）'],
 ];
-const CSS_NEEDLES = ['.ml-backup', '.ml-fab--data'];
+const CSS_NEEDLES = ['.ml-backup', '.ml-nav__datapop'];
 const missing = [];
 for (const [needle, what] of NEEDLES) {
   let hit = false;

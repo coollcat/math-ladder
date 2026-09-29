@@ -49,6 +49,9 @@ let debounceTimer = null;
 let retryTimer = null;
 let inflight = false;
 let queued = null;
+/* 同步代次：换账号/登出时 +1。飞行中的请求靠它判断「结果还作不作数」——
+   不作数就整个丢掉，绝不能写进已经换掉的命名空间。 */
+let syncEpoch = 0;
 let applying = false; /* 正在把云端结果写回本地：这期间的数据变更不算「本地改动」 */
 let booted = false;
 let lastUser = '';
@@ -471,8 +474,17 @@ function onUnauthorized() {
 
 /* ---------- 拉 / 推 ---------- */
 
+/** 请求飞在半路时换号/登出了：这次结果作废，一个字节都不写本地。 */
+function onStale() {
+  /* 状态按**新的**登录态重算：登出后不该还挂着「同步中」或「已同步」 */
+  setState(enabled() ? 'ok' : 'off');
+  return false;
+}
+
 async function doPull() {
+  const epoch0 = syncEpoch;
   const r = await request('/sync', { method: 'GET' });
+  if (epoch0 !== syncEpoch) return onStale();
   if (r.kind === 'nobackend') return onNoBackend();
   if (r.status === 401) return onUnauthorized();
   if (r.status === 429) return onFail('同步太频繁，稍后再试');
@@ -490,7 +502,9 @@ async function doPull() {
 
 async function doPush() {
   const local = await readLocal();
+  const epoch0 = syncEpoch;
   const r = await request('/sync', { method: 'PUT', body: { base: cloudAt, data: local } });
+  if (epoch0 !== syncEpoch) return onStale();
   if (r.kind === 'nobackend') return onNoBackend();
   if (r.status === 401) return onUnauthorized();
   if (r.status === 413) return onFail('数据太大（单账号 4 MB 上限），云同步已暂停');
@@ -600,6 +614,10 @@ export function syncNow() {
 function onAuthChange() {
   const a = getAuth();
   const u = (a && a.u) || '';
+  /* 版本号 +1：正在飞的那一次同步的结果属于**上一个**账号（或游客空间），
+     它落地时 writeLocal() 取的是 currentNS()，会把 A 的数据并进 B 的空间。
+     拉/推在 await 之后比对这个号，对不上就把结果整个丢掉。 */
+  syncEpoch += 1;
   if (u !== lastUser) {
     /* 换账号：版本号是跟着账号走的，不重置会把 A 的版本号当成 B 的 base */
     lastUser = u;

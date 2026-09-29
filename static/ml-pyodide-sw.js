@@ -19,8 +19,8 @@
 
 var CACHE = 'ml-pyodide-v1';
 
-/* 与 src/pyrunner/enhancer.js 的 PYODIDE_CDNS 保持一致 */
-var HOSTS = ['registry.npmmirror.com', 'cdn.jsdelivr.net', 'gcore.jsdelivr.net'];
+/* 与 src/pyrunner/enhancer.js 的 PYODIDE_CDNS 保持一致（死源已撤，见那边的注释） */
+var HOSTS = ['cdn.jsdelivr.net', 'gcore.jsdelivr.net'];
 
 /* 只缓存这些后缀：wasm/zip/js/json/data/whl/so 之类，别的一律放过 */
 var EXT = /\.(wasm|js|mjs|zip|json|data|txt|whl|so|tar|gz)$/i;
@@ -36,7 +36,12 @@ self.addEventListener('activate', function (event) {
       .then(function (keys) {
         return Promise.all(
           keys.map(function (k) {
-            return k === CACHE ? null : caches.delete(k);
+            /* 只清**本 SW 自己**的旧缓存（ml-pyodide-*）。
+               原先写的是「凡不是 CACHE 的全删」——同一个 origin 上任何别的
+               Cache Storage 使用者（别的实验页面、将来加的应用缓存）都会被
+               这个 SW 顺手清空，越权且难排查。 */
+            if (k === CACHE) return null;
+            return k.indexOf('ml-pyodide-') === 0 ? caches.delete(k) : null;
           }),
         );
       })
