@@ -227,4 +227,4 @@ import 登记：全章无新增 import（math/matplotlib 均已登记）；30/85
 4. 与卷一第 11 章、卷二 20/21 章的分界声明出现在 10/70 课正文一句带过；不重复推导线性代数。
 5. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；h2 源码/产物计数一致；显示公式单行、花括号 `\lbrace\rbrace`；quiz 内不放 KaTeX。
 6. 浏览器手测：五组件（重点拖拽类）、Alt+P 浮窗、路由往返无重复注入；360px + dark 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

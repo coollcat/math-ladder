@@ -1,5 +1,7 @@
 ---
 title: 第 2 章 · 分数与小数
+short: 分数小数
+volume: 1
 description: 分数、小数与百分数：把整数之间的数轴缝隙填满，让除法真正闭合。
 ---
 
@@ -130,7 +132,7 @@ print(f"两天累计涨幅: {total_rise}%")
 
 修好后的关键代码：
 
-```python
+```py
 new_den = den1 * den2                    # 通分：公分母 3 × 4 = 12
 new_num = num1 * den2 + num2 * den1      # 交叉相加：4 + 3 = 7（已是最简）
 print(f"糖水总量: {new_num}/{new_den} 升")

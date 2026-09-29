@@ -151,6 +151,12 @@ print("identity=" + str(identity))
 
 ```python
 values = [-1, 0, 1]
+closed = True
+for a in values:
+    for b in values:
+        if (a * b) not in values:
+            closed = False
+
 identity = None
 for e in values:
     keeps_all = True
@@ -160,7 +166,8 @@ for e in values:
     if keeps_all:
         identity = e
 
-print(identity)
+print("closed=" + str(closed))
+print("identity=" + str(identity))
 ```
 
 只有 $e=1$ 对每个 $a$ 都满足

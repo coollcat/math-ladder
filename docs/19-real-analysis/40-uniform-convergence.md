@@ -133,21 +133,26 @@ print(verdict)
 <details>
 <summary>点开查看逐步解答</summary>
 
-把 $n$ 改成 10：
+把 $n$ 改成 10，并把 sup 误差与结论一起接上：
 
 ```python
+import math
+
 n = 10
-sup_error = 1 / n
+probe_x = math.pi / (2 * n)
+point_error = abs(math.sin(n * probe_x) / n)
+sup_error = 1 / n                                        # 全域最大误差：1/n
+verdict = "uniform" if sup_error < 0.2 else "not uniform yet"
+
+print(round(point_error, 4))   # 0.1
+print(round(sup_error, 4))     # 0.1
+print(verdict)                 # uniform
 ```
 
-在 $x=\frac{\pi}{2n}$ 处误差达到 $\frac1{10}$，所以：
+在 $x=\frac{\pi}{2n}$ 处误差达到 $\frac1{10}$，即 `0.1`。因为 $\frac1{10}<0.2$，判定为 `uniform`。
 
-```text
-point error at x=π/(2n)≈0.1
-sup error=0.1000
-```
-
-因为 $\frac1{10}<0.2$，判定为 `uniform`。
+小结：这道题改三处——`n` 从 5 到 10、`sup_error` 用 $1/n$（不是照抄逐点误差）、
+`verdict` 要跟着误差走。第三处最容易漏：初始代码把结论写死了。
 
 </details>
 

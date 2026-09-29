@@ -1,5 +1,7 @@
 ---
 title: 第 7 章 · 三角函数与振动
+short: 三角振动
+volume: 1
 description: 单位圆上转出一个波：正切、弧度制、波形解剖、和角公式、倍角、拍与声音合成。
 introduces_import:
   - math
@@ -159,7 +161,7 @@ print(f"八度: {times} 倍频 -> 高 {octaves} 个八度, 第 {harmonic} 谐波
 
 修好后的关键行：
 
-```python
+```py
 lhs = math.sin(math.radians(deg_a + deg_b))
 beat = abs(f2 - f1)
 octaves = 1

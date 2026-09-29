@@ -282,7 +282,7 @@ print(mains)              # ← 同样的病：还差最后一步换算
 
 程序没崩，它在撒谎：`best` 和 `mains` 是 DFT 的**桶编号**（座位号），不是频率。桶宽 $\Delta f = f_s / N = 256/1024 = 0.25$ Hz，频率 = 座位号 × 桶宽。把最后两行改成：
 
-```python
+```py
 print(round(best * fs / N))
 print(round(mains * fs / N))
 ```

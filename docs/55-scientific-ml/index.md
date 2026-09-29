@@ -1,5 +1,6 @@
 ---
 title: 第 55 章 · 科学计算与神经算子
+short: 科学 ML
 description: 用热传导、流体平流和卫星轨道反演理解 PINN 残差、正则化与代理模型。
 volume: 5
 layer: L11

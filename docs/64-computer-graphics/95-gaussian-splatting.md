@@ -176,7 +176,7 @@ print(round(T, 3))
 
 混合公式里每一项都要带上"走到这里还剩多少透过率"：
 
-```python
+```py
     C = C + colors[i] * alphas[i] * T    # 贡献 = 颜色×不透明度×剩余透过率
     T = T * (1 - alphas[i])
 ```

@@ -202,4 +202,4 @@
 4. 每处提到 GD/Adam/SVM 对偶的地方都显式注明"完整版在第 43 章"，不得悄悄展开重复建设。
 5. MDX 双坑体检：`\lbrace`/`\rbrace` 替代字面花括号；显示公式一律单行；逐课比对源 `^## ` 数与产物 `<h2` 数。
 6. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；浏览器实测三类块 + Alt+P 浮窗 + 路由切换无重复注入；360px 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`；ROC/AUC、嵌套 CV、偏差-方差分解等未立项项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论合并进 `CONTENT_AUDIT.md`；ROC/AUC、嵌套 CV、偏差-方差分解等未立项项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

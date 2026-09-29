@@ -138,7 +138,14 @@ for n in range(11, 51):
     values.append(a(n))
 
 spread = max(values) - min(values)
+verdict = "cauchy" if spread < 0.2 else "not yet"
+
+print(round(spread, 4))   # 0.0709
+print(verdict)            # cauchy
 ```
+
+注意 `verdict` 这一行不能省：初始代码把它写死成 `"not yet"`，
+只把 `spread` 算对、忘了让结论跟着走，判题照样不过。
 
 最大值是 $a_{11}\approx1.0909$，最小值是 $a_{50}=1.02$，尾幅为 $\frac{39}{550}\approx0.070909$，四舍五入到 4 位就是 `0.0709`。
 

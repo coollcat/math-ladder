@@ -1,5 +1,6 @@
 ---
 title: 第 23 章 · 偏微分方程入门
+short: 偏微分方程入门
 description: 从局部变化到空间演化：波动、热传导、扩散与分离变量。
 volume: 2
 layer: L9
@@ -27,11 +28,13 @@ difficulty: 5
 10. [达朗贝尔解与初始形状](./75-dalembert-solution.md)——初始形状加初速度，定下弦此后一生的舞姿：一个不需要级数的闭式解；
 11. [热核：一点热量如何摊开](./78-heat-kernel.md)——一瞬间的点热源摊成高斯钟形：变矮必然变宽，面积永远是一。
 12. [分离变量：把时间和空间拆开算](./90-separation-of-variables.md)——赌一把 u=X(x)T(t)，PDE 就裂成两个 ODE；
-13. [特征函数与边界：模态是被筛出来的](./100-eigenfunction-boundary.md)——冰水、棉花、半开半闭，三种夹具筛出三套模态；
-14. [Fourier 合成：把任意初值拆成模态](./110-fourier-pde-synthesis.md)——方台阶也能解：投影、各自衰减、再加回来；
-15. [Laplace 与 Poisson：直接问稳态长什么样](./120-laplace-poisson.md)——不再追时间，一格一格把终点"摸"出来；
-16. [二维热扩散项目：涂一笔，看它自己摊开](./130-heat-2d-project.md)——四个邻居把安全线从 1/2 收紧到 1/4；
-17. [PDE 分类与方法地图](./140-pde-classifier-map.md)——一个判别式分出三家，五把钥匙各配一把锁。
+13. [特殊函数：Bessel 与 Legendre 从哪里冒出来](./95-special-functions.md)——方形的杆能拆成 sin 与 exp，圆形的鼓面只好请出 Bessel 与 Legendre；
+14. [特征函数与边界：模态是被筛出来的](./100-eigenfunction-boundary.md)——冰水、棉花、半开半闭，三种夹具筛出三套模态；
+15. [Fourier 合成：把任意初值拆成模态](./110-fourier-pde-synthesis.md)——方台阶也能解：投影、各自衰减、再加回来；
+16. [Laplace 与 Poisson：直接问稳态长什么样](./120-laplace-poisson.md)——不再追时间，一格一格把终点"摸"出来；
+17. [二维热扩散项目：涂一笔，看它自己摊开](./130-heat-2d-project.md)——四个邻居把安全线从 1/2 收紧到 1/4；
+18. [有限元入门：把连续切成小段再拼起来](./135-fem-1d.md)——弱形式降阶，帽子函数搭台，小段刚度拼成全局方程；
+19. [PDE 分类与方法地图](./140-pde-classifier-map.md)——一个判别式分出三家，五把钥匙各配一把锁。
 
 ## 前置回望
 
@@ -39,7 +42,7 @@ difficulty: 5
 
 ## 生产状态
 
-第五批回填（分离变量 → 特征函数与边界 → Fourier 合成 → Laplace/Poisson → 二维热扩散项目 → 方法地图）落地后，**10–140 共十七门正式课全部齐线**：均配专属 viz、Python 实验和判题练习。本轮新增六个专属渲染器 `separation-mode` / `eigen-boundary` / `fourier-pde-synth` / `laplace-relax` / `heat2d-paint` / `pde-classifier`。
+第五批回填（分离变量 → 特征函数与边界 → Fourier 合成 → Laplace/Poisson → 二维热扩散项目 → 有限元入门 → 方法地图）落地后，**10–140 共十九门正式课全部齐线**：均配专属 viz、Python 实验和判题练习。本轮新增六个专属渲染器 `separation-mode` / `eigen-boundary` / `fourier-pde-synth` / `laplace-relax` / `heat2d-paint` / `pde-classifier`。
 
 ## 实战挑战 · 缸体出炉：从牛顿冷却到差分体检
 
@@ -151,7 +154,7 @@ print(round(u_new, 3))
 
 显式格式是**加上**扩散项：
 
-```python
+```py
 u_new = u[1] + r * (u[0] - 2 * u[1] + u[2])   # 1 + 0.5*(0 - 2 + 0)
 print(round(u_new, 3))                        # 0.0
 ```

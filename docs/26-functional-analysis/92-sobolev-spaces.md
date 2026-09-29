@@ -197,7 +197,7 @@ print(round(h1_sq, 3))
 
 $L^2$ 账本要先平方：$f(x)=\lvert x\rvert$ 的平方是 $x^2$。把那行改成 `x * x * dx`：
 
-```python
+```py
 total_f = total_f + x * x * dx
 ```
 

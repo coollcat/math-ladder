@@ -233,4 +233,4 @@ ERM：训练误差能算 → 泛化界：训练好≠测试好 → 容量：模�
 3. 每课 quiz 无 KaTeX、误区卡 2–3 条、选读或边界说明齐备。
 4. prereqs 无一条指向虚构 id（写作当时的 240/260/320=现第 38/40/45 章，均已建成）；grep 复核全部真实存在。
 5. 浏览器实测：vc-shatter 枚举、bias-variance-panel 滑块、double-descent-curve 峰移动、浮窗 Alt+P、路由往返无重复注入；360px + dark 无溢出。
-6. 报告写入 CONTENT_AUDIT.md，非阻塞项进 AUDIT_REPORTS/OPEN_ITEMS.md；ROADMAP 勾 checkbox。
+6. 报告写入 CONTENT_AUDIT.md，非阻塞项进 _ai-workspace/reports/OPEN_ITEMS.md；ROADMAP 勾 checkbox。

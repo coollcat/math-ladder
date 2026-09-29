@@ -1,5 +1,7 @@
 ---
 title: 第 8 章 · 数列与归纳法
+short: 数列归纳
+volume: 1
 description: 一格一格的数学：等差等比、Σ 求和记号与数学归纳法——通往无穷步的通行证。
 ---
 
@@ -68,9 +70,9 @@ print(total)
 验算代码：
 
 ```python
-seq = [1, 2]
-g = 3
-for i in range(6):
+seq = [1, 2, 3]      # 前三枚（等差段）
+g = 6                # 下一枚 = 3 × 2
+for i in range(6):   # 再把 a4…a9 补上
     seq.append(g)
     g = g * 2
 
@@ -107,7 +109,7 @@ print(total)
 
 Python 的 `range(a, b)` 生成 $a$ 到 $b-1$，**不含 $b$**。要累加到 100，终点必须写 101：
 
-```python
+```py
 for n in range(1, 101):    # 1 到 100（含两端）
     total = total + n
 print(total)               # 5050

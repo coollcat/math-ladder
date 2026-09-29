@@ -158,4 +158,4 @@
 4. 每课 quiz ≥1、误区卡 2–3 条；每课至少一个 viz 或 Python 可玩实验。
 5. `npm run validate && npm run build` 全绿；h2 计数体检一致；`\lbrace\rbrace` 替代行内花括号、显示公式单行。
 6. 浏览器抽测四组件 + exercise 流 + Alt+P 浮窗 + 路由切换；360px + dark 无溢出。
-7. 报告合并 `CONTENT_AUDIT.md`；非阻塞项入 `AUDIT_REPORTS/OPEN_ITEMS.md`；ROADMAP 补进度小节并勾选 math.comb 出生记录。
+7. 报告合并 `CONTENT_AUDIT.md`；非阻塞项入 `_ai-workspace/reports/OPEN_ITEMS.md`；ROADMAP 补进度小节并勾选 math.comb 出生记录。

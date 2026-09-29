@@ -259,7 +259,7 @@ print(out_d)
 
 修正后的参考答案（只动一行）：
 
-```python
+```py
 for i in range(0, len(x), 2):
     avg.append((x[i] + x[i + 1]) / 2)
     dif.append((x[i] - x[i + 1]) / 2)   # 除以 2：半份落差，拼回时不增不减

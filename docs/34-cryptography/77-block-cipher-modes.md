@@ -180,25 +180,22 @@ CBC 加密：$C_1=E_K(P_1\oplus\text{IV})=E_K(5\oplus4)=E_K(1)=1\times3=3$；$C_
 ```exercise
 # @title: 练习：修复 CBC 解密
 # @check: [5, 6]
-# @hint: CBC 解密时，用密文块（不是明文）参与异或
-def simple_encrypt(block, key):
-    return [(b + key) % 256 for b in block]
-
+# @hint: CBC 解密时，异或的另一半是**上一块密文**（第一块用 IV），而且 prev 也要跟着换成密文块
 def simple_decrypt(block, key):
     return [(b - key) % 256 for b in block]
 
 key = 7
 iv = [42, 42, 42, 42]
-cipher_blocks = [
-    simple_encrypt([5 ^ 42, 5 ^ 42, 5 ^ 42, 5 ^ 42], key),
-    simple_encrypt([6 ^ 5, 6 ^ 5, 6 ^ 5, 6 ^ 5], key),   # ← bug：应该异或前一块密文
-]
+# 发送方按 CBC 加密后收到的两块密文（这里的 E_K(x) = (x + key) % 256）：
+#   C1 = E_K(P1 ^ IV) = E_K(5 ^ 42) = 54
+#   C2 = E_K(P2 ^ C1) = E_K(6 ^ 54) = 55
+cipher_blocks = [[54, 54, 54, 54], [55, 55, 55, 55]]
 
 plaintext = []
 prev = iv
 for cb in cipher_blocks:
     decrypted = simple_decrypt(cb, key)
-    block = [d ^ p for d, p in zip(decrypted, prev)]  # prev 应该是密文块
+    block = [d ^ p for d, p in zip(decrypted, prev)]
     plaintext.append(block[0])
     prev = [block[0]] * 4   # ← bug：prev 应该更新为密文块，不是明文
 
@@ -209,18 +206,12 @@ print(plaintext)
 <summary>点开查看逐步解答</summary>
 
 ```python
-def simple_encrypt(block, key):
-    return [(b + key) % 256 for b in block]
-
 def simple_decrypt(block, key):
     return [(b - key) % 256 for b in block]
 
 key = 7
 iv = [42, 42, 42, 42]
-cipher_blocks = [
-    simple_encrypt([5 ^ 42, 5 ^ 42, 5 ^ 42, 5 ^ 42], key),
-    simple_encrypt([6 ^ 5, 6 ^ 5, 6 ^ 5, 6 ^ 5], key),
-]
+cipher_blocks = [[54, 54, 54, 54], [55, 55, 55, 55]]
 
 plaintext = []
 prev = iv
@@ -232,6 +223,15 @@ for cb in cipher_blocks:
 
 print(plaintext)  # [5, 6]
 ```
+
+关键在第一块之后 `prev` 是谁：CBC 解密要异或的是**上一块密文**（第一块用 IV）。
+初始代码把 `prev` 换成了刚解出来的明文，于是第二块拿 5 去异或，得到 53：
+
+- 初始：`55 - 7 = 48`，`48 ^ 5 = 53` → `[5, 53]`
+- 修复：`55 - 7 = 48`，`48 ^ 54 = 6` → `[5, 6]`
+
+（原先这题的初始代码把错误也写到了加密端，两个错误正好互相抵消——学生一行不改
+也能通过。现已把密文改成给定的字面值，bug 只剩解密端这一侧。）
 </details>
 
 ## 7. 选读：认证加密的演化史

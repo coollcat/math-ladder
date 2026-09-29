@@ -105,7 +105,7 @@ $$(a+b)^2 = 4ab + (a-b)^2 \;\ge\; 4ab$$
 
 1. 分子上的 $1$ 正好可以换成 $(x+y)$——这就是"1 的代换"：
 
-   $$\frac1x+\frac1y=\frac{x+y}{x}+\frac{x+y}{y}$$
+$$\frac1x+\frac1y=\frac{x+y}{x}+\frac{x+y}{y}$$
 
 2. 拆开：$\dfrac{x+y}{x}+\dfrac{x+y}{y}=1+\dfrac yx+\dfrac xy+1=2+\Big(\dfrac yx+\dfrac xy\Big)$；
 3. 对 $\dfrac yx$ 与 $\dfrac xy$ 这两个数用基本不等式：它们俩的**积**是 $1$，所以和 $\ge2\sqrt1=2$；

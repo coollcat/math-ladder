@@ -142,7 +142,7 @@ print(round(overshoot, 1))
 <details>
 <summary>点开查看逐步解答</summary>
 
-跳点应为：
+跳点应为 $\pi$ 处的值，峰值要在 $(0,\pi)$ 上扫描，三行打印一个都不能少：
 
 ```python
 import math
@@ -155,31 +155,20 @@ def partial(x):
         total = total + math.sin(n * x) / n
     return 4 * total / math.pi
 
-jump_value = partial(math.pi)
-```
-
-峰值要扫描：
-
-```python
-import math
-
-M = 9
-def partial(x):
-    total = 0.0
-    for j in range(1, M + 1):
-        n = 2 * j - 1
-        total = total + math.sin(n * x) / n
-    return 4 * total / math.pi
-
+jump_value = partial(math.pi)      # 跳点：π 处部分和收敛到左右平均值 0
 peak = 0.0
 for k in range(1, 10000):
     x = math.pi * k / 10000
     peak = max(peak, partial(x))
-
 overshoot = (peak - 1) * 50
+
+print(round(jump_value, 3))   # 0.0
+print(round(peak, 3))         # 1.18
+print(round(overshoot, 1))    # 9.0
 ```
 
-得到 `0.0`、`1.18`、`9.0`。
+初始代码把这三样都写死了（`jump_value = partial(math.pi / 2)`、`peak = jump_value`、
+`overshoot = 0.0`），只改其中一处是过不了的：跳点、峰值、过冲是三个独立的账。
 
 </details>
 

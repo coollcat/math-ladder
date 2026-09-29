@@ -89,9 +89,9 @@ $$\langle R_m q, R_n k \rangle = \langle q, R_{n-m} k \rangle$$
 
 1. **频率**：$\theta_0 = 10000^0 = 1$，$\theta_1 = 10000^{-0.5} = 0.01$
 2. **维度对 (0,1)**：旋转角 $= 1 \times 1 = 1$ 弧度
-   $$\begin{pmatrix} q_0' \\ q_1' \end{pmatrix} = \begin{pmatrix} \cos 1 & -\sin 1 \\ \sin 1 & \cos 1 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix} 0.5403 \\ 0.8415 \end{pmatrix}$$
+$$\begin{pmatrix} q_0' \\ q_1' \end{pmatrix} = \begin{pmatrix} \cos 1 & -\sin 1 \\ \sin 1 & \cos 1 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = \begin{pmatrix} 0.5403 \\ 0.8415 \end{pmatrix}$$
 3. **维度对 (2,3)**：旋转角 $= 1 \times 0.01 = 0.01$ 弧度
-   $$\begin{pmatrix} q_2' \\ q_3' \end{pmatrix} = \begin{pmatrix} \cos 0.01 & -\sin 0.01 \\ \sin 0.01 & \cos 0.01 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} \approx \begin{pmatrix} 1.0000 \\ 0.0100 \end{pmatrix}$$
+$$\begin{pmatrix} q_2' \\ q_3' \end{pmatrix} = \begin{pmatrix} \cos 0.01 & -\sin 0.01 \\ \sin 0.01 & \cos 0.01 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} \approx \begin{pmatrix} 1.0000 \\ 0.0100 \end{pmatrix}$$
 4. **结果**：$q' = [0.5403, 0.8415, 1.0000, 0.0100]^T$
 
 低维对旋转大角度（编码短距离关系），高维对旋转小角度（编码长距离关系）。

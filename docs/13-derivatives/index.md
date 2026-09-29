@@ -1,5 +1,7 @@
 ---
 title: 第 13 章 · 极限与导数
+short: 极限导数
+volume: 1
 description: 极限与导数：称量"一瞬间"的变化率，求导法则、链式法则与 sin/cos/e/ln 的导数。
 ---
 
@@ -136,7 +138,7 @@ print(round(slope))
 
 差商的定义是函数值之差**除以**自变量的差：
 
-```python
+```py
 slope = (f(x + h) - f(x)) / h   # 差分 ÷ 步长 = 平均变化率
 print(round(slope))             # 6
 ```

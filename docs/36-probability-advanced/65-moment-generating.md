@@ -166,7 +166,7 @@ print(mu_check)
 # @title: 练习：从矩母函数里请出 E[X]、E[X²] 与方差
 # @check: 3.5000
 # @check: 15.1667
-# @check: 2.9167
+# @check: 2.9166
 # @hint: Var = M''(0) − (M′(0))²——第二个 M' 要整体平方；差分模板 (M(h)−2M(0)+M(−h))/h² 别抄成除以 2h²。
 def mgf(t):                             # 骰子矩母函数
     total = 0.0
@@ -190,7 +190,7 @@ print(f"{variance:.4f}")
 
 两处修正：
 
-```python
+```py
 m2 = (mgf(h) - 2 * mgf(0) + mgf(-h)) / (h * h)      # 分母不带那颗多出来的 2
 variance = m2 - m1 * m1                              # 方差公式要的是平方项
 ```

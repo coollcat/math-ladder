@@ -23,6 +23,11 @@ exits:
   - research
 ---
 
+:::note[与别章的分工]
+谱聚类和 [PCA](../21-linear-algebra-advanced/60-pca-compression.md) 是同一套谱工具的两次使用：PCA 分解协方差矩阵，谱聚类分解图 Laplacian。本课假定你已经认识特征值与谱分解。
+:::
+
+
 # 谱聚类直觉
 
 ## 1. 开场钩子

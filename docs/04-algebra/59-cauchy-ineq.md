@@ -65,7 +65,7 @@ $$(a^2+b^2)(c^2+d^2)\;\ge\;(ac+bd)^2$$
 2. 展开右边：$(ac+bd)^2=a^2c^2+2abcd+b^2d^2$（完全平方公式，第 50 课配方的老朋友）；
 3. 相减，共用项两两抵消：
 
-   $$\text{左}-\text{右} = a^2d^2 - 2abcd + b^2c^2$$
+$$\text{左}-\text{右} = a^2d^2 - 2abcd + b^2c^2$$
 
 4. 认出完全平方：$a^2d^2-2abcd+b^2c^2=(ad)^2-2(ad)(bc)+(bc)^2=(ad-bc)^2$；
 5. 任何实数的平方都 $\ge0$（第 50 课的老底）：$\text{左}-\text{右}=(ad-bc)^2\ge0$，即左 $\ge$ 右。
@@ -100,7 +100,7 @@ $$(a^2+b^2)(c^2+d^2)\;\ge\;(ac+bd)^2$$
 1. 把左边摆成"两组平方和"的样子：取第一对 $(\sqrt a,\ \sqrt b)$、第二对 $\Big(\dfrac1{\sqrt a},\ \dfrac1{\sqrt b}\Big)$；
 2. 代柯西：
 
-   $$\Big((\sqrt a)^2+(\sqrt b)^2\Big)\Big(\frac1{(\sqrt a)^2}+\frac1{(\sqrt b)^2}\Big)\ \ge\ \Big(\sqrt a\cdot\frac1{\sqrt a}+\sqrt b\cdot\frac1{\sqrt b}\Big)^2$$
+$$\Big((\sqrt a)^2+(\sqrt b)^2\Big)\Big(\frac1{(\sqrt a)^2}+\frac1{(\sqrt b)^2}\Big)\ \ge\ \Big(\sqrt a\cdot\frac1{\sqrt a}+\sqrt b\cdot\frac1{\sqrt b}\Big)^2$$
 
 3. 化简：左边正是 $(a+b)\Big(\dfrac1a+\dfrac1b\Big)$，右边是 $(1+1)^2=4$；
 4. 取等：$ad=bc$ 即 $\sqrt a\cdot\dfrac1{\sqrt b}=\sqrt b\cdot\dfrac1{\sqrt a}$，交叉相乘得 $a=b$。

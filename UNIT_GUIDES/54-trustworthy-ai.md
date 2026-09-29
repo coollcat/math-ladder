@@ -214,4 +214,4 @@ Python 方面：只用已登记的 `math` / `random` / `statistics` / matplotlib
 4. 每处统计理论（假设检验、信息论、do 算子、VC/PAC）只到直觉层并显式移交卷四；每课 quiz、误区卡齐备；20→40（漂移破坏可交换性）与 30→60（鲁棒-公平张力）形成交叉引用小闭环。
 5. MDX 双坑体检：花括号用 `\lbrace`/`\rbrace`，显示公式一律单行；逐课比对源 `^## ` 数与产物 `<h2` 数。
 6. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；浏览器实测五组件交互、三类块与 Alt+P 浮窗、路由切换无重复注入；360px + dark 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`；未立项项（Platt scaling、指数机制、Shapley 精确计算、条件覆盖）登记 `AUDIT_REPORTS/OPEN_ITEMS.md`；ROADMAP/BACKFILL_LOG 台账由主线程更新。
+7. 结论合并进 `CONTENT_AUDIT.md`；未立项项（Platt scaling、指数机制、Shapley 精确计算、条件覆盖）登记 `_ai-workspace/reports/OPEN_ITEMS.md`；ROADMAP/BACKFILL_LOG 台账由主线程更新。

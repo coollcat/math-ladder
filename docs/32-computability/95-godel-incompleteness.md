@@ -166,7 +166,7 @@ print(encode("+"))
 
 补回幂运算即可：
 
-```python
+```py
 total = total * primes[i] ** alphabet[ch]
 ```
 

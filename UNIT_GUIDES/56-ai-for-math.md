@@ -229,4 +229,4 @@ index「计划交互形态」→ 组件映射：自然语言到命题转换器�
 4. 全章不出现 KaTeX 于 quiz/viz；画布文字纯文本记法（forall/and/or）。
 5. MDX 双坑体检：花括号用 \lbrace\rbrace；显示公式一律单行；逐课比对源 `^## ` 数与产物 `<h2` 数。
 6. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；浏览器实测三类交互块 + Alt+P 浮窗 + 路由切换无重复注入；360px + dark 无溢出。
-7. 结论合并进 CONTENT_AUDIT.md；非阻塞项登记 AUDIT_REPORTS/OPEN_ITEMS.md。
+7. 结论合并进 CONTENT_AUDIT.md；非阻塞项登记 _ai-workspace/reports/OPEN_ITEMS.md。

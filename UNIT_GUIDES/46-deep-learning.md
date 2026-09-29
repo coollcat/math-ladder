@@ -199,4 +199,4 @@
 4. 所有指向 GD 家族/优化器的承诺显式注明"完整版在第 43 章"；prereqs 只引用真实存在的 lesson_id（原注的 300/340 即现第 43/47 章，均已建成，可正常引用）。
 5. MDX 双坑体检：`\lbrace`/`\rbrace` 替代字面花括号；显示公式一律单行；逐课比对源 `^## ` 数与产物 `<h2` 数。
 6. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；浏览器实测三类块 + Alt+P 浮窗 + 路由切换无重复注入；360px 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`；GELU 家族、warmup、自动微分实现等未立项项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论合并进 `CONTENT_AUDIT.md`；GELU 家族、warmup、自动微分实现等未立项项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

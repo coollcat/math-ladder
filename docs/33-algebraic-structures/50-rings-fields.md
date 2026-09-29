@@ -162,9 +162,11 @@ for a in range(1, n):
     if makes_one:
         units.append(a)
 
-print(zero_divisors)
-print(units)
+print("zero_divisors=" + str(zero_divisors))
+print("units=" + str(units))
 ```
+
+（判题比的是这两行的完整文本，带标签。把中间量单独 `print` 出来会让输出对不上。）
 
 于是：
 

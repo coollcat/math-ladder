@@ -148,7 +148,9 @@ P = [[0.8, 0.3], [0.2, 0.7]]
 p00 = round(P[0][0] * P[0][0] + P[0][1] * P[1][0], 3)
 p10 = round(P[1][0] * P[0][0] + P[1][1] * P[1][0], 3)
 state = [p00, p10]
-print(state)
+print(state)                  # [0.7, 0.3]
+print(round(state[0], 3))     # 0.7
+print(round(state[1], 3))     # 0.3
 ```
 
 代入：

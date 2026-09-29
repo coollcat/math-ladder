@@ -1,5 +1,6 @@
 ---
 title: 第 18 章 · 数学语言与证明
+short: 数学语言
 description: 把直觉翻译成命题、量词、集合与证明结构，为卷二的严格数学打地基。
 volume: 2
 layer: L8
@@ -18,14 +19,17 @@ difficulty: 3
 1. [命题与联结词](./10-propositions-connectives.md)——把中文争论翻译成真假开关；
 2. [谓词与量词](./20-predicates-quantifiers.md)——钉住“所有”“存在”和论域边界；
 3. [集合、关系与函数](./30-sets-relations-functions.md)——用箭头纪律看清映射身份；
-4. [直接证明](./40-direct-proof.md)——从定义出发搭可检查的推理链；
-5. [反证与反例](./50-contradiction-counterexample.md)——分清推翻猜想与确立不可能；
-6. [归纳法进阶](./60-induction-advanced.md)——处理强递推和偏移起点；
-7. [证明写作自查清单](./70-proof-writing-checklist.md)——把“我觉得对”换成七个问题。
+4. [等价关系与等价类](./35-equivalence-relations.md)——同城的人自动分成一堆堆，看清怎样的关系才配叫“等价”；
+5. [偏序关系与良序](./37-partial-order-well-order.md)——选课依赖不是一条直线：有些课能比先后，有些根本不可比；
+6. [直接证明](./40-direct-proof.md)——从定义出发搭可检查的推理链；
+7. [反证与反例](./50-contradiction-counterexample.md)——分清推翻猜想与确立不可能；
+8. [归纳法进阶](./60-induction-advanced.md)——处理强递推和偏移起点；
+9. [可数与不可数](./65-countable-uncountable.md)——自然数和整数居然一样多、实数却更多，无穷也有不同大小；
+10. [证明写作自查清单](./70-proof-writing-checklist.md)——把“我觉得对”换成七个问题。
 
 ## 生产状态
 
-七门正式课已完成，配套 `truth-table`、`quantifier-hunt`、`set-mapper` 与 `proof-trail` 四类交互。
+十门正式课已完成，配套 `truth-table`、`quantifier-hunt`、`set-mapper` 与 `proof-trail` 四类交互。
 
 ## 实战挑战 · 真假话推理
 
@@ -152,7 +156,7 @@ print(implies(True, True))
 
 蕴含 $p \to q$ 只在 $p$ 真、$q$ 假时为假，其余三种情况都为真：
 
-```python
+```py
 def implies(p, q):
     return not (p and not q)   # 取反："p 真且 q 假"的否定 = 蕴含成立
 ```

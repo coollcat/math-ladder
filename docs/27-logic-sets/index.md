@@ -1,5 +1,6 @@
 ---
 title: 第 27 章 · 逻辑与集合
+short: 逻辑集合
 description: 用命题、谓词、关系与基数建立计算机和严格数学共享的语言。
 volume: 3
 layer: L4
@@ -26,12 +27,6 @@ difficulty: 3
 
 本章你会学到：
 
-1. [命题逻辑与自然演绎](./10-propositional-deduction.md)——第 18 章你已经会写 p⇒q 这类真值表了；
-2. [谓词、量词与模型](./20-predicates-models.md)——第 18 章你见过 ∀（所有）和 ∃（存在），也知道量词顺序一换含义就变；
-3. [集合运算与证明](./30-set-algebra.md)——购物网站的商品筛选器是集合运算的日常马甲；
-4. [关系、等价与序](./40-relations-equivalence-order.md)——同一个班级里藏着两套完全不同的"关系网"；
-5. [函数、单射满射与双射](./50-functions-injective-surjective.md)——第 18 章你已经知道函数是"每个输入恰好一个出口"的箭头纪律；
-6. [可数性与基数入门](./60-countability-cardinality.md)——希尔伯特旅馆有无穷多个房间，客满。
 
 ## 前置回望
 

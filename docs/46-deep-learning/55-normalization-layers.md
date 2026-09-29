@@ -155,14 +155,14 @@ print(round(sum(base), 4))
 
 两处修正一行一处：
 
-```python
+```py
 var = sum((v - mu) ** 2 for v in vals) / n          # 有偏口径
 return [o * gamma + beta for o in out]              # 先 ×γ 再 +β
 ```
 
-修正后三条打印依次落到：
+修正后三条打印依次落到（这是接在题干那段代码后面跑的片段，不是独立程序）：
 
-```python
+```py
 print(round(base[0], 4))        # −1.2247 —— γ=1、β=0 的基准组，第一分量
 print(round(fixed[0], 4))       # −1.9495 —— γ=2、β=0.5 的仿射组，第一分量
 print(round(sum(base), 4))      # 0.0 —— 三分量之和恰为零的守恒验证

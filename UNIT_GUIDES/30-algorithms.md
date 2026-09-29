@@ -167,4 +167,4 @@
 4. 每课 quiz ≥1、误区卡 2–3 条、每课 ≥1 个可玩交互（组件或 Python 实验）。
 5. `npm run validate && npm run build` 全绿；h2 计数体检一致；行内花括号用 `\lbrace\rbrace`、显示公式单行。
 6. 浏览器抽测五组件交互 + exercise 流 + Alt+P 浮窗 + 路由切换无重复注入；360px + dark 无溢出。
-7. 报告合并 `CONTENT_AUDIT.md`；非阻塞项入 `AUDIT_REPORTS/OPEN_ITEMS.md`；ROADMAP 补本章进度小节。
+7. 报告合并 `CONTENT_AUDIT.md`；非阻塞项入 `_ai-workspace/reports/OPEN_ITEMS.md`；ROADMAP 补本章进度小节。

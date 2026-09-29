@@ -221,4 +221,4 @@
 4. 全章统一 λ 符号约定（L=f+λ(g−b) 口径），70/80 两课与 quiz 解释不得互相矛盾。
 5. prereqs 无一条指向虚构 id（写作当时的 310/320=现第 44/45 章，均已建成）；grep 复核全部真实存在且排前。
 6. 浏览器实测：chord 拖拽扫描、step-size 相图点击发射、race 多优化器同屏、KKT 平衡徽标、Alt+P 浮窗、路由往返无重复注入；360px + dark 无溢出。
-7. 报告写入 CONTENT_AUDIT.md，非阻塞项进 AUDIT_REPORTS/OPEN_ITEMS.md；ROADMAP 勾 checkbox。
+7. 报告写入 CONTENT_AUDIT.md，非阻塞项进 _ai-workspace/reports/OPEN_ITEMS.md；ROADMAP 勾 checkbox。

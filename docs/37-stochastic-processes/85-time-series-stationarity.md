@@ -165,7 +165,7 @@ print(verdict)
 
 修正后的计算直接落在原始序列上：
 
-```python
+```py
 half = len(raw) // 2              # = 4
 first = avg(raw[:half])           # 前 4 天：(0+1+2+3)/4 = 1.5
 second = avg(raw[half:])          # 后 4 天：(4+5+6+7)/4 = 5.5

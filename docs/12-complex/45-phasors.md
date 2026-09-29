@@ -152,7 +152,7 @@ print(round(angle))
 
 `math.cos(90)` 里塞进去的是 **90 弧度**而不是 90 度——三角函数家族一律吃弧度。修复一行：
 
-```python
+```py
 bx = 4 * math.cos(math.radians(90))
 by = 4 * math.sin(math.radians(90))   # radians：度换弧度的翻译官
 ```

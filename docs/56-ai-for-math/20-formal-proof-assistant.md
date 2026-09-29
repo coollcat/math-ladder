@@ -201,7 +201,7 @@ print(check())
 
 在 `check()` 里加分支：
 
-```python
+```py
 if rule == "and":
     if prem_row < 1 or arrow_row < 1 or prem_row > len(lines) or arrow_row > len(lines):
         return "引用越界"

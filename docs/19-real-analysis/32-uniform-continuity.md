@@ -165,7 +165,7 @@ print("uniform" if delta < epsilon else "leaked")
 
 扫描本身是对的：$[0,1]$ 上最陡割线出现在 $x=0.99$ 处，$\dfrac{1^2-0.99^2}{0.01}=1.99$。错在反推方向——斜率越陡，$\delta$ 必须越小，所以是**除**不是乘：
 
-```python
+```py
 delta = epsilon / worst
 ```
 

@@ -219,4 +219,4 @@ Python 方面：全章只用已登记的 `math` / `random` / `statistics` / matp
 4. 每课 quiz、误区卡齐备；60/70 互相引用形成「现代 vs 经典」对照小闭环；80 结尾与第 60 章互链兑现生产承诺。
 5. MDX 双坑体检：矩阵公式用 `\begin{pmatrix}`（KaTeX 环境内安全，勿写转义花括号 `\{`/`\}`，集合记号改 `\lbrace`/`\rbrace`），显示公式一律单行；逐课比对源 `^## ` 数与产物 `<h2` 数。
 6. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；浏览器实测五组件拖拽、三类块与 Alt+P 浮窗、路由切换无重复注入；360px + dark 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`，未立项项（Ziegler-Nichols 整定、LQG、离散控制、Gramian）登记 `AUDIT_REPORTS/OPEN_ITEMS.md`；ROADMAP/BACKFILL_LOG 台账由主线程更新。
+7. 结论合并进 `CONTENT_AUDIT.md`，未立项项（Ziegler-Nichols 整定、LQG、离散控制、Gramian）登记 `_ai-workspace/reports/OPEN_ITEMS.md`；ROADMAP/BACKFILL_LOG 台账由主线程更新。

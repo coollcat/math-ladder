@@ -1,5 +1,7 @@
 ---
 title: 第 3 章 · 幂、根与对数
+short: 幂根对数
+volume: 1
 description: 乘方、开方与对数：连乘记号的三副面孔，以及科学记数法这张大数的"名片"。
 introduces_import:
   - math
@@ -15,9 +17,11 @@ introduces_math:
 2. [负整数指数幂：倒数换座位](./15-negative-exponent.md)——指数减到负数怎么办？换座位到分母：$a^{-n}=\frac{1}{a^n}$；
 3. [平方根：已知面积求边长](./20-sqrt.md)——谁的平方是 144？反向提问催生 `math.sqrt`；
 4. [分数指数：开一般次方](./30-fractional-exponent.md)——指数律逼出 $x^{0.5}=\sqrt{x}$；
-5. [对数：指数的反问句](./40-log.md)——"2 的几次方等于 8？"对数就是这句反问，`math.log` 在此诞生；
-6. [科学计数法：给数字分级](./50-sci-notation.md)——用 10 的幂驯服天文数字，建立数量级直觉；
-7. [三条曲线：谁长得快](./60-three-curves.md)——$x^2$、$\sqrt{x}$、$2^x$ 赛跑：指数终将碾压一切。
+5. [幂函数族：指数固定，底数在动](./35-power-function.md)——把指数钉死，看 $x^a$ 随底数变化连成一族曲线：五条典型形状、随 $a$ 变化的定义域、第一象限里的两段比大小；
+6. [对数：指数的反问句](./40-log.md)——"2 的几次方等于 8？"对数就是这句反问，`math.log` 在此诞生；
+7. [指数函数与对数函数：互为反函数的孪生兄妹](./45-exp-log-functions.md)——把"指数增长"从离散的逐次相乘升级成连续曲线，对数则是它的镜像；`math.exp` 与 `math.atanh` 的家族在此补全；
+8. [科学计数法：给数字分级](./50-sci-notation.md)——用 10 的幂驯服天文数字，建立数量级直觉；
+9. [三条曲线：谁长得快](./60-three-curves.md)——$x^2$、$\sqrt{x}$、$2^x$ 赛跑：指数终将碾压一切。
 
 本章诞生三个工具：内置函数 `pow()`、数学库的 `math.sqrt` 与 `math.log`——照惯例，每个工具都先手写一遍再宣布。学完这章，你将拥有描述"增长"与"爆炸"的全部语言。
 
@@ -72,8 +76,8 @@ m_small = 6.0
 
 amp_ratio = 10 ** (m_big - m_small)              # 振幅比：10 的震级差次方
 energy_ratio = 10 ** (1.5 * (m_big - m_small))   # 能量比：对数差还原成幂
-print(f"振幅比 {amp_ratio}")
-print(f"能量比 {energy_ratio}")
+print(amp_ratio)
+print(energy_ratio)
 ```
 
 输出 `100.0` 与 `1000.0`——末尾的 `.0` 是浮点的着装习惯，数值分毫不差。
@@ -127,7 +131,7 @@ print(f"阶码: 菌群 {order(colony)}, 地球 {order(earth)}")
 
 修正后的关键代码：
 
-```python
+```py
 colony = 2 ** rounds          # 幂记号：72 轮翻倍
 
 n = 0                         # 轮次计数器从 0 起步

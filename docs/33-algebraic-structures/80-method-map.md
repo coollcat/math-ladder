@@ -152,7 +152,7 @@ labels=group-ring-field
 
 初始代码可以把三个标签依次连接：
 
-```python
+```py
 labels = "group-" + "ring-" + "field"
 ```
 

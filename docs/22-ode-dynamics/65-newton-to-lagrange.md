@@ -178,7 +178,7 @@ print(int(T + V))
 
 核对目标：动能属于"转动的账"，公式是 $\tfrac12I\omega^2$。转动惯量那行没毛病：$I=\dfrac{ml^2}{3}=\dfrac{2\times9}{3}=6$；问题出在调用处把 $\omega^2$ 和前面的 $\tfrac12$ 都丢了。正确写法：
 
-```python
+```py
 return inertia * w ** 2 / 2      # 动能 = I*w^2/2
 ```
 

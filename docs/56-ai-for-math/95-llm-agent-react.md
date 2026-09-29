@@ -145,7 +145,7 @@ print(final)
 
 第二拍要喂回第一拍的观察：
 
-```python
+```py
 o1 = double(x)                  # 3 → 6
 o2 = double(o1)                 # 6 → 12：上一拍的观察是这一拍的输入
 final = o2 - 2                  # 12 → 10

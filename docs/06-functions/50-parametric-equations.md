@@ -173,7 +173,7 @@ land_t = vy / g      # ← 你把哪个时刻当成了落地？
 land_x = vx * land_t
 print(round(land_x))
 
-apex_t = vy / (g / 2)
+apex_t = vy / g
 apex_y = vy * apex_t - 5 * apex_t ** 2   # ** 表示乘方：5*t²
 print(round(apex_y))
 ```
@@ -198,7 +198,7 @@ land_t = vy / (g / 2)             # 高度清零：由 8t − 5t² = 0 解出
 land_x = vx * land_t
 print(round(land_x))
 
-apex_t = vy / (g / 2)             # 最高点：竖直速度清零处
+apex_t = vy / g                   # 最高点：竖直速度清零处（8/10 = 0.8 秒）
 apex_y = vy * apex_t - 5 * apex_t ** 2
 print(round(apex_y))
 ```

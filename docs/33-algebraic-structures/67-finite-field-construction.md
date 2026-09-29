@@ -181,8 +181,8 @@ $f(0)=1\ne0$，$f(1)=1+1+1=1\ne0$，无一次因子。$F_2$ 上二次不可约�
 
 ```exercise
 # @title: 练习：F_{16} 乘法修正
-# @check: 6
-# @check: 11
+# @check: 15
+# @check: 4
 # @hint: 乘法是多项式乘法后模不可约多项式；加法是异或
 def gf16_mul(a, b, mod=0b10011):
     # F_{2^4} 乘法：不可约多项式 x^4+x+1 = 0b10011
@@ -191,13 +191,12 @@ def gf16_mul(a, b, mod=0b10011):
         if b & 1:
             result = result ^ a
         a = a << 1
-        if a & 16:              # 溢出到第 5 位
-            a = a ^ mod         # 模不可约多项式
-        b = b + 1               # ← bug：应该是右移不是加 1
+        # ← bug：少了「溢到第 5 位就模不可约多项式」那一步
+        b = b >> 1
     return result
 
-print(gf16_mul(3, 5))   # 应为 6
-print(gf16_mul(7, 11))  # 应为 11（可验证）
+print(gf16_mul(3, 5))   # 应为 15 = x^3+x^2+x+1
+print(gf16_mul(7, 11))  # 应为 4 = x^2
 ```
 
 <details>
@@ -210,14 +209,19 @@ def gf16_mul(a, b, mod=0b10011):
         if b & 1:
             result = result ^ a
         a = a << 1
-        if a & 16:
-            a = a ^ mod
-        b = b >> 1               # 修复：右移一位
+        if a & 16:              # 溢出到第 5 位
+            a = a ^ mod         # 模不可约多项式 x^4+x+1
+        b = b >> 1
     return result
 
-print(gf16_mul(3, 5))   # 6
-print(gf16_mul(7, 11))  # 11
+print(gf16_mul(3, 5))   # 15：(x+1)(x^2+1) = x^3+x^2+x+1，还没到 5 次，不用约化
+print(gf16_mul(7, 11))  # 4：(x^2+x+1)(x^3+x+1) = x^5+x^4+1 ≡ x^2
 ```
+
+**为什么第二行是 4**：$(x^2+x+1)(x^3+x+1)=x^5+x^4+1$（中间项在 $F_2$ 上成对抵消）。
+再用 $x^4\equiv x+1$ 约化：$x^5=x\cdot x^4\equiv x(x+1)=x^2+x$，于是
+$x^5+x^4+1\equiv(x^2+x)+(x+1)+1=x^2$，即 `0b0100` = 4。
+少了约化那一步的话两次乘法都会偏大（第二行会得到 49）——多项式乘法必须回到 4 次以下才是域里的元素。
 </details>
 
 ## 7. 选读：所有同阶有限域都是同构的

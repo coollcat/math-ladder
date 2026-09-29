@@ -164,4 +164,4 @@
 5. MDX 双坑自检：花括号用 `\lbrace`/`\rbrace`（Beta(a,b) 记号无需花括号，若写集合务必替换）；显示公式一律单行；改完跑 h2 计数体检。
 6. prereqs 全部 grep 核实存在且更前（含跨章 inference/sampling-distribution）。
 7. `npm run validate` → `npm run build` 全绿；手测三类互动块、Alt+P 浮窗、路由切换无重复注入；360px + dark 无溢出。
-8. 报告合并进 `CONTENT_AUDIT.md`；回填候选登记 `AUDIT_REPORTS/OPEN_ITEMS.md`：`bayes-bars` → 未来 42-causal-inference 干预直觉课，`shrinkage-lab` → 45-ml-math 正则化课。
+8. 报告合并进 `CONTENT_AUDIT.md`；回填候选登记 `_ai-workspace/reports/OPEN_ITEMS.md`：`bayes-bars` → 未来 42-causal-inference 干预直觉课，`shrinkage-lab` → 45-ml-math 正则化课。

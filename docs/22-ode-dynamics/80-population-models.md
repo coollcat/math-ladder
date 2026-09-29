@@ -185,7 +185,6 @@ plt.show()
 ```exercise
 # @title: 练习：再生数判据与一步更新的双笔账
 # @check: 200
-# @check: 50
 # @check: 899
 # @check: 100
 # @hint: R0 和阈值互为倒数，别把 β/γ 又写成 γ/β；更新 I 时减去 gamma*i*h 那一笔"出院流水"，疫情才有止境。
@@ -195,7 +194,7 @@ h = 0.02           # 步长（合适的时间小份）
 beta = 0.5         # 传播强度
 gamma = 0.25       # 康复率
 
-print(round(100 * (gamma / beta)))    # ← 第一处想当然：把比值写反了
+print(round(100 * (gamma / beta)))    # ← 第一处想当然：这里该印的是 R0 = β/γ
 s_new = s - h * beta * s * i          # 这一行是对的
 i_new = i + h * beta * s * i          # ← 第二处想当然：少了治愈退场的一笔
 print(round(1000 * s_new))
@@ -209,7 +208,7 @@ print(round(1000 * i_new))
 
 第二问：感染仓室有进水管也有出水管，正确的一步是：
 
-```python
+```py
 s_new = s - h * beta * s * i                          # 0.8991 → 放大一千倍 899
 i_new = i + h * (beta * s * i - gamma * i)            # 0.1004 → 放大一千倍 100
 ```

@@ -183,4 +183,4 @@
 4. MDX 双坑自检：行内花括号一律 `\lbrace`/`\rbrace`，显示公式单行；改完做 h2 计数体检（源 `^## ` 行数 vs 产物 `<h2` 数）。
 5. prereqs 全部 grep 核实存在且更前；严禁引用 220/230（写作当时=现第 36/37 章，尚未落盘；现已建成，按 validate 规则可正常引用）的课程 id。
 6. `npm run validate` → `npm run build` 全绿；浏览器手测 python/quiz/exercise 三类块、Alt+P 浮窗与路由切换无重复注入；360px + dark 无溢出。
-7. 报告合并进 `CONTENT_AUDIT.md`；回填候选登记 `AUDIT_REPORTS/OPEN_ITEMS.md`：`power-grid`/`ci-resample` → 未来 54-trustworthy-ai 校准课，`mle-curve` → 45-ml-math 逻辑回归课。
+7. 报告合并进 `CONTENT_AUDIT.md`；回填候选登记 `_ai-workspace/reports/OPEN_ITEMS.md`：`power-grid`/`ci-resample` → 未来 54-trustworthy-ai 校准课，`mle-curve` → 45-ml-math 逻辑回归课。

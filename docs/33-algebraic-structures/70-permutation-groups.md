@@ -124,8 +124,8 @@ for i in range(len(sigma)):
     composition[i] = sigma[tau[i]]
     sigma_inverse[sigma[i]] = i
 
-print(composition)
-print(sigma_inverse)
+print("composition=" + str(composition))
+print("sigma_inverse=" + str(sigma_inverse))
 ```
 
 于是：

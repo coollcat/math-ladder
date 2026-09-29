@@ -148,7 +148,7 @@ $$2-1.5=0.5.$$
 
 正确代码要把贡献前加负号，并用减法求节省量。
 
-```python
+```py
 probabilities = [0.5, 0.25, 0.25]
 entropy = 0
 for p in probabilities:

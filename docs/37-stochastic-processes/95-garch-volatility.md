@@ -150,4 +150,4 @@ ARCH(1) 只记住最近一次冲击，适合解释“今天的大跌让明天也
 
 ## 8. 下一站
 
-GARCH 适合描述具有波动聚集的收益序列；若要继续追踪随机过程的连续演化，可回到[鞅直觉](/docs/stochastic-processes/martingale-intuition)，再进入随机分析。
+GARCH 适合描述具有波动聚集的收益序列；若要继续追踪随机过程的连续演化，可回到[鞅直觉](./90-martingale-intuition.md)，再进入随机分析。

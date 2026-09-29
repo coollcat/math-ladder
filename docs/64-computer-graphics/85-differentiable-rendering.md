@@ -175,7 +175,7 @@ for step in range(3):
 
 补上链式法则的最后一环——渲染式 $I = x\,a$ 对 $a$ 求导得 $\partial I/\partial a = x = 2$：
 
-```python
+```py
     g = 2 * err * x             # dL/da = 2·err·x
 ```
 

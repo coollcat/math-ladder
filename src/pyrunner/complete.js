@@ -4,9 +4,12 @@
  * 刻意不做语言服务器：课程里的代码全是短片段，真正需要的只是
  * 「关键字 / 内置函数 / 我在这段代码里自己起过的名字 / 我在控制台里定义过的变量」
  * 这四类词的提示。实现就是一个候选数组 + 一个绝对定位的小列表：
- *   - Ctrl+空格：手动唤出；
+ *   - Ctrl+空格 / Ctrl+Alt+空格：手动唤出（后者避开中文输入法的中英切换键）；
  *   - Tab：有候选就直接补全，没有候选就照旧缩进两格；
  *   - ↑↓ 选、回车/Tab 接受、Esc 关掉（Esc 会拦下来，不会顺带关掉浮窗）。
+ *
+ * 候选框带 listbox/option 语义，textarea 上挂 aria-activedescendant，
+ * 读屏用户至少知道「这里有一个候选列表、当前高亮哪一项」。
  *
  * 候选来源（按顺序权重递减）：
  *   1. 静态词表（关键字 + 常用内置）；
@@ -111,6 +114,7 @@ function paint() {
   const el = ensurePopup();
   if (!state || !state.items.length) {
     el.style.display = 'none';
+    if (state && state.ta) state.ta.removeAttribute('aria-activedescendant');
     return;
   }
   el.innerHTML = '';
@@ -118,12 +122,21 @@ function paint() {
     const li = document.createElement('div');
     li.className = 'ml-ac__item' + (i === state.index ? ' is-active' : '');
     li.dataset.i = String(i);
+    /* listbox/option 语义：读屏用户至少知道「这里有一个候选列表」，
+       以及当前高亮的是哪一项（配合 textarea 上的 aria-activedescendant）。 */
+    li.setAttribute('role', 'option');
+    li.id = 'ml-ac-opt-' + i;
+    li.setAttribute('aria-selected', i === state.index ? 'true' : 'false');
     const b = document.createElement('b');
     b.textContent = w.slice(0, state.tail.length);
     li.appendChild(b);
     li.appendChild(document.createTextNode(w.slice(state.tail.length)));
     el.appendChild(li);
   });
+  el.setAttribute('role', 'listbox');
+  el.setAttribute('aria-label', '代码补全候选');
+  state.ta.setAttribute('aria-activedescendant', 'ml-ac-opt-' + state.index);
+  state.ta.setAttribute('aria-autocomplete', 'list');
   el.style.display = 'block';
   const { left, top } = caretXY(state.ta);
   const w = el.offsetWidth;
@@ -199,6 +212,11 @@ export function attachComplete(ta) {
   };
 
   const onKeydown = (ev) => {
+    /* 唤出补全：Ctrl+空格 是**中文输入法切换**的默认键，Windows 上常常被系统吃掉
+       （本站是中文教程，用户多数挂着中文输入法）。所以：
+         · Ctrl+空格        —— 老习惯，能用就继续用；
+         · Ctrl+Alt+空格    —— 与输入法不冲突的那一个（ctrlKey 同样为真，上面这条就认）；
+         · 直接打两个字母再按 Tab —— 最稳的一条路（见本文件末尾的 Tab 分支）。 */
     if ((ev.ctrlKey || ev.metaKey) && ev.code === 'Space') {
       swallow(ev);
       open(ta, extras);
@@ -247,6 +265,13 @@ export function attachComplete(ta) {
     }, 0);
   };
   const onScroll = () => {
+    /* 候选框挂在 document.body 上，而 ta 可能已经被重建（笔记本每次
+       renderCells 都会换掉全部 textarea）。脱离文档的节点 getBoundingClientRect()
+       全是 0，会把候选框画到视口左上角——先确认还连着文档。 */
+    if (!ta.isConnected) {
+      if (isOpen()) close();
+      return;
+    }
     if (isOpen()) paint();
   };
 

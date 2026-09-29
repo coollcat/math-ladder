@@ -43,4 +43,4 @@
 1. 六门正式课均含九段式骨架、判题 exercise 和误区卡。
 2. 章首页包含真实场景综合大题，判题链需保持“初始错、修后中”。
 3. `npm run validate`、`npm run build`、`node mechanical-audit.cjs`、h2 对比和浏览器抽测全绿后才能宣布收口。
-4. P2 升级项登记到 `AUDIT_REPORTS/OPEN_ITEMS.md`，不在正式课里虚报已实现。
+4. P2 升级项登记到 `_ai-workspace/reports/OPEN_ITEMS.md`，不在正式课里虚报已实现。

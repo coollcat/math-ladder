@@ -1,5 +1,7 @@
 ---
 title: 第 1 章 · 算术四则
+short: 算术四则
+volume: 1
 description: 从加法交换律到负数运算：用一万次随机实验和图形重新审视你最熟悉的四则运算。
 ---
 
@@ -52,7 +54,7 @@ print(f"对比: {a} 和 {b}")
 
 修好后的关键行：
 
-```python
+```py
 each = candies // people
 a = 2 + 3 * 4 - 8 // 2
 ```

@@ -170,7 +170,7 @@ print("rational=" + str(flip([4, 0])))
 
 正确写法是只翻第二格：
 
-```python
+```py
 def flip(z):
     return [z[0], -z[1]]
 ```

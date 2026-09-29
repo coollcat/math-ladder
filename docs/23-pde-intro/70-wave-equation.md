@@ -159,7 +159,7 @@ print(round(speed, 3))
 
 修正后的账本：
 
-```python
+```py
 import math
 x0 = 3.0
 a = 2.0

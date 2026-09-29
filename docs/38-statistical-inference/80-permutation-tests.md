@@ -217,7 +217,7 @@ print(round(hits / worlds, 4))
 
 修法只在第二层循环一行：`for j in range(i + 1, 4):`。其余逻辑原样保留：
 
-```python
+```py
 for i in range(4):
     for j in range(i + 1, 4):        # 只许 i 身后的人入伙
         pair = [scores[i], scores[j]]

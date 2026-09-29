@@ -25,6 +25,11 @@ exits:
   - robotics-motion/manipulator-dynamics
 ---
 
+:::note[与别章的分工]
+本课是**分析力学的拉格朗日方程**（用广义坐标写动力学）；它的数学祖先是 [变分法的 Euler-Lagrange 方程](../26-functional-analysis/95-calculus-of-variations.md)，而与 [约束优化的乘数法](../43-optimization/40-lagrange-multipliers.md) 只是同名。
+:::
+
+
 # 广义坐标与拉格朗日方程：动力学的系统化写法
 
 ## 1. 从一个场景开始

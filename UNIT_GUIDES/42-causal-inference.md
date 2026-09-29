@@ -236,4 +236,4 @@
 3. 第 10 课的条件概率速成自足可读——屏蔽第 36/38 章链接后课程依然闭环。
 4. 每课 quiz 无 KaTeX；误区卡覆盖本指南列出的条目；`backdoor-path-finder` 在 360px 宽度下节点不重叠或可纵向滚动。
 5. 浏览器实测：图编辑器增删箭头、双联画粒子流、路径勾选重判、孪生世界滑块、Alt+P 浮窗、路由往返无重复注入。
-6. 报告写入 CONTENT_AUDIT.md，非阻塞项进 AUDIT_REPORTS/OPEN_ITEMS.md；ROADMAP 勾 checkbox 并登记上游章节完成后的 prereqs 回填项。
+6. 报告写入 CONTENT_AUDIT.md，非阻塞项进 _ai-workspace/reports/OPEN_ITEMS.md；ROADMAP 勾 checkbox 并登记上游章节完成后的 prereqs 回填项。

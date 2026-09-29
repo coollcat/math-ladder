@@ -96,43 +96,66 @@ $$\min\; \mu\, c^{\mathsf T}x+\phi(x)$$
 ```python title="用牛顿法追踪中心路径，看迭代点如何从内部逼近最优顶点"
 import math
 
-def barrier_grad(x1, x2, mu):
-    """障碍子问题的梯度：mu*c + grad(phi)
-    c = (-3, -2)，所以 mu*c = (-3*mu, -2*mu)
-    grad(phi) = (-1/x1, -1/x2)
+def phi(x1, x2, mu):
+    """障碍子问题的目标：mu*c^T x 减去 mu 倍的障碍项
+    障碍项把两条不等式约束的松弛变量也算进来：
+    s1 = 4 - x1 - x2、s2 = 6 - x1 - 3*x2，都必须严格为正
     """
-    g1 = -3 * mu - 1 / x1   # 对 x1 的偏导
-    g2 = -2 * mu - 1 / x2   # 对 x2 的偏导
-    return g1, g2
+    s1 = 4 - x1 - x2
+    s2 = 6 - x1 - 3 * x2
+    return -3 * x1 - 2 * x2 - mu * (math.log(x1) + math.log(x2) + math.log(s1) + math.log(s2))
 
-def barrier_hess(x1, x2):
-    """障碍函数的 Hessian 矩阵（对角阵）"""
-    return 1 / (x1 * x1), 1 / (x2 * x2)
+def grad_hess(x1, x2, mu):
+    """梯度与 Hessian（2×2，手推：把 s1、s2 也当 x 的函数求导）
+    d/dx1 的部分：-3 - mu/x1 + mu/s1 + mu/s2
+    """
+    s1 = 4 - x1 - x2
+    s2 = 6 - x1 - 3 * x2
+    g1 = -3 - mu / x1 + mu / s1 + mu / s2
+    g2 = -2 - mu / x2 + mu / s1 + 3 * mu / s2
+    h11 = mu * (1 / (x1 * x1) + 1 / (s1 * s1) + 1 / (s2 * s2))
+    h22 = mu * (1 / (x2 * x2) + 1 / (s1 * s1) + 9 / (s2 * s2))
+    h12 = mu * (1 / (s1 * s1) + 3 / (s2 * s2))
+    return g1, g2, h11, h12, h22
 
-# 沿中心路径追踪：从 mu=2 衰减到 mu=0.001
+# 沿中心路径追踪：mu 从 2 衰减到 0.001
 x1, x2 = 0.5, 0.5          # 从可行域内部出发
 mu = 2.0
 path = [(x1, x2)]
 
 while mu > 0.001:
-    for _ in range(20):      # 每个 mu 下做几步牛顿迭代
-        g1, g2 = barrier_grad(x1, x2, mu)
-        h1, h2 = barrier_hess(x1, x2)
-        x1 = x1 - g1 / h1   # 牛顿步：梯度除以二阶导
-        x2 = x2 - g2 / h2
-        x1 = max(x1, 1e-8)  # 保证严格为正（内点约束）
-        x2 = max(x2, 1e-8)
+    for _ in range(6):                       # 每个 mu 下做几步阻尼牛顿
+        g1, g2, h11, h12, h22 = grad_hess(x1, x2, mu)
+        det = h11 * h22 - h12 * h12
+        d1 = (-g1 * h22 + g2 * h12) / det    # 解 2×2 方程组 H·d = -g
+        d2 = (-g2 * h11 + g1 * h12) / det
+        t = 1.0                              # 回溯直线搜索：保证一步不跨出边界
+        while t > 1e-6:
+            n1, n2 = x1 + t * d1, x2 + t * d2
+            if (n1 > 0 and n2 > 0 and 4 - n1 - n2 > 0 and 6 - n1 - 3 * n2 > 0
+                    and phi(n1, n2, mu) <= phi(x1, x2, mu)):
+                break
+            t = t * 0.5
+        x1, x2 = x1 + t * d1, x2 + t * d2
     path.append((x1, x2))
     mu = mu * 0.5            # mu 每次减半
 
-print("中心路径轨迹（前 5 个点）:")
-for i, (a, b) in enumerate(path[:5]):
-    print(f"  mu≈{2*(0.5**i):.3f}: x=({a:.3f}, {b:.3f})")
+print("中心路径轨迹（每个 mu 一个点）:")
+for i, (a, b) in enumerate(path):
+    print(f"  mu≈{2 * (0.5 ** i):.4f}: x=({a:.3f}, {b:.3f})  目标={-3 * a - 2 * b:.3f}")
 print(f"终点: x=({x1:.3f}, {x2:.3f})")
-print(f"目标值: {-3*x1 - 2*x2:.3f}")  # 应接近 -12
+print(f"目标值: {-3 * x1 - 2 * x2:.3f}")  # 应接近 -12
 ```
 
 运行结果：迭代点从 $(0.5, 0.5)$ 出发，沿中心路径逐步逼近 $(4.0, 0.0)$ 附近，目标值趋近 $-12$。全程 $x_1, x_2$ 始终为正——**没有一次碰过约束边界**，这正是"内点"之名的由来。
+
+:::tip[这版代码为什么把 s₁、s₂ 也算进障碍项]
+只对 $x_1,x_2>0$ 加障碍是不够的：那等于扔掉了 $x_1+x_2\le4$ 与 $x_1+3x_2\le6$，
+子问题就变成无下界的 $\min -3x_1-2x_2$（$x$ 越大越好），牛顿法会一路冲到溢出、
+`h = 1/x²` 变成 0 直接抛 ZeroDivisionError。
+把两条不等式约束的松弛变量一起加进对数障碍，子问题才有唯一极小点，
+中心路径也才真的通向 $(4,0)$——上表里每一行的目标值都在朝 $-12$ 靠近就是证据。
+:::
 
 ### 快问快答
 

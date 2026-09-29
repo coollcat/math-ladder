@@ -199,4 +199,4 @@ import 登记：仅 50 课登记 `[random]`（random.gauss）；其余只用 `ma
 4. 与第 35/40 章的分界声明出现在 80/85 课正文（一句「详见/留待」即可），不重复推导。
 5. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；h2 计数体检通过；显示公式单行、`\lbrace\rbrace` 替代字面花括号。
 6. 浏览器手测五组件交互、Alt+P 浮窗、路由往返无重复注入；360px + dark 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

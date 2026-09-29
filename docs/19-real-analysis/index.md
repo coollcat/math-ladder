@@ -1,5 +1,6 @@
 ---
 title: 第 19 章 · 实分析
+short: 实分析
 description: 从计算极限走向严格定义：完备性、Cauchy、ε-δ 连续、一致收敛、Riemann 上下和与 Fourier 收敛。
 volume: 2
 layer: L8
@@ -18,16 +19,17 @@ difficulty: 4
 1. [实数完备性与上确界](./10-completeness-supremum.md)——有理数里可以不断列出平方小于 2 的数：1，1.4，1.41，1.414……它们有上界，却没有最大值；
 2. [数列极限与 Cauchy 判据](./20-cauchy-sequences.md)——有时你不知道数列要去哪儿，只能看它后面的项是否彼此靠近；
 3. [单调有界必收敛与 Bolzano-Weierstrass](./25-monotone-bw.md)——方向单一、涨不出界的数列必收敛；哪怕上蹿下跳，有界数列也能抽出收敛子列；
-4. [函数极限与连续性](./30-epsilon-delta-continuity.md)——“想多近有多近”还不够严格：谁先给定？；
-5. [一致连续：ε 不许看位置](./32-uniform-continuity.md)——每点都雇得起自己的 δ，不等于全域雇得起一把通用尺；
-6. [中值定理与洛必达法则](./35-mean-value-lhopital.md)——把"局部导数"与"整体增量"接起来的桥，洛必达是它算极限的副产品；plot 滑块现场演示「型值趋稳」的极限游戏；
-7. [一致收敛与交换次序](./40-uniform-convergence.md)——一个班每个学生都在进步，不代表全班整体已经达到目标线；
-8. [Riemann 积分的严格定义](./50-riemann-upper-lower.md)——第 14 章的黎曼和用中点、左端点或右端点取样，已经能算面积；
-9. [Fourier 级数的分析视角](./60-fourier-strict-convergence.md)——第 16 章你看见方波合成时跳点旁总有一个尖包。
+4. [上极限与下极限](./28-limsup-liminf.md)——数列 1,0,1,0… 不收敛，但它的“天花板”和“地板”各有归宿；
+5. [函数极限与连续性](./30-epsilon-delta-continuity.md)——“想多近有多近”还不够严格：谁先给定？；
+6. [一致连续：ε 不许看位置](./32-uniform-continuity.md)——每点都雇得起自己的 δ，不等于全域雇得起一把通用尺；
+7. [中值定理与洛必达法则](./35-mean-value-lhopital.md)——把"局部导数"与"整体增量"接起来的桥，洛必达是它算极限的副产品；plot 滑块现场演示「型值趋稳」的极限游戏；
+8. [一致收敛与交换次序](./40-uniform-convergence.md)——一个班每个学生都在进步，不代表全班整体已经达到目标线；
+9. [Riemann 积分的严格定义](./50-riemann-upper-lower.md)——第 14 章的黎曼和用中点、左端点或右端点取样，已经能算面积；
+10. [Fourier 级数的分析视角](./60-fourier-strict-convergence.md)——第 16 章你看见方波合成时跳点旁总有一个尖包。
 
 ## 生产状态
 
-本章九门课（10–60 全段含 25/32/35 号）已全部上线。配套交互组件包括完备性阶梯、Cauchy 尾部、epsilon-delta 探针、一致收敛缩放、Riemann 上下和与 Fourier 严格收敛观察。
+本章十门课（10–60 全段含 25/28/32/35 号）已全部上线。配套交互组件包括完备性阶梯、Cauchy 尾部、epsilon-delta 探针、一致收敛缩放、Riemann 上下和与 Fourier 严格收敛观察。
 
 ## 实战挑战 · 用 ε-N 语言证明极限
 
@@ -112,7 +114,7 @@ print(N)
 
 极限定义要的是"落进 $\varepsilon$ 邻域"：
 
-```python
+```py
 if abs(a - L) < eps:    # |a_n - L| < ε 才达标
     N = n
     break

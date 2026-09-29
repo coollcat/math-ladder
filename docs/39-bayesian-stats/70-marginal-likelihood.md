@@ -184,7 +184,7 @@ print(round(p_flex, 4))
 <details>
 <summary>点开查看逐步解答</summary>
 
-```python
+```py
 comb = math.factorial(10) // (math.factorial(6) * math.factorial(4))   # C(10,6) = 210
 p_fair = comb * 0.5 ** 10
 print(round(p_fair, 4))      # 0.2051

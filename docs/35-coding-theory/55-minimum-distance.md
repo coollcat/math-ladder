@@ -151,7 +151,7 @@ $$t=\left\lfloor\frac{3-1}{2}\right\rfloor=1.$$
 
 初始代码误用了最大观察距离，并且没有做减一再整除。
 
-```python
+```py
 d_min = len(code[0])
 for i in range(1, len(code)):
     for j in range(i + 1, len(code)):

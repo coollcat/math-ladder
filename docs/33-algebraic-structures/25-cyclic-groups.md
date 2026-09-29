@@ -143,10 +143,14 @@ for step in range(1, n):
     if total == n:
         generators.append(step)
 
-print(generators)
+smallest_generator = generators[0]        # 名单升序，第一个就是最小的
+another_generator = generators[1]         # 第二个是次小的另一个
+print("smallest_generator=" + str(smallest_generator))
+print("another_generator=" + str(another_generator))
 ```
 
 输出生成元是 1、3、7、9。最小的两个是 1 和 3；互素判定和逐格访问判定给出同一张名单。
+（判题比的是带标签的那两行；名单本身可以顺手打印，但那会让输出对不上。）
 
 </details>
 

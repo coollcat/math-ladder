@@ -167,7 +167,7 @@ print(round(sB, 2))
 
 像素速度是 $\frac{v}{Z}$，各走各的：
 
-```python
+```py
     sA = sA - v / 1.0                            # 每秒走 0.3 像素
     sB = sB - v / 3.0                            # 每秒只走 0.1 像素
 ```

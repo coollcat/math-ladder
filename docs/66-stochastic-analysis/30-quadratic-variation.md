@@ -157,7 +157,7 @@ print(round(net_displacement(MOVES) ** 2, 2))
 <details>
 <summary>点开查看逐步解答</summary>
 
-```python
+```py
 def squared_ledger(moves):
     return sum(v * v for v in moves)   # 生成器：对每个元素平方后再求和
 

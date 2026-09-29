@@ -203,7 +203,7 @@ print(tampered)
 <details>
 <summary>点开查看逐步解答</summary>
 
-```python
+```py
 recovered = pow(sig, e, n)           # 用公钥对签名做幂运算
 valid = (recovered == msg)           # 还原值应等于原始消息
 tampered = (pow(sig, e, n) == 8)     # 篡改后不等于 8

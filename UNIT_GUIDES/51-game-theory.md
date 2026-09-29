@@ -196,4 +196,4 @@ index「计划交互形态」→ 组件映射：收益矩阵均衡探测器→`p
 4. MDX 双坑体检：显示公式单行；花括号 \lbrace\rbrace；quiz 题干纯文字无 KaTeX。
 5. `npm run validate` + `node scripts/gen-graph.mjs` + `npm run build` 全绿；h2 计数一致。
 6. 浏览器实测三类块 + Alt+P 浮窗判题链；路由切换无重复注入；360px + dark 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`；非阻塞项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论合并进 `CONTENT_AUDIT.md`；非阻塞项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

@@ -138,7 +138,7 @@ print("converging" if total < 2 else "diverging")
 
 把错的那行改回平方：
 
-```python
+```py
 total = total + 1 / (k * k)
 ```
 

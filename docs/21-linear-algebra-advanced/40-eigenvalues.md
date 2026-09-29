@@ -136,14 +136,17 @@ print(lv)
 <details>
 <summary>点开查看逐步解答</summary>
 
-完整矩阵乘向量：
+完整矩阵乘向量，两行一起打（判题要比的是 `Av` 与 `λv` 两行）：
 
 ```python
 A = [[4, 1], [2, 3]]
 v = [1, 1]
+lambda_value = 5
 av = [A[0][0] * v[0] + A[0][1] * v[1],
       A[1][0] * v[0] + A[1][1] * v[1]]
-print(av)
+lv = [lambda_value * v[0], lambda_value * v[1]]
+print(av)   # [5, 5]
+print(lv)   # [5, 5]
 ```
 
 所以：

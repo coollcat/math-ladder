@@ -81,9 +81,9 @@ $$\varepsilon_{\text{弹性回复}} = \frac{\sigma}{E}, \qquad \varepsilon_{\tex
 **例**：低碳钢（$E = 200$ GPa、$\sigma_y = 235$ MPa、$\sigma_u = 400$ MPa、断裂延伸率 $26\%$）被拉到 $\varepsilon = 12.99\%$，此时 $\sigma = 352.6$ MPa。求卸载后的弹性回复与残余应变。
 
 1. **弹性回复的那部分**（卸载时沿斜率 $E$ 走回去）：
-   $$\varepsilon_e = \frac{\sigma}{E} = \frac{352.6\times 10^6}{200\times 10^9} = 1.763\times 10^{-3} = 0.176\%$$
+$$\varepsilon_e = \frac{\sigma}{E} = \frac{352.6\times 10^6}{200\times 10^9} = 1.763\times 10^{-3} = 0.176\%$$
 2. **残余应变**（回不来的那部分）：
-   $$\varepsilon_r = \varepsilon - \varepsilon_e = 12.987\% - 0.176\% = 12.811\%$$
+$$\varepsilon_r = \varepsilon - \varepsilon_e = 12.987\% - 0.176\% = 12.811\%$$
 3. **解读**：拉到 13% 时，卸载后**只有 0.176% 弹回来，12.8% 永久留下**。回形针掰不直的定量答案就在这里；
 4. **对比**：若只拉到 $\varepsilon = 0.1\%$（低于屈服应变 0.118%），则 $\sigma = E\varepsilon = 200$ MPa，$\varepsilon_e = 200/200000 = 0.1\% = \varepsilon$，残余为 **0**——完全弹回；
 5. **校验**：屈服应变 $\varepsilon_y = \sigma_y/E = 235/200000 = 0.118\%$。第 4 步的 0.1% 落在它之下（弹性），第 1 步的 13% 远在它之上（塑性），与两条结论一致 ✓。

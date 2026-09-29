@@ -15,9 +15,26 @@ import ch72 from './registries/ch72.js';
 import ch73 from './registries/ch73.js';
 import ch74 from './registries/ch74.js';
 import ch75 from './registries/ch75.js';
+import ch76 from './registries/ch76.js';
+import ch77 from './registries/ch77.js';
+import ch78 from './registries/ch78.js';
 
 /* 同名以「后加载的章」为准；分册之间不应重名，validate.mjs 会查重 */
-export const RENDERERS = Object.assign({}, ch00, ch68, ch69, ch70, ch71, ch72, ch73, ch74, ch75);
+export const RENDERERS = Object.assign(
+  {},
+  ch00,
+  ch68,
+  ch69,
+  ch70,
+  ch71,
+  ch72,
+  ch73,
+  ch74,
+  ch75,
+  ch76,
+  ch77,
+  ch78,
+);
 
 export const RENDERER_NAMES = Object.keys(RENDERERS);
 

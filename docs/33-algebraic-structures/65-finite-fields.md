@@ -133,7 +133,8 @@ count = 0
 while sum_of_ones % q != 0 or count < 1:
     sum_of_ones = sum_of_ones + 1
     count = count + 1
-print(count)
+print("characteristic=" + str(count))     # 累加到第 count 个 1 才回到 0
+print("nonzero_count=" + str(q - 1))      # 非零元素就是 1..q-1
 ```
 
 更直接地，素数 $q$ 的特征就是 $q$。非零元素个数为

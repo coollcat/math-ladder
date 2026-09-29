@@ -1,5 +1,7 @@
 ---
 title: 第 14 章 · 积分
+short: 积分
+volume: 1
 description: 黎曼和、微积分基本定理、积分技巧与数值积分：把无限个瞬间攒回总量。
 ---
 
@@ -124,7 +126,7 @@ print(round(total, 3))
 
 每根矩形的面积是"高 × 宽"：
 
-```python
+```py
 total = total + f(x) * dx   # 高度 f(x) × 宽度 dx
 print(round(total, 3))      # 0.333
 ```

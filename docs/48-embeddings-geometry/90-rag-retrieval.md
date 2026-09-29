@@ -169,7 +169,7 @@ print(facts[best])
 
 补上平方：
 
-```python
+```py
     d = (p[0] - query[0]) ** 2 + (p[1] - query[1]) ** 2
 ```
 

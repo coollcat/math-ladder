@@ -169,7 +169,7 @@ print(round(ring_coef(3), 2))
 
 把采样改成铺满整圈：
 
-```python
+```py
     for i in range(N):                           # i = 0 .. N-1，一圈不缺
 ```
 

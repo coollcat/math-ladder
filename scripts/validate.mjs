@@ -12,9 +12,10 @@ const docsRoot = path.resolve(docsRootOverride || path.join(scriptDir, '..', 'do
 
 const TRACKED_BUILTINS = ['abs', 'sum', 'min', 'max', 'round', 'pow', 'divmod'];
 const REGISTRY = {
-  /* 2026-08-30 卷六（68–75 工程与系统）开建，词表扩到 6。
+  /* 2026-08-30 卷六（68–75 工程与系统）开建，词表扩到 6；
+     2026-09-30 卷七（76–78 物理与前沿交叉）开建，词表扩到 7。
      卷号是纯分类标签，不是硬上限——新卷开建时在这里加，不要在课文里回避 volume 字段。 */
-  volume: new Set(['1', '2', '3', '4', '5', '6']),
+  volume: new Set(['1', '2', '3', '4', '5', '6', '7']),
   layer: new Set(['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']),
   track: new Set([
     'algebra-structure',
@@ -324,7 +325,8 @@ function expectedVolume(chNum) {
   if (chNum <= 35) return 3;
   if (chNum <= 42) return 4;
   if (chNum <= 67) return 5;
-  return 6;
+  if (chNum <= 75) return 6;
+  return 7;
 }
 
 if (!listMode) {

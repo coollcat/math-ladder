@@ -201,4 +201,4 @@ index「计划交互形态」→ 组件映射：注意力权重热力图→`atte
 4. 显示公式一律单行；花括号用 \lbrace\rbrace；quiz 无 KaTeX。
 5. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；h2 计数体检通过。
 6. 浏览器实测三类交互块 + Alt+P 浮窗 + 路由切换无重复注入；360px + dark 无溢出。
-7. 报告结论合并进 `CONTENT_AUDIT.md`；非阻塞项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 报告结论合并进 `CONTENT_AUDIT.md`；非阻塞项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

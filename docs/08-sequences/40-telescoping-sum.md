@@ -79,7 +79,7 @@ $$2S = \sum_{k=1}^{n}\bigl(a_k + a_{n+1-k}\bigr)$$
 1. 裂项：$\frac{1}{k(k+1)} = \frac1k - \frac{1}{k+1}$，这里 $g(k) = \frac1k$、跨度 $m = 1$；
 2. 按清点规则：头留 $g(1) = 1$，尾留 $-g(100) = -\frac{1}{100}$；
 3. 写出展开式确认（别偷懒，这一步能救你于系数错误）：
-   $$\left(\frac11-\frac12\right)+\left(\frac12-\frac13\right)+\cdots+\left(\frac{1}{99}-\frac{1}{100}\right) = \frac11 - \frac{1}{100}$$
+$$\left(\frac11-\frac12\right)+\left(\frac12-\frac13\right)+\cdots+\left(\frac{1}{99}-\frac{1}{100}\right) = \frac11 - \frac{1}{100}$$
 4. 结果：$1 - \frac{1}{100} = \frac{99}{100} = 0.99$。
 
 **例 2（跨度 2，别漏系数）**：求 $\displaystyle\sum_{k=1}^{10}\frac{1}{k(k+2)}$。
@@ -87,7 +87,7 @@ $$2S = \sum_{k=1}^{n}\bigl(a_k + a_{n+1-k}\bigr)$$
 1. 裂项：$\frac{1}{k(k+2)} = \frac12\left(\frac1k - \frac{1}{k+2}\right)$——注意前面那个 $\frac12$，因为 $\frac1k - \frac{1}{k+2} = \frac{2}{k(k+2)}$，多出来的 2 必须除掉；
 2. 跨度 $m = 2$，所以头留 $g(1)+g(2)$、尾留 $g(11)+g(12)$（都带系数 $\frac12$）；
 3. 展开核对：
-   $$\frac12\left[\left(\frac11-\frac13\right)+\left(\frac12-\frac14\right)+\left(\frac13-\frac15\right)+\cdots+\left(\frac{1}{10}-\frac{1}{12}\right)\right]$$
+$$\frac12\left[\left(\frac11-\frac13\right)+\left(\frac12-\frac14\right)+\left(\frac13-\frac15\right)+\cdots+\left(\frac{1}{10}-\frac{1}{12}\right)\right]$$
    其中 $-\frac13$ 与 $+\frac13$、$-\frac14$ 与 $+\frac14$……一路抵消，活下来的是 $\frac11, \frac12$ 和 $-\frac{1}{11}, -\frac{1}{12}$；
 4. 结果：$\frac12\left(1 + \frac12 - \frac{1}{11} - \frac{1}{12}\right) = \frac12\left(\frac{3}{2} - \frac{23}{132}\right) = \frac12 \cdot \frac{175}{132} = \frac{175}{264} \approx 0.6629$。
 
@@ -101,7 +101,7 @@ $$2S = \sum_{k=1}^{n}\bigl(a_k + a_{n+1-k}\bigr)$$
 **例 4（倒序相加，不只是等差）**：设 $f(x) = \dfrac{4^x}{4^x + 2}$，求 $f\!\left(\frac{1}{1000}\right) + f\!\left(\frac{2}{1000}\right) + \cdots + f\!\left(\frac{999}{1000}\right)$。
 
 1. 先算配对之和（这是倒序相加的入场券）：
-   $$f(1-x) = \frac{4^{1-x}}{4^{1-x} + 2} = \frac{4/4^x}{4/4^x + 2} = \frac{4}{4 + 2\cdot 4^x} = \frac{2}{2 + 4^x}$$
+$$f(1-x) = \frac{4^{1-x}}{4^{1-x} + 2} = \frac{4/4^x}{4/4^x + 2} = \frac{4}{4 + 2\cdot 4^x} = \frac{2}{2 + 4^x}$$
    所以 $f(x) + f(1-x) = \frac{4^x}{4^x+2} + \frac{2}{4^x+2} = 1$——**恒定等于 1**；
 2. 记所求为 $S$，倒着再写一遍：$S = f\!\left(\frac{999}{1000}\right) + \cdots + f\!\left(\frac{1}{1000}\right)$；
 3. 两式相加，上下第 $k$ 位凑成 $f\!\left(\frac{k}{1000}\right) + f\!\left(1 - \frac{k}{1000}\right) = 1$，共 999 位；

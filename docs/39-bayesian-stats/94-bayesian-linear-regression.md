@@ -193,9 +193,9 @@ $X=(1,2)$,$y=4.5$,$\sigma^2=1$。$\Sigma_0^{-1}=I$。$X^TX=\begin{pmatrix}1&2\\2
 
 ```exercise
 # @title: 练习:修复预测区间
-# @check: 5.0
-# @check: 0.71
-# @check: 0.87
+# @check: 4.4
+# @check: 3.1
+# @check: 5.7
 # @hint: 预测方差 = σ2 + x*^T Σ_n x*,不是只有 σ2
 import math
 
@@ -234,8 +234,8 @@ pred_var = sigma ** 2 + param_var
 pred_sd = math.sqrt(pred_var)
 
 print(round(y_pred, 1))           # 4.4
-print(round(y_pred - 2*pred_sd, 2))  # ~3.5
-print(round(y_pred + 2*pred_sd, 2))  # ~5.3
+print(round(y_pred - 2*pred_sd, 2))  # 3.1
+print(round(y_pred + 2*pred_sd, 2))  # 5.7
 ```
 </details>
 

@@ -25,6 +25,11 @@ exits:
   - engineering
 ---
 
+:::note[与别章的分工]
+DCT 作为变换的数学性质（能量集中、与 Fourier 的关系）在 [第 61 章 · DCT 与 JPEG](../61-digital-signal-processing/85-dct-jpeg.md)；本课只把它放进图像的 8×8 块里看它怎么干活。
+:::
+
+
 # DCT 与 8×8 块：能量集中
 
 ## 1. 从一个场景开始

@@ -141,7 +141,7 @@ print(status)
 
 交叉项应加不应减：
 
-```python
+```py
 def q(x, y):
     return a * x * x + 2 * b * x * y + c * y * y
 ```

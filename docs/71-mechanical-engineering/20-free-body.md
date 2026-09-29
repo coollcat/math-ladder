@@ -89,7 +89,7 @@ $$\sum F_x = 0, \qquad \sum F_y = 0, \qquad \sum M_O = 0$$
 1. **画自由体图**：梁被隔离出来，受三个力——向下的 $P$，左端的 $R_{Ax}$ 与 $R_{Ay}$，右端的 $R_{By}$。未知量 3 个，方程 3 个，**静定**；
 2. **先写水平方程**：没有水平外载荷，$\sum F_x = 0 \Rightarrow R_{Ax} = 0$；
 3. **对左端 $A$ 取矩**（逆时针为正）：$R_{Ax}$、$R_{Ay}$ 都过 $A$ 点，力臂为零，不产生力矩；
-   $$\sum M_A = R_{By}\cdot L - P\cdot a = 0 \ \Rightarrow\ R_{By} = \frac{Pa}{L} = \frac{800\times 2}{6} = 266.7\ \text{N}$$
+$$\sum M_A = R_{By}\cdot L - P\cdot a = 0 \ \Rightarrow\ R_{By} = \frac{Pa}{L} = \frac{800\times 2}{6} = 266.7\ \text{N}$$
 4. **竖向方程**：$\sum F_y = 0 \Rightarrow R_{Ay} = P - R_{By} = 800 - 266.7 = 533.3$ N；
 5. **校验**：$R_{Ay} + R_{By} = 800$ N ✓；对右端 $B$ 取矩：$R_{Ay}\cdot 6 - 800\times(6-2) = 3200 - 3200 = 0$ ✓。
 

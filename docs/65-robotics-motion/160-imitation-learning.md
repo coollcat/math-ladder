@@ -166,7 +166,7 @@ for o in tests:
 
 最近邻要的是**距离最小**：
 
-```python
+```py
         if dist < bd:                            # 比当前最近的更近才换
             bd = dist
             best = d

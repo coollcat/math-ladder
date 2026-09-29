@@ -252,7 +252,7 @@ print(0 if logits[0] >= logits[1] else 1)   # 预测类别
 
 病灶在池化的比较方向：`< m` 留下的是窗口里**最小**值，2×2 窗口 $\lbrace 3,0,3,0\rbrace$ 会捞出 $0$、$\lbrace 0,-3,0,-3\rbrace$ 会捞出 $-3$，展平后变成 $[0,-3,0,-3]$，两个得分都算错。
 
-```python
+```py
 if feat[i + di][j + dj] > m:   # 改成 > ：遇到更大的值才更新，留下最大值
     m = feat[i + di][j + dj]
 ```

@@ -189,4 +189,4 @@ print(dist[3])
 
 ## 8. 下一站
 路由让包能到达，但到达并不是终点：如果那台机器宕机了、或者网络被切成两半，剩下的机器凭什么对外给出一致的答案？
-→ [分布式一致性](/docs/computer-systems/consensus-lab)
+→ [分布式一致性](./150-consensus-lab.md)

@@ -130,8 +130,8 @@ for k in range(len(product)):
     if product[k] != 0:
         degree = k
 
-print(product)
-print(degree)
+print("product=" + str(product))
+print("degree=" + str(degree))
 ```
 
 于是 $(2+x)(1+x)=2+3x+x^2$，系数表为 `[2,3,1]`，最高非零位为 2。

@@ -176,7 +176,7 @@ print(round(flag_est, 1))
 <details>
 <summary>点开查看逐步解答</summary>
 
-```python
+```py
 flash_r = flash_conv / flash_n * 100    # 38%
 flag_r = flag_conv / flag_n * 100       # 约 26.9%
 flash_est = (flash_n * flash_r + K * m) / (flash_n + K)

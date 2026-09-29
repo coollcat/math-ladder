@@ -114,4 +114,4 @@
 4. 每课有 quiz、误区卡、选读或边界说明。
 5. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿。
 6. h2 逐页一致；浏览器测 exercise/quiz/viz；360px + dark 无溢出。
-7. 报告结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记到 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 报告结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记到 `_ai-workspace/reports/OPEN_ITEMS.md`。

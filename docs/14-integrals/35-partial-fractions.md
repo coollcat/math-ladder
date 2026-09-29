@@ -162,7 +162,7 @@ print(round(s, 4))           # 无辜证人的证词
 
 修复一行即可通过：
 
-```python
+```py
 def anti(x):
     return 0.5 * math.log(abs((x - 1) / (x + 1)))   # 补上系数 1/2
 ```

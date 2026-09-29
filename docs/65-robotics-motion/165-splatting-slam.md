@@ -170,7 +170,7 @@ print(old_w + new_w)
 
 加权平均的另一半是分母：
 
-```python
+```py
 fused = num / (old_w + new_w)                    # 2.6 / 4 = 0.65
 ```
 

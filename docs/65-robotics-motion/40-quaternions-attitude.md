@@ -25,6 +25,11 @@ exits:
   - robotics-motion/inverse-kinematics
 ---
 
+:::note[与别章的分工]
+四元数的**基本运算与图形学写法**在 [第 64 章 · 四元数](../64-computer-graphics/25-rotation-quaternion.md)；本课聚焦姿态这件事：四元数怎么表示姿态误差、怎么与角速度对接。
+:::
+
+
 # 四元数选讲：免奇异的姿态语言
 
 ## 1. 从一个场景开始

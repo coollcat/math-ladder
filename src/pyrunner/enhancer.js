@@ -1,9 +1,9 @@
-﻿/* 输出里的数学公式（$$…$$ / $…$）渲染，KaTeX 在这边按需加载 */
+/* 输出里的数学公式（$$…$$ / $…$）渲染，KaTeX 在这边按需加载 */
 import { setMathText } from './mathout';
 /* 代码补全（静态词表 + 自己起过的名字），极简版 */
 import { attachComplete, harvestWords } from './complete';
 /* 三个浮窗谁最后被点谁在最上面 */
-import { watchPanel, bringToFront } from './zorder';
+import { watchPanel, bringToFront, isTopmost } from './zorder';
 /* 图标（圆钮上的笔记本图标走 iconSvg 字符串版，见 src/components/icons.js） */
 import { iconSvg } from '../components/icons';
 
@@ -24,8 +24,11 @@ function loadVizModule() {
 }
 
 const PYODIDE_VERSION = 'v0.26.4';
+/* 只留**实测可用**的源。原先第一位是 registry.npmmirror.com 的 -/binary/pyodide/，
+   实测 pyodide.js / pyodide.asm.wasm / pyodide-lock.json 全部 404（目录也不存在），
+   于是每次冷启动都先白白失败一轮再退到 jsdelivr；万一哪天镜像复活，
+   它还会悄悄供一份可能过期的缓存。宁少勿错。 */
 const PYODIDE_CDNS = [
-  'https://registry.npmmirror.com/-/binary/pyodide/' + PYODIDE_VERSION + '/full/',
   'https://cdn.jsdelivr.net/pyodide/' + PYODIDE_VERSION + '/full/',
   'https://gcore.jsdelivr.net/pyodide/' + PYODIDE_VERSION + '/full/',
 ];
@@ -134,7 +137,11 @@ function getPyodide(status) {
     pyodidePromise =
       cached ||
       initPyodide(status).catch((e) => {
+        /* 两个缓存都要清：只清 window 上那份没用——模块级 pyodidePromise
+           仍是那个 rejected promise，`if (!pyodidePromise)` 永远为假，
+           于是一次 CDN 抖动之后「运行」按钮次次立刻失败，只能刷新页面。 */
         window.__mlPyodidePromise = null;
+        pyodidePromise = null;
         throw e;
       });
     window.__mlPyodidePromise = pyodidePromise;
@@ -205,12 +212,84 @@ async function ensurePreamble(py) {
   preambleDone = true;
 }
 
+/* =========================================================================
+ * 执行排队（2026-09-28）
+ * -------------------------------------------------------------------------
+ * 浮窗与笔记本共用**同一个 Pyodide 实例**：两边都往 py.globals 里写 _ml_src，
+ * 再调 runPythonAsync('_ml_console_run(_ml_src)')。并发跑的时候后写的把先写的
+ * 盖掉，于是「在笔记本里跑一段」和「在浮窗里点运行」会互相串——
+ * 跑的是对方的代码，print 出来的东西还出现在对方的面板里。
+ *
+ * 所以所有执行**串行排队**：先来先跑，后来的等前一个跑完。
+ * 排队的另一个好处是 stdout 也不会被抢：setStdout 是全局的单例设置，
+ * 两个执行同时在跑时，输出会随机落到两个面板中的某一个。
+ *
+ * 注意 then(fn, fn)：前一个执行**失败**也要接着往下走，不能让一次异常
+ * 把整条队列堵死（那会变成「报错一次之后再也跑不动」）。
+ * ========================================================================= */
+let execQueue = Promise.resolve();
+function queueExec(fn) {
+  const p = execQueue.then(fn, fn);
+  execQueue = p.then(
+    () => {},
+    () => {},
+  );
+  return p;
+}
+
 /* ---------- 给笔记本用的执行入口 ----------
  * 与浮窗的「▶ 运行」跑在同一个命名空间 _ml_console_g 里：笔记本单元里定义的
  * 变量在浮窗里能直接用，浮窗里算出来的东西笔记本也能接着用——这是两个面板
  * 「联动」的全部秘密（重置变量对两边同时生效，这也符合直觉）。
  * 与浮窗 run() 的差异：不读槽位/滑块/判题，输出交给 onText 回调自行处置。 */
 export async function execInConsole(source, opts = {}) {
+  return queueExec(() => execInConsoleNow(source, opts));
+}
+
+/* ---------- 按 import 自动装包 ----------
+ * Pyodide 启动时**只有标准库**：numpy / sympy / scipy / pandas / matplotlib
+ * 都要显式 loadPackage。此前只对 `sympy`、`matplotlib` 两个名字做了特判，
+ * 后果是实打实的「数据展示不准确」：
+ *   · 22 处 `import scipy` 的课文（t 检验、卡方、ANOVA、Gamma/Beta…）在浏览器里
+ *     一律 ModuleNotFoundError，学生以为是自己写错了；
+ *   · numpy 只是**碰巧**能用（matplotlib 的依赖，或同一会话里先跑过 matplotlib）。
+ * loadPackagesFromImports 会扫源码里的 import 行、按 indexURL 装对应包，
+ * 是 Pyodide 官方推荐的用法（它不会装站上根本没有的包，比如 torch）。
+ *
+ * 装不到的包仍会抛 ModuleNotFoundError——那种情况给一句人话，别让读者
+ * 对着 traceback 猜「是不是我代码写错了」。
+ */
+const PKG_HINT =
+  '浏览器里的 Python 运行时（Pyodide）只带常用科学计算包：numpy / sympy / scipy / pandas / matplotlib。' +
+  '这一段用到的库不在其中（例如 torch、sklearn、tensorflow）——请把这段代码复制到本机 Python 里运行。';
+
+async function loadImportsFor(py, source, setStatus) {
+  const needsMpl = /\bmatplotlib\b/.test(source);
+  if (needsMpl) setStatus('加载绘图库…');
+  else if (/(^|\n)\s*(import|from)\s/.test(source)) setStatus('检查依赖库…');
+  try {
+    await py.loadPackagesFromImports(source);
+  } catch (e) {
+    const msg = String((e && e.message) || e);
+    if (/No module named|ModuleNotFoundError/i.test(msg)) {
+      const first = msg.split('\n')[0];
+      throw new Error(first + '\n' + PKG_HINT);
+    }
+    throw e;
+  }
+  if (needsMpl) {
+    await py.runPythonAsync("import os; os.environ.setdefault('MPLBACKEND', 'AGG')");
+    try {
+      await py.runPythonAsync(
+        "import matplotlib as _m; _m.rcParams.update({'figure.figsize':(7.2,4.2),'axes.grid':True,'grid.alpha':0.35,'font.size':11,'lines.linewidth':2,'axes.spines.top':False,'axes.spines.right':False})",
+      );
+    } catch {
+      /* 老版本 matplotlib 没有这些 rcParams：忽略 */
+    }
+  }
+}
+
+async function execInConsoleNow(source, opts = {}) {
   const onText = typeof opts.onText === 'function' ? opts.onText : null;
   const setStatus = (s) => {
     if (typeof opts.status === 'function') opts.status(s);
@@ -228,23 +307,8 @@ export async function execInConsole(source, opts = {}) {
       /* 辅助函数注入失败不阻断主流程 */
     }
   }
-  /* 用到哪个库就自动装哪个，省掉一个「加载 sympy」按钮（与浮窗同一套逻辑） */
-  if (/\bsympy\b/.test(source)) {
-    setStatus('加载符号计算库…');
-    await py.loadPackage('sympy');
-  }
-  if (/\bmatplotlib\b/.test(source)) {
-    setStatus('加载绘图库…');
-    await py.loadPackage('matplotlib');
-    await py.runPythonAsync("import os; os.environ.setdefault('MPLBACKEND', 'AGG')");
-    try {
-      await py.runPythonAsync(
-        "import matplotlib as _m; _m.rcParams.update({'figure.figsize':(7.2,4.2),'axes.grid':True,'grid.alpha':0.35,'font.size':11,'lines.linewidth':2,'axes.spines.top':False,'axes.spines.right':False})",
-      );
-    } catch {
-      /* 老版本 matplotlib 没有这些 rcParams：忽略 */
-    }
-  }
+  /* 用到哪个库就自动装哪个（含 numpy / scipy / pandas），省掉一个「加载 sympy」按钮 */
+  await loadImportsFor(py, source, setStatus);
   setStatus('运行中…');
   py.setStdout({ batched: (s) => onText && onText(s, false) });
   py.setStderr({ batched: (s) => onText && onText(s, true) });
@@ -313,6 +377,63 @@ function normalizeOut(text) {
   return collapsed.join('\n').trim();
 }
 
+/* 判题比对：数值按**相对容差**比，文字仍要精确相等。
+ * -------------------------------------------------------------------------
+ * 此前是 normalizeOut(got) === normalizeOut(want) 的纯字符串相等。1099 个练习里
+ * 594 个期望值是小数，最脆的一个是 17 位有效数字（value=0.36787944117144233）：
+ * 学生只要换了等价但运算顺序不同的写法（先乘后除 vs 先除后乘），末几位一变就被
+ * 判成「✗ 还不对」——答案是对的，判定是错的。这类假阴性的杀伤力远大于显示误差：
+ * 学生会以为自己写错了，反复改一个本来正确的解。
+ *
+ * 所以这里拆成 token 逐段比：两段都解析成有限数 → 按相对误差 1e-9 比；
+ * 否则（True/False/covered/文字标签）仍走精确字符串相等，不放松。
+ * 相对容差用 |want| 作基准：1e-9 远小于课程里任何一次真实取值的差异
+ * （比如 0.2027 vs 0.2026 差 5e-4，照样判错），不会把真错的答案放过。
+ */
+const NUM_SPLIT = /(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/;
+const NUM_ONLY = /^-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
+const REL_TOL = 1e-9;
+
+/* 纯整数（无小数点、无指数）且位数很多的 token：走字符串比。
+   Number() 超过 2^53 就退化成 double，2**100 与 2**100+1 会解析成同一个数
+   （…205376 vs …205377），相对容差再一放，错答案会被判对——判题宁可严格。 */
+const BIG_INT = /^-?\d{16,}$/;
+
+function tokenizeOut(s) {
+  return String(s).split(NUM_SPLIT).filter((x) => x !== '');
+}
+
+function sameOutput(got, want) {
+  if (got === want) return true;
+  const g = tokenizeOut(got);
+  const w = tokenizeOut(want);
+  if (g.length !== w.length) return false;
+  for (let i = 0; i < w.length; i += 1) {
+    const isNum = NUM_ONLY.test(g[i]) && NUM_ONLY.test(w[i]);
+    if (isNum) {
+      /* 大整数：去掉前导零后精确相等才算对（判题里的大数都是计算出来的
+         精确值，见 03 章「菌群一夜」那类 2 的幂） */
+      if (BIG_INT.test(g[i]) || BIG_INT.test(w[i])) {
+        const norm = (s) => s.replace(/^(-?)0+(?=\d)/, '$1');
+        if (norm(g[i]) !== norm(w[i])) return false;
+        continue;
+      }
+      const a = Number(g[i]);
+      const b = Number(w[i]);
+      if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
+      /* 纯相对容差，**不加**绝对下限：加了就等于给接近 0 的期望值开了个大口子。
+         反例就是 docs/44-numerical-analysis/10-floating-point 那个练习——它考的
+         正是「0.1+0.2-0.3 不等于 0，而是 5.55e-17」，若用 max(|want|,1)*1e-9 当容差，
+         学生答 0 也会被判对，等于把这一课教反了。want 为 0 时容差就是 0，
+         要求精确相等（课程里的 0 都是格式化输出，本来就是确定的）。 */
+      if (Math.abs(a - b) > Math.abs(b) * REL_TOL) return false;
+    } else if (g[i] !== w[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function hashStr(s) {
   let h = 5381;
   for (let i = 0; i < s.length; i++) {
@@ -334,6 +455,7 @@ import {
   writeProgress,
   clearSpace,
   recordVisit,
+  notifyDataDirty,
   EXERCISE_KEY,
 } from '../learning/progress';
 
@@ -449,7 +571,11 @@ function applySlot(slot, opts) {
   consoleState.originals[slot] = opts?.original ?? s.drafts[slot] ?? SCRATCH_DEFAULT;
   consoleState.resets[slot] =
     opts?.resetSource ?? consoleState.originals[slot] ?? SCRATCH_DEFAULT;
-  if (!s.drafts[slot]) s.drafts[slot] = consoleState.originals[slot];
+  /* overwrite：槽位里已经存着上一次的草稿时也要覆盖。
+     笔记本「送到浮窗」恒用 'nb' 这一个槽位——第二次送时 drafts['nb'] 已有旧值，
+     新代码被丢掉、编辑器里还是上一回那段，用户以为没反应。
+     「恢复代码」走的 resets[slot]，所以覆盖草稿不会让人丢东西。 */
+  if (opts?.overwrite || !s.drafts[slot]) s.drafts[slot] = consoleState.originals[slot];
   consoleState.editor.value = s.drafts[slot];
   consoleState.slotTitle = opts?.title || (slot === 'scratch' ? 'Python 随手算' : '代码块');
   refreshChrome();
@@ -489,6 +615,9 @@ function renderSliders() {
     label.textContent = s.name + ' =';
     const range = document.createElement('input');
     range.type = 'range';
+    /* label 与滑块关联：不关联的话点标签没反应，读屏也只会念「滑块」 */
+    range.id = 'ml-sl-' + String(s.name).replace(/[^\w-]/g, '_');
+    label.htmlFor = range.id;
     range.min = String(s.min);
     range.max = String(s.max);
     range.step = String(s.step);
@@ -500,10 +629,16 @@ function renderSliders() {
       val.textContent = range.value;
       clearTimeout(st.sliderTimer);
       st.sliderTimer = setTimeout(() => {
-        st.sliderPending = true;
-        /* run 是 ensureConsole 内部的局部函数，这里够不着；
-           st._run 是它暴露出来的引用，运行中则交给 run 的 finally 重跑 */
-        if (!st.running && typeof st._run === 'function') st._run();
+        /* 这一条是「立即运行」路径：运行结束的 finally 会看到 sliderPending
+           并再跑一次 —— 于是拖一次滑块代码跑两遍，而代码是在持久的
+           _ml_console_g 里执行的，`results.append(...)`、计数器这类副作用会翻倍。
+           所以立即运行的这条分支**不能**置 sliderPending；只有「当前正在跑、
+           本次改动交给它跑完再补一次」时才需要置。 */
+        if (st.running) {
+          st.sliderPending = true;
+          return;
+        }
+        if (typeof st._run === 'function') st._run();
       }, 260);
     });
     s.input = range;
@@ -641,6 +776,9 @@ function refreshChrome() {
 export function openInConsole(opts) {
   ensureConsole();
   const st = consoleState;
+  /* 显示模式：窄屏默认整页、宽屏默认浮窗（用户手动选过的偏好优先）。
+     这一步不能省——正文里的按钮只加 is-open，不经过 setOpen()。 */
+  if (typeof st._applyMode === 'function') st._applyMode();
   /* 路由切换后，旧页面练习的回调不会再被触发：顺手清掉，防 Map 无限增长 */
   for (const k of Array.from(st.callbacks.keys())) {
     if (k.includes('#ex-') && !k.startsWith(location.pathname)) st.callbacks.delete(k);
@@ -656,7 +794,9 @@ export function openInConsole(opts) {
     st.fab.classList.add('is-active');
     st.out.classList.add('py-runner__out--visible');
     st.status.textContent = '正在运行，已保持当前槽位';
-    return;
+    /* 明确告诉调用方「这次没换过去」：笔记本据此提示用户，
+       否则它会说「已送到浮窗」，而编辑器里还是上一段代码。 */
+    return false;
   }
 
   st.panel.classList.add('is-open');
@@ -664,6 +804,7 @@ export function openInConsole(opts) {
   applySlot(opts?.key || 'scratch', {
     original: opts?.source,
     resetSource: opts?.resetSource,
+    overwrite: opts?.overwrite,
     title: opts?.title,
     prompt: opts?.prompt,
     exercise: opts?.exercise || null,
@@ -793,20 +934,16 @@ function ensureConsole() {
   fabNote.setAttribute('aria-label', '打开数学笔记本');
   fabNote.innerHTML = iconSvg('notebook', 24);
 
-  /* 数据面板入口：右下角第三个圆钮（备份 / 还原 / 空间搬家）。
-     它管的是「进度、笔记本、代码仓库」这类只存在本机的东西，
-     与控制台/笔记本同层圆钮组，图标一眼能分。 */
-  const fabData = document.createElement('button');
-  fabData.id = 'ml-bk-fab';
-  fabData.className = 'ml-fab ml-fab--data';
-  fabData.type = 'button';
-  fabData.title = '数据 · 备份与搬家（Alt+D）';
-  fabData.setAttribute('aria-label', '打开数据备份面板');
-  fabData.innerHTML = iconSvg('database', 22);
+  /* 数据面板（备份 / 还原 / 空间搬家）**不再**放右下角第三个圆钮了。
+     2026-09-28 搬迁：圆钮藏得太深，而「登录后进度看着像没了」恰恰是最需要它的时刻。
+     现在它常驻在登录页账号卡片下方靠右那一块（见 src/pages/login.js 的 DataPanel），
+     顶栏账号菜单和 Alt+D 都指到那儿去——一个功能只留一个家，不要两处入口互相打架。 */
 
   const panel = document.createElement('div');
   panel.id = 'ml-console';
   panel.className = 'ml-console';
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', 'Python 浮窗控制台');
 
   const head = document.createElement('div');
   head.className = 'ml-console__head';
@@ -824,6 +961,7 @@ function ensureConsole() {
   btnClose.className = 'ml-console__close';
   btnClose.type = 'button';
   btnClose.title = '关闭（Esc）';
+  btnClose.setAttribute('aria-label', '关闭 Python 控制台');
   btnClose.textContent = '×';
   head.append(btnBack, headTitle, btnMode, btnClose);
 
@@ -878,12 +1016,16 @@ function ensureConsole() {
 
   const out = document.createElement('div');
   out.className = 'py-runner__out ml-console__out';
+  /* 判题结果（✓ 通过 / ✗ 还不对）、报错、运行输出都只出现在这一块里。
+     没有 aria-live 的话，读屏用户点了「运行」听不到任何结果。 */
+  out.setAttribute('role', 'status');
+  out.setAttribute('aria-live', 'polite');
 
   panel.append(head, banner, slidersBox, editor, bar, out);
-  document.body.append(fabData, fabNote, fab, panel);
+  document.body.append(fabNote, fab, panel);
 
   const refs = {
-    fab, fabNote, fabData, panel, editor, status, out, btnRun, btnHint,
+    fab, fabNote, panel, editor, status, out, btnRun, btnHint,
     btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode, btnRepo, btnFx,
   };
   /* 引用登记在壳上：热更新后新一代模块靠它领养或识别跨代重建 */
@@ -897,9 +1039,10 @@ function ensureConsole() {
   btnBigOut.addEventListener('click', () => {
     const big = panel.classList.toggle('is-bigout');
     btnBigOut.textContent = big ? '恢复编辑' : '输出放大';
-    clearOut();
+    /* 只切模式，**不清输出**：原先这里无条件 clearOut() + 塞一行说明，
+       正在看的 traceback、`✗ 还不对。期望输出是：…` 或 `✓ 通过` 会被清掉
+       且无法恢复——切个显示模式不该毁掉刚跑出来的结果。 */
     out.classList.add('py-runner__out--visible');
-    appendText('(输出放大模式：再次点击「恢复编辑」返回)', 'py-runner__dim');
   });
 
   /* ---------- 显示模式：浮窗 ⇄ 整页 ----------
@@ -1003,11 +1146,14 @@ function ensureConsole() {
     getSource: () => (st.editor ? st.editor.value : ''),
     /* 笔记本单元 → 浮窗：开一个新槽位装进去，不动随手算草稿 */
     setSource: (src, title) => {
-      openInConsole({
+      return openInConsole({
         key: 'nb',
         title: title || '笔记本片段',
         source: src,
         resetSource: src,
+        /* 每次都覆盖 'nb' 槽位的旧草稿：同一个槽位复用，不覆盖的话
+           第二次「送到浮窗」传的新代码会被上一次的草稿顶掉 */
+        overwrite: true,
       });
     },
     openConsole: () => setOpen(true),
@@ -1051,8 +1197,14 @@ function ensureConsole() {
 
   fabNote.addEventListener('click', async () => {
     try {
-      st.status.textContent = '正在打开笔记本…';
       const mod = await import('./notebook');
+      /* 与 Py 圆钮一致：开着就收起来。原先只开不关——用户点第二次是想收起，
+         结果又把整块面板重建了一遍（输出清空、滚动位置丢失）。 */
+      if (typeof mod.isNotebookOpen === 'function' && mod.isNotebookOpen()) {
+        mod.closeNotebook();
+        return;
+      }
+      st.status.textContent = '正在打开笔记本…';
       await mod.openNotebook(toolApi);
       st.status.textContent = '';
     } catch (e) {
@@ -1060,14 +1212,14 @@ function ensureConsole() {
     }
   });
 
-  fabData.addEventListener('click', async () => {
-    try {
-      const mod = await import('./backup');
-      mod.openBackup();
-    } catch (e) {
-      st.status.textContent = '数据面板打不开：' + ((e && e.message) || e);
-    }
-  });
+  /* 数据面板的入口搬到了**页面右上角**（顶栏那颗「数据」钮，见 Navbar/DataMenu.js）。
+     Alt+D 这个快捷键留着——老用户肌肉记忆还在。
+     它只做一件事：请求顶栏把面板打开（窗口事件 ml-open-data）。
+     刻意不在这里就地开浮窗、也不在登录页另开一份：同一套 UI 两个落点，
+     改一处忘一处是迟早的事。 */
+  const gotoDataPanel = () => {
+    window.dispatchEvent(new Event('ml-open-data'));
+  };
 
   fab.addEventListener('click', () => {
     if (!isOpen()) {
@@ -1094,8 +1246,12 @@ function ensureConsole() {
   bindDocListener('keydown', (ev) => {
     if (ev.key === 'Escape') {
       if (closeLb()) return;
-      if (isOpen()) setOpen(false);
-    } else if (ev.altKey && (ev.key === 'p' || ev.key === 'P')) {
+      /* 分层关闭：几个浮窗叠着开时（比如从浮窗按钮栏进了仓库/公式面板），
+         Esc 只关最上面那一层。本监听注册得比子面板早，所以必须先问一句
+         「我是不是栈顶」——不问的话会抢先把底下的浮窗关掉。 */
+      if (isOpen() && isTopmost(panel)) setOpen(false);
+    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'p' || ev.key === 'P')) {
+      if (ev.repeat) return;
       ev.preventDefault();
       if (!isOpen()) {
         setOpen(true);
@@ -1103,12 +1259,22 @@ function ensureConsole() {
       } else {
         setOpen(false);
       }
-    } else if (ev.altKey && (ev.key === 'n' || ev.key === 'N')) {
+    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'n' || ev.key === 'N')) {
+      /* 在输入框里打字时不抢：Alt+N 会把笔记本整个重建，光标与滚动位置全丢 */
+      if (ev.repeat || isTypingTarget(ev.target)) return;
       ev.preventDefault();
       fabNote.click();
-    } else if (ev.altKey && (ev.key === 'd' || ev.key === 'D')) {
+    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'd' || ev.key === 'D')) {
+      /* 注意：Alt+D 在 Chrome/Edge/Firefox 上是浏览器保留的「聚焦地址栏」，
+         大概率收不到；所以数据面板的主入口是顶栏右上角那颗「数据」钮，
+         这里只是给收得到的环境留一条近路（另有 Alt+Shift+D，见下）。 */
+      if (ev.repeat) return;
       ev.preventDefault();
-      fabData.click();
+      gotoDataPanel();
+    } else if (ev.altKey && ev.shiftKey && (ev.key === 'd' || ev.key === 'D')) {
+      /* 浏览器吞掉 Alt+D 时的备用组合，文案写在按钮 title 里 */
+      ev.preventDefault();
+      gotoDataPanel();
     }
   });
 
@@ -1157,6 +1323,10 @@ function ensureConsole() {
       run();
     }
     if (ev.key === 'Tab') {
+      /* Shift+Tab 放行：Tab 在这里被吃成「缩进两格」，两个方向都吃掉的后果是
+         **键盘用户出不去这个编辑区**（WCAG 2.1.2 键盘陷阱）。笔记本单元里
+         同样只吃正向 Tab。 */
+      if (ev.shiftKey) return;
       ev.preventDefault();
       const s = editor.selectionStart;
       const e2 = editor.selectionEnd;
@@ -1166,7 +1336,11 @@ function ensureConsole() {
     }
   });
 
-  const run = async () => {
+  /* 与笔记本共用 Pyodide 实例，所以整段执行排进同一条队列（见 queueExec）。
+     按钮的 busy 判定仍走 st.running：排队中的第二次点击照样被挡住。 */
+  const run = () => queueExec(runNow);
+
+  const runNow = async () => {
     if (st.running) return;
     st.running = true;
     btnRun.disabled = true;
@@ -1179,22 +1353,11 @@ function ensureConsole() {
     try {
       const py = await getPyodide((s) => (status.textContent = s));
       await ensurePreamble(py);
-      /* sympy 与 matplotlib 一样按需自动装：代码里 import 了就装，不用点按钮 */
-      if (/\bsympy\b/.test(source)) {
-        status.textContent = '加载符号计算库…';
-        await py.loadPackage('sympy');
-      }
-      const needsMpl = /\bmatplotlib\b/.test(source);
-      if (needsMpl) {
-        status.textContent = '加载绘图库…';
-        await py.loadPackage('matplotlib');
-        await py.runPythonAsync("import os; os.environ.setdefault('MPLBACKEND', 'AGG')");
-        try {
-          await py.runPythonAsync(
-            "import matplotlib as _m; _m.rcParams.update({'figure.figsize':(7.2,4.2),'axes.grid':True,'grid.alpha':0.35,'font.size':11,'lines.linewidth':2,'axes.spines.top':False,'axes.spines.right':False})",
-          );
-        } catch (e2) { }
-      }
+      /* 按 import 自动装包（numpy / sympy / scipy / pandas / matplotlib），
+         不用点按钮——原先只特判 sympy 与 matplotlib，scipy 永远装不上 */
+      await loadImportsFor(py, source, (s) => {
+        status.textContent = s;
+      });
       status.textContent = '运行中…';
       py.setStdout({ batched: (s) => { chunks.push(s); appendText(s); } });
       py.setStderr({ batched: (s) => appendText(s, 'py-runner__errtext') });
@@ -1251,12 +1414,16 @@ function ensureConsole() {
       if (isExerciseSlot()) {
         const got = normalizeOut(textOut);
         const want = normalizeOut(st.exercise.check.join('\n'));
-        if (got === want) {
+        if (sameOutput(got, want)) {
           const a = getAuth();
           appendText('✓ 输出与期望一致，通过！进度已保存。', 'ml-exercise__pass');
           const passes = passStore();
           passes[st.slot] = true;
           saveJSON(nsKey(EXERCISE_KEY), passes);
+          /* 练习通过记录也要发一次「数据有改动」：不发的后果是只刷练习、
+             不点「标记已学完」的用户，通过记录永远留在本机，
+             换设备「已通过」全丢（学完标记走 progress.js，是会推的）。 */
+          notifyDataDirty();
           appendText(
             a ? '（账号空间：' + a.u + '）' : '（本地存储 · 登录后进度存入账号空间）',
             'ml-exercise__unauthed',
@@ -1297,6 +1464,10 @@ function ensureConsole() {
   };
   /* 供外部（如 renderSliders 的同步按钮）触发一次运行 */
   st._run = run;
+  /* 供 openInConsole 用：正文里的「▶ 浮窗运行 / 在浮窗作答 / 用 Python 解题」
+     只是给面板加 is-open，走不到 setOpen()，于是**窄屏默认整页**这条规则
+     （applyMode）从来不生效——浮窗会以 92vh 的居中卡片压住整个手机屏。 */
+  st._applyMode = applyMode;
 
   function isExerciseSlot() {
     return !!st.exercise;
@@ -1320,11 +1491,15 @@ function ensureConsole() {
   btnResetNs.addEventListener('click', async () => {
     btnResetNs.disabled = true;
     try {
-      const py = await getPyodide((s) => (status.textContent = s));
-      await ensurePreamble(py);
-      await py.runPythonAsync(
-        '_ml_console_g.clear(); _ml_console_g.update({"__name__": "__main__"})',
-      );
+      /* 清命名空间也要排进执行队列：笔记本单元或浮窗正在跑的时候直接 clear()，
+         运行中的代码会当场 NameError，而报错还显示在另一个面板里。 */
+      await queueExec(async () => {
+        const py = await getPyodide((s) => (status.textContent = s));
+        await ensurePreamble(py);
+        await py.runPythonAsync(
+          '_ml_console_g.clear(); _ml_console_g.update({"__name__": "__main__"})',
+        );
+      });
       clearOut();
       status.textContent = '变量已清空';
     } catch (e) {
@@ -1513,6 +1688,8 @@ function buildQuizCard(source) {
   const hasCorrect = options.some((o) => o.correct);
   const feedback = document.createElement('div');
   feedback.className = 'ml-quiz__fb';
+  feedback.setAttribute('role', 'status');
+  feedback.setAttribute('aria-live', 'polite');
 
   const btnCheck = document.createElement('button');
   btnCheck.className = 'ml-quiz__btn';
@@ -1736,7 +1913,15 @@ function enhanceProgress() {
       : '读完这节了？标记「已学完」· 累计 ' + done + ' 节';
   };
   btn.addEventListener('click', () => {
-    store[path] = !store[path];
+    /* 点击时**重新读一次**再改：扫页面那一刻拿到的 store 是快照，
+       期间别处（首页「继续学习」、另一个标签页、数据面板导入）新增的标记
+       会被这次整表回写抹掉。 */
+    const fresh = readProgress();
+    fresh[path] = !(store[path] || fresh[path]);
+    Object.keys(store).forEach((k) => {
+      delete store[k];
+    });
+    Object.assign(store, fresh);
     writeProgress(store);
     render();
     document.dispatchEvent(new Event('ml-progress-changed'));

@@ -139,7 +139,7 @@ for e in [8, 15, 25]:
 
 补上台价函数（一次折半，from epoch 10 起）：
 
-```python
+```py
 def lr_at(epoch):
     if epoch >= 10:
         return base * 0.5          # 第二级：0.4

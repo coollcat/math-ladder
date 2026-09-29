@@ -248,4 +248,4 @@ $$\nabla X_t = X_t - X_{t-1}, \qquad \nabla^2 X_t = \nabla(\nabla X_t)$$
 
 ARMA 假设方差恒定，但金融市场里"波动率会聚集"——大涨大跌扎堆出现。下一课我们用 GARCH 模型来捕捉这种时变波动率。
 
-→ [GARCH 波动率模型](/docs/stochastic-processes/garch-volatility)
+→ [GARCH 波动率模型](./95-garch-volatility.md)

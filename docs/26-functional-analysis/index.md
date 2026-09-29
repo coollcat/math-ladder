@@ -1,5 +1,6 @@
 ---
 title: 第 26 章 · 泛函分析选讲
+short: 泛函分析
 description: 把函数看作空间中的点，研究范数、内积、Banach 与 Hilbert 空间。
 volume: 2
 layer: L8
@@ -37,6 +38,7 @@ difficulty: 5
 - [紧算子选讲](./75-compact-operators.md)——无穷维单位球大得指望不上收敛子列，但有一类算子能把这团庞然大物压软成近似有限维的样子；配套 plot 衰减示意；
 - [弱收敛与强收敛](./80-weak-strong-convergence.md)——正弦波的测量读数趋于零而振幅纹丝不动：两本账簿从这里开始分岔；配套 sines 振荡实验；
 - [Lax-Milgram 选读](./85-lax-milgram.md)——受热的杆、绷紧的膜都要解椭圆方程：经典导数可能不存在，但能量碗什么时候必有唯一最低点？配套 plot 能量地形；
+- [Arzelà–Ascoli：函数族什么时候能抽出收敛子列](./87-arzela-ascoli.md)——越来越细的网格算出一列近似解，光把高度框住不够，还得框住陡峭：等度连续一上，Bolzano–Weierstrass 就在函数空间里复活；配套 viz 一致收敛实验；
 - [分布初步](./90-distributions-intro.md)——锤击、点电荷、瞬时脉冲全挤在一个点上，经典函数写不下它们；配套 plot 测量器读数图；
 - [Sobolev 空间：弱导数的家](./92-sobolev-spaces.md)——折线函数在折点没有经典导数，却有平方可积的弱导数：给“函数与弱导数都在 L²”的函数类上户口；配套 plot 折线与阶梯弱导数对照；
 - [变分法选讲：Euler-Lagrange 与最速降线](./95-calculus-of-variations.md)——"未知量不是数，而是整条函数"：最短路必是直线由方程亲手吐出，最速降线交给固定网格折线赛跑与 Euler-Lagrange 方程；配套两点折线计时扫描实验；
@@ -115,7 +117,7 @@ $$\lVert r\rVert^2=\int_0^1\Big(x^4-2x^3+\tfrac43x^2-\tfrac13x+\tfrac1{36}\Big)d
 **验算（垂直性哨卡）**：$\langle r,1\rangle=\tfrac13-\tfrac12+\tfrac16=0$ ✓；$\langle r,x\rangle=\tfrac14-\tfrac13+\tfrac1{12}=0$ ✓。误差与整个子空间垂直——这正是投影定理承诺的"最短影子"，也是 [内积与 Hilbert 空间](./40-inner-product-hilbert.md)与第 21 章[最小二乘与正规方程](../21-linear-algebra-advanced/80-least-squares.md)在同一件事上的两种口音：散点拟合是它的离散版，这里是连续版。
 
 
-```python
+```py
 m11 = 1.0 / 3
 
 det_ = m00 * m11 - m01 * m01
@@ -150,7 +152,7 @@ print(norm)
 
 $L^2$ 范数（欧氏长度）要开平方根：
 
-```python
+```py
 norm = math.sqrt(v[0] * v[0] + v[1] * v[1])   # sqrt(9 + 16)
 print(norm)                                    # 5.0
 ```

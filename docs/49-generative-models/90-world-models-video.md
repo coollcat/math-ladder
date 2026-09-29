@@ -145,7 +145,7 @@ print(round(abs(s_model - s_true), 2))
 
 真实世界不理会模型的想象，每一步按自己的规律走：
 
-```python
+```py
     s_true = TRUE_B * s_true + act              # 现实只看现实
 ```
 

@@ -1,5 +1,6 @@
 ---
 title: 第 30 章 · 算法与数据结构数学
+short: 算法
 description: 用不变式、递推和增长率理解排序、搜索、哈希与复杂度。
 volume: 3
 layer: L4
@@ -23,7 +24,8 @@ difficulty: 3
 6. [排序下界与决策树](./40-sorting-lower-bound.md)：证明天花板不可突破；
 7. [哈希、冲突与期望分析](./50-hashing-collisions.md)：$O(1)$ 承诺的真实账单；
 8. [栈、队列、堆与图遍历](./60-stack-queue-traversal.md)：三种容器指挥三种队形；
-9. [二叉搜索树：有序数据的家](./65-binary-search-tree.md)：左小右大的家规，中序一走全有序。
+9. [二叉搜索树：有序数据的家](./65-binary-search-tree.md)：左小右大的家规，中序一走全有序；
+10. [字符串算法：KMP 与 Trie 为什么能省时间](./70-string-algorithms.md)：前缀函数记住模式的自相似，失配只挪状态不挪文本。
 
 ## 前置回望
 
@@ -31,7 +33,7 @@ difficulty: 3
 
 ## 交互形态
 
-已落地：渐近记号、分治与排序下界三课配 plot 曲线与 curverace 曲线赛跑，循环不变式课配 domino 步进演示，哈希课配 clockmod 时钟实验，图遍历课配 datachart 统计图表，动态规划课配 plot 指数与线性账单对比曲线，贪心课配 datachart 找零对照柱状图，二叉搜索树课配 plot 树高对比曲线；判题练习覆盖全部九门。
+已落地：渐近记号、分治与排序下界三课配 plot 曲线与 curverace 曲线赛跑，循环不变式课配 domino 步进演示，哈希课配 clockmod 时钟实验，图遍历课配 datachart 统计图表，动态规划课配 plot 指数与线性账单对比曲线，贪心课配 datachart 找零对照柱状图，二叉搜索树课配 plot 树高对比曲线，字符串算法课配 dfa-runner 跑 KMP 自动机；判题练习覆盖全部十门。
 
 后续增强（登记待实现）：拖拽式排序逐帧控制、冲突分布模拟面板、更完整的不变式步骤验证器与 BST 树形插入动画。
 
@@ -94,7 +96,7 @@ print(dist_d_final)
 3. 取 $C(5)$：$D \gets \min(10,\ 5{+}2)=\mathbf{7}$——负权不存在时，Dijkstra 的贪心次序保证此刻的 7 就是终局；
 4. 答案：(a) 2；(b) 5；(c) 7。完整路线 $S\to B\to A\to C\to D$ 合计 $1{+}1{+}3{+}2=7$ 分钟。
 
-用代码复核全表：
+用代码复核全表（三问各打一行，别把整张距离表打出来）：
 
 ```python
 b_a = 1
@@ -104,7 +106,9 @@ dist_s, dist_a, dist_b, dist_c, dist_d = 0, 4, 1, 99, 99
 dist_a = dist_b + b_a          # 松弛后 2
 dist_c = dist_a + a_c          # 5
 dist_d = dist_c + c_d          # 7
-print([dist_s, dist_a, dist_b, dist_c, dist_d])
+print(dist_a)   # (a) 2
+print(dist_c)   # (b) 5
+print(dist_d)   # (c) 7
 ```
 
 注意 $B\to C$ 的直连边（1+4=5）与 $S\to B\to A\to C$ 打平——最短路径不必唯一，但最短**值**唯一。
@@ -139,7 +143,7 @@ print(m)
 
 找最大值要"见大换擂主"：
 
-```python
+```py
 if x > m:        # 遇到更大的值就更新擂主
     m = x
 print(m)         # 9

@@ -1,5 +1,6 @@
 ---
 title: 第 32 章 · 可计算性与复杂度
+short: 可计算性
 description: 区分能算与不能算、容易与困难：图灵机、不可判定性和 P-NP 地图。
 volume: 3
 layer: L4
@@ -27,11 +28,13 @@ difficulty: 5
 10. [NP 完全性](./60-np-completeness.md)——如果有人在 NP 这片大陆上找到一座最高峰，并且所有山峰都能用缆车连到它，那么只要证明这座峰有快路径…；
 11. [SAT 与 3-SAT](./65-sat-three-sat.md)——一场活动有三个约束：甲来则乙不来；
 12. [图着色、团与独立集](./70-graph-reductions.md)——排课时，两位老师不能在同一时段进同一间教室；
-13. [近似与启发式出口](./75-approximation-heuristics.md)——快递员要访问一百个地址，旅行商问题没有已知的多项式最优算法；
-14. [复杂度类地图](./80-complexity-map.md)——旅行时你会问三个问题：能到吗、要多久、要带多少行李；
-15. [PSPACE 与指数时间](./85-pspace-exp-time.md)——下一盘棋时，你不需要同时记住所有未来棋局；
-16. [方法地图](./90-methods-map.md)——拿到新问题时，最有价值的第一个动作往往不是写代码，而是问：它属于哪种困难？；
-17. [哥德尔不完备定理选讲](./95-godel-incompleteness.md)——自指句如何借编号术谈论自己：足够强的形式系统无法证明自身的完备与一致。
+13. [NP 完全经典案例](./72-np-complete-classics.md)——SAT 只是始祖：子集和、顶点覆盖、Hamilton 路径、背包这些硬骨头互相翻译，一个能解就全家能解；
+14. [近似与启发式出口](./75-approximation-heuristics.md)——快递员要访问一百个地址，旅行商问题没有已知的多项式最优算法；
+15. [复杂度类地图](./80-complexity-map.md)——旅行时你会问三个问题：能到吗、要多久、要带多少行李；
+16. [PSPACE 与指数时间](./85-pspace-exp-time.md)——下一盘棋时，你不需要同时记住所有未来棋局；
+17. [方法地图](./90-methods-map.md)——拿到新问题时，最有价值的第一个动作往往不是写代码，而是问：它属于哪种困难？；
+18. [哥德尔不完备定理选讲](./95-godel-incompleteness.md)——自指句如何借编号术谈论自己：足够强的形式系统无法证明自身的完备与一致；
+19. [随机化、计数与参数化：三张新的复杂度地图](./97-randomized-parameterized.md)——不与 P-NP 硬碰，改用掷骰子、数解个数和压低参数三条路线各自突围。
 
 ## 课程地图
 
@@ -49,11 +52,13 @@ difficulty: 5
 | [NP 完全性](./60-np-completeness.md) | NP 完全性 | 谁是 NP 里最难的那批代表？ |
 | [SAT 与 3-SAT](./65-sat-three-sat.md) | SAT 与 3-SAT | 布尔 satisfiability 为何是枢纽？ |
 | [图着色、团与独立集](./70-graph-reductions.md) | 图着色、团与独立集 | 同一困难如何在图上变形？ |
+| [NP 完全经典案例](./72-np-complete-classics.md) | NP 完全经典案例 | 一个 NP 完全问题能解，为什么全家都能解？ |
 | [近似与启发式出口](./75-approximation-heuristics.md) | 近似与启发式出口 | 承认困难后还能交付什么？ |
 | [复杂度类地图](./80-complexity-map.md) | 复杂度类地图 | 资源限制怎样画出大陆和边界？ |
 | [PSPACE 与指数时间](./85-pspace-exp-time.md) | PSPACE 与指数时间 | 空间省着用，时间还爆炸吗？ |
 | [方法地图](./90-methods-map.md) | 方法地图 | 这章的思想如何迁移到新问题？ |
 | [哥德尔不完备定理选讲](./95-godel-incompleteness.md) | 哥德尔不完备定理选讲 | 足够强的形式系统为什么证明不了自身的一致性？ |
+| [随机化、计数与参数化](./97-randomized-parameterized.md) | 随机化、计数与参数化 | P-NP 僵局下还有哪三条能通车的路？ |
 
 ## 前置回望
 
@@ -61,7 +66,7 @@ difficulty: 5
 
 ## 交互形态
 
-已落地：十七门正式课每门都配判题练习与选择题（quiz），课堂互动由浮窗 Python 与 proof-trail 推理链组件兜底承担。
+已落地：十九门正式课每门都配判题练习与选择题（quiz），课堂互动由浮窗 Python 与 proof-trail 推理链组件兜底承担（随机化课另配 dfa-runner 演示多数表决记账）。
 
 以下专属可视化组件尚未实现，规格登记在 `COMPONENT_SPEC.md`：
 
@@ -72,7 +77,7 @@ difficulty: 5
 
 :::note[生产状态]
 
-本页列出的十七门正式课已建立九段式骨架；未来专属可视化组件规格见 仓库内的 COMPONENT_SPEC.md。
+本页列出的十九门正式课已建立九段式骨架；未来专属可视化组件规格见 仓库内的 COMPONENT_SPEC.md。
 
 :::
 
@@ -169,7 +174,7 @@ print(tape)
 
 加一的进位规则：最低位是 1，就要把它"翻成 0"并往更高位（左边）借位继续；一旦遇到 0，就把它"翻成 1"并停下。所以正确的两条规则是——**遇到 1：改 0、左移；遇到 0：改 1、停机**。
 
-```python
+```py
 if tape[head] == 1:      # 遇到 1：改成 0，向左进一位继续
     tape[head] = 0
     head = head - 1
@@ -209,7 +214,7 @@ print(verify([0, 3]))      # 证书二：下标 0、3 指向数字 5、14
 
 验证器要把证书里每个下标**指向的数字**累加，而不是把下标本身相加：
 
-```python
+```py
 total = total + numbers[idx]   # 累加下标 idx 指向的数字 numbers[idx]
 ```
 

@@ -195,6 +195,8 @@ for k in range(1, n + 1):
 <summary>点开查看逐步解答</summary>
 
 ```python
+from itertools import combinations      # 题干里 import 过，这里自包含便于单独运行
+
 def is_vertex_cover(vertices, edges):
     cover = set(vertices)
     for u, v in edges:

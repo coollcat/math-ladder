@@ -1,5 +1,6 @@
 ---
 title: 第 40 章 · 信息论
+short: 信息论
 description: 把不确定性变成可测量对象：熵、交叉熵、KL 散度、互信息与编码。
 volume: 4
 layer: L10
@@ -181,7 +182,7 @@ print(round(H, 4))
 
 熵要取负号：
 
-```python
+```py
 H = H - x * math.log(x, 2)   # −Σ p·log2(p)
 print(round(H, 4))           # 1.5
 ```

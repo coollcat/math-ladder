@@ -164,7 +164,7 @@ print(round(p_wait_4, 4))
 
 取 $e\approx 2.718281828459045$（`pow` 的底数），三个量依次为：
 
-```python
+```py
 mean_calls = lam * t                                  # 0.5 × 10 = 5.0
 p_exact_2 = ((lam * t) ** 2 / 2) * pow(e, -(lam*t))   # 12.5 × e^{−5} ≈ 0.0842
 p_wait_4  = pow(e, -(lam * 4))                        # e^{−2} ≈ 0.1353

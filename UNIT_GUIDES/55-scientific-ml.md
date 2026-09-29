@@ -233,4 +233,4 @@ index「计划交互形态」→ 组件映射：微分方程残差热力图→`p
 4. 每课有 quiz、2–3 张误区卡、选读或边界说明；占位章引用按磁盘现状核实（绝大多数相关章现已建成），prereqs 只引真实存在且排前的 lesson_id。
 5. MDX 双坑体检：花括号用 \lbrace\rbrace；显示公式一律单行；逐课比对源 `^## ` 数与产物 `<h2` 数。
 6. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；浏览器实测三类交互块 + Alt+P 浮窗 + 路由切换无重复注入；360px + dark 无溢出。
-7. 结论合并进 CONTENT_AUDIT.md；非阻塞项（如 rom-mode-picker）登记 AUDIT_REPORTS/OPEN_ITEMS.md。
+7. 结论合并进 CONTENT_AUDIT.md；非阻塞项（如 rom-mode-picker）登记 _ai-workspace/reports/OPEN_ITEMS.md。

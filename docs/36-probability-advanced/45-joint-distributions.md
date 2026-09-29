@@ -171,7 +171,7 @@ print(f"{conditional_rain_given_hot:.4f}")
 
 第三行的正确姿态是用"偏热的小世界"做分母：
 
-```python
+```py
 conditional_rain_given_hot = 45 / (45 + 75)
 ```
 

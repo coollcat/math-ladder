@@ -17,12 +17,13 @@
  * ========================================================================= */
 
 import { nsKey, progressNS, notifyDataDirty } from '../learning/progress';
+import { AUTH_EVENT } from '../auth';
 import { saveSnippet } from './repo';
 /* KaTeX 的加载与输出公式渲染和浮窗共用一份（mathout.js），别各拉各的 */
 import { getKatex } from './mathout';
 /* 代码补全与层叠，同样与浮窗共用 */
 import { attachComplete, harvestWords } from './complete';
-import { watchPanel, bringToFront } from './zorder';
+import { watchPanel, bringToFront, isTopmost } from './zorder';
 
 const NB_KEY = 'ml-notebook';
 const MAX_BOOKS = 20;
@@ -327,9 +328,22 @@ const TEMPLATES = [
 /* ---------- 存储 ---------- */
 
 let data = null;
+/* 缓存属于哪个存储键：登录/登出会换命名空间（:guest ⇄ :<用户名>），
+   而换空间是 SPA 内切换、模块不重载。只判 `if (data)` 会把上一个空间的
+   笔记本当成当前空间的，随后 persist() 又把它写进新键——
+   游客数据被灌进账号空间并跟着上云。所以缓存必须跟着键走。 */
+let dataNS = null;
 let api = null;
 let els = null;
 let saveTimer = null;
+let escHandler = null;
+/* 写盘失败（配额满）：必须让用户看见——界面照旧能写，不提示的话用户会以为存上了 */
+let storageFull = false;
+/* 读盘失败（键里有东西但解析不出来）：不覆盖原数据，只提示 */
+let dataReadFailed = false;
+/* 当前活着的补全器（每单元一个）。renderCells 重建全部单元前必须逐个 destroy()，
+   否则 window 上的 scroll 监听会越堆越多，且候选框会画到已丢弃的 textarea 上。 */
+const completers = [];
 
 function uid(p) {
   return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -340,29 +354,52 @@ function esc(s) {
 }
 
 function load() {
-  if (data) return data;
   if (typeof window === 'undefined') return { v: 1, books: [], activeId: null };
+  /* 键变了（登录/登出/搬家写回）就丢掉旧缓存重新读，绝不复用上一个空间的数据 */
+  const key = nsKey(NB_KEY);
+  if (data && dataNS === key) return data;
+  dataNS = key;
   try {
-    const v = JSON.parse(window.localStorage.getItem(nsKey(NB_KEY)) || 'null');
+    const v = JSON.parse(window.localStorage.getItem(key) || 'null');
     if (v && Array.isArray(v.books)) {
       data = v;
       return data;
     }
   } catch {
-    /* 数据坏了：重建一份，不阻断 */
+    /* 解析不出来：下面按「读失败」处理，**不覆盖原数据** */
   }
   data = { v: 1, books: [starterBook()], activeId: null };
   data.activeId = data.books[0].id;
-  persist();
+  /* 原来无论「本来就没有」还是「数据坏了」都 persist() 一次：后者等于把用户
+     读不出来的笔记**永久改写成一本空笔记本**（仓库与备份面板都刻意避免这种写法）。
+     现在只有「本来就没有」才落盘；坏数据留在原处不覆盖，并把实情说出来。 */
+  const existed = (() => {
+    try {
+      return window.localStorage.getItem(key) != null;
+    } catch {
+      return false;
+    }
+  })();
+  if (!existed) persist();
+  else dataReadFailed = true;
   return data;
 }
 
 function persist() {
   if (typeof window === 'undefined') return;
+  const key = nsKey(NB_KEY);
+  dataNS = key;
   try {
-    window.localStorage.setItem(nsKey(NB_KEY), JSON.stringify(data));
+    window.localStorage.setItem(key, JSON.stringify(data));
+    storageFull = false;
   } catch {
-    /* 配额满：笔记本太大时放弃写入，界面仍可用 */
+    /* 配额满：笔记本太大时写不进去。**必须让用户看见**——这是全站唯一
+       「悄悄把用户笔记丢掉」的路径：界面照旧可写，用户以为存上了。
+       仓库面板与数据面板都做了同样的告警，这里原先只有一句注释。 */
+    storageFull = true;
+  }
+  if (storageFull && typeof setStatus === 'function') {
+    setStatus('⚠ 本机存储已满，刚才的改动**没有存下**。请先导出备份或删掉几本笔记再继续。');
   }
   /* 只 dispatch，不 import sync：云同步监听这个事件，攒 2 秒推一次 */
   notifyDataDirty();
@@ -654,7 +691,13 @@ function moveCell(cell, dir) {
 function removeCell(cell) {
   const b = activeBook();
   if (b.cells.length <= 1) {
-    b.cells = [];
+    /* 最后一个单元的 ✕ 原先直接 `cells = []`，整本笔记当场清空并落盘，
+       没有二次确认也没有撤销——而 ✕ 就紧挨着 ↑↓，误点即永久丢内容。
+       改为「清空内容」：结构还在，用户能看见自己清掉的是哪一格。 */
+    const only = b.cells[0];
+    if (!window.confirm('这是本子里的最后一个单元。清空它的内容？（结构保留，不会删掉整本笔记本）')) return;
+    only.src = '';
+    only.kind = only.kind || 'md';
   } else {
     b.cells = b.cells.filter((c) => c.id !== cell.id);
   }
@@ -701,8 +744,10 @@ function buildCellEl(cell) {
   if (cell.kind === 'code') {
     bar.appendChild(mk('▶ 运行', '运行这个单元（Ctrl+Enter）', () => runCell(cell, wrap)));
     bar.appendChild(mk('⇄ 送到浮窗', '把这段代码装进右下角的 Py 浮窗继续调', () => {
-      api.setSource(cell.src, '笔记本片段');
-      setStatus('已送到浮窗');
+      /* setSource 在浮窗正忙时会直接放弃（openInConsole 的 running 分支只开面板、
+         不换槽位）。那时还说「已送到浮窗」是假话——用户会盯着浮窗里上一段代码发呆。 */
+      const ok = api.setSource(cell.src, '笔记本片段');
+      setStatus(ok === false ? '浮窗正在运行，这一段先没送过去——等它跑完再点一次' : '已送到浮窗');
     }));
     bar.appendChild(mk('存', '把这段代码存进代码仓库', () => {
       const first = (cell.src.split('\n')[0] || '').replace(/^#\s*/, '').slice(0, 40);
@@ -722,6 +767,7 @@ function buildCellEl(cell) {
     /* 代码补全：候选 = 静态词表 + 这个单元里自己起过的名字。
        挂在下面的 keydown 之前，补全吃下的 Tab 不会再多出两个空格。 */
     const ac = attachComplete(ta);
+    completers.push(ac);
     const refreshAc = () => ac.setExtras(harvestWords(cell.src));
     refreshAc();
 
@@ -737,6 +783,10 @@ function buildCellEl(cell) {
         runCell(cell, wrap);
       }
       if (ev.key === 'Tab') {
+        /* Shift+Tab 必须放行：Tab 在这里被吃成「缩进两格」，两个方向都吃掉的
+           结果是**键盘用户出不去这个编辑区**（WCAG 2.1.2 键盘陷阱），
+           唯一的出口是 Esc——而 Esc 在这里只退编辑、连面板都关不掉。 */
+        if (ev.shiftKey) return;
         ev.preventDefault();
         const s = ta.selectionStart;
         const e2 = ta.selectionEnd;
@@ -745,6 +795,14 @@ function buildCellEl(cell) {
         cell.src = ta.value;
         refreshAc();
         scheduleSave();
+      }
+      /* Esc 在单元里 = 退出这一个单元的编辑，不是关掉整个笔记本。
+         不放 stopPropagation 的话它会冒泡到文档级监听，一按就把笔记本整个关了
+         （与笔记单元「只失焦」的行为也不一致）。 */
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        ev.stopPropagation();
+        ta.blur();
       }
     });
 
@@ -781,6 +839,7 @@ function buildCellEl(cell) {
   ta.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') {
       ev.preventDefault();
+      ev.stopPropagation(); /* 同上：只退出编辑，别把整个笔记本关掉 */
       ta.blur();
     }
   });
@@ -823,6 +882,18 @@ async function paintMd(wrap, cell) {
 
 function renderCells() {
   if (!els) return;
+  /* 重建前先拆掉上一批补全器：attachComplete(ta) 每次都会给 window 挂一个
+     捕获阶段 scroll 监听，而这里从不调用它的 destroy()（全仓零调用点）——
+     每开一次笔记本/每改一次单元就永久多 N 个监听，还会把候选框画到已被
+     丢弃的 textarea 上（视口左上角）。 */
+  completers.forEach((ac) => {
+    try {
+      ac.destroy();
+    } catch {
+      /* 单个补全器拆失败不该挡住重绘 */
+    }
+  });
+  completers.length = 0;
   const b = activeBook();
   els.body.innerHTML = '';
   if (!b.cells.length) {
@@ -851,6 +922,8 @@ function renderBooks() {
 
 function build() {
   const panel = el('div', 'ml-notebook');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', '数学笔记本');
   panel.id = 'ml-notebook';
 
   /* 头部：标题 + 笔记本切换 + 整页 + 关闭 */
@@ -949,6 +1022,12 @@ function build() {
   head.addEventListener('pointerdown', (ev) => {
     if (ev.target.closest('button, input, select')) return;
     if (panel.classList.contains('is-fullpage')) return;
+    /* 窄屏（≤768px）面板是 left/right 双向锚定、宽度自适应（见 custom.css）。
+       这时候写内联 left/top 并把 right 设成 auto，面板会变成「只锚左、宽 auto」
+       的 shrink-to-fit，宽度按 textarea + 单元格网格的 max-content 塌掉或溢出，
+       右半截（含 × 关闭钮）直接跑到屏外，只能刷新页面。
+       所以窄屏干脆不拖——那个宽度本来也没有可拖的余地。 */
+    if (window.matchMedia('(max-width: 768px)').matches) return;
     const r = panel.getBoundingClientRect();
     panel.style.transform = 'none';
     panel.style.left = r.left + 'px';
@@ -965,8 +1044,13 @@ function build() {
     }
     const w = panel.offsetWidth;
     const h = panel.offsetHeight;
-    panel.style.left = Math.min(Math.max(ev.clientX - drag.dx, 8), window.innerWidth - w - 8) + 'px';
-    panel.style.top = Math.min(Math.max(ev.clientY - drag.dy, 8), window.innerHeight - h - 8) + 'px';
+    /* 面板可能比视口还宽/高（先在大屏拖过、再缩小窗口）：上界会小于下界，
+       直接 Math.min(max(v,8), 负数) 得到负坐标，把面板整个推到屏幕外。
+       先把上界夹到 ≥8。 */
+    const maxL = Math.max(8, window.innerWidth - w - 8);
+    const maxT = Math.max(8, window.innerHeight - h - 8);
+    panel.style.left = Math.min(Math.max(ev.clientX - drag.dx, 8), maxL) + 'px';
+    panel.style.top = Math.min(Math.max(ev.clientY - drag.dy, 8), maxT) + 'px';
   });
   const endDrag = () => {
     drag = null;
@@ -980,8 +1064,15 @@ function build() {
     const full = panel.classList.toggle('is-fullpage');
     btnMode.textContent = full ? '浮窗' : '整页';
     if (!full) {
+      /* 浮窗态的居中靠 CSS 的 `left:50% + translate(-50%,-50%)`，而拖动时会写
+         内联 `transform:none`。只清 left/top 不清 transform，左边缘就停在视口
+         50% 处——1180px 宽的面板右半截（含 × 关闭钮）整块跑到屏幕外，
+         只能刷新页面。三个内联样式必须一起清。 */
       panel.style.left = '';
       panel.style.top = '';
+      panel.style.right = '';
+      panel.style.bottom = '';
+      panel.style.transform = '';
     }
   });
   title.addEventListener('input', () => {
@@ -1023,9 +1114,20 @@ function build() {
     renderCells();
   });
 
-  document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape' && panel.classList.contains('is-open')) closeNotebook();
-  });
+  /* Escape 只挂一次：挂在 build 里的话，跨代重建一次就多一份监听，
+     旧的还抱着已被摘掉的 panel。这份常驻监听始终作用于当前的 els.panel。
+     分层关闭：只有本面板是栈顶才响应（几个浮窗叠着开时，Esc 只关最上面那层），
+     并用 stopImmediatePropagation 拦住同样挂在 document 上的浮窗控制台——
+     同元素上的监听之间 stopPropagation 是拦不住的。 */
+  if (!escHandler) {
+    escHandler = (ev) => {
+      if (ev.key !== 'Escape' || !els || !els.panel.classList.contains('is-open')) return;
+      if (!isTopmost(els.panel)) return;
+      ev.stopImmediatePropagation();
+      closeNotebook();
+    };
+    document.addEventListener('keydown', escHandler);
+  }
 
   /* 参与层叠：点到谁谁在最上面（控制台 / 笔记本 / 仓库共用 zorder 的栈） */
   watchPanel(panel);
@@ -1053,14 +1155,55 @@ async function runAll() {
 
 /* ---------- 对外 ---------- */
 
+/* 登录/登出会换命名空间。面板正好开着时，界面上还挂着上一个空间的本子，
+   此时再随手改一个单元，persist() 就会把新空间的数据写脏（反过来也一样）。
+   所以换空间时：先把当前内容按旧键落盘，再作废缓存重读新空间。
+   只挂一次——模块是单例，挂多了每次登录会重渲染 N 遍。 */
+if (typeof window !== 'undefined' && !window.__mlNbAuthHooked) {
+  window.__mlNbAuthHooked = true;
+  window.addEventListener(AUTH_EVENT, () => {
+    if (!els || !els.panel.classList.contains('is-open')) return;
+    /* 注意顺序：AUTH_EVENT 是在 localStorage 里的登录态**改完之后**才派发的，
+       此刻 nsKey() 已经是新空间了。所以不能直接 persist()——那会把旧空间的
+       本子写进新空间的键里。按 dataNS（旧键）显式落盘，且刻意不走 persist()：
+       它带的 notifyDataDirty() 会触发一次云推送，把旧空间数据推到新账号上。 */
+    const oldKey = dataNS;
+    if (data && oldKey) {
+      try {
+        window.localStorage.setItem(oldKey, JSON.stringify(data));
+      } catch {
+        /* 配额满：改动留不住，但不该因此挡住换空间 */
+      }
+    }
+    data = null;
+    dataNS = null;
+    load();
+    renderBooks();
+    renderCells();
+  });
+}
+
 export async function openNotebook(toolApi) {
   api = toolApi;
   if (!els || !document.contains(els.panel)) build();
+  /* 已经开着就别重建：renderCells() 会清掉所有单元的输出、丢掉滚动位置，
+     正在运行的单元输出还会写进脱离文档的节点。原先每次点圆钮都跑一遍，
+     用户点第二次本来是想收起，结果是把面板重建了一遍。 */
+  if (els.panel.classList.contains('is-open')) {
+    bringToFront(els.panel);
+    return;
+  }
   load();
   renderBooks();
   renderCells();
   els.panel.classList.add('is-open');
   bringToFront(els.panel);
+  /* 读失败 / 写失败都要说出来：这两条路原先都是静默的 */
+  if (dataReadFailed) {
+    setStatus('⚠ 这台浏览器里的笔记本数据读不出来（可能写坏了）。已先用一本空笔记本顶上，**原数据没有被覆盖**——先导出备份或找维护者看一眼。');
+  } else if (storageFull) {
+    setStatus('⚠ 本机存储已满，改动没有存下。请先导出备份或删掉几本笔记。');
+  }
   /* 先摸一下 KaTeX：等用户写完笔记再加载就慢了 */
   try {
     await getKatex();
@@ -1151,6 +1294,7 @@ export function writeNotebook(ns, incoming, mode = 'merge') {
   notifyDataDirty();
   if (nsKey(NB_KEY) === k) {
     data = null;
+    dataNS = null; /* 一并作废缓存归属，下次 load() 重新读键 */
     if (els) {
       renderBooks();
       renderCells();

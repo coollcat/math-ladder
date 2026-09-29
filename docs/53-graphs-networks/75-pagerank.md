@@ -22,6 +22,11 @@ exits:
   - data-ai
 ---
 
+:::note[与别章的分工]
+PageRank 的**概率与马尔可夫链解释**在 [第 37 章 · PageRank](../37-stochastic-processes/50-pagerank.md)；本课从图的角度看同一件事：它就是邻接矩阵幂迭代的不动点，阻尼系数解决的是悬挂节点与收敛速度。
+:::
+
+
 # PageRank 与阻尼
 
 ## 1. 开场钩子

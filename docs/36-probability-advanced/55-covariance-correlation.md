@@ -209,7 +209,7 @@ print(f"{rho:.4f}")
 
 病根一行：`cov_xy = cross_sum / n`。分子逐项展开：$(-2)(-3)+(-1)(-1)+0\times1+1\times1+2\times2=12$，于是 $\widehat{\mathrm{Cov}}=12/5=2.4000$。两侧方差分别是 $10/5=2$ 与 $16/5=3.2$，所以
 
-```python
+```py
 rho = cov_xy / ((var_x * var_y) ** 0.5)   # 2.4 / sqrt(6.4) ≈ 0.9487
 ```
 

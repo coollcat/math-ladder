@@ -1,5 +1,6 @@
 ---
 title: 第 25 章 · 测度论与 Lebesgue 入门
+short: 测度论
 description: 重新定义长度、面积与概率，使更奇怪的集合和函数也能积分。
 volume: 2
 layer: L8
@@ -17,16 +18,18 @@ Riemann 积分切开横轴，Lebesgue 积分先测量纵轴上的水平层。这
 本章你会学到：
 
 1. [从长度到测度](./10-from-length-to-measure.md)——一根线段的长度你量了十几年：区间 $[a,b]$ 的长度是 $b-a$。可一个点、一万万个点的“总长度”又是多少？；
-2. [康托集与外测度](./20-cantor-outer-measure.md)——拿一根 $[0,1]$ 长的铁丝，从正中间剪掉开区间 $(\tfrac13,\tfrac23)$，再把每段的中三分之一无穷剪下去：最后剩下的铁丝有多长？；
-3. [可测函数](./30-measurable-functions.md)——上一章的 [Riemann 积分的严格定义](../19-real-analysis/50-riemann-upper-lower.md)见识过数学史上著名的恶棍：Dirichlet 函数——有理数处取 1、无理数处取 0，Riemann 当场拒收；换个问法它却可能变乖；
-4. [勒贝格积分思想](./40-lebesgue-integral.md)——数一罐硬币有两种方式；
-5. [收敛定理](./50-convergence-theorems.md)——严格分析里还有一张老通行证叫一致收敛：它要求函数列全员齐步走；
-6. [乘积测度与 Fubini：交换积分次序的资格](./55-product-fubini.md)——有限表格按行加、按列加当然一样；无穷世界里这份“显然”要重新考试；
-7. [概率论的测度论视角](./60-probability-as-measure.md)——掷一次硬币，正面概率 $\tfrac12$——小学就会。
+2. [σ-代数与 Borel 集](./15-sigma-algebra.md)——Vitali 集合告诉你世上真有“量不出长度”的集合，σ-代数正是那份“哪些集合才准测”的许可证；
+3. [康托集与外测度](./20-cantor-outer-measure.md)——拿一根 $[0,1]$ 长的铁丝，从正中间剪掉开区间 $(\tfrac13,\tfrac23)$，再把每段的中三分之一无穷剪下去：最后剩下的铁丝有多长？；
+4. [可测函数](./30-measurable-functions.md)——上一章的 [Riemann 积分的严格定义](../19-real-analysis/50-riemann-upper-lower.md)见识过数学史上著名的恶棍：Dirichlet 函数——有理数处取 1、无理数处取 0，Riemann 当场拒收；换个问法它却可能变乖；
+5. [勒贝格积分思想](./40-lebesgue-integral.md)——数一罐硬币有两种方式；
+6. [Radon-Nikodym 定理：密度的正式护照](./45-radon-nikodym.md)——"密度"这个词在初等概率里是直觉，在测度论里要靠绝对连续与 RN 导数才站得住；条件期望由此获得严格身份；
+7. [收敛定理](./50-convergence-theorems.md)——严格分析里还有一张老通行证叫一致收敛：它要求函数列全员齐步走；
+8. [乘积测度与 Fubini：交换积分次序的资格](./55-product-fubini.md)——有限表格按行加、按列加当然一样；无穷世界里这份“显然”要重新考试；
+9. [概率论的测度论视角](./60-probability-as-measure.md)——掷一次硬币，正面概率 $\tfrac12$——小学就会。
 
 ## 生产状态
 
-七门正式课已完成：长度公理、外测度与康托集、可测函数、勒贝格积分、收敛定理、乘积测度与 Fubini，以及概率测度视角。每门课都有 viz 组件或浮窗实验，并配判题练习。
+九门正式课已完成：长度公理、σ-代数与 Borel 集、外测度与康托集、可测函数、勒贝格积分、Radon-Nikodym 定理、收敛定理、乘积测度与 Fubini，以及概率测度视角。每门课都有 viz 组件或浮窗实验，并配判题练习。
 
 ## 实战挑战 · 异常读数不该凭空变成质量
 
@@ -81,7 +84,7 @@ print(total)
 
 勒贝格测度满足**可数可加性**，不相交集合取并，测度相加：
 
-```python
+```py
 total = length(0, 1) + length(2, 3)   # 1 + 1
 print(total)                          # 2
 ```

@@ -199,4 +199,4 @@ import 登记：全章只用 `math` 与 matplotlib（均已登记）；若 90/10
 4. 不出现 numpy/cmath/scipy；所有公式显示态单行、花括号用 `\lbrace\rbrace`。
 5. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；h2 源码/产物计数一致。
 6. 浏览器实测五组件拖拽、浮窗三类块与路由切换；360px + dark 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

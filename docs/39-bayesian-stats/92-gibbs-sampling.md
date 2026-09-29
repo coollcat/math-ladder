@@ -189,8 +189,8 @@ $\rho=0.5$，条件方差 $=1-0.25=0.75$，$\sigma=\sqrt{0.75}\approx0.866$。
 
 ```exercise
 # @title: 练习：修复 Gibbs 条件分布
-# @check: 0.5
-# @check: 0.5
+# @check: 0.6
+# @check: 0.0
 # @hint: 条件均值是 rho × 另一个变量，不是 rho × 自己
 import random, math
 random.seed(99)
@@ -200,13 +200,21 @@ var = 1 - rho ** 2
 sd = math.sqrt(var)
 
 x, y = 0.0, 0.0
-for t in range(10000):
+sx = sy = sxy = sxx = syy = 0.0
+n, burn = 20000, 1000          # 前 1000 步当预热，丢掉不统计
+for t in range(n):
     x = random.gauss(rho * x, sd)     # ← bug：应该用 y 不是 x
     y = random.gauss(rho * y, sd)     # ← bug：应该用 x 不是 y
+    if t >= burn:
+        sx += x; sy += y
+        sxx += x * x; syy += y * y; sxy += x * y
 
-# 验证：10000 步后应接近 (0, 0)
-print(round(x, 1))
-print(round(y, 1))
+m = n - burn
+mx, my = sx / m, sy / m
+cov = sxy / m - mx * my
+corr = cov / math.sqrt((sxx / m - mx * mx) * (syy / m - my * my))
+print(round(corr, 1))    # 修正后应接近 rho = 0.6
+print(round(mx, 1))      # 均值应接近 0
 ```
 
 <details>
@@ -220,13 +228,26 @@ var = 1 - rho ** 2
 sd = math.sqrt(var)
 
 x, y = 0.0, 0.0
-for t in range(10000):
+sx = sy = sxy = sxx = syy = 0.0
+n, burn = 20000, 1000
+for t in range(n):
     x = random.gauss(rho * y, sd)     # p(x|y) = N(ρy, 1-ρ²)
     y = random.gauss(rho * x, sd)     # p(y|x) = N(ρx, 1-ρ²)
+    if t >= burn:
+        sx += x; sy += y
+        sxx += x * x; syy += y * y; sxy += x * y
 
-print(round(x, 1))   # 约 0.5
-print(round(y, 1))   # 约 0.5
+m = n - burn
+mx, my = sx / m, sy / m
+cov = sxy / m - mx * my
+corr = cov / math.sqrt((sxx / m - mx * mx) * (syy / m - my * my))
+print(round(corr, 1))    # 0.6：样本相关系数复原了 rho
+print(round(mx, 1))      # 0.0：均值回到 0
 ```
+
+**为什么不看最后一步的取值**：单步位置是一个随机数，换一次运行就变；
+而**样本相关系数**是这条链的统计性质——它等于 rho 才是"采样器对了"的证据。
+初版练习拿 `round(x, 1)` 当期望值，等于让判题去猜一枚硬币，现已改成相关系数。
 </details>
 
 ## 7. 选读：LDA 与 Gibbs 的黄金搭档

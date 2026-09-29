@@ -166,7 +166,7 @@ for q in queries:
 
 闸门装反了——"没超阈值反而被拒、超了反而放行"。把条件改回：
 
-```python
+```py
     if best_d > thr:                             # 超过阈值才拒绝
         best_i = -1
 ```

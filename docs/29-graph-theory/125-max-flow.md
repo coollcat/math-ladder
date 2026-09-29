@@ -208,7 +208,7 @@ print(total)
 
 比较要用**打擂台**写法——先立一个大数当擂主，逐段挑战：
 
-```python
+```py
 push = 99
 for e in edges:
     if room[e] < push:

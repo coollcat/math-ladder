@@ -92,7 +92,7 @@ introduces_import: []
 1. **平移**：$AB$ 与 $D_1C_1$ 平行且相等（都是棱），由《四边形家族》里"一组对边平行且相等的四边形是平行四边形"，四边形 $ABC_1D_1$ 是平行四边形 ⇒ $BC_1 \parallel AD_1$；
 2. **落位**：于是 $AB_1$ 与 $BC_1$ 的夹角 = $AB_1$ 与 $AD_1$ 的夹角 = $\angle B_1AD_1$，落进 $\triangle AB_1D_1$；
 3. **算三边**：三条边分别是正方体三个不同面上的面对角线，
-   $$AB_1 = AD_1 = B_1D_1 = \sqrt{1^2 + 1^2} = \sqrt2$$
+$$AB_1 = AD_1 = B_1D_1 = \sqrt{1^2 + 1^2} = \sqrt2$$
    （$AB_1$ 在前面、$AD_1$ 在左面、$B_1D_1$ 在上底面，各用一次勾股）；
 4. **读角度**：三边相等 ⇒ $\triangle AB_1D_1$ 是**等边三角形** ⇒ 每个内角都是 $60^\circ$。
 
@@ -232,7 +232,7 @@ $$AB_1 = AD_1 = B_1D_1 = \sqrt{1^2+1^2} = \sqrt2 \approx 1.414 \rightarrow \text
 
 修正版只改一处：
 
-```python
+```py
 sides = [round(diag, 2), round(diag, 2), round(diag, 2)]
 ```
 

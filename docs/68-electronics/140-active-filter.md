@@ -92,7 +92,7 @@ $$Q = \frac{1}{2\zeta}$$
 
 1. **确定 $Q$**：Butterworth 要求 $Q = 0.707$；
 2. **计算 $R$**：Sallen-Key 单位增益结构下，令 $R_1 = R_2 = R$，$C_1 = m C_2$（$m = 4Q^2$），有
-   $$R = \frac{1}{4\pi f_c C_2 Q} = \frac{1}{4\pi\times1000\times10^{-8}\times0.707} = \frac{1}{8.885\times10^{-5}} = 11254\ \Omega$$
+$$R = \frac{1}{4\pi f_c C_2 Q} = \frac{1}{4\pi\times1000\times10^{-8}\times0.707} = \frac{1}{8.885\times10^{-5}} = 11254\ \Omega$$
    取标准值 **11 kΩ**（1% 精度）；
 3. **计算 $C_1$**：$m = 4\times0.707^2 = 2.0$，所以 $C_1 = 2\times10 = 20$ nF；
 4. **校验**：重算 $f_c = \dfrac{1}{2\pi R\sqrt{C_1C_2}} = \dfrac{1}{2\pi\times11000\times\sqrt{2\times10^{-16}}} = \dfrac{1}{2\pi\times11000\times1.414\times10^{-8}} = 1024$ Hz（偏差 2.4%，可接受）；

@@ -2590,5 +2590,218 @@
       "d": "率失真理论的起点：40 章香农信息论的应用收口——140 课 R(D) 曲线的理论出身。",
       "p": "https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_theory"
     }
+  ],
+  "76-relativity": [
+    {
+      "t": "On the Electrodynamics of Moving Bodies（论动体的电动力学）",
+      "a": "Albert Einstein（爱因斯坦）",
+      "y": 1905,
+      "v": "Annalen der Physik",
+      "g": "论文",
+      "d": "狭义相对论的出生证明：光速不变与同时性的相对性——10、20 两课的全部出发点。",
+      "p": "https://en.wikipedia.org/wiki/On_the_Electrodynamics_of_Moving_Bodies"
+    },
+    {
+      "t": "Special relativity（狭义相对论）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "洛伦兹变换、时间膨胀、长度收缩的完整条目——20 到 40 课的标准参考。",
+      "p": "https://en.wikipedia.org/wiki/Special_relativity"
+    },
+    {
+      "t": "Minkowski space（闵可夫斯基时空）",
+      "a": "Hermann Minkowski（闵可夫斯基）",
+      "y": 1908,
+      "v": "Wikipedia 综述",
+      "g": "资源",
+      "d": "把时间也装进度量的那一步：不变量与光锥因果结构——50 课的主角。",
+      "p": "https://en.wikipedia.org/wiki/Minkowski_space"
+    },
+    {
+      "t": "Mass–energy equivalence（质能等价）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "E=mc² 的严格来历与常见误读——60 课四动量守恒的直接推论。",
+      "p": "https://en.wikipedia.org/wiki/Mass%E2%80%93energy_equivalence"
+    },
+    {
+      "t": "Hafele–Keating experiment（哈菲尔–基廷实验）",
+      "a": "Joseph Hafele & Richard Keating",
+      "y": 1972,
+      "v": "Science",
+      "g": "论文",
+      "d": "把铯钟搬上民航客机绕地球飞：时间膨胀与引力红移第一次同框被量到——80 课与 GPS 实战的实证背景。",
+      "p": "https://en.wikipedia.org/wiki/Hafele%E2%80%93Keating_experiment"
+    },
+    {
+      "t": "Error analysis for the Global Positioning System（GPS 误差分析）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "那 38 微秒从哪来：卫星钟的相对论修正项写在这一页——本章实战挑战的出处。",
+      "p": "https://en.wikipedia.org/wiki/Error_analysis_for_the_Global_Positioning_System"
+    },
+    {
+      "t": "Gravitational redshift（引力红移）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "高度差直接改变钟速：等效原理最省力的可检验后果——80 课的定量公式与 Pound–Rebka 实验背景。",
+      "p": "https://en.wikipedia.org/wiki/Gravitational_redshift"
+    }
+  ],
+  "77-hamiltonian-mechanics": [
+    {
+      "t": "Hamiltonian mechanics（哈密顿力学）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "正则方程、相空间与辛结构的总结条目——20、60 两课的标准参考。",
+      "p": "https://en.wikipedia.org/wiki/Hamiltonian_mechanics"
+    },
+    {
+      "t": "Legendre transformation（勒让德变换）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "从速度换到动量的那台机器；在凸分析里它就是 Fenchel 共轭——10 课的数学出身。",
+      "p": "https://en.wikipedia.org/wiki/Legendre_transformation"
+    },
+    {
+      "t": "Liouville's theorem（刘维尔定理）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "相空间体积不可压：统计力学的第一块砖，也是辛流保测度的直接后果——30 课。",
+      "p": "https://en.wikipedia.org/wiki/Liouville%27s_theorem_(Hamiltonian)"
+    },
+    {
+      "t": "Poisson bracket（泊松括号）",
+      "a": "Siméon Denis Poisson（泊松）",
+      "y": 1809,
+      "v": "Wikipedia 综述",
+      "g": "资源",
+      "d": "守恒量的判据 {f,H}=0，以及哈密顿力学的代数化——40 课的出发点。",
+      "p": "https://en.wikipedia.org/wiki/Poisson_bracket"
+    },
+    {
+      "t": "Noether's theorem（诺特定理）",
+      "a": "Emmy Noether（诺特）",
+      "y": 1918,
+      "v": "Nachrichten von der Gesellschaft der Wissenschaften zu Göttingen",
+      "g": "论文",
+      "d": "连续对称 ↔ 守恒律：时间平移给能量、空间平移给动量、旋转给角动量——50 课的定理本体。",
+      "p": "https://en.wikipedia.org/wiki/Noether%27s_theorem"
+    },
+    {
+      "t": "Symplectic integrator（辛积分）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "保辛结构才保长期能量行为：辛欧拉与 Verlet 的误差为什么有界——60 课。",
+      "p": "https://en.wikipedia.org/wiki/Symplectic_integrator"
+    },
+    {
+      "t": "Hamilton–Jacobi equation（哈密顿–雅可比方程）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "把正则方程化成一阶偏微分方程：可积系统与作用量–角变量的门口——70 课。",
+      "p": "https://en.wikipedia.org/wiki/Hamilton%E2%80%93Jacobi_equation"
+    },
+    {
+      "t": "Classical Mechanics（Goldstein 经典力学）",
+      "a": "Herbert Goldstein（戈德斯坦）",
+      "y": 2001,
+      "v": "第 3 版，Pearson",
+      "g": "教材",
+      "d": "分析力学几十年的标准教科书：勒让德变换、正则变换与诺特定理一章一章讲透——本章 10 到 70 课的深造去处。",
+      "p": "https://en.wikipedia.org/wiki/Classical_Mechanics_(Goldstein)"
+    }
+  ],
+  "78-brain-computer-interface": [
+    {
+      "t": "A quantitative description of membrane current and its application to conduction and excitation in nerve（膜电流的定量描述）",
+      "a": "Alan Hodgkin & Andrew Huxley（霍奇金、赫胥黎）",
+      "y": 1952,
+      "v": "The Journal of Physiology",
+      "g": "论文",
+      "d": "动作电位的定量模型（1963 年诺奖）：膜电导动力学如何长出脉冲——10 课的生物出身。",
+      "p": "https://en.wikipedia.org/wiki/Hodgkin%E2%80%93Huxley_model"
+    },
+    {
+      "t": "Biological neuron model（生物神经元模型）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "从漏积分点火到 HH 的模型谱系：工程实现为什么偏爱前者——10、20 两课的模型对照。",
+      "p": "https://en.wikipedia.org/wiki/Biological_neuron_model"
+    },
+    {
+      "t": "Neural coding（神经编码）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "发放率编码、时间编码与群体编码的总条目——20、30 两课的术语基准。",
+      "p": "https://en.wikipedia.org/wiki/Neural_coding"
+    },
+    {
+      "t": "Brain–computer interface（脑机接口）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "侵入式与非侵入式、解码与闭环刺激的全景图——整章的行业口径。",
+      "p": "https://en.wikipedia.org/wiki/Brain%E2%80%93computer_interface"
+    },
+    {
+      "t": "Common spatial pattern（共空间模式）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "用广义特征值找判别方向：EEG 运动想象的经典空间滤波——50 课的算法出身。",
+      "p": "https://en.wikipedia.org/wiki/Common_spatial_pattern"
+    },
+    {
+      "t": "Information geometry（信息几何）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "把分布族当流形：SPD 矩阵上的仿射不变度量与测地线——60 课几何视角的出身。",
+      "p": "https://en.wikipedia.org/wiki/Information_geometry"
+    },
+    {
+      "t": "BrainGate（脑机接口临床试验系统）",
+      "a": "BrainGate 研究团队（Brown University 等）",
+      "y": 2004,
+      "v": "Wikipedia 综述",
+      "g": "资源",
+      "d": "植入式电极阵列让瘫痪受试者用意念控制光标与机械臂——80 课闭环与神经假体的真实案例。",
+      "p": "https://en.wikipedia.org/wiki/BrainGate"
+    },
+    {
+      "t": "Neuroethics（神经伦理）",
+      "a": "Wikipedia 综述",
+      "y": "持续更新",
+      "v": "Wikipedia",
+      "g": "资源",
+      "d": "神经数据的隐私、知情同意与增强边界——80 课选读里那份「绕不开的问题清单」。",
+      "p": "https://en.wikipedia.org/wiki/Neuroethics"
+    }
   ]
 }

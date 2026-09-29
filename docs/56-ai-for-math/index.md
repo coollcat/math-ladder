@@ -1,5 +1,6 @@
 ---
 title: 第 56 章 · AI for Math
+short: AI for Math
 description: 定理证明、形式化、LLM 数学推理与符号-神经搜索的前沿接口。
 volume: 5
 layer: L11
@@ -129,7 +130,7 @@ print(total == n * n)
 
 第 $k$ 个奇数是 $2k-1$：
 
-```python
+```py
 total = total + (2 * k - 1)    # 1、3、5、7、9
 print(total == n * n)          # 25 == 25 → True
 ```

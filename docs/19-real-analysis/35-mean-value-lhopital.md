@@ -148,7 +148,7 @@ print(round(c, 5))
 
 修改一行即可：
 
-```python
+```py
 c = math.sqrt(slope / 3)   # 解 3*c^2 = slope
 ```
 

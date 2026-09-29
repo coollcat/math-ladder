@@ -176,4 +176,4 @@
 3. 每页 h2 数量一致；KaTeX 显示公式单行；花括号用 `\lbrace`/`\rbrace`。
 4. 浏览器抽测：truth-table 点击、quantifier-hunt 顺序切换、set-mapper 箭头判定、proof-trail 断链提示。
 5. 移动端 360px 宽度下表格横向滚动、按钮不重叠。
-6. 报告结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记到 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+6. 报告结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记到 `_ai-workspace/reports/OPEN_ITEMS.md`（本地目录，不入库）。

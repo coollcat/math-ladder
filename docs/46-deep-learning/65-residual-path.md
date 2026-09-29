@@ -131,7 +131,7 @@ for d in [5, 10, 20]:
 
 ```exercise
 # @title: 给块补回高速公路
-# @check: 1
+# @check: 3.0
 # @check: 3
 # @check: 3
 # @hint: 输出应为 F(x)+x；导数为 F'(x)+1；F(t)=(t−1)² 的导数是 2(t−1)，在 x=2 处等于 2
@@ -156,7 +156,7 @@ print(int(slope + 0.5))                     # 取整梯度 ≈ 3
 
 补线之后一切通顺：
 
-```python
+```py
 def block_value(x):
     fx = (x - 1) ** 2
     return fx + x                # 残差合成

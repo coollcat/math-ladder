@@ -25,6 +25,11 @@ exits:
   - pde-weak-form
 ---
 
+:::note[与别章的分工]
+本课是**变分法**（Euler-Lagrange 方程，求的是最优函数）；它和 [约束优化的拉格朗日乘数法](../43-optimization/40-lagrange-multipliers.md)、[分析力学的拉格朗日方程](../65-robotics-motion/70-generalized-lagrangian.md) 是三个不同的工具，只是共用 Euler-Lagrange 这个名字。
+:::
+
+
 # 变分法选讲：Euler-Lagrange 与最速降线
 
 ## 1. 从一个场景开始

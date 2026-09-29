@@ -12,7 +12,7 @@
  * ========================================================================= */
 
 import { nsKey, progressNS, notifyDataDirty } from '../learning/progress';
-import { watchPanel, bringToFront } from './zorder';
+import { watchPanel, bringToFront, isTopmost } from './zorder';
 
 const REPO_KEY = 'ml-repo';
 const MAX_ITEMS = 200;
@@ -25,7 +25,19 @@ function load() {
   if (typeof window === 'undefined') return { v: 1, items: [] };
   try {
     const v = JSON.parse(window.localStorage.getItem(storeKey()) || 'null');
-    if (v && Array.isArray(v.items)) return v;
+    if (v && Array.isArray(v.items)) {
+      /* 只留形状完整的条目：历史版本或手工改过的 localStorage 里可能混进没有
+         name/code 的记录，而 renderList 会直接 it.name.toLowerCase()——
+         一条脏数据就让整个列表渲染抛错、面板白屏。宁可丢掉它，也不能打不开。 */
+      const items = v.items.filter(
+        (it) => it && typeof it.name === 'string' && typeof it.code === 'string',
+      );
+      if (items.length !== v.items.length) {
+        v.items = items;
+        save(v);
+      }
+      return v;
+    }
   } catch {
     /* 数据坏了：按空仓库处理，不阻断 */
   }
@@ -93,9 +105,37 @@ function el(tag, cls, text) {
   return n;
 }
 
+/* 隐藏的文件选择框做成模块级单例：面板会在浮窗跨代重建时被拆掉再建
+   （enhancer 的 dropNotebookShell 摘 #ml-repo），若每次 build 都新建一个，
+   body 里会越积越多永远摘不掉的 input。同理，Escape 监听也只挂一次。 */
+let fileInput = null;
+let jsonInput = null;
+let escHandler = null;
+
+function hiddenInput(accept) {
+  const n = el('input');
+  n.type = 'file';
+  n.accept = accept;
+  n.style.display = 'none';
+  document.body.appendChild(n);
+  return n;
+}
+
+function ensureInputs() {
+  /* 每次 build 都换一对新的：旧的先摘掉。若复用旧 input，上一代面板挂的
+     change 监听还留在上面，选一次文件会触发两遍导入。 */
+  if (fileInput) fileInput.remove();
+  if (jsonInput) jsonInput.remove();
+  fileInput = hiddenInput('.py,.txt,text/plain,text/x-python');
+  jsonInput = hiddenInput('.json,application/json');
+  return { fileInput, jsonInput };
+}
+
 function build(api) {
   apiRef = api;
   const panel = el('div', 'ml-repo');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', '代码仓库');
   panel.id = 'ml-repo';
 
   const head = el('div', 'ml-repo__head');
@@ -129,17 +169,8 @@ function build(api) {
   panel.append(head, bar, list, foot);
   document.body.appendChild(panel);
 
-  const fileInput = el('input');
-  fileInput.type = 'file';
-  fileInput.accept = '.py,.txt,text/plain,text/x-python';
-  fileInput.style.display = 'none';
-  document.body.appendChild(fileInput);
-
-  const jsonInput = el('input');
-  jsonInput.type = 'file';
-  jsonInput.accept = '.json,application/json';
-  jsonInput.style.display = 'none';
-  document.body.appendChild(jsonInput);
+  /* 换成解构：build 内后续代码直接用 fileInput / jsonInput 这两个名字 */
+  const { fileInput, jsonInput } = ensureInputs();
 
   /* 拖动：只在头部按下，且不是按钮 */
   head.addEventListener('pointerdown', (ev) => {
@@ -160,8 +191,10 @@ function build(api) {
     }
     const w = panel.offsetWidth;
     const h = panel.offsetHeight;
-    panel.style.left = Math.min(Math.max(ev.clientX - drag.dx, 8), window.innerWidth - w - 8) + 'px';
-    panel.style.top = Math.min(Math.max(ev.clientY - drag.dy, 8), window.innerHeight - h - 8) + 'px';
+    const maxL = Math.max(8, window.innerWidth - w - 8);
+    const maxT = Math.max(8, window.innerHeight - h - 8);
+    panel.style.left = Math.min(Math.max(ev.clientX - drag.dx, 8), maxL) + 'px';
+    panel.style.top = Math.min(Math.max(ev.clientY - drag.dy, 8), maxT) + 'px';
   });
   const endDrag = () => { drag = null; };
   head.addEventListener('pointerup', endDrag);
@@ -256,12 +289,23 @@ function build(api) {
 
   search.addEventListener('input', () => renderList());
 
-  document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape' && panel.classList.contains('is-open')) {
-      ev.stopPropagation();
+  /* Escape 只挂一次：挂在 build 里的话，面板每重建一次就多一个监听，
+     旧的那个闭包还抱着已被摘掉的 panel，按一次 Esc 会重复执行关闭逻辑。
+     用 escHandlerRef 让这一份常驻监听始终作用于**当前**面板。
+
+     分层关闭：只有本面板是栈顶时才响应。几个浮窗可以叠着开（比如从 Py 浮窗
+     的按钮栏进仓库），用户按 Esc 想关的是**最上面那一层**，不是连底下的一起关。
+     这里必须用 stopImmediatePropagation 而不是 stopPropagation——各面板的监听
+     都挂在 document 上，同元素上的监听之间 stopPropagation 是拦不住的。 */
+  if (!escHandler) {
+    escHandler = (ev) => {
+      if (ev.key !== 'Escape' || !els || !els.panel.classList.contains('is-open')) return;
+      if (!isTopmost(els.panel)) return;
+      ev.stopImmediatePropagation();
       closeRepo();
-    }
-  });
+    };
+    document.addEventListener('keydown', escHandler);
+  }
 
   /* 参与层叠：点到谁谁在最上面（控制台 / 笔记本 / 仓库共用 zorder 的栈） */
   watchPanel(panel);
@@ -383,7 +427,9 @@ function renderList() {
 }
 
 export function openRepo(api) {
-  if (!els) build(api);
+  /* 两个条件都要判：只判 `!els` 的话，enhancer 跨代重建时把 #ml-repo 摘掉之后，
+     els 还指着那个已脱离文档的节点，再点「仓库」就永远打不开了。 */
+  if (!els || !document.contains(els.panel)) build(api);
   else apiRef = api;
   const data = load();
   /* 首次打开时给个默认名字，省得每次手打 */

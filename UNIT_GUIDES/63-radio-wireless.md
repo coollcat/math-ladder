@@ -209,4 +209,4 @@ import 登记：55 课登记 `[statistics]`（NormalDist.inv_cdf，首现必注�
 4. 与第 62 章（调制同步）、36 章（概率推导）的分界声明出现在对应课正文一句带过。
 5. `npm run validate`、`node scripts/gen-graph.mjs`、`npm run build` 全绿；h2 源码/产物计数一致；显示公式单行、花括号 `\lbrace\rbrace`。
 6. 浏览器手测：五组件拖拽/滑块、蜂窝拖动 S/I 实时刷新、路由往返无重复注入、360px + dark 无溢出。
-7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

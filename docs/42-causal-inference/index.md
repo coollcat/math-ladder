@@ -1,5 +1,6 @@
 ---
 title: 第 42 章 · 因果推断
+short: 因果推断
 description: 从相关到干预：因果图、do 算子、后门调整、工具变量和反事实。
 volume: 4
 layer: L10

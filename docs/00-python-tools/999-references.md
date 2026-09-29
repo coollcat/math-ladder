@@ -1,6 +1,7 @@
 ---
 title: Python 工具箱与速查表 · 参考资料
 description: 第 0 章涉及的核心论文、原著与延伸阅读一览。
+volume: 1
 ---
 
 # Python 工具箱与速查表 · 参考资料

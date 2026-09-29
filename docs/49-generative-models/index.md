@@ -1,5 +1,6 @@
 ---
 title: 第 49 章 · 生成模型
+short: 生成模型
 description: 从自回归、VAE、Flow 到 GAN、Diffusion、Score 与最优传输的统一地图。
 volume: 5
 layer: L11
@@ -20,13 +21,14 @@ difficulty: 5
 3. [极大似然直觉](./30-maximum-likelihood.md)——一枚硬币抛十次，七正三反；
 4. [扩散模型去噪直觉](./40-diffusion-denoising.md)——你在 AI 绘画工具里输入"一只戴宇航头盔的猫"，进度条上雪花噪声缓缓"显影"成图；
 5. [扩散模型的完整推导：加噪与去噪的账本](./42-diffusion-math.md)——β 调度怎么排班、反向均值方差怎么算、"猜噪声"目标从哪塌缩出来，DDPM 的完整账本；
-6. [自回归模型与条件分解](./45-autoregressive-models.md)——概率链式法则把联合拆成逐位条件，生成就是逐格打字；
-7. [变分推断、ELBO 与 VAE](./52-elbo-vae.md)——算不出的后验交给可学的编码器，重构分与 KL 罚金在天平上拉扯；
-8. [Normalizing Flow 与雅可比行列式](./60-normalizing-flows.md)——可逆变换一层层把钟形曲线捏成任意形状，账本记在 log|det J| 上；
-9. [GAN 的极小极大博弈](./68-gan-minimax.md)——造假者与鉴别手的军备竞赛，以及模式坍塌为什么发生；
-10. [Score matching 直觉](./76-score-matching.md)——学一套对数密度的指北针场，不必知道密度本身也能走回数据；
-11. [最优传输与分布匹配展望](./84-optimal-transport-outlook.md)——搬土方问题给分布距离一把永远有定义的尺子。
-12. [世界模型与视频生成：在脑内预演未来](./90-world-models-video.md)——潜在空间自回归推演：给动作、预言下一帧，扩散与自回归在时间轴上合流（2026-08-29 前沿回填）。
+6. [Flow Matching：不掺噪声，直接搬](./44-flow-matching.md)——把生成问题变成"规划路线 + 回归速度"：条件最优传输路径一条直线，无需噪声注入，扩散其实是它的一条特殊路径
+7. [自回归模型与条件分解](./45-autoregressive-models.md)——概率链式法则把联合拆成逐位条件，生成就是逐格打字；
+8. [变分推断、ELBO 与 VAE](./52-elbo-vae.md)——算不出的后验交给可学的编码器，重构分与 KL 罚金在天平上拉扯；
+9. [Normalizing Flow 与雅可比行列式](./60-normalizing-flows.md)——可逆变换一层层把钟形曲线捏成任意形状，账本记在 log|det J| 上；
+10. [GAN 的极小极大博弈](./68-gan-minimax.md)——造假者与鉴别手的军备竞赛，以及模式坍塌为什么发生；
+11. [Score matching 直觉](./76-score-matching.md)——学一套对数密度的指北针场，不必知道密度本身也能走回数据；
+12. [最优传输与分布匹配展望](./84-optimal-transport-outlook.md)——搬土方问题给分布距离一把永远有定义的尺子；
+13. [世界模型与视频生成：在脑内预演未来](./90-world-models-video.md)——潜在空间自回归推演：给动作、预言下一帧，扩散与自回归在时间轴上合流（2026-08-29 前沿回填）。
 
 ## 前置回望
 
@@ -147,7 +149,7 @@ print(round(p_hat, 4))
 
 极大似然数的是**正面**（值 1）：
 
-```python
+```py
 if f == 1:               # 正面才计数
     heads = heads + 1
 p_hat = heads / len(flips)   # 4 / 6

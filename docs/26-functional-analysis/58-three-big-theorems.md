@@ -141,7 +141,7 @@ print(T(9, e9))
 
 $T_3(x)=3\times0.25=0.75$；$T_9(x)$ 第 9 位越界、按 0 记账；$T_9(e_9)=9\times1=9$——这正是范数 $\lVert T_9\rVert=9$。
 
-```python
+```py
 def T(n, vec):
     if n <= len(vec):
         return n * vec[n - 1]

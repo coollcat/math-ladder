@@ -106,6 +106,8 @@ $t=(7-3)/2=2$,最多可纠正 2 个符号错误--恰好是 MDS 码 $d_{\min}=5$ 
 
 ```python title="迷你 RS 编解码:GF(2^8) 上的多项式编码"
 # GF(2^8) 用本原多项式 x^8+x^4+x^3+x+1(0x11B),与 AES 相同
+# 注意本原元素取 3 而不是 2:在 0x11B 下 2 的阶只有 51(只能生成 51 个元素),
+# 3 的阶才是 255 —— 幂表要铺满所有非零元素,这是先决条件
 GF_EXP = [0] * 512   # 指数表:GF_EXP[i] = alpha^i
 GF_LOG = [0] * 256   # 对数表:GF_LOG[alpha^i] = i
 
@@ -113,7 +115,7 @@ x = 1
 for i in range(255):        # GF(2^8) 的非零元素循环一圈
     GF_EXP[i] = x
     GF_LOG[x] = i
-    x = x << 1              # 左移一位相当于乘 alpha
+    x = (x << 1) ^ x        # 乘 3:3 = 2 + 1,即左移一位再异或自身
     if x >= 256:
         x = x ^ 0x11B       # 模本原多项式取余
 for i in range(255, 512):   # 指数表扩展到 512,方便取模时不用算
@@ -125,25 +127,31 @@ def gf_mul(a, b):
         return 0
     return GF_EXP[GF_LOG[a] + GF_LOG[b]]
 
-def gf_pow(a, n):
-    # GF(2^8) 幂运算:a^n
-    if n == 0:
-        return 1
-    return GF_EXP[(GF_LOG[a] * n) % 255]
+n, k = 7, 3                   # RS(7,3):3 个信息符号 + 4 个校验符号
 
-# RS(7,3) 编码:信息多项式在 7 个点求值
+# 生成多项式 g(x) = (x - a^0)(x - a^1)(x - a^2)(x - a^3)
+# 系数从高次到低次存放;它的 4 个根正是伴随式要代入的点
+g = [1]
+for j in range(n - k):
+    aj = GF_EXP[j]            # a^j
+    ng = [0] * (len(g) + 1)
+    for i, coef in enumerate(g):
+        ng[i] = ng[i] ^ coef                      # 乘 x:次数升一位
+        ng[i + 1] = ng[i + 1] ^ gf_mul(coef, aj)  # 乘 a^j:次数不动
+    g = ng
+print(f"生成多项式系数(高次在前): {g}")
+
+# 系统编码:c(x) = m(x)*x^(n-k) + [m(x)*x^(n-k) mod g(x)]
+# 高次项落在前面,所以前 k 个符号就是原信息 —— 这就是"系统码"
 msg = [2, 5, 1]               # 3 个信息符号
-n, k = 7, 3
-alpha = 2                     # GF(2^8) 的本原元素
-
-codeword = []
-for i in range(n):
-    val = 0
-    a_pow = 1                  # alpha^0
-    for coeff in msg:          # Horner 法求值
-        val = val ^ gf_mul(coeff, a_pow)
-        a_pow = gf_mul(a_pow, alpha)
-    codeword.append(val)
+msgp = msg + [0] * (n - k)    # m(x) * x^4
+rem = msgp[:]
+for i in range(k):            # 综合除法:逐个消掉高位
+    coef = rem[i]
+    if coef:
+        for j in range(len(g)):
+            rem[i + j] = rem[i + j] ^ gf_mul(g[j], coef)
+codeword = [msgp[i] ^ rem[i] for i in range(n)]
 
 print(f"信息: {msg}")
 print(f"码字: {codeword}")
@@ -153,19 +161,25 @@ received = codeword[:]
 received[2] = received[2] ^ 0x37   # 注入错误
 print(f"接收: {received}")
 
-# 简单译码:重新编码对比(仅演示原理,非完整 BM 算法)
-syndromes = []
-for j in range(n - k):        # 计算 n-k 个伴随式
-    s = 0
-    a_pow = 1
-    for c in received:
-        s = s ^ gf_mul(c, a_pow)
-        a_pow = gf_mul(a_pow, gf_pow(alpha, j))
-    syndromes.append(s)
-print(f"伴随式: {syndromes}")   # 全零=无错,非零=有错
+# 伴随式 S_j = c(a^j),j = 0..n-k-1:无错时全零
+def syndromes(word):
+    out = []
+    for j in range(n - k):
+        s = 0
+        for c in word:                # Horner 法在 a^j 处求值
+            s = gf_mul(s, GF_EXP[j]) ^ c
+        out.append(s)
+    return out
+
+print(f"无错时的伴随式: {syndromes(codeword)}")   # 全零,说明确实是个合法码字
+print(f"接收的伴随式:   {syndromes(received)}")   # 非零 → 传输出错了
 ```
 
 伴随式非零说明传输有错。完整的 Berlekamp-Massey 译码器需要更多代码,但核心思路就是从伴随式反推错误位置和大小。
+
+:::tip[这一版和上一版的差别]
+旧的实验代码有两处硬伤:① 幂表按"乘 2"生成 —— 在 0x11B 下 2 的阶只有 51,表根本铺不满 255 个非零元素;② 编码写成"信息多项式在 7 个点上求值",却把求值点漏掉、每次都拿 a^0 去点,于是 7 个码字符号全一样。现在改成教科书口径:本原元素取 3(阶为 255),编码是**系统码**(生成多项式除法),伴随式在 g(x) 的 4 个根上求值 —— 无错时全零这条性质才真正成立。
+:::
 
 ### 快问快答
 
@@ -211,11 +225,11 @@ $d_{\min}=n-k+1=15-11+1=5$。可纠正符号错误 $t=\lfloor(d_{\min}-1)/2\rflo
 ```exercise
 # @title: 练习:GF(8) 乘法修正
 # @check: 6
-# @check: 3
+# @check: 6
 # @check: 0
-# @hint: GF 乘法是指数相加后模 255(非零元素的阶),不是普通加法
+# @hint: 查表乘法先要表是对的:GF(8) 里 alpha 是 2,循环一圈 1,2,4,3,6,7,5 —— 所以 5 = alpha^6,而表里写成了 5
 GF_EXP = [1, 2, 4, 3, 6, 7, 5, 1, 2, 4, 3, 6, 7, 5]  # alpha^0 到 alpha^13
-GF_LOG = [0, 0, 1, 3, 2, 6, 4, 5]  # ← 有错误:log 表不对
+GF_LOG = [0, 0, 1, 3, 2, 5, 4, 5]  # ← 有错误:有一个下标写错了
 
 def gf_mul(a, b):
     if a == 0 or b == 0:
@@ -223,7 +237,7 @@ def gf_mul(a, b):
     return GF_EXP[GF_LOG[a] + GF_LOG[b]]
 
 print(gf_mul(2, 3))   # 应为 6
-print(gf_mul(5, 7))   # 应为 3
+print(gf_mul(5, 7))   # 应为 6
 print(gf_mul(0, 4))   # 应为 0
 ```
 
@@ -231,13 +245,20 @@ print(gf_mul(0, 4))   # 应为 0
 <summary>点开查看逐步解答</summary>
 
 ```python
+# GF(8) 的非零元素按 alpha 的幂排一圈:alpha^0=1, alpha^1=2, alpha^2=4,
+# alpha^3=3, alpha^4=6, alpha^5=7, alpha^6=5(=1,回到起点)
 GF_EXP = [1, 2, 4, 3, 6, 7, 5, 1, 2, 4, 3, 6, 7, 5]
-# 正确的 GF_LOG:查 GF_EXP 中每个值首次出现的下标
-GF_LOG = [0, 0, 1, 3, 2, 6, 4, 5]   # ← 原表实际正确,bug 在练习的初始代码里
-# 验证:gf_mul(2,3) → GF_LOG[2]=1, GF_LOG[3]=3, sum=4, GF_EXP[4]=6 ✓
-print(gf_mul(2, 3))  # 6
-print(gf_mul(5, 7))  # 3
-print(gf_mul(0, 4))  # 0
+# 对数表就是这张幂表的反查:GF_LOG[x] = x 是 alpha 的几次幂
+GF_LOG = [0, 0, 1, 3, 2, 6, 4, 5]
+
+def gf_mul(a, b):
+    if a == 0 or b == 0:
+        return 0
+    return GF_EXP[GF_LOG[a] + GF_LOG[b]]
+
+print(gf_mul(2, 3))   # 6:alpha^1 * alpha^3 = alpha^4
+print(gf_mul(5, 7))   # 6:alpha^6 * alpha^5 = alpha^11 = alpha^4(11 mod 7 = 4)
+print(gf_mul(0, 4))   # 0:零乘任何数还是零
 ```
 </details>
 

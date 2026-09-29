@@ -129,7 +129,7 @@ for step in [2, 4, 5]:
 
 把函数改成计数循环：
 
-```python
+```py
 def order(step):
     place = step
     count = 1

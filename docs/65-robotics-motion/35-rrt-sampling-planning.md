@@ -239,7 +239,7 @@ print(len(nodes))
 
 最近邻比大小用平方距离没问题（开不开方不改变大小顺序），但**延伸的分母必须是真实距离** $\sqrt{2}$：
 
-```python
+```py
 d = math.sqrt(dx * dx + dy * dy)               # 真实欧氏距离
 x_new = (best[0] + eps * dx / d, best[1] + eps * dy / d)
 ```

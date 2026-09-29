@@ -1,5 +1,6 @@
 ---
 title: 第 41 章 · 学习理论
+short: 学习理论
 description: 用 ERM、VC 维、PAC、偏差方差和双下降解释机器学习为什么能泛化。
 volume: 4
 layer: L10
@@ -134,7 +135,7 @@ print(test_err)
 
 泛化误差是训练误差与鸿沟之和：
 
-```python
+```py
 test_err = train_err + gap   # 0.05 + 0.15
 print(test_err)              # 0.2
 ```

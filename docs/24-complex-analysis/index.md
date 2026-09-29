@@ -1,5 +1,6 @@
 ---
 title: 第 24 章 · 复分析
+short: 复分析
 description: 复函数的解析性、Cauchy-Riemann 方程、积分与留数方法。
 volume: 2
 layer: L8
@@ -24,11 +25,14 @@ difficulty: 5
 7. [Cauchy-Goursat 定理](./60-cauchy-theorem.md)——如果一片湖水里没有任何旋涡，小船绕任意闭合圈回到原地，风做的总功就是零；
 8. [Cauchy 积分公式](./65-cauchy-integral-formula.md)——只知道一个解析函数在圆边界上的值，能算出圆心处的值吗？；
 9. [Laurent 级数与孤立奇点](./70-laurent-singularities.md)——$e^z$ 在全平面规规矩矩，$e^{1/z}$ 却在 $z=0$ 附近疯狂振荡：无穷多个负幂挤进一个点；
-10. [留数定理](./80-residue-theorem.md)——绕一大圈积分，听起来要做无穷多次微小累加；
-11. [定积分计算应用](./90-real-integrals.md)——$\displaystyle\int_{-\infty}^{\infty}\frac{dx}{x^2+1}$ 用实方法要背反正切公式，复方法只要一条上半围道；
-12. [Laplace 变换与 s 平面](./100-laplace-s-plane.md)——微分方程里的求导、时移和卷积，到了 Laplace 世界都变成乘法与除法；
-13. [解析延拓选讲](./110-analytic-continuation.md)——你只知道一个函数在小圆盘内的幂级数，却想知道它在远处长什么样；
-14. [复分析与方法地图](./120-method-map.md)——学完整章最容易丢的不是定理，而是“下一步该用哪件工具”。
+10. [Liouville 定理](./72-liouville.md)——有界的整函数只能是常数，顺手就证明了代数基本定理；
+11. [最大模原理](./75-maximum-modulus.md)——解析函数像一个鼓包，模的最高点一定落在边界而不在内部；
+12. [留数定理](./80-residue-theorem.md)——绕一大圈积分，听起来要做无穷多次微小累加；
+13. [Rouché 定理与辐角原理](./85-rouche-argument.md)——不用解方程，数一数轨迹绕原点的圈数就知道圆内有几个零点；
+14. [定积分计算应用](./90-real-integrals.md)——$\displaystyle\int_{-\infty}^{\infty}\frac{dx}{x^2+1}$ 用实方法要背反正切公式，复方法只要一条上半围道；
+15. [Laplace 变换与 s 平面](./100-laplace-s-plane.md)——微分方程里的求导、时移和卷积，到了 Laplace 世界都变成乘法与除法；
+16. [解析延拓选讲](./110-analytic-continuation.md)——你只知道一个函数在小圆盘内的幂级数，却想知道它在远处长什么样；
+17. [复分析与方法地图](./120-method-map.md)——学完整章最容易丢的不是定理，而是“下一步该用哪件工具”。
 
 ## 前置回望
 
@@ -36,7 +40,7 @@ difficulty: 5
 
 ## 生产状态
 
-首批 14 门课程草稿已完成（含 2026-08 回填插课“Möbius 变换：把圆还给你”）；配套的 `COMPONENT_SPEC.md` 是生产侧资源，不作为读者课程发布。本轮使用已上线 viz 类型和浮窗 Python 兜底；专属组件落地后按规格回填。
+首批 17 门课程草稿已完成（含 2026-08 回填插课“Möbius 变换：把圆还给你”）；配套的 `COMPONENT_SPEC.md` 是生产侧资源，不作为读者课程发布。本轮使用已上线 viz 类型和浮窗 Python 兜底；专属组件落地后按规格回填。
 
 ## 实战挑战 · 用留数定理拿下一个经典实积分
 

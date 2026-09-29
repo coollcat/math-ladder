@@ -197,4 +197,4 @@ index「计划交互形态」→ 组件映射：词向量方向罗盘→`cosine-
 4. MDX 双坑体检：`\lbrace`/`\rbrace`、显示公式单行、quiz 无 KaTeX。
 5. `npm run validate` + `node scripts/gen-graph.mjs` + `npm run build` 全绿；h2 计数一致。
 6. 浮窗实测：判题链、草稿保存、路由切换无重复注入；360px + dark 无溢出。
-7. 结论写入 `CONTENT_AUDIT.md`；P2 项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`。
+7. 结论写入 `CONTENT_AUDIT.md`；P2 项登记 `_ai-workspace/reports/OPEN_ITEMS.md`。

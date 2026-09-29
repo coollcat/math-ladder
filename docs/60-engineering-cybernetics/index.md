@@ -1,5 +1,6 @@
 ---
 title: 第 60 章 · 工程控制论与系统工程
+short: 工程控制
 description: 把反馈、信息、稳定性和工程组织放回同一个系统里分析。
 volume: 5
 layer: L9
@@ -135,7 +136,7 @@ print(round(G, 2))
 
 负反馈的闭环增益分母是 $1 + AB$：
 
-```python
+```py
 G = A / (1 + A * B)    # 100 / (1 + 10)
 print(round(G, 2))     # 9.09
 ```

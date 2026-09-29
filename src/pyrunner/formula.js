@@ -14,7 +14,7 @@
  * ========================================================================= */
 
 import { getKatex } from './mathout';
-import { watchPanel, bringToFront } from './zorder';
+import { watchPanel, bringToFront, isTopmost } from './zorder';
 
 const GROUPS = [
   {
@@ -95,6 +95,7 @@ const GROUPS = [
 ];
 
 let els = null;
+let escHandler = null;
 let lastTarget = null;
 let lastPos = 0;
 let curGroup = 0;
@@ -243,13 +244,16 @@ function insertText() {
 
 let previewTimer = null;
 function updatePreview() {
+  /* clearTimeout 必须放在最前面：原先它写在 `if (!tex) return` **之后**，
+     清空输入框时旧定时器照样到点执行，把上一次的公式渲染回空预览区里。 */
+  clearTimeout(previewTimer);
+  previewTimer = null;
   const tex = currentTex();
   els.preview.classList.toggle('is-empty', !tex);
   if (!tex) {
     els.preview.textContent = '预览（写点 $\\LaTeX$ 就会在这里渲染）';
     return;
   }
-  clearTimeout(previewTimer);
   previewTimer = setTimeout(() => {
     getKatex()
       .then((katex) => {
@@ -294,6 +298,8 @@ function doInsert() {
 
 function build() {
   const panel = el('div', 'ml-formula');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', '公式输入器');
   panel.id = 'ml-formula';
 
   const head = el('div', 'ml-formula__head');
@@ -365,8 +371,10 @@ function build() {
     }
     const w = panel.offsetWidth;
     const h = panel.offsetHeight;
-    panel.style.left = Math.min(Math.max(ev.clientX - drag.dx, 8), window.innerWidth - w - 8) + 'px';
-    panel.style.top = Math.min(Math.max(ev.clientY - drag.dy, 8), window.innerHeight - h - 8) + 'px';
+    const maxL = Math.max(8, window.innerWidth - w - 8);
+    const maxT = Math.max(8, window.innerHeight - h - 8);
+    panel.style.left = Math.min(Math.max(ev.clientX - drag.dx, 8), maxL) + 'px';
+    panel.style.top = Math.min(Math.max(ev.clientY - drag.dy, 8), maxT) + 'px';
   });
   const endDrag = () => {
     drag = null;
@@ -394,9 +402,19 @@ function build() {
     }
   });
 
-  document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape' && panel.classList.contains('is-open')) closeFormula();
-  });
+  /* 同上（笔记本/仓库）：只挂一次，始终作用于当前的 els.panel。
+     挂在 build 里的话跨代重建会一层层叠监听，按一次 Esc 关好几个旧闭包。
+     分层关闭：只有本面板是栈顶才响应，且用 stopImmediatePropagation 拦住
+     同样挂在 document 上的浮窗控制台（stopPropagation 对同元素监听无效）。 */
+  if (!escHandler) {
+    escHandler = (ev) => {
+      if (ev.key !== 'Escape' || !els || !els.panel.classList.contains('is-open')) return;
+      if (!isTopmost(els.panel)) return;
+      ev.stopImmediatePropagation();
+      closeFormula();
+    };
+    document.addEventListener('keydown', escHandler);
+  }
 
   watchPanel(panel);
   els = { panel, preview, src, tabs, grid, wrap, mode, target };

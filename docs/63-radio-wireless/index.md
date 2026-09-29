@@ -1,5 +1,6 @@
 ---
 title: 第 63 章 · 无线电与无线信道
+short: 无线电
 description: 从电磁波传播、天线增益、链路预算到多径衰落、蜂窝组网、抗衰落三板斧、MIMO 空间复用与卫星定位几何。
 volume: 5
 layer: L9
@@ -35,18 +36,6 @@ difficulty: 4
 
 ## 课程地图
 
-1. [电波与频谱：看不见的高速公路](./10-radio-wave.md)——c=fλ 的铁律、波长与频段，为什么微波炉和 Wi-Fi 是邻居；
-2. [天线方向图与增益](./20-antenna-gain.md)——增益不是放大而是再分配，dBi 与波束宽度的跷跷板；
-3. [Friis 公式与链路预算](./30-friis-budget.md)——把传播变成一行加法，dB 记账法上岗；
-4. [多径与衰落：当电波学会走捷径和弯路](./40-multipath-fading.md)——反射线在接收点打架，相干带宽与 Rayleigh 雏形；
-5. [蜂窝频率复用：六边形棋盘上的频谱魔术](./50-cellular-reuse.md)——六边形棋盘、N=i²+ij+j²、最坏 SIR 公式；
-6. [噪声系数与级联系统](./60-noise-figure-cascade.md)——kTB 噪声底、Friis 级联公式，第一级放大器为什么最金贵；
-7. [大尺度路径损耗与阴影衰落](./70-path-loss-shadowing.md)——log-distance 直线家族与对数正态慢包络，覆盖半径反解；
-8. [多径、Doppler 与相干带宽](./80-doppler-coherence-bandwidth.md)——时延扩展与多普勒扩展，两对互补宽度的快慢/胖瘦判据；
-9. [分集、均衡与 OFDM 直觉](./90-diversity-equalizer-ofdm.md)——深谷概率指数下降、均衡补丁的代价、化整为零的子载波；
-10. [MIMO：把空间也变成车道](./92-mimo-spatial-multiplexing.md)——空间自由度 min(Nt,Nr)、SVD 并行子信道与容量线性红利；
-11. [无线系统方法地图](./95-method-map.md)——五道关分诊台：先分类再开药，dB 记账贯穿一切；
-12. [卫星导航与定位几何：伪距方程、钟差未知数、最小二乘解算与 DOP 精度因子](./100-gnss-positioning.md)——伪距方程线性化、最小二乘一行解、DOP 的几何出身。
 
 ## 生产状态
 
@@ -119,7 +108,7 @@ print(P2)
 
 自由空间传播损耗与距离平方成反比：
 
-```python
+```py
 P2 = P1 / (d * d)   # 1 / 4
 print(P2)           # 0.25
 ```

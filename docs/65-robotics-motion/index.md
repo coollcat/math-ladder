@@ -1,5 +1,6 @@
 ---
 title: 第 65 章 · 机器人与无人机的运动数学
+short: 机器人运动
 description: 从旋转矩阵到四旋翼悬停：正逆运动学、拉格朗日动力学、轨迹跟踪、Kalman 融合、SLAM 定位建图、运动规划，以及视觉伺服、模仿学习与 VLA 前沿。
 volume: 5
 layer: L9
@@ -174,7 +175,7 @@ print(round(x, 2), round(y, 2))
 
 从 $x$ 轴起量角：水平分量用余弦，竖直分量用正弦：
 
-```python
+```py
 x = L * math.cos(theta)    # 2 * cos(90°) = 0
 y = L * math.sin(theta)    # 2 * sin(90°) = 2
 print(round(x, 2), round(y, 2))   # 0.0 2.0

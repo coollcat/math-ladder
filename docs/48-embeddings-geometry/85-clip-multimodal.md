@@ -184,7 +184,7 @@ for name, t in texts.items():
 
 补上归一化：
 
-```python
+```py
     sim = dot / (norm(img) * norm(t))           # 余弦相似度
 ```
 

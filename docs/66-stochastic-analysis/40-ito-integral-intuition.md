@@ -137,7 +137,7 @@ STATES = [0.0, 0.5, -0.5, 0.5, 1.0]   # 路径节点：-states[i] 是第 i 段�
 NOISES = [0.5, -1.0, 1.0, 0.5]        # 各段落下的噪声
 
 def ito_left(states, noises):
-    return sum(states[i] * noises[i] for i in range(len(noises)))   # ← 下标对了吗？
+    return sum(states[i + 1] * noises[i] for i in range(len(noises)))   # ← 下标对了吗？
 
 def stratonovich_mid(states, noises):
     return sum((states[i] + states[i + 1]) / 2 * noises[i] for i in range(len(noises)))

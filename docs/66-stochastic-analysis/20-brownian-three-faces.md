@@ -149,7 +149,7 @@ print(abs(round(chord_slope(0.01), 2)))
 
 正确的弦斜率就是朴素的 $\Delta B/h$：
 
-```python
+```py
 def chord_slope(h):
     return SNAP[h] / h           # 上升量除以时间宽度，这才是差商的本义
 

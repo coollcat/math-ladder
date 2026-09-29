@@ -170,7 +170,7 @@ print(f"{survival_direct * 0 + survival_formula:.4f}")
 
 病根定位：累积方程 $P(X^2\le t)=P(X\le\sqrt{t})$ 只需要**一次**开方，于是两条路线都应写成：
 
-```python
+```py
 survival_direct  = 1 - math.sqrt(t)     # 去掉多余的那层 sqrt
 survival_formula = 1 - math.sqrt(t)     # 平方的反函数是根号，不是恒等
 print(f"{survival_direct:.4f}")         # 0.5000

@@ -79,7 +79,7 @@ $$a_k = (pk + q)\cdot r^{\,k-1} \quad (r \neq 0,\ r \neq 1)$$
 1. 写原式：$S_n = 1 + 2\cdot 2 + 3\cdot 2^2 + \cdots + n\cdot 2^{n-1}$；
 2. 乘公比 2 并错开：$2S_n = 1\cdot 2 + 2\cdot 2^2 + \cdots + (n-1)\cdot 2^{n-1} + n\cdot 2^{n}$；
 3. 两式相减（$S_n - 2S_n$，上下对齐，第 $k$ 位减第 $k$ 位）：
-   $$-S_n = 1 + (2-1)\cdot 2 + (3-2)\cdot 2^2 + \cdots + \bigl(n - (n-1)\bigr)2^{n-1} - n\cdot 2^{n}$$
+$$-S_n = 1 + (2-1)\cdot 2 + (3-2)\cdot 2^2 + \cdots + \bigl(n - (n-1)\bigr)2^{n-1} - n\cdot 2^{n}$$
    中间每个括号都等于 1，于是 $-S_n = \left(1 + 2 + 2^2 + \cdots + 2^{n-1}\right) - n\cdot 2^{n}$；
 4. 中间那段是等比：$1 + 2 + \cdots + 2^{n-1} = 2^{n} - 1$，所以 $-S_n = 2^{n} - 1 - n\cdot 2^{n}$，即
 
@@ -94,7 +94,7 @@ $$S_n = (n-1)2^{n} + 1$$
 1. 写原式：$S_n = \frac12 + \frac{2}{2^2} + \frac{3}{2^3} + \cdots + \frac{n}{2^{n}}$；
 2. 乘公比 $\frac12$ 并错开：$\frac12 S_n = \frac{1}{2^2} + \frac{2}{2^3} + \cdots + \frac{n-1}{2^{n}} + \frac{n}{2^{n+1}}$；
 3. 相减（这次用 $S_n - \frac12 S_n$，因为 $r<1$ 时这样中间是正的）：
-   $$\frac12 S_n = \frac12 + \frac{1}{2^2} + \frac{1}{2^3} + \cdots + \frac{1}{2^{n}} - \frac{n}{2^{n+1}}$$
+$$\frac12 S_n = \frac12 + \frac{1}{2^2} + \frac{1}{2^3} + \cdots + \frac{1}{2^{n}} - \frac{n}{2^{n+1}}$$
 4. 中间那段等比直接求和：$\frac12 + \frac14 + \cdots + \frac{1}{2^{n}} = 1 - \frac{1}{2^{n}}$，于是 $\frac12 S_n = \left(1 - \frac{1}{2^{n}}\right) - \frac{n}{2^{n+1}}$，两边乘 2：
 
 $$S_n = 2 - \frac{2}{2^{n}} - \frac{n}{2^{n}} = 2 - \frac{n+2}{2^{n}}$$
@@ -113,9 +113,9 @@ $$S_n = 2 - \frac{2}{2^{n}} - \frac{n}{2^{n}} = 2 - \frac{n+2}{2^{n}}$$
 1. 认结构：符号每步翻一次，是"摆动因子 $(-1)^{k+1}$"乘等差 $k$。**别急着套任何公式，先看奇偶**；
 2. **$n = 2m$ 为偶数**：每两项捆一组，$(1-2) + (3-4) + \cdots + \bigl((2m-1) - 2m\bigr) = (-1)\times m = -\dfrac{n}{2}$；
 3. **$n = 2m-1$ 为奇数**：前 $2m-2$ 项是偶数项情形，值为 $-(m-1)$，再补上落单的最后一项 $+(2m-1)$：
-   $$S_{2m-1} = -(m-1) + (2m-1) = m = \frac{n+1}{2}$$
+$$S_{2m-1} = -(m-1) + (2m-1) = m = \frac{n+1}{2}$$
 4. 所以
-   $$S_n = \begin{cases} -\dfrac{n}{2}, & n \text{ 为偶数}\\[4pt] \dfrac{n+1}{2}, & n \text{ 为奇数}\end{cases}$$
+$$S_n = \begin{cases} -\dfrac{n}{2}, & n \text{ 为偶数}\\[4pt] \dfrac{n+1}{2}, & n \text{ 为奇数}\end{cases}$$
 
 检验：$S_1 = 1$，$S_2 = -1$，$S_3 = 2$，$S_4 = -2$，$S_{20} = -10$，$S_{21} = 11$。统一写法是 $S_n = (-1)^{n+1}\left\lceil \frac{n}{2}\right\rceil$（$\lceil x\rceil$ 表示向上取整），但**考试时老老实实分奇偶写，更不容易错**。
 

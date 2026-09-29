@@ -24,6 +24,11 @@ exits:
   - data-ai
 ---
 
+:::note[与别章的分工]
+注意三个长得像的"拉格朗日"：**本课是约束优化的乘数法**（在等式约束下找极值）；[变分法的 Euler-Lagrange 方程](../26-functional-analysis/95-calculus-of-variations.md)是在函数空间里求"最优函数"；[分析力学里的拉格朗日方程](../65-robotics-motion/70-generalized-lagrangian.md)是用广义坐标写动力学。名字同源（都是那位拉格朗日），用法完全不同，别混。
+:::
+
+
 # 拉格朗日乘数法
 
 ## 1. 从一个场景开始

@@ -8,6 +8,11 @@ introduces_builtin: []
 introduces_import: []
 ---
 
+:::note[与别章的分工]
+本课是 DFT 的**数学定义与手算**；它在工程里的两个续集在数字信号处理章：[频谱泄漏与窗函数](../61-digital-signal-processing/60-dft-leakage.md)（真实信号不是整周期时会发生什么），以及 [FFT 的分治算法](../61-digital-signal-processing/65-fft-divide-conquer.md)（怎么把 O(N²) 压到 O(N log N)）。
+:::
+
+
 # 采样与 DFT：计算机怎么做傅里叶
 
 ## 1. 从一个场景开始

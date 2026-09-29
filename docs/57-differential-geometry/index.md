@@ -1,5 +1,6 @@
 ---
 title: 第 57 章 · 微分几何与流形入门
+short: 微分几何
 description: 在弯曲的空间里做微积分：曲面、切空间、曲率、测地线与 Riemann 度量。
 volume: 5
 layer: L8
@@ -22,9 +23,11 @@ difficulty: 4
 4. [球面三角与球面几何选讲](./35-spherical-trig.md)——北京飞纽约的大圆航线绕进北冰洋：球面上的"直线"另有其人；
 5. [Gauss 曲率与绝好定理直觉](./40-gauss-curvature-egregium.md)——纸能卷成圆筒却包不出橘子；包出来的二维宇宙是直是弯，看内部就知道；
 6. [第二基本形式：法向的高度账](./42-second-fundamental-form.md)——主曲率的正式出生证明：法向高度账、形状算子与随方向转动的法曲率；
-7. [测地线：曲面上的最直路径](./50-geodesic-path.md)——绷紧的橡皮筋替飞机选航线；
-8. [Riemann 度量与流形直觉](./60-riemann-metric-manifold.md)——每一点的尺子和量角器都不是同一副；
-9. [应用展望：广义相对论语言、嵌入空间与最优传输接口](./70-application-outlook.md)——当你把时空当成一张会变形的大地。
+7. [联络与协变导数：怎么在曲面上求导](./45-connection-covariant-derivative.md)——平直空间里"平移"是显然的，弯曲空间里要先把基准搬过去：Christoffel 符号与测地线方程在此接上
+8. [测地线：曲面上的最直路径](./50-geodesic-path.md)——绷紧的橡皮筋替飞机选航线；
+9. [微分形式与外微分：积分学的高级语言](./55-differential-forms.md)——把"被积表达式"本身变成对象，Stokes 定理从此只写一行：$\int_{\partial M}\omega = \int_M d\omega$；
+10. [Riemann 度量与流形直觉](./60-riemann-metric-manifold.md)——每一点的尺子和量角器都不是同一副；
+11. [应用展望：广义相对论语言、嵌入空间与最优传输接口](./70-application-outlook.md)——当你把时空当成一张会变形的大地。
 
 ## 前置回望
 
@@ -165,7 +168,7 @@ print(kappa)
 
 圆的曲率等于半径的倒数：
 
-```python
+```py
 kappa = 1 / r    # 1 / 2
 print(kappa)     # 0.5
 ```

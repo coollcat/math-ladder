@@ -166,7 +166,7 @@ print(pos[1])
 
 解码的本分是"查表 + 累加"：
 
-```python
+```py
 for w in tokens:
     d = CODEBOOK[w]              # 查当前词的位移
     pos = (pos[0] + d[0], pos[1] + d[1])   # 从上一步出发累加

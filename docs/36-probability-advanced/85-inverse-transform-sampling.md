@@ -179,7 +179,7 @@ print(f"{exp_quantile(0.9, 0.2):.3f}")  # 换一组参数再验一遍
 
 修正后的函数只有一行：
 
-```python
+```py
 def exp_quantile(u, lam):
     return -math.log(1 - u) / lam       # 反解 CDF：u = F(y) 解出 y
 ```

@@ -182,7 +182,7 @@ print(var_beta)
 
 修正后的关键两行：
 
-```python
+```py
 p_alpha = coin              # 甲的全涨概率 = 那唯一硬币出正面的概率 = 0.5
 var_alpha = 9               # S甲 = 3ε ⇒ S甲² = 9ε² = 9 恒成立 ⇒ 方差恰为 9
 ```

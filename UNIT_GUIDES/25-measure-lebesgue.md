@@ -156,4 +156,4 @@ Riemann 失效案例 → 外测度 → 可测集 → 可测函数 → 水平层�
 5. `npm run validate && npm run build` 全绿；h2 计数体检（源 `^## ` vs 产物 `<h2`）逐页一致。
 6. 行内公式无字面花括号（用 `\lbrace\rbrace`）；显示公式一律单行。
 7. 浏览器抽测：viz 点击、exercise 通过流、Alt+P 浮窗、路由切换无重复注入；360px + dark 无溢出。
-8. 报告合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `AUDIT_REPORTS/OPEN_ITEMS.md`；ROADMAP 补本章进度小节。
+8. 报告合并进 `CONTENT_AUDIT.md`，非阻塞项登记 `_ai-workspace/reports/OPEN_ITEMS.md`；ROADMAP 补本章进度小节。

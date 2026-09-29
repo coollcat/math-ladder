@@ -1,5 +1,6 @@
 ---
 title: 第 33 章 · 代数结构
+short: 代数结构
 description: 从运算律到群环域：把对称、可逆和同态统一成结构语言。
 volume: 3
 layer: L2
@@ -22,16 +23,21 @@ difficulty: 4
 - [循环群与生成元](./25-cyclic-groups.md)——时针只有一个基本动作走一格：走 24 格回原点、走 13 格等于走 1 格，一个动作竟铺满整张时刻表；配套 cyclic-generator 双视图与 clockmod 钟面；
 - [子群与阶](./30-subgroups-order.md)——模 12 钟面上只许走 4 格，你会反复停在 0、4、8：这个小圈有自己的单位元和逆元，大小还藏着一条整除规律；配套 clockmod 钟面探针；
 - [Lagrange 定理选读](./35-lagrange.md)——12 位客人分桌，每桌坐 5 人必剩人：子群作为“桌子”只能以整除全群人数的方式摆放；配套 set-mapper 实验；
+- [正规子群与商群](./37-normal-subgroup-quotient.md)——0 和 12、24 被归成同一类，整条数轴被压成 12 格，商群就是这台压缩机；配套 set-mapper 陪集划分；
+- [Sylow 定理：有限群的骨架由素数幂决定](./38-sylow.md)——15 位客人每桌 3 人到底分不分得完？Lagrange 只说允许，Sylow 保证到货还数清个数；配套 operation-table 乘法表数子群；
 - [同构：结构相同的不同外壳](./40-isomorphism.md)——模 5 加法群和“乘 2 转动五边形”的动作群名字完全不同，乘法表换掉标签后一模一样；配套 set-mapper 标签替换实验；
 - [同态与核](./45-homomorphism-kernel.md)——把精确到分钟的钟压扁成上午、下午两格：规律部分保留，被压到单位元的部分叫核；配套 set-mapper 压扁实验；
+- [群同态基本定理](./47-isomorphism-theorem.md)——同态是一次压扁、商群是另一次压扁，基本定理说这两种压扁其实是同一件事；配套 set-mapper 商群分解图；
 - [环与域](./50-rings-fields.md)——钟表既能加也能乘：9 点过 5 小时是 2 点，而 $9\times5=45$ 又落回 9 点；配套 operation-table 与 distributive 演示；
 - [多项式环](./55-polynomial-ring.md)——$x^2-3x+2$ 不是单个数而是一台代入机器，多项式之间还能像整数一样加减乘；配套 factoring 因式分解实验；
 - [模运算中的环和域](./60-modular-rings-fields.md)——模 12 能加能乘却做不好除法：3 乘 4 会撞回 0；换成模 7 后每个非零数字突然都会“倒转”；配套 finite-field-inverse-grid 倒数网格；
 - [有限域入门](./65-finite-fields.md)——二维码划破一角还能扫出来，密钥能在有限数字世界里做除法：共同舞台常常是有限域；配套 finite-field-inverse-grid 网格；
+- [有限域 F_{p^m} 构造](./67-finite-field-construction.md)——AES 和 Reed-Solomon 都住在 F_{2^8} 里，可它不是模 256：借一个不可约多项式才能把这块更大的域造出来；配套 plot 不可约多项式分布；
 - [置换群与对称](./70-permutation-groups.md)——四张牌可以洗成很多顺序：第一张去第三位、第二张去第一位……“重排”本身就是代数对象；配套 set-mapper 实验；
 - [群作用与计数选讲](./75-group-actions-counting.md)——四颗珠子串成手环黑白两色共 16 种涂法，转动后相同的图案不该重复数：让群作用替你转动手环；配套 set-mapper 轨道实验；
 - [代数结构方法地图](./80-method-map.md)——遇到一个新系统，该先问交换律还是先找逆元？一张判断路线图替你决定把它看成群、环还是域；配套 proof-trail 梳理；
 - [伽罗瓦理论选讲：对称决定可解性](./85-galois-theory.md)——五次方程为什么没有求根公式：根的对称群决定可解性，尺规作图的不可能也在这里结账；配套 set-mapper 根置换实验；
+- [表示论初步：把群变成矩阵](./88-representation-intro.md)——给每个群元素发一张可逆矩阵当"证件照"，用特征标的迹一眼看穿不可约积木；配套 matrix 旋转证书实验；
 
 本章从钟表算术、开关、洗牌和加密进入抽象定义，再回到密码学与编码理论接口。核心依赖链为：运算律 → 二元运算 → 群 → 子群/陪集 → 同构/同态 → 环域 → 多项式与有限域 → 置换与群作用。
 
@@ -39,7 +45,7 @@ difficulty: 4
 
 :::note[生产状态]
 
-第 33 章 16 门正式课已完成首轮生产，全部通过课程闭环校验与构建检查。
+第 33 章 21 门正式课已完成首轮生产，全部通过课程闭环校验与构建检查。
 
 :::
 
@@ -121,10 +127,10 @@ def mod_pow(base, exp, mod):
 
 A = mod_pow(g, a, p)
 B = mod_pow(g, b, p)
+shared = mod_pow(B, a, p)          # 双方算出的共享密钥应当相同
 print("A=" + str(A))
 print("B=" + str(B))
-print("shared_alice=" + str(mod_pow(B, a, p)))
-print("shared_bob=" + str(mod_pow(A, b, p)))
+print("shared=" + str(shared))
 ```
 
 **为什么窃听者干瞪眼？** 从 $A = 8$ 反推 $a$ 叫**离散对数问题**。本例 $p=23$ 小到可以逐个试；真实协议里 $p$ 有几百位，已知最快的反解方法也慢得不划算——安全性从来不是"绝对无解"，而是"代价高过秘密本身的价值"。

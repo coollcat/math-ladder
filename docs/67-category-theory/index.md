@@ -1,5 +1,6 @@
 ---
 title: 第 67 章 · 范畴论与应用结构
+short: 范畴论
 description: 忘记对象的内部，只看箭头：函子、自然变换、泛性质与 monad 的应用视角。
 volume: 5
 layer: L11
@@ -143,7 +144,7 @@ print(result)
 
 $g \circ f$ 是先作用 $f$、再作用 $g$：
 
-```python
+```py
 result = g(f(3))    # f(3)=4，再 g(4)=8
 print(result)       # 8
 ```

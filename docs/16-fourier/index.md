@@ -1,5 +1,7 @@
 ---
 title: 第 16 章 · 傅里叶级数与傅里叶变换
+short: 傅里叶
+volume: 1
 description: 正交性、傅里叶系数、方波与吉布斯现象、频谱与 DFT：卷一的信号与变换枢纽站。
 ---
 
@@ -136,7 +138,7 @@ print(round(s, 4))
 
 正交性要验证的是**不同频率**之间的内积：
 
-```python
+```py
 s = s + math.sin(t) * math.sin(2 * t)   # sin 与 sin(2t) 内积
 print(round(s, 4))                      # 0.0
 ```

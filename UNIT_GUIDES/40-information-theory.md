@@ -182,4 +182,4 @@
 5. MDX 双坑自检：花括号用 `\lbrace`/`\rbrace`（集合 {0.2,0.4,...} 一律替换）；显示公式一律单行；改完跑 h2 计数体检（源 `^## ` vs 产物 `<h2`）。
 6. prereqs 全部 grep 核实存在且更前（coding-theory 各课位于第 35 章，序在前 ✓）。
 7. `npm run validate` → `npm run build` 全绿；手测三类互动块、Alt+P 浮窗、路由切换无重复注入；360px + dark 无溢出。
-8. 报告合并进 `CONTENT_AUDIT.md`；回填候选登记 `AUDIT_REPORTS/OPEN_ITEMS.md`：`entropy-scale` 回填 `docs/35-coding-theory/75-entropy-redundancy.md`（其 plot 曲线可升级），`kl-asymmetry` → 未来 45-ml-math 损失函数课，`joint-grid` → 42-causal-inference 独立性课。
+8. 报告合并进 `CONTENT_AUDIT.md`；回填候选登记 `_ai-workspace/reports/OPEN_ITEMS.md`：`entropy-scale` 回填 `docs/35-coding-theory/75-entropy-redundancy.md`（其 plot 曲线可升级），`kl-asymmetry` → 未来 45-ml-math 损失函数课，`joint-grid` → 42-causal-inference 独立性课。

@@ -201,7 +201,7 @@ print(round(delta[last], 4))
 
 唯一的病灶在内层循环一行：
 
-```python
+```py
 v = delta[i] * A[i][j]      # 昨天的最优分 × 昨天到今天的转移概率
 ```
 

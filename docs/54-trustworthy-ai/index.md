@@ -1,5 +1,6 @@
 ---
 title: 第 54 章 · 可信 AI
+short: 可信 AI
 description: 校准、分布偏移、对抗鲁棒、Conformal、隐私、公平性与可解释性的数学基础。
 volume: 5
 layer: L11
@@ -17,12 +18,13 @@ difficulty: 5
 
 1. [校准与过度自信：置信度要诚实](./10-calibration-overconfidence.md)——医生助手说："这个肿瘤 92% 是恶性的；
 2. [对抗样本：一步之差的欺骗](./20-adversarial-examples.md)——2016 年，CMU 的研究团队在 ACM CCS 会议（计算机安全顶会）上发表了一个令人脊背发凉的…；
-3. [公平性指标的冲突](./30-fairness-metrics-conflict.md)——一家公司想用算法初筛简历；
-4. [可解释性：归因与反事实](./40-attribution-counterfactual-xai.md)——贷款申请被拒，客户打电话来问："为什么？；
-5. [分布内、分布外与分布偏移](./50-distribution-shift-ood.md)——练习册上的满分不能担保考试换了一张卷子；
-6. [Conformal prediction 的覆盖保证](./60-conformal-prediction.md)——不假设正态，也要给出敢署名的区间；
-7. [差分隐私与隐私预算](./70-differential-privacy.md)——一个人的加入不该让世界看出痕迹；
-8. [监控、审计与失败模式清单](./80-monitoring-failure-modes.md)——把每一类翻车提前写进剧本。
+3. [AI 安全：从提示注入到模型投毒](./25-ai-security.md)——数据与指令在 token 序列里无结构之分，间接注入因此防不胜防；配套看清投毒的后门机制与纵深防御的乘法效应
+4. [公平性指标的冲突](./30-fairness-metrics-conflict.md)——一家公司想用算法初筛简历；
+5. [可解释性：归因与反事实](./40-attribution-counterfactual-xai.md)——贷款申请被拒，客户打电话来问："为什么？；
+6. [分布内、分布外与分布偏移](./50-distribution-shift-ood.md)——练习册上的满分不能担保考试换了一张卷子；
+7. [Conformal prediction 的覆盖保证](./60-conformal-prediction.md)——不假设正态，也要给出敢署名的区间；
+8. [差分隐私与隐私预算](./70-differential-privacy.md)——一个人的加入不该让世界看出痕迹；
+9. [监控、审计与失败模式清单](./80-monitoring-failure-modes.md)——把每一类翻车提前写进剧本。
 
 ## 前置回望
 
@@ -151,7 +153,7 @@ print(round(gap, 2))
 
 校准误差是差距的**大小**，不分方向：
 
-```python
+```py
 gap = abs(confidence - accuracy)   # |0.6 - 0.8|
 print(round(gap, 2))               # 0.2
 ```

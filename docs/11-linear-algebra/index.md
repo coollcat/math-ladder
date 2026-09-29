@@ -1,5 +1,7 @@
 ---
 title: 第 11 章 · 线性代数初步
+short: 线性代数
+volume: 1
 description: 向量、点积、矩阵与行列式：把几何动作翻译成算术，再把结果翻译回几何。
 ---
 
@@ -119,7 +121,7 @@ print(dot)
 
 三维向量有三个分量，循环要跑满 3 次：
 
-```python
+```py
 for i in range(3):             # 0、1、2 三个下标
     dot = dot + u[i] * v[i]
 print(dot)                     # 1*4 + 2*5 + 3*6 = 32

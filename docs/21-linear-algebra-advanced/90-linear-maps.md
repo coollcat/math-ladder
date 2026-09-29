@@ -135,7 +135,7 @@ print("rank=1")
 
 第一分量应为加法：
 
-```python
+```py
 def corrected_T(point):
     return [A[0][0] * point[0] + A[0][1] * point[1],
             A[1][0] * point[0] + A[1][1] * point[1]]

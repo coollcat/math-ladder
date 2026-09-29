@@ -134,7 +134,7 @@ print("kernel=" + str(kernel))
 
 应把函数改成：
 
-```python
+```py
 def f(x):
     return x % target
 ```

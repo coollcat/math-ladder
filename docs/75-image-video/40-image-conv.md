@@ -25,6 +25,11 @@ applications:
 exits: []
 ---
 
+:::note[与别章的分工]
+卷积的一维数学定义在 [第 61 章](../61-digital-signal-processing/20-convolution-lti.md)，可学习版本在 [第 46 章](../46-deep-learning/48-convolution-sharing.md)；本课是它在二维像素网格上的具体写法（核、边界处理、模糊与锐化）。
+:::
+
+
 # 图像卷积：模糊与锐化
 
 ## 1. 从一个场景开始

@@ -135,7 +135,7 @@ print(f"nullity={nullity}")
 
 非零行只有 1 行，所以：
 
-```python
+```py
 rank = 1
 nullity = 2 - rank
 ```

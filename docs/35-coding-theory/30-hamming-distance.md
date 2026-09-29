@@ -153,7 +153,7 @@ c = 0 1 0 0
 
 $d(b,c)=1$。$b$ 中有两个 1，所以 `weight_b=2`。
 
-```python
+```py
 d_ab = sum(x != y for x, y in zip(a, b))   # zip 把两个串按位配对，!= 得到布尔值
 d_bc = sum(x != y for x, y in zip(b, c))
 weight_b = sum(b)
