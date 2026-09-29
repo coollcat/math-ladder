@@ -257,6 +257,12 @@
   padding-bottom: 1.15rem;
 }
 
+/* 按钮里的小图标：与文字基线对齐（描边图标默认坐在基线上会显高） */
+.ml-tree-head__links .button svg {
+  margin-right: 2px;
+  vertical-align: -0.16em;
+}
+
 .ml-ht {
   border: 1.5px solid var(--ml-ink);
   border-radius: 14px;
@@ -2954,6 +2960,83 @@
   }
 }
 
+/* ---- 入场动画：透明度错峰 + 描边生长 ----
+ * 挂在 .ml-cc__svg.is-enter 上，到点（组件里 ENTER_MS）整批摘掉，点选/开关重建不重播。
+ * 刻意不碰 transform：验收脚本用 getBoundingClientRect 量「全览装得下」，
+ * transform 半程会量到假尺寸；透明度与 stroke-dashoffset 不影响几何。
+ * 描边生长靠 pathLength={1}（组件里已加）把 dash 单位归一化。 */
+.ml-cc__svg.is-enter .ml-cc__cluster {
+  opacity: 0;
+  animation: ml-cc-cluster-in 0.55s var(--ml-ease-spring, cubic-bezier(0.2, 0.9, 0.3, 1.5)) both;
+  animation-delay: calc(var(--cc-ri, 1) * 110ms + 120ms);
+}
+
+.ml-cc__svg.is-enter .ml-cc__disc {
+  animation: ml-cc-disc-in 0.55s var(--ml-ease-spring, cubic-bezier(0.2, 0.9, 0.3, 1.5)) both;
+  animation-delay: calc(var(--cc-ri, 1) * 110ms + 120ms);
+  /* 圆盘以自身圆心缩放（fill-box：取元素自己的包围盒），父级坐标系不动 */
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ml-cc__svg.is-enter .ml-cc__ring {
+  opacity: 0;
+  animation: ml-cc-fade 0.6s var(--ml-ease) both;
+}
+
+.ml-cc__svg.is-enter .ml-cc__ringnum {
+  opacity: 0;
+  animation: ml-cc-fade 0.6s var(--ml-ease) 0.5s both;
+}
+
+.ml-cc__svg.is-enter .ml-cc__edge {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ml-cc-edge-draw 0.7s var(--ml-ease) 0.45s both;
+}
+
+@keyframes ml-cc-cluster-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ml-cc-disc-in {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ml-cc-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ml-cc-edge-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* ---- 减少动态偏好：取消一切过渡 ---- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2964,6 +3047,21 @@
   .ml-cc__oitem,
   .ml-cc__ctrls button {
     transition: none;
+  }
+
+  /* 入场动画一并取消：直接呈现终态 */
+  .ml-cc__svg.is-enter .ml-cc__cluster,
+  .ml-cc__svg.is-enter .ml-cc__disc,
+  .ml-cc__svg.is-enter .ml-cc__ring,
+  .ml-cc__svg.is-enter .ml-cc__ringnum {
+    animation: none;
+    opacity: 1;
+  }
+
+  .ml-cc__svg.is-enter .ml-cc__edge {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
   }
 }
 

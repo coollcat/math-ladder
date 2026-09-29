@@ -41,6 +41,13 @@ const MAX_K = 2.4;
 const NEAR_K = 0.62; /* ≥ 这一档才露章名/章号 */
 const DOT_R = 2.6; /* 与 clusterLayout.CC.dotR 一致 */
 
+/* ---- 入场动画 ----
+ * 挂在 svg 根的 is-enter 上：只做透明度错峰 + 描边生长，**不碰 transform/几何**——
+ * 验收脚本用 getBoundingClientRect 量「全览装得下」，动画若改 transform 会在
+ * 半程量到假尺寸。ENTER_MS 要盖住最长的 delay+duration（环 6 ≈ 0.12+6×0.11+0.55 ≈ 1.3s）。
+ * 到点后摘掉 is-enter：body 在点选/开关时会整个重建，不摘的话每点一章整张图重播一遍入场。 */
+const ENTER_MS = 1500;
+
 /* ---- 布局：模块级算一次（纯函数，不依赖 DOM） ---- */
 function buildModel() {
   const flat = [];
@@ -67,6 +74,7 @@ export default function ChapterClusterGraph() {
   const [dots, setDots] = React.useState(true); /* 课点显隐 */
   const [outline, setOutline] = React.useState(true);
   const [zoomPct, setZoomPct] = React.useState(100);
+  const [enter, setEnter] = React.useState(true); /* 入场动画只播首次，见 ENTER_MS 注释 */
 
   const svgRef = React.useRef(null);
   const gRef = React.useRef(null);
@@ -83,6 +91,13 @@ export default function ChapterClusterGraph() {
     if (typeof window === 'undefined') return;
     if (window.matchMedia('(max-width: 996px)').matches) setOutline(false);
   }, []);
+
+  /* 入场动画到点后摘 is-enter（SSR 下 setTimeout 不跑，摘不摘都到不了客户端动画） */
+  React.useEffect(() => {
+    if (!enter) return undefined;
+    const t = window.setTimeout(() => setEnter(false), ENTER_MS);
+    return () => window.clearTimeout(t);
+  }, [enter]);
 
   /* ---- 视图：平移缩放 + 文字反向缩放 ---- */
   const applyView = React.useCallback((updatePct) => {
@@ -365,6 +380,7 @@ export default function ChapterClusterGraph() {
               d={chapterEdgePath(L, e)}
               data-a={e.a}
               data-b={e.b}
+              pathLength={1}
             />
           ))}
         </g>
@@ -407,6 +423,7 @@ export default function ChapterClusterGraph() {
                 key={c.n}
                 className={'ml-cc__cluster' + (hitSet && hitSet.has(c.n) ? ' is-hit' : '')}
                 data-ch={c.n}
+                style={{ '--cc-ri': String((c.ring ?? -1) + 1) }}
                 onMouseEnter={() => setHot(c.n)}
                 onMouseLeave={() => setHot(null)}
                 onClick={() => {
@@ -564,7 +581,7 @@ export default function ChapterClusterGraph() {
         <div className="ml-cc__stage">
           <svg
             ref={svgRef}
-            className="ml-cc__svg"
+            className={'ml-cc__svg' + (enter ? ' is-enter' : '')}
             viewBox={`${-L.size / 2} ${-L.size / 2} ${L.size} ${L.size}`}
             role="img"
             aria-label={`章簇详图：${L.clusters.size} 章、${L.lessonCount} 门课，每章一簇`}

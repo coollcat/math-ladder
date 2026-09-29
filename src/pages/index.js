@@ -5,6 +5,7 @@ import { drawSinesFrame } from '../pyrunner/viz';
 import { openInConsole } from '../pyrunner/enhancer';
 import { allChapterGroups, siteStats } from '@site/src/components/ml-home/data';
 import { ContinueButton, ProgressStrip } from '@site/src/components/ml-home/LearningEntry';
+import { Icon } from '@site/src/components/icons';
 import HomeTree from '@site/src/components/ml-home/HomeTree';
 import '../css/home.css';
 
@@ -221,12 +222,15 @@ export default function Home() {
               </div>
               <div className="ml-tree-head__links">
                 <Link className="button button--primary button--sm" to="/tree">
+                  <Icon name="tree" size={15} />
                   打开知识树 →
                 </Link>
                 <Link className="button button--secondary button--sm button--outline" to="/graph">
+                  <Icon name="graph" size={15} />
                   同心环层级图 →
                 </Link>
                 <Link className="button button--secondary button--sm button--outline" to="/chapters">
+                  <Icon name="cluster" size={15} />
                   章簇详图 →
                 </Link>
               </div>
@@ -293,7 +297,7 @@ export default function Home() {
                   从第 0 课开始 →
                 </Link>
                 <Link className="button button--secondary button--lg button--outline" to="/graph">
-                  查依赖图谱
+                  同心环图谱 →
                 </Link>
               </div>
             </div>
