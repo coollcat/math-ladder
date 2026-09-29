@@ -65,8 +65,7 @@ function dotR(count) {
   return Math.max(7, Math.min(16, 5.5 + Math.sqrt(count || 1) * 1.5));
 }
 
-/** 课点圈半径：章点半径打底 + 课数开方撑周长（13 课的章也不挤）。
- *  章节钻取与「全部炸开」共用这一套几何，同一章的课圈在两种模式下一样大。 */
+/** 课点圈半径：章点半径打底 + 课数开方撑周长（13 课的章也不挤）。 */
 function lessonRingR(count) {
   return dotR(count) + 18 + Math.sqrt(count || 1) * 2.4;
 }
@@ -137,10 +136,6 @@ export default function KnowledgeGraphRadial() {
      拿到后本章每门课在图上原位展开成一圈课点。 */
   const [drill, setDrill] = React.useState(null);
   const drillCache = React.useRef(new Map()); /* 本会话内缓存，同一章不重复请求 */
-  /* 全部炸开（2026-09-29 第二批）：一键把 78 章的课点全铺上图。
-     默认章节模式；burstProgress 是炸开时的加载进度 {done,total}。 */
-  const [burst, setBurst] = React.useState(false);
-  const [burstProgress, setBurstProgress] = React.useState(null);
   const history = useHistory();
   const baseUrl = useBaseUrl('/');
 
@@ -476,55 +471,6 @@ export default function KnowledgeGraphRadial() {
     [centerOn, openDrill],
   );
 
-  /* ---- 全部炸开 ----
-     进入时把缓存里缺的章数据补齐（8 并发池，别把 78 个请求同时打出去）；
-     已缓存过的章不发请求。单章失败不拦整体——那一章没课点而已，
-     收回再炸开即重试。drillCache 是 ref，进度 state 每章一跳顺便触发重渲，
-     课点圈是「逐章长出来」的；最后一章完成时全部就位。 */
-  const toggleBurst = React.useCallback(() => setBurst((v) => !v), []);
-
-  React.useEffect(() => {
-    if (!burst) {
-      setBurstProgress(null);
-      return undefined;
-    }
-    let alive = true;
-    const total = M.chapters.length;
-    const missing = M.chapters.map((c) => c.n).filter((n) => !drillCache.current.has(n));
-    const done0 = total - missing.length;
-    if (!missing.length) {
-      setBurstProgress(null);
-      return undefined;
-    }
-    setBurstProgress({ done: done0, total });
-    let done = done0;
-    const queue = [...missing];
-    const worker = async () => {
-      while (queue.length && alive) {
-        const n = queue.shift();
-        try {
-          if (!drillCache.current.has(n)) {
-            const url = `${baseUrl}graph-chapters/${String(n).padStart(2, '0')}.json`;
-            const r = await fetch(url);
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            drillCache.current.set(n, await r.json());
-          }
-        } catch {
-          /* 单章失败不拦整体 */
-        }
-        done += 1;
-        if (alive) setBurstProgress({ done, total });
-      }
-    };
-    (async () => {
-      await Promise.all(Array.from({ length: 8 }, worker));
-      if (alive) setBurstProgress(null);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [burst, baseUrl]);
-
   const onSvgKey = (e) => {
     const cur = focus ?? M.chapters[0].n;
     const map = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -547,7 +493,6 @@ export default function KnowledgeGraphRadial() {
       setPicked(null);
       setHot(null);
       closeDrill();
-      setBurst(false); /* Esc 逐层退出：连炸开模式一起收 */
       return;
     }
     if (e.key === '+' || e.key === '=') zoomAt(0, 0, 1.3);
@@ -597,15 +542,6 @@ export default function KnowledgeGraphRadial() {
           aria-pressed={outline}
         >
           目录
-        </button>
-        <button
-          type="button"
-          className={'ml-rg__chip ml-rg__chip--btn' + (burst ? ' is-on' : '')}
-          onClick={toggleBurst}
-          aria-pressed={burst}
-          title="把全部 78 章的课点都铺在图上（课数据仍从服务器按需加载）；再点一次收回章节模式"
-        >
-          {burst ? '收回课点' : burstProgress ? `炸开中 ${burstProgress.done}/${burstProgress.total}` : '全部炸开'}
         </button>
         {(picked != null || ql || volFilter != null || ringFilter != null) && (
           <button
@@ -703,8 +639,7 @@ export default function KnowledgeGraphRadial() {
               {/* 章节点 */}
               {M.chapters.map((c) => {
                 const p = geo.pos.get(c.n);
-                /* 炸开模式下章名标签挪到课点圈外侧，别被课圈压住 */
-                const lp = labelPlacement(p, burst ? lessonRingR(c.count) : dotR(c.count));
+                const lp = labelPlacement(p, dotR(c.count));
                 return (
                   <g
                     key={c.n}
@@ -750,34 +685,25 @@ export default function KnowledgeGraphRadial() {
                 );
               })}
 
-              {/* 课级钻取层（2026-09-29）：章节模式＝当前 drill 的那一章（点击章后
-                  fetch static/graph-chapters/NN.json）；炸开模式＝全部章一起铺。
-                  课点绕章点排成一圈小课点，章内先修线画短线；
-                  章节模式下其它章已被焦点逻辑退隐（is-off），课圈是画面上唯一的细节层。 */}
-              {(() => {
-                const rings = burst
-                  ? M.chapters.map((c) => ({ c, data: drillCache.current.get(c.n) })).filter((x) => x.data)
-                  : drill && drill.data && M.byN.get(drill.n)
-                    ? [{ c: M.byN.get(drill.n), data: drill.data }]
-                    : [];
-                /* 炸开模式 1029 个课名全显必叠：跟随缩放，≥160% 才铺开课名；
-                   章节模式单章展开，课名常显。 */
-                const showLessonNames = labels && (!burst || zoomPct >= 160);
-                return rings.map(({ c, data }, ci) => {
-                  const p = geo.pos.get(c.n);
-                  if (!p) return null;
-                  const list = data.lessons;
+              {/* 课级钻取（2026-09-29）：点击章后 fetch static/graph-chapters/NN.json，
+                  本章每门课绕章点排成一圈小课点，章内先修线画短线。
+                  其它章已被焦点逻辑退隐（is-off），课圈是画面上唯一的细节层。 */}
+              {drill &&
+                drill.data &&
+                (() => {
+                  const p = geo.pos.get(drill.n);
+                  const c = M.byN.get(drill.n);
+                  if (!p || !c) return null;
+                  const list = drill.data.lessons;
                   const nL = list.length;
                   const rr = lessonRingR(c.count);
                   const posOf = (i) => {
                     const ang = -Math.PI / 2 + (nL ? (i / nL) * Math.PI * 2 : 0);
                     return { x: p.x + Math.cos(ang) * rr, y: p.y + Math.sin(ang) * rr, ang };
                   };
-                  /* 炸开时按章错峰，涟漪式长出来；章节模式单圈错峰 */
-                  const baseDelay = burst ? ci * 0.004 : 0;
                   return (
-                    <g key={`dr${c.n}`} className="ml-rg__drill" style={{ '--vc': `var(${VOL_COLORS[c.vi] || VOL_COLORS[0]})` }}>
-                      {data.edges.map(([a, b], k) => {
+                    <g className="ml-rg__drill" style={{ '--vc': `var(${VOL_COLORS[c.vi] || VOL_COLORS[0]})` }}>
+                      {drill.data.edges.map(([a, b], k) => {
                         const A = posOf(a);
                         const B = posOf(b);
                         return <line key={`de${k}`} className="ml-rg__dedge" x1={A.x} y1={A.y} x2={B.x} y2={B.y} />;
@@ -792,7 +718,7 @@ export default function KnowledgeGraphRadial() {
                           <g
                             key={l.id}
                             className="ml-rg__ldot"
-                            style={{ '--d': `${Math.min(baseDelay + i * 0.012, 0.6)}s` }}
+                            style={{ '--d': `${Math.min(i * 0.018, 0.5)}s` }}
                             onClick={(ev) => {
                               ev.stopPropagation();
                               history.push(l.to);
@@ -802,24 +728,21 @@ export default function KnowledgeGraphRadial() {
                             aria-label={l.title}
                           >
                             <circle cx={pt.x} cy={pt.y} r={3.4} />
-                            {showLessonNames && (
+                            {labels && (
                               <text x={lx} y={ly} textAnchor={anchor}>
                                 {shortLabel(l.title, 6)}
                               </text>
                             )}
-                            <title>{`${l.title}\n${c.title} · 点击进入这一课`}</title>
+                            <title>{`${l.title}\n点击进入这一课`}</title>
                           </g>
                         );
                       })}
-                      {!burst && (
-                        <text className="ml-rg__dcount" x={p.x} y={p.y + rr + 13} textAnchor="middle">
-                          {`${data.title} · ${nL} 门课`}
-                        </text>
-                      )}
+                      <text className="ml-rg__dcount" x={p.x} y={p.y + rr + 13} textAnchor="middle">
+                        {`${drill.data.title} · ${nL} 门课`}
+                      </text>
                     </g>
                   );
-                });
-              })()}
+                })()}
 
               {/* 钻取加载中：章点外套一圈虚线在流动 */}
               {drill &&
@@ -864,11 +787,10 @@ export default function KnowledgeGraphRadial() {
           </div>
 
           <p className="ml-rg__hint">
-            <strong>半径</strong>＝层级（第几环＝爬多高），<strong>颜色</strong>＝所属卷。默认章节模式：
-            悬停看直接先修（绿）与托起（橙），<strong>单击任意章</strong>锁定并当场展开这一章的每一门课
+            <strong>半径</strong>＝层级（第几环＝爬多高），<strong>颜色</strong>＝所属卷。
+            悬停看直接先修（绿）与托起（橙）；<strong>单击任意章</strong>锁定并当场展开这一章的每一门课
             （课数据从服务器按需加载），点课点直接进课，再点章或点空白收起。
-            工具条<strong>「全部炸开」</strong>一键把全部课点铺上图，再点「收回课点」回到章节模式；
-            炸开后放大到 160% 以上才显示课名。方向键换章、拖动画布、滚轮缩放、双击居中。
+            方向键换章、拖动画布、滚轮缩放、双击居中。
           </p>
           {drill && drill.err && (
             <p className="ml-rg__hint ml-rg__hint--err">

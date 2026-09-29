@@ -27,8 +27,6 @@ export default function GraphPage() {
         <p className="ml-rg__lead">
           一颗圆点只能告诉你「哪一章在哪一层」；<strong>点击任意章的圆点</strong>，这一章的每一门课会
           从服务器加载、在图上原位展开成一小圈课点——再点空白处收起，随时回到全景。
-          想一眼看尽全部细节？工具条<strong>「全部炸开」</strong>把 78 章的课点一次铺上图，
-          再点「收回课点」回到章节模式。
         </p>
         <KnowledgeGraphRadial />
       </main>
