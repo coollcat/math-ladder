@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>数学阶梯 · 宣传片</title>
+<meta name="description" content="数学阶梯的两支宣传片：45 秒快闪版与 2 分 47 秒完整版。画面由 WebGL/Canvas 实时计算，配乐由 Web Audio 实时合成，不含任何图片、视频与音频素材。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c2401c'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='%23fff6ee' font-family='serif'%3E%E6%95%B0%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --paper:#fbf8f1; --card:#ffffff; --ink:#26324b; --ink-soft:rgba(38,50,75,.62);
+    --line:rgba(38,50,75,.10); --vermilion:#c2401c; --vermilion-soft:rgba(194,64,28,.10);
+    --shadow:0 1px 0 rgba(38,50,75,.06), 0 18px 40px -22px rgba(38,50,75,.42);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#14181f; --card:#1b202a; --ink:#dde3ee; --ink-soft:rgba(221,227,238,.60);
+      --line:rgba(221,227,238,.12); --vermilion:#e8734f; --vermilion-soft:rgba(232,115,79,.12);
+      --shadow:0 1px 0 rgba(0,0,0,.3), 0 18px 40px -22px rgba(0,0,0,.8); }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong",Georgia,serif;
+    -webkit-font-smoothing:antialiased;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:28px 28px,28px 28px; background-position:-1px -1px;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:clamp(28px,6vw,72px) clamp(18px,4vw,32px) 80px}
+  header{display:flex;align-items:center;gap:18px;margin-bottom:10px}
+  .seal{width:56px;height:56px;border-radius:7px;background:var(--vermilion);color:#fff8f2;
+    font-size:31px;line-height:56px;text-align:center;transform:rotate(-4deg);flex:0 0 auto;
+    box-shadow:0 8px 22px -8px rgba(194,64,28,.75)}
+  h1{margin:0;font-size:clamp(26px,4.4vw,40px);letter-spacing:.14em;font-weight:600}
+  .sub{margin:6px 0 0;font-size:13px;letter-spacing:.2em;color:var(--ink-soft)}
+  .lead{margin:26px 0 30px;font-size:15px;line-height:2;color:var(--ink-soft);max-width:62ch}
+  .lead em{font-style:normal;color:var(--vermilion);font-weight:600}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media (max-width:760px){ .grid{grid-template-columns:1fr} }
+  .card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:26px 26px 22px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .22s ease,box-shadow .22s ease}
+  .card:hover{transform:translateY(-3px)}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--vermilion)}
+  .card.fast::before{background:linear-gradient(180deg,var(--vermilion),#e8a13c)}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.18em;color:var(--vermilion);
+    background:var(--vermilion-soft);border-radius:3px;padding:4px 9px;margin-bottom:14px}
+  .card h2{margin:0 0 8px;font-size:clamp(20px,2.4vw,26px);letter-spacing:.06em;font-weight:600}
+  .card p{margin:0 0 16px;font-size:13.5px;line-height:1.95;color:var(--ink-soft)}
+  .spec{list-style:none;margin:0 0 20px;padding:0;font-size:12.5px;line-height:2.1;color:var(--ink-soft)}
+  .spec li{display:flex;gap:10px;border-bottom:1px dashed var(--line);padding:3px 0}
+  .spec b{font-weight:600;color:var(--ink);min-width:4.5em;flex:0 0 auto}
+  .go{display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-size:13.5px;letter-spacing:.14em;
+    color:#fff9f4;background:var(--vermilion);border-radius:3px;padding:12px 20px;font-weight:600;
+    box-shadow:0 10px 22px -12px rgba(194,64,28,.9);transition:.18s}
+  .go:hover{transform:translateY(-1px);filter:brightness(1.06)}
+  .go.ghost{background:transparent;color:var(--vermilion);border:1px solid var(--vermilion);box-shadow:none;margin-left:10px}
+  footer{margin-top:36px;font-size:12.5px;line-height:2.1;color:var(--ink-soft)}
+  footer code{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:var(--vermilion-soft);
+    border-radius:3px;padding:1px 6px;color:var(--vermilion)}
+  .kbd{font-family:ui-monospace,Consolas,monospace;font-size:11px;border:1px solid var(--line);
+    border-bottom-width:2px;border-radius:3px;padding:1px 5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="seal">数</div>
+    <div>
+      <h1>数学阶梯 · 宣传片</h1>
+      <p class="sub">两 支 片 子 · 全 程 实 时 渲 染</p>
+    </div>
+  </header>
+
+  <p class="lead">
+    从 <em>1+1</em> 一路走到 <em>AI 与前沿数学</em>。两支片子都是<strong>一个自包含的 HTML 文件</strong>：
+    画面由 WebGL / Canvas 现场计算，配乐由 Web Audio 现场合成 ——
+    <em>没有一张图片、没有一帧视频、没有一段采样音频</em>，离线双击就能播。
+  </p>
+
+  <div class="grid">
+    <div class="card fast">
+      <span class="tag">快 闪 版</span>
+      <h2>45 秒冲顶</h2>
+      <p>140 BPM、26 小节、13 刀硬切。每一刀都切在拍子上：底鼓一响就换画面，
+        大字是砸进来的不是淡入的，镜头跟着拍子抖、切镜瞬间画面撕裂。适合当首页头图或社媒开场。</p>
+      <ul class="spec">
+        <li><b>片长</b>45.6 秒 · 13 镜</li>
+        <li><b>节奏</b>140 BPM · 四四拍 · 音频时钟驱动</li>
+        <li><b>配乐</b>底鼓 / 拍手 / 开镲 / Sub 贝斯 / 16 分琶音 / 冲击音</li>
+        <li><b>画面</b>粒子符号 13 连切 + 分形 + 3D 线框 + 故障切片</li>
+      </ul>
+      <a class="go" href="./short/">▶ 播放快闪版</a>
+      <a class="go ghost" href="./short/" target="_blank" rel="noopener">新窗口</a>
+    </div>
+
+    <div class="card">
+      <span class="tag">完 整 版</span>
+      <h2>从 1+1 到前沿 · 2 分 47 秒</h2>
+      <p>十二幕的完整叙事：算术 → 代数 → 三角 → 微积分 → 线代 → 概率 →
+        傅里叶 → 复分析 → 前沿 → 六卷阶梯。每一幕都从一个能动手的实验长出来。</p>
+      <ul class="spec">
+        <li><b>片长</b>2 分 47 秒 · 12 幕</li>
+        <li><b>内容</b>20 万粒子成字 / 高尔顿板 / 黎曼和 / 傅里叶本轮 / 曼德博</li>
+        <li><b>收尾</b>六卷 75 章 947 课 1314 条先修依赖（站点真实数据）</li>
+        <li><b>配乐</b>84 → 126 BPM 渐强，Am–F–C–G 变奏</li>
+      </ul>
+      <a class="go" href="./full/">▶ 播放完整版</a>
+      <a class="go ghost" href="./full/" target="_blank" rel="noopener">新窗口</a>
+    </div>
+  </div>
+
+  <footer>
+    浏览器要求点一下才允许出声，所以播放键在卡片里。<br>
+    片内快捷键：<span class="kbd">空格</span> 暂停 · <span class="kbd">R</span> 重播 ·
+    <span class="kbd">←</span><span class="kbd">→</span> 跳镜 · <span class="kbd">F</span> 帧率面板 ·
+    <span class="kbd">M</span> 静音 · <span class="kbd">Q</span> 画质档 ·
+    <span class="kbd">●</span> 录制（浏览器直接出一份 1920×1080 带配乐的 webm）。<br>
+    想改文案、改时长、改配器，读 <code>static/promo/README.md</code>；
+    想重新出片，跑 <code>node scripts/promo/record.mjs --transcode</code>。
+  </footer>
+</div>
+</body>
+</html>

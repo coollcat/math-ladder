@@ -12,7 +12,7 @@
 | 方法准入登记 | math ×26、builtin ×9、import ×7 |
 | validate / build | 全绿 |
 | 内容缺口 | 仅剩 23 章 PDE 后六门，明细见 `BACKFILL_LOG.md` |
-| 待改善项 | 见 `AUDIT_REPORTS/OPEN_ITEMS.md` |
+| 待改善项 | 见 `_ai-workspace/reports/OPEN_ITEMS.md`（本地目录，不入库） |
 
 ## 发布自检纪律（每轮收尾必须执行）
 
