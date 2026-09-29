@@ -291,7 +291,7 @@
 }
 
 .ml-ht__edge--branch {
-  stroke: #e8871e;
+  stroke: var(--ml-down);
   opacity: 0.4;
   stroke-width: 1.2;
 }
@@ -331,8 +331,10 @@
   fill: rgba(255, 255, 255, 0.07);
 }
 
+/* 焦点样式只给键盘（:focus-visible）。用 :focus 的话，鼠标点一下胶囊
+   就会一直挂着一圈焦点描边，直到点别处——看着像「卡住了」。 */
 .ml-ht__reveal:hover rect,
-.ml-ht__reveal:focus rect {
+.ml-ht__reveal:focus-visible rect {
   stroke: var(--ifm-color-primary);
   stroke-width: 2.2;
 }
@@ -345,7 +347,7 @@
 }
 
 .ml-ht__count-bg {
-  fill: rgba(59, 116, 214, 0.16);
+  fill: var(--ml-count-bg);
 }
 
 .ml-ht__count {
@@ -366,19 +368,19 @@
 .ml-ht__reveal.is-hot rect {
   stroke: var(--ifm-color-primary);
   stroke-width: 2.4;
-  filter: drop-shadow(0 2px 5px rgba(59, 116, 214, 0.4));
+  filter: drop-shadow(0 2px 5px var(--ml-node-glow));
 }
 
 .ml-ht__reveal.is-up rect {
-  stroke: #2e7d32;
+  stroke: var(--ml-up);
   stroke-width: 1.9;
-  fill: rgba(46, 125, 50, 0.14);
+  fill: var(--ml-up-bg);
 }
 
 .ml-ht__reveal.is-down rect {
-  stroke: #e8871e;
+  stroke: var(--ml-down);
   stroke-width: 1.9;
-  fill: rgba(232, 135, 30, 0.16);
+  fill: var(--ml-down-bg);
 }
 
 [data-theme='dark'] .ml-ht__reveal.is-up rect {
@@ -401,13 +403,13 @@
 }
 
 .ml-ht__svg .ml-ht__edge.is-eup {
-  stroke: #2e7d32;
+  stroke: var(--ml-up);
   stroke-width: 1.9;
   opacity: 0.95;
 }
 
 .ml-ht__svg .ml-ht__edge.is-edown {
-  stroke: #e8871e;
+  stroke: var(--ml-down);
   stroke-width: 1.9;
   opacity: 0.95;
 }
@@ -431,14 +433,14 @@
 }
 
 .ml-ht__pill--up {
-  background: rgba(46, 125, 50, 0.14);
-  color: #2e7d32;
+  background: var(--ml-up-bg);
+  color: var(--ml-up);
   font-weight: 600;
 }
 
 .ml-ht__pill--down {
-  background: rgba(232, 135, 30, 0.18);
-  color: #b45309;
+  background: var(--ml-down-bg);
+  color: var(--ml-down-ink);
   font-weight: 600;
 }
 
@@ -447,7 +449,7 @@
 }
 
 [data-theme='dark'] .ml-ht__pill--down {
-  color: #f0a35c;
+  color: var(--ml-down-ink);
 }
 
 .ml-ht__bar {
@@ -476,7 +478,7 @@
 }
 
 .ml-ht__dot--branch {
-  border-top-color: #e8871e;
+  border-top-color: var(--ml-down);
   border-top-style: dotted;
 }
 
@@ -660,8 +662,20 @@
 /* ---- 全课细览页 ---- */
 
 .ml-fg__lead {
-  max-width: 820px;
-  opacity: 0.85;
+  max-width: 62ch;
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--ifm-color-emphasis-700);
+}
+
+/* 知识树信息面板的引导文案。原先写成 .ml-fg__hint 但**全站没有这条规则**，
+   那段字一直在裸奔（继承 body 字体、没有字号与行高处理）。 */
+.ml-fg__hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--ifm-color-emphasis-700);
 }
 
 .ml-fg__bar {
@@ -674,16 +688,32 @@
 
 .ml-fg__search {
   flex: 0 1 320px;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
+  min-height: var(--ml-tap);
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--ml-radius-ctl);
   border: 1px solid var(--ifm-color-emphasis-300);
   background: var(--ifm-background-color);
   color: var(--ifm-font-color-base);
+  font-size: 0.9rem;
+  transition: border-color var(--ml-t-fast) var(--ml-ease), box-shadow var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-fg__search::placeholder {
+  color: var(--ifm-color-emphasis-600);
+  opacity: 1;
 }
 
 .ml-fg__search:focus {
   outline: none;
   border-color: var(--ifm-color-primary);
+}
+
+/* :focus 之外必须再给 :focus-visible 兜一层——上面那条 (0,2,0) 压过全站
+   兜底规则 (0,1,0)，键盘用户就完全看不到焦点在哪儿了 */
+.ml-fg__search:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ifm-color-primary) 14%, transparent);
 }
 
 .ml-fg__meta {
@@ -778,9 +808,9 @@
 
 .ml-fg__edge.is-direct { stroke: var(--ifm-color-primary); stroke-width: 2.4; opacity: 1; }
 .ml-fg__edge.is-up { stroke: var(--ifm-color-success); stroke-width: 1.8; opacity: 0.95; }
-.ml-fg__edge.is-down { stroke: #e8871e; stroke-width: 1.8; opacity: 0.95; }
+.ml-fg__edge.is-down { stroke: var(--ml-down); stroke-width: 1.8; opacity: 0.95; }
 .ml-fg__edge.is-dim2 { opacity: 0.07; }
-.ml-fg__edge.is-search { stroke: var(--ifm-color-info); stroke-width: 2; opacity: 1; }
+.ml-fg__edge.is-search { stroke: var(--ml-search); stroke-width: 2; opacity: 1; }
 
 .ml-fg__node { cursor: pointer; outline: none; }
 
@@ -801,21 +831,22 @@
   pointer-events: none;
 }
 
+/* 同 ml-ht__reveal：焦点只给键盘，鼠标点完不留描边 */
 .ml-fg__node:hover rect,
-.ml-fg__node:focus rect,
+.ml-fg__node:focus-visible rect,
 .ml-fg__node.is-hot rect {
   stroke: var(--ifm-color-primary);
   stroke-width: 2.4;
-  filter: drop-shadow(0 2px 5px rgba(59, 116, 214, 0.4));
+  filter: drop-shadow(0 2px 5px var(--ml-node-glow));
 }
 
 .ml-fg__node.is-up rect { stroke: var(--ifm-color-success); stroke-width: 1.8; }
-.ml-fg__node.is-down rect { stroke: #e8871e; stroke-width: 1.8; }
+.ml-fg__node.is-down rect { stroke: var(--ml-down); stroke-width: 1.8; }
 .ml-fg__node.is-dim2 { opacity: 0.28; }
-.ml-fg__node.is-search rect { stroke: var(--ifm-color-info); stroke-width: 2.2; }
+.ml-fg__node.is-search rect { stroke: var(--ml-search); stroke-width: 2.2; }
 
 .ml-fg__tool {
-  fill: var(--ifm-color-warning-dark, #b45309);
+  fill: var(--ml-down-ink);
 }
 
 /* 图谱页节点入场：淡入上浮，逐列错峰（delay 由组件内联给出） */
@@ -869,7 +900,7 @@
 
 .ml-fg__tedge {
   fill: none;
-  stroke: var(--ifm-color-warning-dark, #b45309);
+  stroke: var(--ml-down-ink);
   stroke-width: 1;
   stroke-dasharray: 3 4;
   opacity: 0.4;
@@ -929,8 +960,8 @@
 }
 
 .ml-fg__pill--born {
-  background: rgba(232, 135, 30, 0.18);
-  color: var(--ifm-color-warning-dark, #b45309);
+  background: var(--ml-down-bg);
+  color: var(--ml-down-ink);
   font-weight: 600;
 }
 
@@ -1000,22 +1031,30 @@
   z-index: 5;
 }
 
+/* 与 /graph 的缩放钮**同一规格**：同一个角色的按钮在两页长得不一样，
+   是站内最容易被看出来的不一致（原先这里是 36×36/9px，那边是 32×32/6px）。 */
 .ml-tr__ctrls button {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
+  width: var(--ml-tap);
+  height: var(--ml-tap);
+  border-radius: var(--ml-radius-block);
   border: 1px solid var(--ifm-color-emphasis-300);
-  background: var(--ifm-card-background-color);
+  background: var(--ifm-background-color);
   color: var(--ifm-font-color-base);
-  font-size: 15px;
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  transition: border-color 0.15s ease;
+  box-shadow: var(--ml-shadow-soft);
+  transition: border-color var(--ml-t-fast) var(--ml-ease), color var(--ml-t-fast) var(--ml-ease),
+    background var(--ml-t-fast) var(--ml-ease);
 }
 
 .ml-tr__ctrls button:hover {
   border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.ml-tr__ctrls button:active {
+  background: var(--ifm-color-emphasis-100);
 }
 
 .ml-tr__hint {
@@ -1023,8 +1062,17 @@
   left: 12px;
   bottom: 12px;
   font-size: 0.78rem;
-  opacity: 0.55;
+  color: var(--ifm-color-emphasis-700);
+  opacity: 0.72;
   pointer-events: none;
+}
+
+/* 窄屏：这行提示没有 right 也没有换行控制，会收缩成 3–4 行半透明文字直接压在
+   知识树节点上。图例已经承载了同样的信息，这里藏掉。 */
+@media (max-width: 768px) {
+  .ml-tr__hint {
+    display: none;
+  }
 }
 
 /* 树页胶囊字号：比泳道图谱大一档，配合放大后的胶囊。
@@ -1067,7 +1115,7 @@
 
 .ml-tr__edge.is-direct { stroke: var(--ifm-color-primary); stroke-width: 2.4; opacity: 1; }
 .ml-tr__edge.is-up { stroke: var(--ifm-color-success); stroke-width: 1.8; opacity: 0.9; }
-.ml-tr__edge.is-down { stroke: #e8871e; stroke-width: 1.8; opacity: 0.9; }
+.ml-tr__edge.is-down { stroke: var(--ml-down); stroke-width: 1.8; opacity: 0.9; }
 .ml-tr__edge.is-dim2 { opacity: 0.06; }
 
 .ml-tr__edge.is-branch {
@@ -1099,7 +1147,7 @@
 
 .ml-tr__tedge {
   fill: none;
-  stroke: var(--ifm-color-warning-dark, #b45309);
+  stroke: var(--ml-down-ink);
   stroke-width: 1;
   stroke-dasharray: 3 4;
   opacity: 0;
@@ -1228,16 +1276,16 @@
   display: inline-block;
 }
 
-.ml-tr__legend-line--branch { border-top: 1px dashed #e8871e; }
+.ml-tr__legend-line--branch { border-top: 1px dashed var(--ml-down); }
 .ml-tr__legend-line--up { border-top-color: var(--ifm-color-success); }
-.ml-tr__legend-line--down { border-top-color: #e8871e; }
+.ml-tr__legend-line--down { border-top-color: var(--ml-down); }
 
 /* 分支线（跨线支撑）：非主干的先修边，细虚线淡入（覆盖 base 的描画动画） */
 .ml-tr__edge--branch {
   stroke-dasharray: 5 5;
   stroke-dashoffset: 0;
   stroke-width: 1.1;
-  stroke: #e8871e;
+  stroke: var(--ml-down);
   opacity: 0;
   animation: none;
   transition: opacity 0.4s ease, d 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -1247,7 +1295,7 @@
 
 /* 搜索命中高亮：亮蓝描边 + 轻微发光，与普通悬停区分 */
 .ml-tr__svg .ml-fg__node.is-search rect {
-  stroke: var(--ifm-color-info);
+  stroke: var(--ml-search);
   stroke-width: 2.4;
   filter: drop-shadow(0 0 4px rgba(30, 120, 200, 0.5));
 }
@@ -1260,4 +1308,1676 @@
 @media (prefers-reduced-motion: reduce) {
   .ml-tr__edge--branch { opacity: 0.5; transition: none; animation: none; }
   .ml-tr__mode { transition: none; }
+}
+
+/* =========================================================================
+ * 知识图谱（/graph）· 同心环「阶梯星系」v3  2026-09-29 重构
+ * -------------------------------------------------------------------------
+ * 半径＝层级（第几环＝爬多高），颜色＝卷。样式全部收在 .ml-rg 作用域内。
+ * 分环算法见 src/components/ml-home/ringLayout.js 的头注释（改环先读那一段）。
+ *
+ * ⚠ 本文件虽然是 index.js import 的，但构建后与全站样式同表（home.css 排在
+ *   最后），所以这里的每条规则都必须带 .ml-rg 前缀——否则会漏到别的页面去。
+ * ========================================================================= */
+.ml-rg {
+  /* 七卷配色已提到全站令牌（src/css/custom.css 的 --ml-vol1…7，
+     章簇详图 /chapters 共用同一套），这里只做别名，不再各写一份 hex */
+  --rg-v1: var(--ml-vol1); /* 卷一 数学地基：墨蓝 */
+  --rg-v2: var(--ml-vol2); /* 卷二 高等数学核心：青碧 */
+  --rg-v3: var(--ml-vol3); /* 卷三 离散数学与计算：藤黄 */
+  --rg-v4: var(--ml-vol4); /* 卷四 概率统计与信息：朱砂 */
+  --rg-v5: var(--ml-vol5); /* 卷五 应用 AI 与前沿：紫檀 */
+  --rg-v6: var(--ml-vol6); /* 卷六 工程与系统：松绿 */
+  --rg-v7: var(--ml-vol7); /* 卷七 物理与前沿交叉：赭棕 */
+  /* 先修/托起两套语义色统一走全站变量（见 custom.css :root），
+     这里只是给同心环起个别名，免得同一件事有两个来源 */
+  --rg-up: var(--ml-up);
+  --rg-down: var(--ml-down);
+  /* 搜索命中：紫檀（与绿/橙/朱砂都不撞，且对纸底 5.7:1 —— 原先的
+     --ifm-color-info #54c7ec 只有 1.95:1，亮色下基本看不见） */
+  --rg-search: var(--ml-search, #6b4ea3);
+}
+
+[data-theme='dark'] .ml-rg {
+  /* 暗色值同样来自全站令牌，同心环不再单独维护一份 */
+  --rg-v1: var(--ml-vol1);
+  --rg-v2: var(--ml-vol2);
+  --rg-v3: var(--ml-vol3);
+  --rg-v4: var(--ml-vol4);
+  --rg-v5: var(--ml-vol5);
+  --rg-v6: var(--ml-vol6);
+  --rg-v7: var(--ml-vol7);
+  /* --rg-up / --rg-down / --rg-search 的暗色值由全站变量给出 */
+}
+
+/* ---- 工具条 ---- */
+
+.ml-rg__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.ml-rg__search {
+  flex: 0 1 260px;
+  min-width: 180px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ml-radius-ctl);
+  padding: 0.32rem 0.65rem;
+  font-size: 0.9rem;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  transition: border-color var(--ml-t-fast) var(--ml-ease), box-shadow var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__search::placeholder {
+  color: var(--ifm-color-emphasis-600);
+  opacity: 1;
+}
+
+/* 焦点环只给键盘：:focus 会让鼠标点一下之后一直挂着环 */
+.ml-rg__search:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-rg__search:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ifm-color-primary) 14%, transparent);
+}
+
+.ml-rg__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 30px;
+  font-size: 0.84rem;
+  color: var(--ifm-color-emphasis-700);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.18rem 0.6rem;
+  transition: background var(--ml-t-fast) var(--ml-ease), border-color var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__chip:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-rg__chip--btn {
+  font-family: inherit;
+  background: transparent;
+}
+
+.ml-rg__chip--btn.is-on {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  background: color-mix(in srgb, var(--ifm-color-primary) 10%, transparent);
+}
+
+.ml-rg__chip input {
+  margin: 0;
+}
+
+.ml-rg__chip input:focus-visible,
+.ml-rg__chip--btn:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.ml-rg__meta {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 两栏：画布 + 目录侧栏 ----
+ * 74 颗圆点不是导航界面——按环分组的章清单才是。窄屏上下堆叠，
+ * 侧栏限高后自己滚，不把画布挤没。 */
+
+.ml-rg__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  align-items: start;
+}
+
+.ml-rg__layout.has-outline {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+/* ---- 画布 ---- */
+
+.ml-rg__stage {
+  position: relative;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ml-radius-surface);
+  background: radial-gradient(circle at 50% 50%, var(--ifm-background-color) 0%, var(--ifm-color-emphasis-100) 100%);
+  overflow: hidden;
+}
+
+.ml-rg__svg {
+  display: block;
+  width: 100%;
+  /* 高度用 dvh，且 min-height 收一档：原先 min-height:460px 在横屏手机
+     （视口高 320–400px）会把画布硬撑出屏，右下角的缩放钮与提示都够不着 */
+  height: min(74vh, 760px);
+  height: min(74dvh, 760px);
+  min-height: 300px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.ml-rg__svg:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+.ml-rg__svg.is-grabbing {
+  cursor: grabbing;
+}
+
+/* 环带：交替的极淡底色，让「层」先于「点」被看见。
+   半径取两环中线，宽度由组件按环距算出挂在 --bw 上。 */
+.ml-rg__band {
+  fill: var(--ifm-color-emphasis-100);
+  fill-opacity: 0.34;
+  stroke: none;
+  pointer-events: none;
+  transition: fill-opacity var(--ml-t-base) var(--ml-ease);
+}
+
+.ml-rg__band.is-alt {
+  fill: var(--ifm-color-emphasis-200);
+  fill-opacity: 0.22;
+}
+
+.ml-rg__band.is-on {
+  fill: var(--ifm-color-primary);
+  fill-opacity: 0.07;
+}
+
+/* 同心环导轨：极淡的虚线，只用来读层级，不抢节点 */
+.ml-rg__ring {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-300);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+  opacity: 0.5;
+}
+
+.ml-rg__ringlabel text {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--ifm-color-emphasis-700);
+  paint-order: stroke;
+  stroke: var(--ifm-background-color);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+
+.ml-rg__ringlabel .ml-rg__ringlabel-sub {
+  font-size: 9.5px;
+  font-weight: 600;
+  fill: var(--ifm-color-emphasis-600);
+}
+
+/* 入场动画一律走 CSS animation + --d 延迟，**不靠 React 状态加类**：
+   原先靠挂载后 40ms 加 .is-in，SSR 出来的 HTML 里所有节点都是 opacity:0，
+   在 JS 没跑起来（或跑得慢）的时候整张图是一片空白。
+   fill-mode: both 让延迟期间保持起始态、结束后停在终态，不需要 JS 参与。 */
+.ml-rg__ringlabel {
+  animation: ml-rg-fade-in 0.5s var(--ml-ease) both;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes ml-rg-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ml-rg-node-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ml-rg-edge-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ml-rg__ringlabel.is-on text {
+  fill: var(--ifm-color-primary);
+}
+
+/* ---- 连线 ----
+ * 导轨与连线都是纯装饰层：不参与命中测试，悬停/点击一律穿透到节点或画布本身。 */
+
+.ml-rg__band,
+.ml-rg__ring,
+.ml-rg__edges {
+  pointer-events: none;
+}
+
+.ml-rg__edge {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 1.1;
+  opacity: 0.24;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: ml-rg-edge-in 0.9s var(--ml-ease) both;
+  animation-delay: var(--d, 0s);
+  transition: opacity var(--ml-t-base) var(--ml-ease), stroke var(--ml-t-base) var(--ml-ease),
+    stroke-width var(--ml-t-base) var(--ml-ease);
+}
+
+/* 单课交叉引用：更细更淡的虚线。默认整条不画——它们不是层级关系。 */
+.ml-rg__edge.is-weak {
+  stroke-width: 0.9;
+  opacity: 0.16;
+  stroke-dasharray: 3 5;
+  stroke-dashoffset: 0;
+}
+
+.ml-rg__edge.is-hidden {
+  display: none;
+}
+
+.ml-rg__edge.is-up {
+  stroke: var(--rg-up);
+  opacity: 0.72;
+  stroke-width: 1.6;
+}
+
+.ml-rg__edge.is-down {
+  stroke: var(--rg-down);
+  opacity: 0.72;
+  stroke-width: 1.6;
+}
+
+.ml-rg__edge.is-direct {
+  stroke: var(--ifm-color-primary);
+  opacity: 0.95;
+  stroke-width: 2.2;
+}
+
+/* 主链：从地基到焦点那一条路，加粗 + 中点流动的虚线，读起来有方向 */
+.ml-rg__edge.is-chain {
+  stroke: var(--rg-up);
+  opacity: 1;
+  stroke-width: 3;
+  stroke-dasharray: 6 6;
+  animation: ml-rg-flow 1.6s linear infinite;
+}
+
+@keyframes ml-rg-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.ml-rg__edge.is-off {
+  opacity: 0.05;
+}
+
+/* ---- 节点 ---- */
+
+.ml-rg__node {
+  cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ml-rg-node-in 0.5s var(--ml-ease-spring, cubic-bezier(0.2, 0.9, 0.3, 1.5)) both;
+  animation-delay: var(--d, 0s);
+}
+
+.ml-rg__dot {
+  fill: var(--vc, var(--ifm-color-primary));
+  stroke: var(--ifm-background-color);
+  stroke-width: 2;
+  transition: r var(--ml-t-base) var(--ml-ease), stroke-width var(--ml-t-base) var(--ml-ease),
+    filter var(--ml-t-base) var(--ml-ease);
+}
+
+.ml-rg__label {
+  font-size: 11.5px;
+  fill: var(--ifm-font-color-base);
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--ifm-background-color);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  transition: fill var(--ml-t-fast) var(--ml-ease);
+}
+
+/* 焦点态：亮描边 + 轻微发光，与「先修/托起」两套语义色区分开 */
+.ml-rg__node.is-hot .ml-rg__dot {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--ifm-color-primary) 55%, transparent));
+}
+
+.ml-rg__node.is-hot .ml-rg__label {
+  font-weight: 700;
+  fill: var(--vc, var(--ifm-color-primary));
+}
+
+/* 主链上的章：绿环 + 加粗 */
+.ml-rg__node.is-chain .ml-rg__dot {
+  stroke: var(--rg-up);
+  stroke-width: 2.8;
+}
+
+.ml-rg__node.is-chain .ml-rg__label {
+  fill: var(--rg-up);
+  font-weight: 600;
+}
+
+.ml-rg__node.is-up .ml-rg__dot {
+  stroke: var(--rg-up);
+  stroke-width: 2.4;
+}
+
+.ml-rg__node.is-up .ml-rg__label {
+  fill: var(--rg-up);
+}
+
+.ml-rg__node.is-down .ml-rg__dot {
+  stroke: var(--rg-down);
+  stroke-width: 2.4;
+}
+
+.ml-rg__node.is-down .ml-rg__label {
+  fill: var(--rg-down);
+}
+
+/* 搜索命中：紫檀环（与绿/橙/朱砂都不撞） */
+.ml-rg__node.is-search .ml-rg__dot {
+  stroke: var(--rg-search);
+  stroke-width: 3;
+}
+
+/* 焦点已锁定时，鼠标划过别的章：一圈中性描边，表示「点它就会切过去」 */
+.ml-rg__node.is-hover .ml-rg__dot {
+  stroke: var(--ifm-color-emphasis-700);
+  stroke-width: 2.6;
+}
+
+.ml-rg__node.is-off {
+  opacity: 0.16;
+}
+
+.ml-rg__node.is-muted {
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* ---- 圆心枢纽 ---- */
+
+.ml-rg__hub {
+  animation: ml-rg-fade-in 0.6s var(--ml-ease) 0.1s both;
+}
+
+.ml-rg__hub circle {
+  fill: var(--ifm-background-color);
+  stroke: var(--ifm-color-emphasis-300);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 5;
+}
+
+.ml-rg__hub-1 {
+  font-size: 15px;
+  font-weight: 800;
+  fill: var(--ifm-font-color-base);
+  font-family: var(--ml-display);
+}
+
+.ml-rg__hub-2 {
+  font-size: 10.5px;
+  fill: var(--ifm-color-emphasis-600);
+}
+
+/* ---- 缩放控件与提示 ---- */
+
+.ml-rg__ctrls {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 2.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+/* 与知识树页的缩放钮同一规格（40×40 / 圆角 8 / 柔和投影）：
+   同一个角色的按钮在两页长得不一样，是站内最容易被看出来的不一致。 */
+.ml-rg__ctrls button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ml-radius-block);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--ml-shadow-soft);
+  transition: background var(--ml-t-fast) var(--ml-ease), border-color var(--ml-t-fast) var(--ml-ease),
+    color var(--ml-t-fast) var(--ml-ease), transform var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__ctrls button:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  transform: translateY(var(--ml-lift));
+}
+
+.ml-rg__ctrls button:active {
+  transform: translateY(0);
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-rg__ctrls button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.ml-rg__zoom {
+  font-size: 0.72rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.ml-rg__hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.76rem;
+  color: var(--ifm-color-emphasis-700);
+  background: linear-gradient(to top, var(--ifm-background-color), transparent);
+  pointer-events: none;
+}
+
+/* ---- 目录侧栏（按环分组） ---- */
+
+.ml-rg__outline {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ml-radius-panel);
+  background: var(--ifm-background-surface-color, var(--ifm-background-color));
+  max-height: min(74vh, 760px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0.4rem;
+}
+
+.ml-rg__ogroup + .ml-rg__ogroup {
+  margin-top: 0.35rem;
+}
+
+.ml-rg__ogroup.is-on .ml-rg__ohead {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.ml-rg__ohead {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: var(--ml-radius-block);
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-font-color-base);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.45rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--ml-t-fast) var(--ml-ease), color var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__ohead:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-rg__ohead:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.ml-rg__oname {
+  flex: none;
+}
+
+.ml-rg__ohead em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-rg__olist {
+  list-style: none;
+  margin: 0.2rem 0 0;
+  padding: 0;
+}
+
+.ml-rg__oitem {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 32px;
+  border: none;
+  border-radius: var(--ml-radius-ctl);
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-family: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  transition: background var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__oitem:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-rg__oitem:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+.ml-rg__oitem.is-hit {
+  background: color-mix(in srgb, var(--rg-search) 14%, transparent);
+}
+
+.ml-rg__oitem.is-on {
+  background: color-mix(in srgb, var(--ifm-color-primary) 14%, transparent);
+  font-weight: 700;
+}
+
+.ml-rg__odot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--vc, var(--ifm-color-primary));
+  flex: none;
+}
+
+.ml-rg__onum {
+  flex: none;
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.ml-rg__otitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ml-rg__oitem em {
+  flex: none;
+  font-style: normal;
+  font-size: 0.68rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* ---- 卷筛选 ---- */
+
+.ml-rg__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.7rem 0;
+}
+
+.ml-rg__vol {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 999px;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  padding: 0.22rem 0.7rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color var(--ml-t-fast) var(--ml-ease), background var(--ml-t-fast) var(--ml-ease),
+    opacity var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__vol:hover {
+  border-color: var(--vc, var(--ifm-color-primary));
+}
+
+.ml-rg__vol:focus-visible {
+  outline: 2px solid var(--vc, var(--ifm-color-primary));
+  outline-offset: 2px;
+}
+
+.ml-rg__vol.is-on {
+  border-color: var(--vc, var(--ifm-color-primary));
+  background: color-mix(in srgb, var(--vc) 12%, var(--ifm-background-color));
+  font-weight: 600;
+}
+
+.ml-rg__vol.is-off {
+  opacity: 0.42;
+}
+
+.ml-rg__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vc, var(--ifm-color-primary));
+  flex: none;
+}
+
+/* ---- 信息面板 ---- */
+
+.ml-rg__panel {
+  border: 1px dashed var(--ifm-color-emphasis-300);
+  border-radius: var(--ml-radius-panel);
+  padding: 0.8rem 1rem;
+  background: var(--ifm-background-surface-color, var(--ifm-background-color));
+  transition: border-color var(--ml-t-base) var(--ml-ease);
+  min-height: 64px;
+}
+
+.ml-rg__panel.is-active {
+  border-style: solid;
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-rg__panel-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.ml-rg__panel-head strong {
+  font-size: 1.02rem;
+  color: var(--ifm-color-primary);
+}
+
+.ml-rg__pill {
+  font-size: 0.76rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-800);
+  white-space: nowrap;
+}
+
+.ml-rg__line {
+  margin: 0.3rem 0;
+  font-size: 0.88rem;
+  color: var(--ifm-font-color-base);
+}
+
+.ml-rg__line--up {
+  color: var(--ml-up-ink, var(--rg-up));
+}
+
+.ml-rg__line--down {
+  color: var(--ml-down-ink, var(--rg-down));
+}
+
+.ml-rg__line--note {
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.82rem;
+}
+
+/* 先修链面包屑：「地基 → … → 本章」的一条现成台阶 */
+.ml-rg__chain {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0.45rem 0;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--ml-radius-block);
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-rg__chain-lead {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ifm-color-emphasis-600);
+  margin-right: 0.15rem;
+}
+
+.ml-rg__chain-arrow {
+  color: var(--ifm-color-emphasis-500);
+  font-size: 0.8rem;
+}
+
+.ml-rg__chainchip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-left: 3px solid var(--vc, var(--ifm-color-primary));
+  border-radius: var(--ml-radius-ctl);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 0.1rem 0.5rem;
+  cursor: pointer;
+  transition: border-color var(--ml-t-fast) var(--ml-ease), transform var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__chainchip:hover {
+  border-color: var(--ifm-color-primary);
+  transform: translateY(var(--ml-lift));
+}
+
+.ml-rg__chainchip:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.ml-rg__chainchip.is-cur {
+  border-color: var(--ifm-color-primary);
+  background: color-mix(in srgb, var(--ifm-color-primary) 12%, var(--ifm-background-color));
+  font-weight: 700;
+}
+
+.ml-rg__minichip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  margin: 0 0.15rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.76rem;
+  padding: 0.05rem 0.45rem;
+  cursor: pointer;
+  opacity: 0.92;
+  transition: opacity var(--ml-t-fast) var(--ml-ease), transform var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__minichip:hover {
+  opacity: 1;
+  transform: translateY(var(--ml-lift));
+}
+
+.ml-rg__minichip:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* 本章课表：默认收起，点开才铺一长条 */
+.ml-rg__courses {
+  margin-top: 0.45rem;
+  font-size: 0.84rem;
+}
+
+.ml-rg__courses summary {
+  cursor: pointer;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-rg__courses summary:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.ml-rg__courses ol {
+  margin: 0.4rem 0 0;
+  padding-left: 1.4rem;
+  max-height: 220px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.ml-rg__courses li {
+  margin-bottom: 0.15rem;
+}
+
+/* ---- 层级图例（环的名字与章数）：环上只标了难度区间，整句写环上必然压住节点 ---- */
+
+.ml-rg__rings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.7rem 0 0.45rem;
+}
+
+.ml-rg__rings-lead {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  margin-right: 0.15rem;
+}
+
+.ml-rg__ringchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ml-radius-block);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  padding: 0.2rem 0.55rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color var(--ml-t-fast) var(--ml-ease), background var(--ml-t-fast) var(--ml-ease),
+    transform var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-rg__ringchip:hover {
+  border-color: var(--ifm-color-primary);
+  transform: translateY(var(--ml-lift));
+}
+
+.ml-rg__ringchip:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.ml-rg__ringchip.is-on {
+  border-color: var(--ifm-color-primary);
+  background: color-mix(in srgb, var(--ifm-color-primary) 10%, var(--ifm-background-color));
+  font-weight: 600;
+}
+
+.ml-rg__ringno {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-800);
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 700;
+  flex: none;
+}
+
+.ml-rg__ringchip em {
+  font-style: normal;
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* ---- 窄屏 ---- */
+
+@media (max-width: 1200px) {
+  .ml-rg__layout.has-outline {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+}
+
+@media (max-width: 996px) {
+  .ml-rg__layout.has-outline {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ml-rg__outline {
+    max-height: 300px;
+  }
+
+  .ml-rg__svg {
+    height: min(62vh, 560px);
+    height: min(62dvh, 560px);
+    min-height: 260px;
+  }
+
+  .ml-rg__ctrls {
+    bottom: 3.2rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .ml-rg__hint {
+    display: none; /* 窄屏这行提示会占掉画布三分之一，图例已经承载同样的信息 */
+  }
+
+  .ml-rg__ctrls {
+    bottom: 0.6rem;
+  }
+}
+
+/* ---- 减少动态偏好：不做入场与位移，直接呈现 ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-rg__node,
+  .ml-rg__edge,
+  .ml-rg__ringlabel,
+  .ml-rg__hub {
+    animation: none;
+  }
+
+  .ml-rg__edge {
+    transition: opacity var(--ml-t-base) var(--ml-ease), stroke var(--ml-t-base) var(--ml-ease);
+  }
+
+  .ml-rg__edge.is-chain {
+    animation: none;
+  }
+
+  .ml-rg__hub,
+  .ml-rg__ringlabel {
+    transition: none;
+    opacity: 1;
+  }
+
+  .ml-rg__ctrls button:hover,
+  .ml-rg__ringchip:hover,
+  .ml-rg__chainchip:hover,
+  .ml-rg__minichip:hover {
+    transform: none;
+  }
+}
+
+/* 图谱页导语：与首页同一套纸感排版，行宽收窄到好读的区间 */
+.ml-rg__lead {
+  max-width: 62ch;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.85;
+  color: var(--ifm-color-emphasis-700);
+}
+
+/* =========================================================================
+ * 知识图谱 · 章簇详图（/chapters）  2026-09-29 新增
+ * -------------------------------------------------------------------------
+ * 与 /graph 同族、粒度更细：一章一个簇（章为簇心，课绕它排开）。
+ * 布局算法见 src/components/ml-home/clusterLayout.js 的头注释；
+ * 「文字反向缩放」的三档细节见 ChapterClusterGraph.js 的头注释。
+ *
+ * ⚠ 与 .ml-rg 同一条纪律：home.css 构建后与全站样式同表（排在最后），
+ *   所以这里的每条规则都必须带 .ml-cc 前缀——否则会漏到别的页面去。
+ *   七卷配色走全站令牌 --ml-vol1…7（custom.css），这里只做别名。
+ * ========================================================================= */
+.ml-cc {
+  --cc-v1: var(--ml-vol1);
+  --cc-v2: var(--ml-vol2);
+  --cc-v3: var(--ml-vol3);
+  --cc-v4: var(--ml-vol4);
+  --cc-v5: var(--ml-vol5);
+  --cc-v6: var(--ml-vol6);
+  --cc-v7: var(--ml-vol7);
+  --cc-up: var(--ml-up);
+  --cc-down: var(--ml-down);
+  --cc-search: var(--ml-search, #6b4ea3);
+}
+
+/* ---- 工具条 ---- */
+
+.ml-cc__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.ml-cc__search {
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 380px;
+  height: 34px;
+  padding: 0 0.7rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ml-radius-ctl);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.ml-cc__search:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.ml-cc__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 999px;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font-size: 0.78rem;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--ml-t-fast) var(--ml-ease), border-color var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-cc__chip:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.ml-cc__chip input {
+  margin: 0;
+  accent-color: var(--ifm-color-primary);
+}
+
+.ml-cc__chip--btn {
+  font-family: inherit;
+}
+
+.ml-cc__chip--btn.is-on {
+  border-color: var(--ifm-color-primary);
+  background: color-mix(in srgb, var(--ifm-color-primary) 12%, transparent);
+  font-weight: 700;
+}
+
+.ml-cc__chip:focus-visible,
+.ml-cc__chip--btn:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.ml-cc__meta {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 画布 + 侧栏 ---- */
+
+.ml-cc__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  align-items: start;
+}
+
+.ml-cc__layout.has-outline {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+.ml-cc__stage {
+  position: relative;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ml-radius-surface);
+  /* 比同心环那版更「深空」一点：这一页星点密，中心暗下来更像星图 */
+  background: radial-gradient(circle at 50% 46%, var(--ifm-background-color) 0%, var(--ifm-color-emphasis-100) 78%);
+  overflow: hidden;
+}
+
+.ml-cc__svg {
+  display: block;
+  width: 100%;
+  height: min(78vh, 820px);
+  height: min(78dvh, 820px);
+  min-height: 340px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.ml-cc__svg:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+.ml-cc__svg.is-grabbing {
+  cursor: grabbing;
+}
+
+/* ---- 环带 ---- */
+
+.ml-cc__ring {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-300);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  opacity: 0.55;
+}
+
+.ml-cc__ringnum {
+  fill: var(--ifm-color-emphasis-400);
+  font-size: 40px;
+  font-weight: 700;
+  opacity: 0.22;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---- 章级 / 课级连线 ---- */
+
+.ml-cc__edge {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-400);
+  stroke-width: 1.1;
+  opacity: 0.5;
+  transition: opacity var(--ml-t-base) var(--ml-ease), stroke var(--ml-t-base) var(--ml-ease);
+}
+
+.ml-cc__edge.is-weak {
+  stroke-dasharray: 2 4;
+  opacity: 0.3;
+}
+
+.ml-cc__edge.is-up {
+  stroke: var(--cc-up);
+  stroke-width: 2;
+  opacity: 0.95;
+}
+
+.ml-cc__edge.is-down {
+  stroke: var(--cc-down);
+  stroke-width: 2;
+  opacity: 0.95;
+}
+
+.ml-cc__edge.is-off {
+  opacity: 0.07;
+}
+
+/* 弱边（单课支撑的交叉引用）被高亮时仍走虚线、比强边轻一档：同色不同「分量」，
+   免得读者把「这一门课顺手引用了别章」读成「这一章依赖那一章」。 */
+.ml-cc__edge.is-weak.is-up,
+.ml-cc__edge.is-weak.is-down {
+  stroke-dasharray: 3 3;
+  opacity: 0.7;
+}
+
+.ml-cc__ledge {
+  fill: none;
+  stroke: var(--cc-down);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+
+.ml-cc__ledge.is-in {
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 1.1;
+  opacity: 0.7;
+}
+
+/* ---- 章簇 ---- */
+
+.ml-cc__disc {
+  fill: color-mix(in srgb, var(--cc-c) 12%, transparent);
+  stroke: color-mix(in srgb, var(--cc-c) 42%, transparent);
+  stroke-width: 1.2;
+  transition: fill var(--ml-t-base) var(--ml-ease), stroke var(--ml-t-base) var(--ml-ease);
+}
+
+.ml-cc__hub {
+  fill: color-mix(in srgb, var(--cc-c) 26%, transparent);
+  stroke: var(--cc-c);
+  stroke-width: 1;
+  transition: fill var(--ml-t-base) var(--ml-ease);
+}
+
+.ml-cc__num {
+  fill: var(--ifm-font-color-base);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ml-cc__dot {
+  fill: var(--cc-c);
+  opacity: 0.85;
+}
+
+/* 悬停/选中态：绿＝托起它的先修，橙＝被它托起的后续（与 /graph 同一套语义色） */
+.ml-cc__cluster.is-off .ml-cc__disc,
+.ml-cc__cluster.is-off .ml-cc__dots,
+.ml-cc__cluster.is-off .ml-cc__label,
+.ml-cc__cluster.is-off .ml-cc__num {
+  opacity: 0.16;
+}
+
+.ml-cc__cluster.is-off .ml-cc__disc {
+  fill: transparent;
+}
+
+.ml-cc__cluster.is-up .ml-cc__disc {
+  stroke: var(--cc-up);
+  stroke-width: 2;
+  fill: var(--ml-up-bg);
+}
+
+.ml-cc__cluster.is-down .ml-cc__disc {
+  stroke: var(--cc-down);
+  stroke-width: 2;
+  fill: var(--ml-down-bg);
+}
+
+.ml-cc__cluster.is-hot .ml-cc__disc {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2.4;
+  fill: color-mix(in srgb, var(--cc-c) 22%, transparent);
+}
+
+.ml-cc__cluster.is-hit .ml-cc__disc {
+  stroke: var(--cc-search);
+  stroke-width: 2.2;
+}
+
+.ml-cc__cluster {
+  cursor: pointer;
+}
+
+/* 章名：反向缩放过的标签，屏幕上恒定字号。缩得太远时整批收起——
+   78 个标签挤在一屏里必然叠成一团，不如让位给圆盘与颜色。 */
+.ml-cc__label {
+  fill: var(--ifm-font-color-base);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--ifm-background-color);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  user-select: none;
+}
+
+.is-far .ml-cc__labelbox,
+.is-far .ml-cc__num {
+  display: none;
+}
+
+/* ---- 课点悬停提示 ---- */
+
+.ml-cc__tipbg {
+  fill: var(--ifm-color-emphasis-900, #26324b);
+  opacity: 0.92;
+}
+
+.ml-cc__tiptext {
+  fill: var(--ifm-background-color);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---- 缩放控件 ---- */
+
+.ml-cc__ctrls {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.3rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ml-radius-ctl);
+  background: color-mix(in srgb, var(--ifm-background-color) 88%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.ml-cc__ctrls button {
+  min-width: 32px;
+  min-height: 30px;
+  padding: 0 0.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--ml-radius-ctl);
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-cc__ctrls button:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-cc__ctrls button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+.ml-cc__zoom {
+  min-width: 46px;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.ml-cc__hint {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  background: color-mix(in srgb, var(--ifm-background-color) 70%, transparent);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--ifm-color-emphasis-700);
+}
+
+/* ---- 目录侧栏 ---- */
+
+.ml-cc__outline {
+  max-height: min(78vh, 820px);
+  overflow: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ml-radius-surface);
+  background: var(--ifm-background-color);
+}
+
+.ml-cc__ogroup + .ml-cc__ogroup {
+  margin-top: 0.6rem;
+}
+
+.ml-cc__ohead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.3rem 0.35rem;
+  border-bottom: 1px dashed var(--ifm-color-emphasis-200);
+  font-size: 0.78rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-cc__ringno {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-800);
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.ml-cc__oname {
+  font-weight: 700;
+}
+
+.ml-cc__odiff {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.ml-cc__olist {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ml-cc__oitem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  min-height: 28px;
+  border: 0;
+  border-radius: var(--ml-radius-ctl);
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-family: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  transition: background var(--ml-t-fast) var(--ml-ease);
+}
+
+.ml-cc__oitem:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-cc__oitem:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+.ml-cc__oitem.is-hit {
+  background: color-mix(in srgb, var(--cc-search) 14%, transparent);
+}
+
+.ml-cc__oitem.is-on {
+  background: color-mix(in srgb, var(--ifm-color-primary) 14%, transparent);
+  font-weight: 700;
+}
+
+.ml-cc__onum {
+  flex: none;
+  font-size: 0.7rem;
+  font-style: normal;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.ml-cc__otitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ml-cc__ocount {
+  flex: none;
+  font-size: 0.68rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 卷色图例 ---- */
+
+.ml-cc__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  margin: 0.7rem 0;
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-cc__legend-lead {
+  font-weight: 700;
+}
+
+.ml-cc__lgitem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ml-cc__lgitem em {
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-cc__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cc-c);
+  flex: none;
+}
+
+/* ---- 面板 ---- */
+
+.ml-cc__panel {
+  margin-top: 0.6rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ml-radius-surface);
+  background: var(--ifm-background-color);
+}
+
+.ml-cc__phead h3 {
+  margin: 0 0 0.2rem;
+  font-size: 1.02rem;
+}
+
+.ml-cc__pmeta {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-cc__pcols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem 1.2rem;
+}
+
+.ml-cc__pcol h4,
+.ml-cc__ph4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.82rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-cc__ph4 {
+  margin-top: 0.7rem;
+}
+
+.ml-cc__plist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+}
+
+.ml-cc__plist--lessons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.1rem 1rem;
+}
+
+.ml-cc__plist--lessons li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ml-cc__plist button {
+  width: 100%;
+  border: 0;
+  border-radius: var(--ml-radius-ctl);
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-family: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  padding: 0.15rem 0.3rem;
+  cursor: pointer;
+}
+
+.ml-cc__plist button:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.ml-cc__plist button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+.ml-cc__pempty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-cc__pactions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+/* ---- 窄屏：目录改成上下堆叠，画布优先 ---- */
+
+@media (max-width: 996px) {
+  .ml-cc__layout.has-outline {
+    grid-template-columns: 1fr;
+  }
+
+  .ml-cc__outline {
+    max-height: 320px;
+  }
+}
+
+/* ---- 减少动态偏好：取消一切过渡 ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-cc__disc,
+  .ml-cc__hub,
+  .ml-cc__dot,
+  .ml-cc__edge,
+  .ml-cc__oitem,
+  .ml-cc__ctrls button {
+    transition: none;
+  }
+}
+
+/* 章簇详图页导语：与 /graph 导语同一套纸感排版 */
+.ml-cc__lead {
+  max-width: 62ch;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.85;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-cc__lead--sub {
+  margin-top: -0.6rem;
+  font-size: 0.86rem;
+  color: var(--ifm-color-emphasis-600);
 }

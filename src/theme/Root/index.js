@@ -3,15 +3,19 @@ import { scheduleEnhance } from '../../pyrunner/enhancer';
 
 /* 浮窗与灯箱是交互系统自己的高频自留地：编辑器打字、流式输出、开关面板
    都在不停打 DOM。这些变更不需要重扫正文，过滤掉可以省掉一整轮
-   全文档 querySelectorAll（拖滑块/看输出时尤其明显）。 */
+   全文档 querySelectorAll（拖滑块/看输出时尤其明显）。
+   漏掉一个自留地的代价是实打实的：公式面板里每敲一个字符、补全候选框每次
+   重画（innerHTML=''）、数据面板每次重绘，都会命中 childList 变更 →
+   scheduleEnhance() → 全文档重扫。 */
 function isSelfMutation(mutation) {
   const t = mutation.target;
   return !!(
     t &&
     t.nodeType === 1 &&
     t.closest &&
-    /* 浮窗控制台 / 笔记本 / 代码仓库都是高频自留地，它们的 DOM 变动不必重扫正文 */
-    t.closest('#ml-console, #ml-notebook, #ml-repo, .ml-lightbox')
+    t.closest(
+      '#ml-console, #ml-notebook, #ml-repo, #ml-formula, #ml-backup, .ml-lightbox, .ml-ac, .ml-nav__datapop',
+    )
   );
 }
 

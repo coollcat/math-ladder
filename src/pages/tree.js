@@ -1,5 +1,6 @@
 import React from 'react';
 import Layout from '@theme/Layout';
+import Link from '@docusaurus/Link';
 import KnowledgeGraphTree from '@site/src/components/ml-home/KnowledgeGraphTree';
 
 export default function TreePage() {
@@ -12,6 +13,10 @@ export default function TreePage() {
           <strong>单元模式</strong>逐课展开到全部课程节点。搜索框直达任意课程——回车定位、连续回车逐条轮询。
           巨大画布可拖动、滚轮/双击缩放；悬停胶囊看一条链的来路，点击胶囊只保留与它连通的路径。
           第 0 章「Python 工具箱」是纯工具与附录、不参与数学先修链，已整章排除。
+        </p>
+        <p className="ml-fg__lead">
+          想看「章」这一层的全景？<Link to="/graph">知识图谱</Link>按层级摆成同心环，
+          <Link to="/chapters">章簇详图</Link>则把每一章摊开成一个簇，章里的每门课都画出来。
         </p>
         <KnowledgeGraphTree />
       </main>

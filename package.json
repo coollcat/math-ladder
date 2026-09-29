@@ -6,9 +6,12 @@
   "scripts": {
     "start": "docusaurus start --host :: --port 9452",
     "dev": "docusaurus start --host :: --port 9452",
-    "build": "npm run validate && docusaurus build",
+    "build": "npm run validate && npm run check:sync && docusaurus build",
     "serve": "docusaurus serve --port 9452",
     "validate": "node scripts/validate.mjs",
+    "check:sync": "node scripts/check-chapter-sync.mjs",
+    "check:chapters": "node scripts/check-chapters-page.mjs",
+    "gen:graph": "node scripts/gen-graph.mjs",
     "audit": "node mechanical-audit.cjs",
     "audit:guides": "node scripts/audit-unit-guides.mjs",
     "clear": "docusaurus clear",

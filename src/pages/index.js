@@ -10,6 +10,7 @@ import '../css/home.css';
 
 function HeroWave() {
   const ref = React.useRef(null);
+  const ioRef = React.useRef(null);
   React.useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return undefined;
@@ -36,10 +37,43 @@ function HeroWave() {
       t += 0.03;
       raf = requestAnimationFrame(frame);
     };
-    if (reduced) drawSinesFrame(ctx, W, H, 0, terms);
-    else raf = requestAnimationFrame(frame);
+    if (reduced) {
+      drawSinesFrame(ctx, W, H, 0, terms);
+    } else {
+      /* 只在**看得见**的时候跑：这块示波器纸带在首屏，但用户一往下滚它就
+         完全不可见了，而每帧重画 5 条正弦叠加（800×170 的 canvas）是首屏
+         最贵的一笔持续开销。滚出视口就停、滚回来接着走。 */
+      let visible = true;
+      const start = () => {
+        if (raf || !visible || !document.body.contains(canvas)) return;
+        raf = requestAnimationFrame(frame);
+      };
+      const stop = () => {
+        if (raf) cancelAnimationFrame(raf);
+        raf = null;
+      };
+      if (typeof IntersectionObserver === 'function') {
+        const io = new IntersectionObserver(
+          (entries) => {
+            visible = entries.some((e) => e.isIntersecting);
+            if (visible) start();
+            else stop();
+          },
+          { threshold: 0.01 },
+        );
+        io.observe(canvas);
+        ioRef.current = io;
+      } else {
+        start();
+      }
+      start();
+    }
     return () => {
       if (raf) cancelAnimationFrame(raf);
+      if (ioRef.current) {
+        ioRef.current.disconnect();
+        ioRef.current = null;
+      }
       window.removeEventListener('resize', resize);
     };
   }, []);
@@ -147,7 +181,7 @@ export default function Home() {
   return (
     <Layout
       title="数学阶梯 · 从数感到前沿"
-      description={`从 1+1 出发的交互式数学路径：六卷 ${s.chapters} 章 ${s.lessons} 门课持续生长，每一步都踩在已学的知识上`}
+      description={`从 1+1 出发的交互式数学路径：七卷 ${s.chapters} 章 ${s.lessons} 门课持续生长，每一步都踩在已学的知识上`}
     >
       <div className="ml-home">
         <header className="ml-hero ml-gridbg">
@@ -160,8 +194,8 @@ export default function Home() {
             </h1>
             <p className="ml-hero__subtitle">从 1+1 出发，每一级台阶都亲手踩上去——一路长到现代数学与 AI 的地基。</p>
             <p className="ml-hero__note">
-              内容按六卷组织：卷一《数学地基》已完成；卷二高等核心、卷三离散计算、卷四概率信息、卷五应用
-              AI 已开放大部分正式课，卷六《工程与系统》开画——电子电路与计算机系统率先上线。每个概念配一个能动手的交互，新工具先讲它的来历，代码块都能当场修改运行。
+              内容按七卷组织：卷一《数学地基》铺底；卷二高等核心、卷三离散计算、卷四概率信息、卷五应用
+              AI、卷六《工程与系统》全线成稿；卷七《物理与前沿交叉》把数学搬进物理与神经科学的主战场——狭义相对论、哈密顿力学与脑机接口。每个概念配一个能动手的交互，新工具先讲它的来历，代码块都能当场修改运行。
             </p>
             <div className="ml-hero__btns">
               <Link className="button button--primary button--lg" to="/docs/python-tools/conventions">
@@ -190,7 +224,10 @@ export default function Home() {
                   打开知识树 →
                 </Link>
                 <Link className="button button--secondary button--sm button--outline" to="/graph">
-                  逐课依赖图谱 →
+                  同心环层级图 →
+                </Link>
+                <Link className="button button--secondary button--sm button--outline" to="/chapters">
+                  章簇详图 →
                 </Link>
               </div>
             </div>
@@ -239,7 +276,7 @@ export default function Home() {
           </section>
 
           <section className="container margin-vert--lg">
-            <h2>六卷路线图</h2>
+            <h2>七卷路线图</h2>
             <p className="ml-section__lead">从地基到前沿的完整阶梯；点任意一章直接进去。</p>
             <ChapterWall />
           </section>

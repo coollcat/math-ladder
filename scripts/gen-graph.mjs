@@ -271,6 +271,61 @@ lessons.forEach((lesson, i) => {
   }
 });
 
+/* -------------------------------------------------------------------------
+ * 章级元数据：章节信息的唯一事实来源（CHAPTER_INFO）
+ * -------------------------------------------------------------------------
+ * 源头是各章自己的 index.md（docs 里每个章目录下的那一份）的 front matter
+ * （title / short / volume），不是 UI 里手抄的第二份表。
+ *
+ * 为什么要有这一段：src/components/ml-home/data.js 此前用两张**手写 Map**
+ * （CH_TITLES / CH_SHORT）维护 18–78 章的标题与短名，改动课表时极易漏改——
+ * 66/67 章就真的漏过，导致图谱 tooltip 退化成「66 章」「67 章」；
+ * 1–16 章的标题又只活在另一张手写数组 CHAPTER_META 里，同一件事两份口径。
+ * 生成一份出来，UI 只消费、不手抄，章名改在章首页，跑一次生成器全站同步。
+ *
+ * 口径与 NODES/EDGES 完全一致：第 17 章（下一程导读）排除，
+ * 第 0 章（Python 工具箱）保留。 */
+const chapterDirs = fs
+  .readdirSync(docsRoot, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && /^\d+-/.test(entry.name))
+  .map((entry) => entry.name)
+  .sort((a, b) => a.localeCompare(b));
+
+const chapterInfo = [];
+const chapterWarn = [];
+for (const dir of chapterDirs) {
+  if (dir.startsWith('17-')) continue; /* 导览章：不入图谱 / 知识树 / 首页统计 */
+  const n = parseInt(dir.match(/^(\d+)/)[1], 10);
+  const indexPath = path.join(docsRoot, dir, 'index.md');
+  if (!fs.existsSync(indexPath)) {
+    chapterWarn.push(`${dir}：缺 index.md，该章未进入 CHAPTER_INFO`);
+    continue;
+  }
+  const fm = parseFrontMatter(fs.readFileSync(indexPath, 'utf8').replace(/^\uFEFF/, ''));
+  const rawTitle = typeof fm.title === 'string' ? fm.title : '';
+  /* 「第 N 章 · 」是章首页标题的排版前缀，不是章名本身，脱掉 */
+  const title = rawTitle.replace(/^第\s*\d+\s*章\s*[·:：\-]?\s*/, '').trim() || rawTitle || dir;
+  const short =
+    (typeof fm.short === 'string' && fm.short.trim()) ||
+    (title.length > 6 ? title.slice(0, 6) : title);
+  const count = lessons.filter((lesson) => lesson.ch === n).length;
+  if (!count) chapterWarn.push(`${dir}：图谱里 0 门课（全标了 draft？）`);
+  if (!fm.volume) chapterWarn.push(`${dir}：front matter 缺 volume，章属卷号在 UI 里会算不出来`);
+  chapterInfo.push({
+    n,
+    dir,
+    to: `/docs/${dir.replace(/^\d+-/, '')}/`,
+    title,
+    short,
+    volume: Number(fm.volume) || 0,
+    lessons: count,
+  });
+}
+/* 反向体检：图谱里有课、却没有对应章首页的章号 */
+const knownCh = new Set(chapterInfo.map((c) => c.n));
+const orphanCh = [...new Set(lessons.map((lesson) => lesson.ch))].filter((ch) => !knownCh.has(ch));
+if (orphanCh.length) chapterWarn.push(`图谱含章的课但 CHAPTER_INFO 里没有：${orphanCh.join(', ')}`);
+
 const nodesJson = JSON.stringify(lessons.map(({ rel, id, ch, ord, title, short, to, born, uses }) => ({
   id, ch, ord, title, short, to, born, uses,
 })));
@@ -280,12 +335,23 @@ const useAggJson = JSON.stringify([...flowMap.entries()].map(([key, tools]) => {
   return [a, b, tools];
 }));
 const depthJson = JSON.stringify(depth);
+const chapterJson = chapterInfo.map((chapter) => JSON.stringify(chapter)).join(',\n');
 
 const output = `/* 自动生成：node scripts/gen-graph.mjs。请勿手改。 */
 export const NODES = ${nodesJson};
 export const EDGES = ${edgesJson};
 export const USE_AGG = ${useAggJson};
 export const DEPTH = ${depthJson};
+
+/* 章级元数据：来自各章 index.md 的 front matter（title / short / volume）。
+   全站章节名的唯一事实来源——首页、知识树、图谱都从这里取，别再手写第二份。 */
+export const CHAPTER_INFO = [
+${chapterJson},
+];
 `;
 fs.writeFileSync(outFile, output.replace(/\}\],/g, '}],\n').replace(/\n/g, '\n'), 'utf8');
-console.log(`✔ 已生成 ${path.relative(process.cwd(), outFile)}（${lessons.length} 门课 / ${edges.length} 条先修线）`);
+console.log(`✔ 已生成 ${path.relative(process.cwd(), outFile)}（${lessons.length} 门课 / ${edges.length} 条先修线 / ${chapterInfo.length} 章）`);
+if (chapterWarn.length) {
+  console.log(`⚠ 章节元数据 ${chapterWarn.length} 条提示：`);
+  chapterWarn.forEach((w) => console.log('  · ' + w));
+}

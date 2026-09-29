@@ -1,6 +1,93 @@
 :root {
   --pyr-mono: 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
 
+  /* ---- 视觉体系令牌（2026-09-29 收口） ----
+     「演算纸 × 印章朱砂」原先只活在 .ml-home / .ml-nav / .ml-rg / .ml-fn 四个
+     作用域里，各写各的 hex：同一个朱砂四份、同一个纸底三份、衬线字栈四份。
+     令牌提到 :root 后，作用域外的规则也能安全地 var()（拿不到变量时整条声明
+     会失效——比如 border 直接消失——这是实打实踩过的坑）。 */
+  --ml-paper: #fbf8f1; /* 暖纸底：整站页面底色 */
+  --ml-card: #ffffff; /* 卡片/浮起面：白 */
+  --ml-ink: #26324b; /* 墨蓝：正文与标题 */
+  --ml-ink-soft: rgba(38, 50, 75, 0.62);
+  --ml-vermilion: #c2401c; /* 印章朱砂：品牌与强调 */
+  --ml-danger: #b3261e; /* 错误红（原先 #d33 / #b3261e / #d1483f 三套并存） */
+  --ml-search: #6b4ea3; /* 搜索命中：紫檀（原先用 --ifm-color-info，1.95:1 看不见） */
+  /* 先修/托起两套语义色已经在下面立档；这里补它们的「可读文字色」——
+     亮色下 #e8871e 当正文只有 2.4:1，必须换深一档的 #b45309 */
+  --ml-up-ink: #2e7d32;
+  --ml-down-ink: #b45309;
+  /* 衬线展示字栈：全站唯一一份（原先 home/nav/图谱中心各写一份，其中两份漏字） */
+  --ml-display: Georgia, 'Times New Roman', 'Songti SC', STSong, SimSun, serif;
+
+  /* ---- 交互反馈的统一节奏（2026-09-28 收口） ----
+     此前全站的 transition 时长是 0.12s / 0.15s / 0.2s / 0.4s 四套并存，
+     hover 位移有 -1 / -2 / -3px 三种。同类操作快慢不一，手感是散的。
+     新增交互一律用这三个变量；旧代码逐步换过来。 */
+  --ml-t-fast: 0.14s; /* 颜色/边框这类即时反馈 */
+  --ml-t-base: 0.18s; /* 按钮、卡片等常规 hover */
+  --ml-t-slow: 0.32s; /* 面板展开、大块位移 */
+  --ml-t-enter: 0.6s; /* 入场描画/逐层展开 */
+  --ml-ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --ml-ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.5); /* 只给同心环节点入场：那点回弹是刻意的 */
+  --ml-lift: -1px; /* hover 抬起量，全站统一一档 */
+  --ml-tap: 40px; /* 触控命中区下限（原先 ~30 处控件只有 24–34px） */
+
+  /* ---- 知识图谱的两套语义色（2026-09-28 收口） ----
+     绿＝托起它的先修、橙＝被它托起的后续。此前这两个颜色在 home.css 里
+     被硬编码了 15 处（#2e7d32 ×4、#e8871e ×11），暗色模式下橙和绿都偏暗、
+     在深底上糊成一团；而 .ml-rg 自己那套暗色值又只在同心环里生效，
+     知识树/章节树三处图谱各写各的。收成一组变量，一处改、三张图一起跟。 */
+  --ml-up: #2e7d32;
+  --ml-down: #e8871e;
+  --ml-up-bg: rgba(46, 125, 50, 0.14);
+  --ml-down-bg: rgba(232, 135, 30, 0.16);
+  --ml-node-glow: rgba(59, 116, 214, 0.4);
+  /* 章胶囊右上角那颗「本章 N 门课」的计数底：淡蓝 */
+  --ml-count-bg: rgba(59, 116, 214, 0.16);
+  /* ---- 七卷配色（2026-09-29 收口） ----
+     这七个色原先只活在 home.css 的 .ml-rg 作用域里（同心环专用）。
+     章簇详图（/chapters，见 src/css/home.css 的 .ml-cc 段）要用同一套卷色，
+     与其抄第三份 hex，不如提到 :root——一处改、两张图一起跟。
+     与 --ml-up/--ml-down 同理：同一个语义只有一个来源。 */
+  --ml-vol1: #2f5fa8; /* 卷一 数学地基：墨蓝 */
+  --ml-vol2: #0e8a7c; /* 卷二 高等数学核心：青碧 */
+  --ml-vol3: #96690f; /* 卷三 离散数学与计算：藤黄（压深一档，原 #b08016 对纸底只有 3.33:1） */
+  --ml-vol4: #c2401c; /* 卷四 概率统计与信息：朱砂 */
+  --ml-vol5: #7b4ea3; /* 卷五 应用 AI 与前沿：紫檀 */
+  --ml-vol6: #4a7c2f; /* 卷六 工程与系统：松绿 */
+  --ml-vol7: #8a5a2b; /* 卷七 物理与前沿交叉：赭棕（与藤黄/朱砂都拉开色相） */
+  /* 卡片级轻投影。原先写死 rgba(0,0,0,.06)，在深底上等于没有——
+     暗色必须换成「更黑但更大范围」的投影才看得出层次。 */
+  --ml-shadow-soft: 0 1px 4px rgba(15, 23, 42, 0.07);
+
+  /* ---- 圆角阶梯（2026-09-28 立档） ----
+     全站圆角本来就是四档，不是乱写，但没人写下来过，于是新代码各挑各的
+     （登录页输入框 8px、浮窗里一律 6px、图谱搜索框又跟着抄了 8px）。
+     这里把四档固定成名字，新增控件按「它是什么」选，不再凭手感。 */
+  --ml-radius-ctl: 6px; /* 小控件：按钮、输入框、下拉、选项 */
+  --ml-radius-block: 8px; /* 区块：题卡、提示条、图框 */
+  --ml-radius-card: 10px; /* 卡片：笔记本单元、仓库条目、空间行 */
+  --ml-radius-panel: 12px; /* 浮窗面板 */
+  --ml-radius-surface: 14px; /* 大画布/展示框：图谱、树、英雄区示波器 */
+  --ml-radius-pill: 999px; /* 胶囊、徽章 */
+
+  /* ---- Infima 主色接进印章体系（2026-09-29） ----
+     此前从未覆盖过 --ifm-color-primary，于是全站的焦点环、链接、主按钮、
+     激活芯片全是 Infima 默认蓝 #3578e5，而品牌朱砂只活在几个作用域里——
+     暖纸 + 墨蓝 + 朱砂的系统里混进一个纯蓝主色。 */
+  --ifm-color-primary: #c2401c;
+  --ifm-color-primary-dark: #a63617;
+  --ifm-color-primary-darker: #9c3316;
+  --ifm-color-primary-darkest: #802a12;
+  --ifm-color-primary-light: #d45a34;
+  --ifm-color-primary-lighter: #dd6a46;
+  --ifm-color-primary-lightest: #eec4b6;
+
+  /* ---- 页面底色与正文（2026-09-29） ----
+     课程页原先仍是 Infima 的纯白底 + 纯黑字，而顶栏是暖纸墨蓝——
+     读者 90% 的阅读时间发生在一个不属于这套视觉体系的页面上。
+     卡片面保持白色，与纸底拉开一层。 */
   /* viz 画布主题变量：viz.js 的 canvas 底色/文字/网格从这里取（cssVar） */
   --ml-viz-bg: #ffffff;
   --ml-viz-fg: #1c1e21;
@@ -8,11 +95,165 @@
   --ml-viz-axis: rgba(107, 114, 128, 0.6);
 }
 
+/* =========================================================================
+ * Infima 变量覆盖（2026-09-29）
+ * -------------------------------------------------------------------------
+ * **为什么写在 body 上而不是 :root**：Infima 把它的变量声明在
+ * `:root:not(#\#):not(#\#)` 上 —— 那两个 `#\#` 是 ID 选择器，特异性 (2,1,0)，
+ * 普通 `:root`（0,1,0）无论排在多后面都压不过它。实测：写在 :root 里的
+ * `--ifm-color-primary:#c2401c` 在浏览器里解析出来仍是 Infima 蓝 #3578e5，
+ * 主按钮、焦点环、链接全是蓝的（这张覆盖表就此形同虚设）。
+ * 写在 body 上不必跟它比特异性：变量是从最近的定义它的祖先继承下来的，
+ * body 的声明对自己与全部后代生效，而页面里所有元素都在 body 里。
+ * ========================================================================= */
+body {
+  --ifm-color-primary: #c2401c;
+  --ifm-color-primary-dark: #a63617;
+  --ifm-color-primary-darker: #9c3316;
+  --ifm-color-primary-darkest: #802a12;
+  --ifm-color-primary-light: #d45a34;
+  --ifm-color-primary-lighter: #dd6a46;
+  --ifm-color-primary-lightest: #eec4b6;
+
+  --ifm-background-color: #fbf8f1;
+  --ifm-background-surface-color: #ffffff;
+  --ifm-font-color-base: #26324b;
+  --ifm-heading-color: #26324b;
+  --ifm-heading-font-family: var(--ml-display);
+  /* 标题阶梯：全站原本同时存在 32px（工具页 h1）/ 48px（课程页 h1）/
+     41.6–62.4px（首页 h1）三种，这里收成一条曲线。
+     注：课程页 `.markdown h1` 有更具体的一档（theme-classic 设 3rem），
+     正文标题保持原样——那是刻意的阅读排版，不属于"工具页标题"这一类。 */
+  --ifm-h1-font-size: clamp(1.9rem, 3.4vw, 2.5rem);
+  --ifm-h2-font-size: 1.55rem;
+  --ifm-h3-font-size: 1.2rem;
+  --ifm-h4-font-size: 1.02rem;
+
+  /* 页面底色与正文色**必须显式写在 body 上**：Infima 只在 html 上声明变量，
+     body 的 color/background 是从 html 继承下来的，光改变量不会改变已经
+     继承下来的计算值。实测：只写变量时 body 仍是 #1c1e21 纯黑字、白底。 */
+  color: var(--ml-ink);
+  background-color: var(--ml-paper);
+}
+
+[data-theme='dark'] body {
+  --ifm-color-primary: #e4704d;
+  --ifm-color-primary-dark: #d95a35;
+  --ifm-color-primary-darker: #d05027;
+  --ifm-color-primary-darkest: #ab3f1c;
+  --ifm-color-primary-light: #ef8663;
+  --ifm-color-primary-lighter: #f39474;
+  --ifm-color-primary-lightest: #f8c4b2;
+
+  --ifm-background-color: #1b202a;
+  --ifm-background-surface-color: #232a36;
+  --ifm-font-color-base: #c7d0e0;
+  --ifm-heading-color: #dde3ee;
+}
+
+/* =========================================================================
+ * 键盘焦点兜底（2026-09-28）
+ * -------------------------------------------------------------------------
+ * 全站此前只有两处 :focus-visible，而浮窗编辑器、练习代码框、笔记本单元、
+ * 公式输入框这些**天天要打字**的地方都写了 outline:none 且没有补偿——
+ * 键盘用户完全看不到焦点在哪儿。
+ *
+ * 用 :where() 包住选择器：它的特异性是 0，任何已有的焦点样式照旧生效，
+ * 这里只补「确实没人管」的那些元素，不会跟现有规则抢。
+ * ========================================================================= */
+:where(
+  button,
+  [role='button'],
+  [role='link'],
+  [role='tab'],
+  [role='menuitem'],
+  a,
+  input,
+  select,
+  textarea,
+  summary,
+  [tabindex]:not([tabindex='-1'])
+):focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  /* 刻意不写 border-radius：焦点环不该改变几何（原先这一行让聚焦瞬间
+     圆角从 0 / 999px 跳到 6px，胶囊按钮会当场露出方角）。 */
+}
+
+/* 浮窗里那几个 outline:none 的编辑区：焦点环画在框内，免得被面板裁掉 */
+.ml-console__editor:focus-visible,
+.ml-exercise__code:focus-visible,
+.ml-nb__code:focus-visible,
+.ml-nb__md:focus-visible,
+.ml-formula__src:focus-visible,
+.ml-repo__name:focus-visible,
+.ml-repo__search:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+/* =========================================================================
+ * 减少动态偏好（2026-09-28）
+ * -------------------------------------------------------------------------
+ * 原先只有 custom.css:2275、home.css:1137/1260、nav.css:587 四处局部兜底，
+ * 圆钮、章节卡、进度条、浮窗标题栏这些动画都是裸奔的。
+ * 这里做全站兜底：动画与过渡一律归零，但**保留**颜色/透明度的瞬时变化，
+ * 否则「悬停高亮」这类靠 opacity 表达的反馈会一起消失，反而更难用。
+ * ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* hover 位移统一取消（位移是最容易引起不适的一类动效） */
+  .ml-fab:hover,
+  .ml-fab--note:hover,
+  .ml-chapter:hover,
+  .ml-wall__chip:hover,
+  .ml-rail-btn:hover {
+    transform: none !important;
+  }
+}
+
 [data-theme='dark'] {
   --ml-viz-bg: #20242c;
   --ml-viz-fg: #e8eaed;
   --ml-viz-grid: rgba(148, 163, 184, 0.2);
   --ml-viz-axis: rgba(148, 163, 184, 0.6);
+  /* 七卷配色的暗色值（与 :root 那组一一对应） */
+  --ml-vol1: #6ea0e8;
+  --ml-vol2: #3fbfae;
+  --ml-vol3: #d8a83c;
+  --ml-vol4: #e8734f;
+  --ml-vol5: #b48ae0;
+  --ml-vol6: #85b45f;
+  --ml-vol7: #d3a172;
+
+  /* 视觉体系令牌的暗色镜像（与 home.css 的 [data-theme='dark'] .ml-home 对齐） */
+  --ml-paper: #1b202a;
+  --ml-card: #232a36;
+  --ml-ink: #c7d0e0;
+  --ml-ink-soft: rgba(221, 227, 238, 0.64);
+  --ml-vermilion: #e8734f; /* 暗底上 #c2401c 只有 3.14:1，正文尺度不达标 */
+  --ml-danger: #ff9b93;
+  --ml-search: #b48ae0;
+  --ml-up-ink: #81c995;
+  --ml-down-ink: #f0a45c;
+
+  /* 暗底上要提明度：原来的 #2e7d32 / #e8871e 在 #1b202a 上几乎看不出色相 */
+  --ml-up: #6cc273;
+  --ml-down: #f0a445;
+  --ml-up-bg: rgba(108, 194, 115, 0.16);
+  --ml-down-bg: rgba(240, 164, 69, 0.16);
+  --ml-node-glow: rgba(96, 165, 250, 0.45);
+  /* 暗底上 16% 的蓝几乎看不见，反而像一块脏渍：提明度、降不透明度 */
+  --ml-count-bg: rgba(148, 180, 240, 0.22);
+  --ml-shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
 .katex-display {
@@ -56,6 +297,8 @@
   font-size: 0.8rem;
 }
 
+/* 全站出现频次最高的一颗按钮（浮窗/笔记本/仓库/数据面板的工具条都是它）。
+   原先 hover 是「瞬间变色」——没有过渡，点下去的手感是硬的。 */
 .py-runner__btn {
   cursor: pointer;
   border: none;
@@ -65,12 +308,30 @@
   background: var(--ifm-color-primary);
   color: #fff;
   line-height: 1.4;
+  transition: background var(--ml-t-fast) var(--ml-ease), color var(--ml-t-fast) var(--ml-ease),
+    border-color var(--ml-t-fast) var(--ml-ease), opacity var(--ml-t-fast) var(--ml-ease),
+    transform var(--ml-t-fast) var(--ml-ease);
+}
+
+.py-runner__btn:hover:not([disabled]) {
+  filter: brightness(1.08);
+  transform: translateY(var(--ml-lift));
+}
+
+.py-runner__btn:active:not([disabled]) {
+  transform: translateY(0);
 }
 
 .py-runner__btn--ghost {
   background: transparent;
   color: var(--ifm-font-color-base);
   border: 1px solid var(--ifm-color-emphasis-400);
+}
+
+.py-runner__btn--ghost:hover:not([disabled]) {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  filter: none;
 }
 
 .py-runner__btn[disabled] {
@@ -491,11 +752,15 @@ a:hover .ml-chapter.is-done {
   letter-spacing: 0.02em;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--ml-t-base) var(--ml-ease), box-shadow var(--ml-t-base) var(--ml-ease),
+    background var(--ml-t-fast) var(--ml-ease);
 }
 
+/* 抬起量统一到 --ml-lift（-1px）。原先是 -3px：两颗圆钮上下挨着，
+   悬停下面那颗时上面那颗不动、下面那颗跳 3px，看着像误触。
+   全站 hover 位移只留一档，动作才读得懂。 */
 .ml-fab:hover {
-  transform: translateY(-3px);
+  transform: translateY(var(--ml-lift));
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
 }
 
@@ -732,7 +997,7 @@ a:hover .ml-chapter.is-done {
   font-size: 0.78rem;
   padding: 0.16rem 0.6rem;
   line-height: 1.5;
-  transition: all 0.12s ease;
+  transition: background var(--ml-t-fast) var(--ml-ease), border-color var(--ml-t-fast) var(--ml-ease), color var(--ml-t-fast) var(--ml-ease);
 }
 
 .ml-mini-btn:hover {
@@ -933,7 +1198,7 @@ a:hover .ml-chapter.is-done {
   font-size: 0.76rem;
   padding: 0.14rem 0.6rem;
   line-height: 1.5;
-  transition: all 0.12s ease;
+  transition: background var(--ml-t-fast) var(--ml-ease), border-color var(--ml-t-fast) var(--ml-ease), color var(--ml-t-fast) var(--ml-ease);
 }
 
 .ml-console__syncbtn:hover {
@@ -1373,7 +1638,7 @@ a:hover .ml-chapter.is-done {
   border-radius: 10px;
   background: var(--ifm-color-emphasis-100);
   font-size: 0.85rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--ml-shadow-soft);
 }
 
 /* 正文内实例：桌面隐藏（右栏挂件接管），窄屏为顶部横条 */
@@ -1475,7 +1740,7 @@ a:hover .ml-chapter.is-done {
   border-radius: 10px;
   background: var(--ifm-color-emphasis-100);
   font-size: 0.85rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--ml-shadow-soft);
 }
 
 .ml-miniprogress__head {
@@ -1637,21 +1902,9 @@ a:hover .ml-chapter.is-done {
   background: var(--ifm-color-emphasis-700);
 }
 
-/* 数据面板圆钮：右下角第三个（备份 / 还原 / 空间搬家），位置叠在笔记本之上。
-   间距口径同笔记本那颗：下沿 = 上一颗下沿 + 44 高 + 22 空隙。 */
-.ml-fab--data {
-  bottom: calc(1.4rem + 132px);
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ifm-color-emphasis-800);
-}
-
-.ml-fab--data:hover {
-  background: var(--ifm-color-emphasis-700);
-}
+/* 数据面板的入口已搬走（2026-09-29）：现在是**页面右上角顶栏那颗「数据」钮**，
+   面板落在钮的下方（见 src/css/nav.css 的 .ml-nav__datapop 与 .ml-backup.is-popover）。
+   右下角不再占第三个位置。 */
 
 /* ---- 共用面板骨架 ---- */
 
@@ -1707,6 +1960,26 @@ a:hover .ml-chapter.is-done {
   height: min(80vh, 720px);
 }
 
+/* backup.js **没有**实现拖动（它只登记层叠），别给个 move 光标骗人 */
+.ml-backup__head {
+  cursor: default;
+}
+
+/* 内嵌态（mountBackup 的 variant:'inline'）：不是浮窗，就长在页面里。
+   目前站内只有顶栏气泡（popover，样式在 nav.css）在用，这一份留着给
+   「想在页面某处常驻一块数据面板」的场景——接口还在，别让它退回浮窗定位。
+   写在这里而不是某一页的 CSS 里：页面级 CSS 只在该路由加载，换页就失效。 */
+.ml-backup.is-inline {
+  position: static;
+  display: flex;
+  width: 100%;
+  height: auto;
+  max-height: min(72vh, 680px);
+  transform: none;
+  z-index: auto;
+  box-shadow: var(--ml-shadow-soft);
+}
+
 /* 整页模式：铺满视口（拖拽在 JS 侧已拦掉） */
 .ml-notebook.is-fullpage {
   left: 0;
@@ -1729,6 +2002,9 @@ a:hover .ml-chapter.is-done {
 .ml-backup__head {
   display: flex;
   align-items: center;
+  /* 窄屏（≤400px）时标题 + 下拉 + 关闭钮会横向溢出：允许换行，
+     并让可伸缩的子项能真的缩下去（默认 min-width:auto 撑着不缩）。 */
+  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.45rem 0.8rem;
   background: var(--ifm-color-primary);
@@ -1749,6 +2025,7 @@ a:hover .ml-chapter.is-done {
 .ml-notebook__title {
   flex: 1 1 auto;
   min-width: 60px;
+  max-width: 100%;
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.35);
   color: #fff;
@@ -1761,12 +2038,14 @@ a:hover .ml-chapter.is-done {
   color: rgba(255, 255, 255, 0.65);
 }
 
+/* 本子下拉框坐在主色标题栏上，此前写死白底黑字——暗色模式下是一颗扎眼的
+   纯白块。改成走变量：亮色是白底、暗色自动变深底浅字。 */
 .ml-notebook__books {
   flex: 0 1 200px;
   min-width: 90px;
   max-width: 220px;
-  background: #fff;
-  color: #1c1e21;
+  background: var(--ifm-background-color, #fff);
+  color: var(--ifm-font-color-base, #1c1e21);
   border: none;
   border-radius: 6px;
   padding: 0.15rem 0.3rem;
@@ -2350,12 +2629,6 @@ a:hover .ml-chapter.is-done {
     height: 40px;
   }
 
-  .ml-fab--data {
-    bottom: calc(0.9rem + 116px);
-    width: 40px;
-    height: 40px;
-  }
-
   .ml-notebook,
   .ml-repo,
   .ml-backup {
@@ -2386,6 +2659,8 @@ a:hover .ml-chapter.is-done {
   max-height: 236px;
   min-width: 156px;
   overflow-y: auto;
+  /* 手机上滚到候选项尽头会把手势传给页面（面板不动、底下的正文在跑） */
+  overscroll-behavior: contain;
   padding: 0.2rem;
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 8px;
@@ -2542,6 +2817,7 @@ a:hover .ml-chapter.is-done {
 .ml-formula__grid {
   flex: 1;
   overflow: auto;
+  overscroll-behavior: contain;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
   gap: 0.3rem;
@@ -2636,4 +2912,37 @@ a:hover .ml-chapter.is-done {
     max-height: 90vh;
     max-height: 90dvh;
   }
+}
+
+/* =========================================================================
+ * 悬停反馈补齐（2026-09-28）
+ * -------------------------------------------------------------------------
+ * 下面这些控件此前是「瞬间变色」：规则里没有 transition，鼠标移上去颜色直接
+ * 跳变，与全站其余控件的 0.14–0.18s 渐变成两套手感——同一页里一半控件滑、
+ * 一半控件跳，比全都不动更难读。
+ * 只补颜色/边框/阴影/位移这几类，不碰任何布局属性，改错了也只会「动得不对」，
+ * 不会「位置不对」。
+ * ========================================================================= */
+.ml-quiz__opt,
+.ml-progress__wipe,
+.ml-progress__login,
+.ml-paper__btn,
+.ml-console__back,
+.ml-console__mode,
+.ml-viz-btn,
+.ml-algebra-axis,
+.ml-algebra-cell,
+.ml-prereq__list a,
+.ml-notebook__hbtn,
+.ml-nb__mini,
+.ml-formula__sym,
+.ml-tr__clear,
+.ml-rg__vol,
+.ml-rg__ringchip {
+  transition: background var(--ml-t-fast) var(--ml-ease),
+    color var(--ml-t-fast) var(--ml-ease),
+    border-color var(--ml-t-fast) var(--ml-ease),
+    box-shadow var(--ml-t-fast) var(--ml-ease),
+    opacity var(--ml-t-fast) var(--ml-ease),
+    transform var(--ml-t-base) var(--ml-ease);
 }

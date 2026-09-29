@@ -1,29 +1,57 @@
-import { NODES, EDGES, DEPTH, USE_AGG } from './full-graph-data';
+/* 扩展名写全：Docusaurus 两种都认，写全了 node 也能直接 import
+   （.tmp-audit / 单测脚本要用它算章清单，见 ringLayout.js 的头注释）。
+   ------------------------------------------------------------------------
+   2026-09-29 章节信息去重：本文件此前是**章节名的第二份手抄**——
+     · CHAPTER_META 手写第 0–16 章的 title/short/desc/tools；
+     · CH_TITLES 手写第 18–78 章的正式标题；CH_SHORT 又手写一遍短名。
+   三张表都要跟着 docs 走，改课改名时必漏（66/67 章就漏过，图谱 tooltip
+   退化成「66 章」；第 1–16 章的短名还只有 CHAPTER_META 有）。
+   现在 title / short / volume / 课数 全部来自生成数据 CHAPTER_INFO
+   （源头是各章 index.md 的 front matter，脚本 scripts/gen-graph.mjs），
+   本文件只保留**只在首页出现的教学说明文案**（卷一各章的 desc / tools）
+   与卷册级介绍（VOLUMES）——那是 UI 文案，不是章节元数据。
+   改了章名忘了跑生成器？scripts/check-chapter-sync.mjs 会拦下来。 */
+import { NODES, EDGES, DEPTH, USE_AGG, CHAPTER_INFO } from './full-graph-data.js';
 
-const CHAPTER_META = [
-  { n: '00', title: 'Python 工具箱', short: '工具箱', to: '/docs/python-tools/', desc: '变量、循环、函数与画图——第一卷的登山杖。', tools: 'sum · matplotlib · random' },
-  { n: '01', title: '算术四则', short: '算术四则', to: '/docs/arithmetic/', desc: '加减乘除、负数与运算优先级，一切的地基。', tools: '分配律矩形 · 发糖余数机' },
-  { n: '02', title: '分数与小数', short: '分数小数', to: '/docs/fractions/', desc: '除法的另一种写法，数轴上的缝隙被填满。', tools: '分数圆盘 · 符号翻转台' },
-  { n: '03', title: '幂、根与对数', short: '幂根对数', to: '/docs/exponents/', desc: '连乘的记号，以及它的两个逆操作。', tools: 'math.sqrt · math.log · 二分求 √2' },
-  { n: '04', title: '代数与方程', short: '代数方程', to: '/docs/algebra/', desc: '字母登场：式子可化简，未知数站到台前。', tools: '天平 balance · 判别式三态' },
-  { n: '05', title: '几何入门', short: '几何入门', to: '/docs/geometry/', desc: '角度、勾股与圆周率——给公式一张看得见的脸。', tools: 'math.hypot · math.pi · 勾股方块' },
-  { n: '06', title: '函数与图像', short: '函数图像', to: '/docs/functions/', desc: '数学的核心语言：机器、曲线与变换三件事。', tools: 'fit 拟合 · floor/ceil · 反函数镜像' },
-  { n: '07', title: '三角与振动', short: '三角振动', to: '/docs/trigonometry/', desc: '单位圆上转圈：波的语言从此开始。', tools: 'math.sin/cos/tau · 单位圆 · 拍频' },
-  { n: '08', title: '数列与归纳法', short: '数列归纳', to: '/docs/sequences/', desc: '一格一格的数学，和无穷步的通行证。', tools: '多米诺 · 斐波那契螺方 · Σ 记号' },
-  { n: '09', title: '概率与统计', short: '概率统计', to: '/docs/probability/', desc: '不确定性也能精确研究。', tools: 'coinlaw 大数定律 · statdots · statistics' },
-  { n: '10', title: '数论', short: '数论', to: '/docs/numbertheory/', desc: '素数、余数与密码学的地基。', tools: '同余时钟 · 素数筛 · math.gcd' },
-  { n: '11', title: '线性代数', short: '线性代数', to: '/docs/linear-algebra/', desc: '会算术的几何：向量、矩阵与正交。', tools: '矩阵变形机 · 点积投影 · 基变换' },
-  { n: '12', title: '复数与欧拉公式', short: '复数欧拉', to: '/docs/complex/', desc: '升维钥匙与最美的公式。', tools: 'math.e/exp · 复平面 · 乘法即旋转' },
-  { n: '13', title: '极限与导数', short: '极限导数', to: '/docs/derivatives/', desc: '变化率的科学：割线一步步贴成切线。', tools: '割线收敛器 · 链式法则' },
-  { n: '14', title: '积分', short: '积分', to: '/docs/integrals/', desc: '面积的语言：分割、求和、取极限。', tools: '黎曼和 · FTC 双面板' },
-  { n: '15', title: '级数与泰勒', short: '级数泰勒', to: '/docs/series-taylor/', desc: '无穷个数的和，与用多项式逼近一切。', tools: 'taylor 逼近机 · 手搓 sin/cos/exp' },
-  { n: '16', title: '傅里叶', short: '傅里叶', to: '/docs/fourier/', desc: '信号与变换枢纽：任何波都是正弦的和。', tools: '正交性实验 · 吉布斯 · 手搓 DFT' },
-];
+/* 卷一各章的介绍语与代表工具：纯首页文案，不参与任何同步口径。
+   章名与短名不在这里写——去各章 index.md 的 front matter 改。 */
+const VOL1_PROSE = {
+  0: { desc: '变量、循环、函数与画图——第一卷的登山杖。', tools: 'sum · matplotlib · random' },
+  1: { desc: '加减乘除、负数与运算优先级，一切的地基。', tools: '分配律矩形 · 发糖余数机' },
+  2: { desc: '除法的另一种写法，数轴上的缝隙被填满。', tools: '分数圆盘 · 符号翻转台' },
+  3: { desc: '连乘的记号，以及它的两个逆操作。', tools: 'math.sqrt · math.log · 二分求 √2' },
+  4: { desc: '字母登场：式子可化简，未知数站到台前。', tools: '天平 balance · 判别式三态' },
+  5: { desc: '角度、勾股与圆周率——给公式一张看得见的脸。', tools: 'math.hypot · math.pi · 勾股方块' },
+  6: { desc: '数学的核心语言：机器、曲线与变换三件事。', tools: 'fit 拟合 · floor/ceil · 反函数镜像' },
+  7: { desc: '单位圆上转圈：波的语言从此开始。', tools: 'math.sin/cos/tau · 单位圆 · 拍频' },
+  8: { desc: '一格一格的数学，和无穷步的通行证。', tools: '多米诺 · 斐波那契螺方 · Σ 记号' },
+  9: { desc: '不确定性也能精确研究。', tools: 'coinlaw 大数定律 · statdots · statistics' },
+  10: { desc: '素数、余数与密码学的地基。', tools: '同余时钟 · 素数筛 · math.gcd' },
+  11: { desc: '会算术的几何：向量、矩阵与正交。', tools: '矩阵变形机 · 点积投影 · 基变换' },
+  12: { desc: '升维钥匙与最美的公式。', tools: 'math.e/exp · 复平面 · 乘法即旋转' },
+  13: { desc: '变化率的科学：割线一步步贴成切线。', tools: '割线收敛器 · 链式法则' },
+  14: { desc: '面积的语言：分割、求和、取极限。', tools: '黎曼和 · FTC 双面板' },
+  15: { desc: '无穷个数的和，与用多项式逼近一切。', tools: 'taylor 逼近机 · 手搓 sin/cos/exp' },
+  16: { desc: '信号与变换枢纽：任何波都是正弦的和。', tools: '正交性实验 · 吉布斯 · 手搓 DFT' },
+};
 
-export const CHAPTERS = CHAPTER_META.map((chapter) => ({
-  ...chapter,
-  count: NODES.filter((node) => node.ch === Number(chapter.n)).length,
-}));
+/* 全部已开课的章（与图谱、知识树同口径：78 章，不含第 17 章导览章）。
+   n 保留两位字符串是历史约定（首页与旧版图谱按 '00'/'01' 取键）。 */
+export const CHAPTERS = CHAPTER_INFO.map((chapter) => {
+  const prose = VOL1_PROSE[chapter.n] || { desc: '', tools: '' };
+  return {
+    n: String(chapter.n).padStart(2, '0'),
+    num: chapter.n,
+    title: chapter.title,
+    short: chapter.short,
+    to: chapter.to,
+    dir: chapter.dir,
+    volume: chapter.volume,
+    count: chapter.lessons,
+    desc: prose.desc,
+    tools: prose.tools,
+  };
+});
 
 export const EXTRA_EDGES = [[5, 7], [7, 12], [10, 12], [11, 16], [14, 16]];
 
@@ -34,84 +62,38 @@ export const VOLUMES = [
   { n: '卷四', title: '概率统计与信息', range: '36–42 章', status: 'done', statusLabel: '已成稿', desc: '在不确定世界里做推断和决策：概率进阶、随机过程、统计推断、贝叶斯统计、信息论、学习理论与因果推断。' },
   { n: '卷五', title: '应用 AI 与前沿', range: '43–67 章 · 含 AI for Math', status: 'done', statusLabel: '已成稿', desc: '把数学变成理解和使用现代智能系统的工具：优化、深度学习、Transformer、生成模型、强化学习、可信 AI、随机分析、范畴论等前沿章。' },
   { n: '卷六', title: '工程与系统', range: '68–75 章', status: 'done', statusLabel: '已成稿', desc: '前五卷回答「数学是什么」，卷六回答「数学在真实机器里怎么落地」。按依赖拓扑编排：电（68 电子电路）→ 算（69 数字系统、70 计算机系统）→ 机（71 机械工程、72 机电系统）→ 声（73 音频声学、74 语音音频）→ 画（75 图像视频）——只引用、不发明新数学的落地卷。' },
+  { n: '卷七', title: '物理与前沿交叉', range: '76–78 章', status: 'done', statusLabel: '已成稿', desc: '把前六卷的数学搬到物理与神经科学的主战场：76 狭义相对论与时空几何（洛伦兹变换、闵可夫斯基度量、四动量与 E=mc²）、77 哈密顿力学与对称性（勒让德变换、正则方程、相空间、泊松括号、诺特定理与辛积分）、78 脑机接口的数学（脉冲编码、贝叶斯与卡尔曼解码、CSP 与 SPD 流形、闭环刺激）——每一件工具都能追回它在前六卷的出生地。' },
 ];
 
 /* ---- 由图谱数据实时聚合的全站章节/统计（避免首页文案随课程增长过期） ---- */
 
+const VOLUME_OF = new Map(CHAPTER_INFO.map((chapter) => [chapter.n, chapter.volume]));
+
+/** 章号 → 卷下标（0 起，与 VOLUMES 数组对齐）。卷号由生成数据给出，不再手写区间。 */
 export function volumeOf(ch) {
-  if (ch < 18) return 0;
-  if (ch <= 26) return 1;
-  if (ch <= 35) return 2;
-  if (ch <= 42) return 3;
-  if (ch <= 67) return 4;
-  return 5;
+  const v = VOLUME_OF.get(Number(ch));
+  return v ? v - 1 : 0;
 }
-
-const CH_TITLES = new Map([
-  [0, 'Python 工具箱'], [18, '数学语言与证明'], [19, '实分析'],
-  [20, '多元微积分'], [21, '线性代数进阶'], [22, 'ODE 与动力系统'],
-  [23, '偏微分方程入门'], [24, '复分析'], [25, '测度论'], [26, '泛函分析'],
-  [27, '逻辑与集合'], [28, '组合数学'], [29, '图论'], [30, '算法与数据结构数学'],
-  [31, '形式语言与自动机'], [32, '可计算性与复杂度'], [33, '代数结构'],
-  [34, '密码学'], [35, '编码理论'], [36, '概率论进阶'],
-  [37, '随机过程'], [38, '统计推断与实验设计'], [39, '贝叶斯统计'],
-  [40, '信息论'], [41, '学习理论'], [42, '因果推断'], [43, '优化'],
-  [44, '数值分析'], [45, '机器学习数学'], [46, '深度学习'], [47, 'Transformer'],
-  [48, '表示与嵌入'], [49, '生成模型'], [50, '强化学习'], [51, '博弈论'],
-  [52, '控制理论'], [53, '图与网络'], [54, '可信 AI'], [55, '科学计算 ML'],
-  [56, 'AI for Math'], [57, '微分几何'], [58, '拓扑与数据几何'],
-  [59, '量子信息'], [60, '工程控制论'], [61, '数字信号处理'],
-  [62, '通信系统'], [63, '无线电'], [64, '计算机图形学'], [65, '机器人运动'],
-  /* 卷六 68–75（2026-08-31 按依赖拓扑重排：电 → 算 → 机 → 声 → 画） */
-  [68, '电子电路与电子设计'], [69, '数字系统与计算机组成'],
-  [70, '计算机系统'], [71, '机械工程与力学'],
-  [72, '机电系统与嵌入式'], [73, '音频与声学'],
-  [74, '语音与音频智能'], [75, '图像与视频'],
-]);
-
-const CH_SHORT = new Map([
-  [18, '数学语言'], [19, '实分析'], [20, '多元微积分'], [21, '线代进阶'],
-  [22, '常微分方程'], [23, '偏微分方程入门'], [24, '复分析'], [25, '测度论'],
-  [26, '泛函分析'], [27, '逻辑集合'], [28, '组合'], [29, '图论'], [30, '算法'],
-  [31, '自动机'], [32, '可计算性'], [33, '代数结构'], [34, '密码学'],
-  [35, '编码理论'], [36, '概率进阶'], [37, '随机过程'], [38, '统计推断'],
-  [39, '贝叶斯'], [40, '信息论'], [41, '学习理论'], [42, '因果推断'],
-  [43, '优化'], [44, '数值分析'], [45, 'ML 数学'], [46, '深度学习'],
-  [47, 'Transformer'], [48, '嵌入几何'], [49, '生成模型'], [50, '强化学习'],
-  [51, '博弈论'], [52, '控制'], [53, '图网络'], [54, '可信 AI'],
-  [55, '科学 ML'], [56, 'AI for Math'], [57, '微分几何'], [58, '拓扑数据'], [59, '量子信息'],
-  [60, '工程控制'], [61, '数字信号处理'], [62, '通信系统'], [63, '无线电'],
-  [64, '计算机图形学'], [65, '机器人运动'], [66, '随机分析'], [67, '范畴论'],
-  [68, '电子电路'], [69, '数字系统'], [70, '计系'],
-  [71, '机械工程'], [72, '机电系统'], [73, '音频声学'],
-  [74, '语音音频'], [75, '图像视频'],
-]);
 
 /* 全部已开课的章（图谱数据里有正式课的章），按卷分组返回 */
 export function allChapterGroups() {
-  const byCh = new Map();
-  NODES.forEach((node) => {
-    if (!byCh.has(node.ch)) {
-      const info = CHAPTERS.find((c) => Number(c.n) === node.ch);
-      const dir = node.to.split('/').slice(0, 3).join('/');
-      const volDone = true;
-      const title = info ? info.title : (CH_TITLES.get(node.ch) || `${node.ch} 章`);
-      byCh.set(node.ch, {
-        n: node.ch,
-        title,
-        short: info ? info.short : (CH_SHORT.get(node.ch) || title),
-        to: dir + '/',
-        count: 0,
-        volume: volumeOf(node.ch),
-        done: volDone,
-      });
-    }
-    byCh.get(node.ch).count += 1;
-  });
   const groups = VOLUMES.map((v, vi) => ({ ...v, index: vi, chapters: [] }));
-  [...byCh.values()].sort((a, b) => a.n - b.n).forEach((ch) => groups[ch.volume].chapters.push(ch));
+  CHAPTER_INFO.forEach((chapter) => {
+    const group = groups[chapter.volume - 1];
+    if (!group) return; /* 卷号越界：宁可少一章，也不让整页崩掉 */
+    group.chapters.push({
+      n: chapter.n,
+      title: chapter.title,
+      short: chapter.short,
+      to: chapter.to,
+      dir: chapter.dir,
+      count: chapter.lessons,
+      volume: chapter.volume - 1,
+      done: true,
+    });
+  });
   groups.forEach((g) => {
-    g.lessonCount = g.chapters.reduce((s, c) => s + c.count, 0);
+    g.lessonCount = g.chapters.reduce((sum, c) => sum + c.count, 0);
     g.rangeLabel = `${g.chapters.length} 章 · ${g.lessonCount} 课`;
     if (g.status === 'done') g.range = g.rangeLabel;
     else g.range = `${g.range} · 已开课 ${g.rangeLabel}`;
