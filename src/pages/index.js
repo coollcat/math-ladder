@@ -229,10 +229,6 @@ export default function Home() {
                   <Icon name="graph" size={15} />
                   同心环层级图 →
                 </Link>
-                <Link className="button button--secondary button--sm button--outline" to="/chapters">
-                  <Icon name="cluster" size={15} />
-                  章簇详图 →
-                </Link>
               </div>
             </div>
             <HomeTree />

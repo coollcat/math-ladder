@@ -29,7 +29,6 @@ const LINKS = [
   /* 「怎么用本站」指向导览页，但整站课程都在 /docs 下，所以 /docs/* 都算它激活 */
   { to: '/docs/intro', label: '怎么用本站', icon: 'book', startsWith: '/docs' },
   { to: '/graph', label: '知识图谱', icon: 'graph' },
-  { to: '/chapters', label: '章簇详图', icon: 'cluster' },
   { to: '/tree', label: '知识树', icon: 'tree' },
   { to: '/function', label: '看见函数', icon: 'curve' },
   /* 宣传片是 static/promo/ 下的纯静态页（不是 Docusaurus 路由）：

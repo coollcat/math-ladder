@@ -35,8 +35,8 @@ npm start          # 开发预览（已配置 --host :: 双栈监听）
 npm run build      # 构建前自动执行 validate + check:sync，任一不通过则中止
 npm run validate   # 单独跑课程闭环校验
 npm run check:sync # 单独跑章节信息同步校验（见「章节信息只有一个源头」）
-npm run check:chapters # 章簇详图运行时验收（真浏览器跑 /chapters；未装 playwright 会自动跳过）
 npm run gen:graph  # 重生成 full-graph-data.js（课节点/先修边/深度 + CHAPTER_INFO）
+npm run gen:chapters # 重生成 static/graph-chapters/（按章拆分的课数据，/graph 钻取用）
 npm run clear      # 清缓存（行为诡异时第一步）
 ```
 
@@ -66,7 +66,7 @@ node server/sync-server.mjs --port 8787 --data ./server/data      :: 起服务�
 
 ```
 docs/NN-chapter/MM-lesson.md   # 全部课程内容（纯 markdown，禁用 .mdx）
-docs/17-what-next/             # 「下一程导读」导览章：不入图谱/知识树（gen-graph.mjs 与 ui/server.mjs 均排除 17- 前缀），豁免九段式
+docs/17-what-next/             # 「下一程导读」导览章：不入图谱/知识树（gen-graph.mjs 排除 17- 前缀），豁免九段式
 src/pyrunner/enhancer.js       # 核心：浮窗控制台/按钮注入/测验/判题/进度
 src/pyrunner/notebook.js       # 数学笔记本（Markdown+KaTeX 单元 / 与浮窗共用 Python 命名空间），按需动态 import
 src/pyrunner/repo.js           # 代码仓库（浮窗代码的存档柜：本机/账号空间 + 导入导出）
@@ -101,12 +101,11 @@ src/theme/DocItem/Layout/index.js  # 文档页布局 swizzle：正文横条前�
 src/components/doc-widgets/    # PrereqPanel 前置知识面板、RailControls 右侧栏折叠控件
 src/pages/index.js             # 首页（演算纸视觉体系，样式全在 home.css 的 .ml-home 作用域内）
 src/pages/tree.js              # /tree 知识树页（章节/单元双模式 + 搜索 + 巨大画布，KnowledgeGraphTree v2）
-src/pages/graph.js             # /graph 知识图谱页（同心环，KnowledgeGraphRadial）
-src/pages/chapters.js          # /chapters 章簇详图页（一章一簇，ChapterClusterGraph）
-src/components/ml-home/        # 首页数据与组件：data.js(章节/卷册聚合，章节名与卷号来自生成数据，只留首页文案)、full-graph-data.js(生成器产物勿手改，含 CHAPTER_INFO)、HomeTree(章级树)、KnowledgeGraphTree(知识树v2)、KnowledgeGraphRadial(/graph 同心环)、ChapterClusterGraph(/chapters 章簇详图)、ringLayout.js(/graph 纯布局引擎：难度分位分环 + 强先修单调上修)、clusterLayout.js(/chapters 纯布局引擎：章→簇→课，解环半径)、treeLayout.js(纯布局引擎：排除第0章/章节聚合/重心交叉消减/祖先后代位图)、LearningEntry.js(继续学习/进度条，引图谱数据，只在首页用)
+src/pages/graph.js             # /graph 知识图谱页（同心环，KnowledgeGraphRadial，点击章钻取到课）
+src/components/ml-home/        # 首页数据与组件：data.js(章节/卷册聚合，章节名与卷号来自生成数据，只留首页文案)、full-graph-data.js(生成器产物勿手改，含 CHAPTER_INFO)、HomeTree(章级树)、KnowledgeGraphTree(知识树v2)、KnowledgeGraphRadial(/graph 同心环+课级钻取)、ringLayout.js(/graph 纯布局引擎：难度分位分环 + 强先修单调上修)、treeLayout.js(纯布局引擎：排除第0章/章节聚合/重心交叉消减/祖先后代位图)、LearningEntry.js(继续学习/进度条，引图谱数据，只在首页用)
 scripts/validate.mjs           # 方法准入 + 依赖顺序校验（构建闸门）
 scripts/check-chapter-sync.mjs # 章节信息同步闸门：各章 index.md 的 title/short/volume ↔ 生成物 CHAPTER_INFO（构建闸门）
-scripts/check-chapters-page.mjs # 章簇详图运行时验收（真浏览器；playwright 缺失时打印「跳过」并退出 0，不拦构建）
+scripts/gen-chapters-data.mjs  # 把 full-graph-data.js 按章拆成 static/graph-chapters/NN.json（/graph 钻取按需 fetch，首屏不再带全量课数据）
 scripts/references-data.json   # 各章论文/文献数据（单一事实来源，手改这个）
 scripts/gen-references.mjs     # 生成各章 999-references.md 参考资料条目（含 paper 围栏）
 scripts/fetch-papers.mjs       # 把条目里的 PDF 抓到 static/papers/（--force 全量 / --check 体检）
@@ -127,10 +126,6 @@ deploy/                        # 部署配置（出包默认带上）
   math-ladder-sync.service     #   systemd unit（普通用户运行、Restart=always、日志进 journald）
   README-部署.md               #   从解压到验收的完整步骤（含备份与常见问题）
 REGISTRATION.md                # 账号、进度与云同步口径说明（维护者向，链接本文件）
-ui/                            # 独立阅读前端（与 Docusaurus 主站并存，端口 9453）
-  server.mjs                   #   node 原生 http 皮肤服务器（--skin fluent --port N）
-  render.mjs                   #   markdown→HTML 管线（marked + KaTeX 服务端渲染 + 自定义围栏卡片）
-  fluent/                      #   雅致版皮肤（Fluent/Win11 风，端口 9453，入口 启动FluentUI.bat）
 UNIT_GUIDES/                   # 单章课题切分与专属组件规格
 UNIT_GUIDES/68-75-volume6-outline.md  # ★ 卷六施工手册（自包含：架构+写课SOP+组件SOP+引擎API+八章课表+坑清单）
 _ai-workspace/                 # ★ AI 工作产物（**不入库**，纯本地目录）：reports/ 放审计与回填报告、架构图；ai-memory/ 放其它 AI 工具散落的记忆
@@ -318,17 +313,16 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 2. **工具都有出生地**：每门课的 §8 下一站或正文都要指回它借用的前置课（洛伦兹变换 ← 12 章线性变换；辛结构 ← 21 章二次型；卡尔曼 ← 52 章）。
 3. **应用锚点必须真实可检验**：GPS 的 38 微秒、μ 子寿命、Pound–Rebka 式红移、Hodgkin–Huxley、BrainGate——不写"某研究表明"式的空话。
 
-新增卷号时别忘了四处：`scripts/validate.mjs` 的 `REGISTRY.volume` 与 `expectedVolume()`、`src/pyrunner/lab/registry.js` 的分册 import、`src/components/ml-home/data.js` 的 `VOLUMES`（卷册介绍文案）、`src/css/custom.css` 的 `--ml-volN`（亮/暗各一份，`.ml-rg` 与 `.ml-cc` 都是它的别名，**不要在作用域里再写 hex**）。章名、章属卷号、课数都不用手写——它们在**各章自己的 `index.md` front matter** 里（见「章节信息只有一个源头」）。
+新增卷号时别忘了四处：`scripts/validate.mjs` 的 `REGISTRY.volume` 与 `expectedVolume()`、`src/pyrunner/lab/registry.js` 的分册 import、`src/components/ml-home/data.js` 的 `VOLUMES`（卷册介绍文案）、`src/css/custom.css` 的 `--ml-volN`（亮/暗各一份，`.ml-rg` 是它的别名，**不要在作用域里再写 hex**）。章名、章属卷号、课数都不用手写——它们在**各章自己的 `index.md` front matter** 里（见「章节信息只有一个源头」）。
 
 ### 参考资料条目与账号体系（2026-08-29 新增）
 
 - **参考资料条目**：每章一个 `docs/NN-chapter/999-references.md`（编号 999 保证侧边栏垫底）。内容**只改 `scripts/references-data.json` 然后跑 `node scripts/gen-references.mjs`**（`--check` 模式可做闸门），不要手改生成的 md。每条文献是一个 ` ```paper ` 围栏（`# @title/@authors/@year/@venue/@tag/@desc/@page/@pdf64`），由 `enhancer.js` 的 `enhancePapers()` 渲染成文献卡（隐藏原容器 + 插卡，与 quiz 同一套水合安全模式）。**PDF 链接以 `@pdf64`（base64）写入条目**、客户端解码——静态 HTML 源码不再直接可读；这是混淆不是加密（边界声明见 REGISTRATION.md），手写条目仍可用明文 `@pdf`（两种写法兼容）。**validate.mjs 已挂双检查**：999-references 落后于 references-data.json → 硬错误；新章缺资料数据 → 警告。
-- **三个图谱页的分工（2026-09-29 增补 /chapters）：/tree 画树、/graph 画同心环、/chapters 画章簇**
+- **两个图谱页的分工（2026-09-29 第五回路：/chapters 章簇详图已退役删除，课级细节收进 /graph 的钻取）：/tree 画树、/graph 画同心环**
   | 页面 | 组件 | 画法 | 交互 |
   | --- | --- | --- | --- |
   | `/tree` 知识树 | `KnowledgeGraphTree` | 树（块布局），章节模式 / 单元模式 | 点击只看连通路径并重排 |
-  | `/graph` 知识图谱 | `KnowledgeGraphRadial` | 同心环：**半径＝层级、颜色＝卷**，一章一颗圆点 | 悬停看先修/托起、点击锁定焦点 |
-  | `/chapters` 章簇详图 | `ChapterClusterGraph` | 同心环骨架 + **一章一簇**：章为簇心，本章每门课绕它排开，课级先修线全画出来 | 悬停看先修/托起、点选一章把它的课级连线全铺开并列课表、缩放三档细节 |
+  | `/graph` 知识图谱 | `KnowledgeGraphRadial` | 同心环：**半径＝层级、颜色＝卷**，一章一颗圆点 | 悬停看先修/托起、点击章→从服务器拉本章课数据**在图上原位展开课点**、点空白收起 |
 
   **/graph 怎么读**：圆心是地基，越往外越高级。环不是按固定难度阈值切的，而是
   「难度等分位分 6 环 + 强先修边（≥2 门课支撑的章级边）单调上修」，于是每环章数相近、
@@ -336,18 +330,16 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
   的头部注释里，那份是唯一事实来源**；改环先读它，别在组件里另写一套分环。
   章难度口径：本章所有课程**平均先修深度**取整（别换算法，换了整张图会重排）。
 
-  **/chapters 与 /graph 的关系**：同一套骨架、两种粒度。两张图都调 `ringLayout.chapterModel()`
-  拿环分配与环内顺序，所以同一章的「第几环」永远一致；`/chapters` 额外多做三件事——
-  ① 簇半径由课数定（`基径 + K√课数`，圆面积本来就正比于课数）；
-  ② 环半径要解方程（同一圈上摆大小不等的圆，把每簇张角写成 `2·asin((cr+缝/2)/r)`
-     后对 r 二分，要求张角之和 ≤ 2π）——**写死最小弧长的朴素做法在这里必翻车**；
-  ③ 环间距也要让（`r_i − r_{i−1} ≥ crMax_{i−1} + crMax_i + 缝`）。
-  另有一处渲染技巧必须知道：**文字做反向缩放**（标签挂在带 `data-lx/data-ly` 的 `<g>` 上，
-  缩放时只改 `scale(1/k)`），所以文字在屏幕上恒定 12px，细节分档只靠「露不露」——
-  `k < 0.62` 时章名/章号整批收起（78 个标签挤一屏必然叠成一团）。悬停/缩放全走直接改
-  class 与属性，不进 React 状态；只有「点选某一章」才重建一次 SVG。详见
-  `ChapterClusterGraph.js` 与 `clusterLayout.js` 的头注释。
-  第 0 章「Python 工具箱」整章排除，与 /tree 一致。
+  **/graph 的课级钻取（2026-09-29 第五回路新增）**：数据按章拆在 `static/graph-chapters/NN.json`
+  （`npm run gen:chapters` 从 full-graph-data.js 生成，`npm run build` 自动重生成，无课章也出空 JSON
+  保证任何章号 fetch 都 200）。点击章圆点 → `fetch` 该章 JSON → 该章每门课绕章点排成一圈小课点
+  （章间连线不动），其余章按焦点逻辑退隐；点画布空白或再点同一章收起；课点单击直接进课页；
+  面板课表在钻取数据到手后改用服务器口径渲染。**展示数据必须走服务器 JSON**——这是「点击时
+  从服务器加载」的语义本体（断网/404 要可见），缓存只做会话内去重。
+  ⚠ 边界如实说：`full-graph-data.js` 的全量 `NODES/EDGES/DEPTH` 目前仍被
+  `ringLayout.chapterModel()`（章级布局）与课名搜索 import，bundle 没有因此减重；拆分 JSON 的
+  收益是①钻取展示与服务器同源、②课级数据有了独立入口——将来若把章级布局挪去构建期
+  （预计算 chapterModel），`NODES` 才能整体甩出 bundle。别在组件里绕过 drill 数据直接画课。
 - **`KnowledgeGraphFull.js`（旧泳道图）已退役**：文件保留作对照，不再被任何页面引用。
   退役原因：泳道按「卷」分行，而卷的先后顺序 ≠ 难度顺序，读者看得见「排得下」、看不出「谁托着谁」。
   它记录过的那套「章档/课档 `VIEWS`、`laneKeys`/`laneKeyOf`/`layout`/`shownIn`/`laneName` 六处联动」
@@ -467,15 +459,13 @@ mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz
 - 排坑：调试截图时 React 的 `onMouseEnter` 只认 `mouseover` 事件（`mouseenter` 不冒泡、React 不合成）；测 localhost 用 node fetch。
 - 样式在 `home.css` 末尾「知识树 v2」段（`.ml-tr__modes`/`.ml-tr__searchwrap`/`.ml-tr__legend`/`.ml-tr__edge--branch` 等）。
 
-### 独立阅读前端 ui/（2026-08-28 重做；科幻版 hud 已于 08-31 移除）
+### 独立阅读前端 ui/（2026-08-28 建成；2026-09-29 第五回路整体退役删除）
 
-- 定位：**静态为主 + 本地可玩**的独立阅读前端。公式服务端 KaTeX 渲染；quiz 客户端可点（答案仅 base64 混淆存 `data-qk`）；exercise/python 卡的「浮窗运行」由皮肤内置浮窗 Pyodide 控制台完成（判题走全新沙盒 `_ml_run`，随手算/python 卡走持久 `_ml_console_run`，matplotlib 懒加载出图）；viz 渲染为占位卡并链接主站对应页（`mainSiteLink`：目录与文件名都剥数字前缀）。
-- **皮肤目录自包含**：`fluent/`（Win11 雅致风）拥有自己的 index.html + style.css + app.js + console.js + graph.js；后端 `server.mjs`/`render.mjs` 不感知皮肤。
-- `server.mjs`：node 原生 http，`--skin fluent --port N`；`/api/meta`（章/课/卷册/edges/flat）、`/api/lesson?id=NN-dir/MM-file`（含 prev/next/prereqs/mainLink/interactive 计数）；`/vendor/*` 映射 `node_modules/katex/dist`（字体依赖这个映射）。lessonCache 上限 120。实例服务整个 `ui/` 静态目录。
-- `render.mjs` 管线顺序固定：`:::`提示块折叠 → 围栏保护（token `XQFENCEnQFX`）→ `$$`/`$` 数学保护（token `XQTEX..QFX`）→ marked → KaTeX 回填 → 卡片回填 → 相对 `.md` 链接改写为 hash 路由 → 与 fm.title 相同的首个 H1 去重。改顺序前先想清楚 token 生命周期。
-- 皮肤合同：hash 路由 `#/`、`#/chap/NN-dir`、`#/read/NN-dir/MM-file`、`#/graph`；localStorage 只允许三个 key：`ml-ui-progress`（`{id:true}`，各端口 origin 隔离，互不相通是特性）、`ml-ui-console`（浮窗草稿）、`ml-ui-exercises`（判题通过，payload djb2 哈希为 key）。Pyodide v0.26.4，CDN 顺序 npmmirror → jsdelivr → gcore.jsdelivr（各 15s 超时）。
-- 新增依赖需谨慎：`marked` 是唯一的渲染依赖（KaTeX 复用主站已有）。大改后用 node fetch 对 `/api/lesson` 全量跑一遍「无 XQ token 残留」体检；JS 语法检查用 `Get-Content -Raw -Encoding UTF8 | node --input-type=module --check`。
-- viz 交互（2026-08-28）：`render.mjs` 把完整 spec 写进卡片的 `data-viz` 属性；皮肤内置 `viz.js` 就地渲染 10 类通用组件（plot/datachart/seq/sines/unitcircle/wave/dice/statdots/coinlaw/counting，覆盖全站约 55% 用量），其余章节专属类型保留占位卡走主站链接。canvas 颜色走皮肤各自定义的 `--viz-*` 变量。
+独立阅读前端（`fluent/`/`paper/` 两皮肤、`render.mjs` 渲染管线、`server.mjs` 皮肤服务器、
+两个启动 bat）已全部删除，历史实现查 git。仍然通用的经验：
+渲染管线的 token 生命周期思路（围栏保护 → 数学保护 → 渲染 → 回填）在主站 `enhancer.js`
+里另有同类实现；localStorage 命名纪律（各前端用独立 key 前缀互不干扰）继续适用。
+
 - 主站内容页右上角「前置知识」面板（2026-08-28）：`src/theme/DocItem/Layout/index.js` swizzle 用 `useDoc`（`@docusaurus/plugin-content-docs/client`）读 front matter 的 `prereqs`，经 `full-graph-data.js` 的 `NODES` 反查标题与链接；样式在 `custom.css` 的 `.ml-prereq`（桌面右浮动，≤996px 变正文顶部横条）。注意 theme-common/internal 里没有 docs 数据 hook。
 
 ## 写课规范
@@ -745,7 +735,12 @@ python scripts/audit-py-checks.py docs          # 扫 exercise 的 @check，列�
 
 ---
 
-## 2026-09-29 第三回路：章节信息收口（+ /chapters 章簇详图）
+## 2026-09-29 第三回路：章节信息收口（/chapters 章簇详图已在该回路引入、第五回路退役）
+
+> **现状（2026-09-29 第五回路）**：`/chapters` 页面、`ChapterClusterGraph.js`、`clusterLayout.js`、
+> `home.css` 的 `.ml-cc` 段与 `check-chapters-page.mjs` 均已删除；独立阅读前端 `ui/`（fluent/paper
+> 两皮肤）连同两个启动 bat 一并退役。课级细节的入口改为 **/graph 的课级钻取**（见「两个图谱页
+> 的分工」）。本回路中仍然有效的部分只有「章节信息只有一个源头」与「七卷配色收口」。
 
 ### 一、章名/章属卷号/课数，全站只有一个源头：各章自己的 `index.md`
 
@@ -760,7 +755,7 @@ docs/NN-*/index.md 的 front matter：title / short / volume   ← 唯一源头
         │                                   │
         │                                   └─→  src/components/ml-home/data.js
         │                                          CHAPTERS / allChapterGroups() / volumeOf()
-        │                                          （首页、知识树、图谱、/chapters 全从这里取）
+        │                                          （首页、知识树、图谱全从这里取）
         └─ scripts/check-chapter-sync.mjs  ──  比对上面这条链有没有断（构建闸门）
 ```
 
@@ -771,21 +766,14 @@ docs/NN-*/index.md 的 front matter：title / short / volume   ← 唯一源头
 3. **`npm run build` 现在先过 `validate` + `check:sync` 两道闸门**。`check:sync` 会同时拦下「改了章首页忘了跑生成器」和「src/ 里又长出第二份手写章表」（它只认 `const CH_TITLES = …` 这类**声明**，注释里提到名字不算违规）。
 4. `999-references.md` 的 front matter 会**抄一份章首页的 volume/layer/track/stage/difficulty**（`gen-references.mjs` 的行为）。所以给章首页补 `volume` 之后，记得跑一次 `node scripts/gen-references.mjs`，否则 `validate` 会报「999-references 落后」。
 
-**七卷配色**已从 `.ml-rg` 作用域提到 `:root`（`src/css/custom.css` 的 `--ml-vol1…7`，亮/暗各一份）；`.ml-rg` 与 `.ml-cc` 都只是别名。**新增卷时只在这一个地方加色**，别在作用域里再写 hex。
+**七卷配色**已从 `.ml-rg` 作用域提到 `:root`（`src/css/custom.css` 的 `--ml-vol1…7`，亮/暗各一份）；`.ml-rg` 只是别名。**新增卷时只在这一个地方加色**，别在作用域里再写 hex。
 
-### 二、/chapters 章簇详图
+### 二、（原「/chapters 章簇详图」一节，已随第五回路退役删除）
 
-新增第二个全景图页（`/graph` 一格未动）：一章一个簇，圆心那一簇是第 0 章「Python 工具箱」（它不参与数学先修分层，同心环按设计排除了它，而圆心正好空着）。布局引擎 `clusterLayout.js`、组件 `ChapterClusterGraph.js`、样式 `home.css` 的 `.ml-cc` 段，设计要点见上面「三个图谱页的分工」。
-
-自检方式：布局是纯函数，可脱离浏览器验证——体检脚本检查「簇两两不重叠 / 课点不越出本簇 / 环间距足够 / 环分配与 `/graph` 完全一致 / 章级边与 `/graph` 口径一致（超集部分只涉及第 0 章）」。
-
-**运行时验收（`npm run check:chapters`）**：`npm run build` 只证明「编译得过、SSR 出得来」，图谱页的坑全在运行时。这条命令用真浏览器把 36 项钉一遍——结构数字、**配色真的生效**、全览真的装得下、滚轮缩放与标签反向缩放、点选后高亮口径与面板一致、课点悬停、搜索、各开关、旧页面（`/`、`/graph`、`/tree`）完好、零报错零失败请求。playwright 是可选开发期依赖（本项目不装），找不到时打印「跳过」退出 0，**不会拦构建**。
-
-本轮它抓到的两个只有运行时才暴露的问题，值得记：
-
-1. **配色变量名对不上会静默退化**：CSS 里定义 `--cc-v1…7`、JS 里却写 `var(--cc-vol1)`，`color-mix()` 拿不到值 → 整条声明失效 → `fill` 回到初始值**黑色**，78 个圆盘全黑，而 `npm run build` 一路绿灯。**跨文件用 CSS 变量时，名字要在两边都能 grep 到同一串字符**。
-2. **高亮口径必须与面板一致**：原先悬停只高亮「强先修边」（≥2 门课支撑），而面板把先修/托起**全列出来**，于是点了 50 章（强化学习）出现「面板写着先修（3），画布上却一个绿簇都没有」——它那 3 条先修全是单课支撑。现在高亮走全部章级边，弱边被高亮时仍走虚线、比强边轻一档（同色不同「分量」）。
-3. 附带一条测试纪律：**坐标要落在元素的真实矩形里**。本页导语很长，画布顶部在视口 480px 以下，按视口中心点滚轮会落在工具条上——第一轮「滚轮缩放失效」的误判就是这么来的（合成事件却正常，白白怀疑了监听器）。
+该页与 `clusterLayout.js` 的全部设计经验中仍然通用的一条：**同心环上叠课点时，
+环半径解方程的思路**（把每簇张角写成 `2·asin((cr+缝/2)/r)` 后对 r 二分）已在 /graph
+钻取的课圈布局里继承；其余细节随代码删除，历史可查 git。当年 `check:chapters`
+运行时验收抓到的「CSS 变量名对不上会静默退化成黑色」教训，已沉淀在上方「配色」段落。
 
 ### 三、本轮踩到的两个小坑（都跟注释有关）
 

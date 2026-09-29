@@ -16,7 +16,7 @@ export default function TreePage() {
         </p>
         <p className="ml-fg__lead">
           想看「章」这一层的全景？<Link to="/graph">知识图谱</Link>按层级摆成同心环，
-          <Link to="/chapters">章簇详图</Link>则把每一章摊开成一个簇，章里的每门课都画出来。
+          点击任一章还能当场展开这一章的每一门课。
         </p>
         <KnowledgeGraphTree />
       </main>
