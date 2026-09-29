@@ -31,10 +31,6 @@ const LINKS = [
   { to: '/graph', label: '知识图谱', icon: 'graph' },
   { to: '/tree', label: '知识树', icon: 'tree' },
   { to: '/function', label: '看见函数', icon: 'curve' },
-  /* 宣传片是 static/promo/ 下的纯静态页（不是 Docusaurus 路由）：
-     用 <Link to> 会被构建期的断链检查拦下，所以标 raw，改渲染成原生 <a href>。
-     代价是整页跳转——但对一个「进另一个应用」的入口来说，这正是想要的。 */
-  { to: '/promo/', label: '宣传片', icon: 'play', startsWith: '/promo', raw: true },
 ];
 
 /* 外观三态：亮 / 暗 / 自动（跟随系统）。
