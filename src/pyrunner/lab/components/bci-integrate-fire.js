@@ -4,6 +4,7 @@
 import {
   themeColors, setupCanvas, anim, buildSliders, buildReadout,
   polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const EL = -65;    // mV 静息电位
@@ -81,9 +82,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const gx = 46;
     const gw = W - gx - 14;
 

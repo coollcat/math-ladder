@@ -4,6 +4,9 @@
 import {
   themeColors, setupCanvas, anim, buildSliders, buildReadout, buildSegmented,
   polyline, label, clamp, fmt,
+  clearBg,
+  lcg,
+  gaussOf,
 } from '../core.js';
 
 const NSTEP = 4000;
@@ -64,13 +67,8 @@ export default function render(host, spec) {
   const st = { buf: [], delay: [], t: 0, peak: 0, est: null, sumXY: 0, sumX: 0, sumY: 0, sumXX: 0, cnt: 0 };
   let map = [];
 
-  let seed = 4242;
-  function gauss() {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    const u1 = Math.max(seed / 0x7fffffff, 1e-9);
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * (seed / 0x7fffffff));
-  }
+  const rand = lcg(4242, true);
+  const gauss = () => gaussOf(rand);
 
   function rebuildMap() {
     map = [];
@@ -116,9 +114,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* ===== 上：时域波形 ===== */
     const gx = 46;

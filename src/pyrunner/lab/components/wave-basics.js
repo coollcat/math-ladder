@@ -2,6 +2,7 @@
    一个正弦波既是时间上的压强起伏，也是空间上的疏密分布——声学第一课的教具。 */
 import {
   themeColors, setupCanvas, anim, audioShell, buildSliders, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 export default function render(host, spec) {
@@ -23,9 +24,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const midY = H / 2;
     const ampPx = H * 0.3 * s.amp;

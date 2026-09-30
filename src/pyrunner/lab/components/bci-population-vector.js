@@ -4,34 +4,14 @@
 import {
   themeColors, setupCanvas, buildSliders, buildReadout, buildToolbar, buildSegmented, mkBtn,
   polyline, label, clamp, fmt,
+  mulberry32,
+  pointerXY,
+  clearBg,
+  poissonSample as poisson,
 } from '../core.js';
 
 const DEG = 180 / Math.PI;
 
-function rng(seed) {
-  let a = seed >>> 0;
-  return function next() {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function poisson(lam, rand) {
-  if (lam <= 0) return 0;
-  if (lam < 30) {
-    let k = 0;
-    let p = 1;
-    const L = Math.exp(-lam);
-    do { k += 1; p *= rand(); } while (p > L);
-    return k - 1;
-  }
-  const u1 = Math.max(rand(), 1e-12);
-  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * rand());
-  return Math.max(0, Math.round(lam + Math.sqrt(lam) * z));
-}
 
 export default function render(host, spec) {
   const C = themeColors();
@@ -65,7 +45,7 @@ export default function render(host, spec) {
 
   let counts = [];
   function resample() {
-    const rand = rng(seed);
+    const rand = mulberry32(seed);
     counts = prefs.map((phi) => poisson(tune(s.theta, phi) * s.T, rand));
   }
   function pvOf(weighted) {
@@ -129,9 +109,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* ===== 左：极坐标 ===== */
     const cx = Math.min(W * 0.24, 152);
@@ -267,15 +245,8 @@ export default function render(host, spec) {
     resample();
     draw();
   }
-  function local(ev) {
-    const rect = cv.canvas.getBoundingClientRect();
-    return {
-      x: (ev.clientX - rect.left) * (cv.canvas._W / rect.width),
-      y: (ev.clientY - rect.top) * (cv.canvas._H / rect.height),
-    };
-  }
   function onDown(ev) {
-    const p = local(ev);
+    const p = pointerXY(cv.canvas, ev);
     const dx = p.x - cxOf();
     const dy = p.y - 160;
     if (dx * dx + dy * dy < 150 * 150) {
@@ -285,7 +256,7 @@ export default function render(host, spec) {
   }
   function onMove(ev) {
     if (!dragging) return;
-    const p = local(ev);
+    const p = pointerXY(cv.canvas, ev);
     setTheta(Math.atan2(p.y - 160, p.x - cxOf()) * DEG);
   }
   function onUp() { dragging = false; }

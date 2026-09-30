@@ -3,6 +3,7 @@
    节点电压由 circuit.dc 真解——MNA 的每一行就是一个 KCL 方程。 */
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, label, engine, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 /* 三节点电路：V1 供电，R1 跨 1-2，R2/电源 落地，R3 与电源并联 */
@@ -78,9 +79,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     if (!circ) { label(ctx, '正在载入 circuit 引擎…', W / 2, H / 2, C.fg, { align: 'center', size: 12 }); return; }
     solve();
     if (!sol) { label(ctx, '求解失败：' + fail, W / 2, H / 2, C.bad, { align: 'center', size: 12 }); return; }

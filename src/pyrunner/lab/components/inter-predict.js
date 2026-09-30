@@ -44,8 +44,10 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
-  buildReadout, label, polyline, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented, buildReadout, label,
+  polyline, fmt, clamp, toCanvas,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 import {
   synth, conv2, KERNELS, blockMatch, motionCompensate, residual, psnr, entropy, histogram,
@@ -79,24 +81,6 @@ function cropView(big, ox, oy) {
     for (let x = 0; x < IW; x += 1) out[y * IW + x] = big[(oy + y) * BW + ox + x];
   }
   return out;
-}
-
-function toCanvas(data, w, h, map) {
-  const cv = document.createElement('canvas');
-  cv.width = w;
-  cv.height = h;
-  const cx = cv.getContext('2d');
-  const im = cx.createImageData(w, h);
-  for (let i = 0; i < w * h; i += 1) {
-    const v = clamp(map ? map(data[i], i) : data[i], 0, 1) * 255;
-    const k = i * 4;
-    im.data[k] = v;
-    im.data[k + 1] = v;
-    im.data[k + 2] = v;
-    im.data[k + 3] = 255;
-  }
-  cx.putImageData(im, 0, 0);
-  return cv;
 }
 
 /* entropy 只认 0..1 的输入（它按 value×bins 分箱），残差会超出这个范围，先夹住 */
@@ -197,9 +181,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const gap = 14;
     const pw = Math.min(158, (W - 20 - gap * 3) / 4);
@@ -302,24 +284,13 @@ export default function render(host, spec) {
       if (ndx === tdx && ndy === tdy) return;
       tdx = ndx;
       tdy = ndy;
-      syncSlider(2, tdx, 0);
-      syncSlider(3, tdy, 0);
+      setSliderRow(sl, 2, tdx, 0);
+      setSliderRow(sl, 3, tdy, 0);
       recompute();
       draw();
     },
     up() { drag = null; },
   });
-
-  function syncSlider(idx, value, digits) {
-    try {
-      const row = sl.box.children[idx];
-      if (!row) return;
-      const input = row.querySelector('input');
-      const val = row.querySelector('.ml-slider__val');
-      if (input) input.value = String(value);
-      if (val) val.textContent = fmt(value, digits);
-    } catch (e) { void e; }
-  }
 
   const sl = buildSliders(
     {

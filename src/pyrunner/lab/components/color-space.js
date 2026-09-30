@@ -40,8 +40,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, buildSliders, buildSegmented, buildReadout,
-  bindPointer, label, clamp, fmt,
+  themeColors, setupCanvas, buildSliders, buildSegmented, buildReadout, bindPointer, label,
+  clamp, fmt, blit,
+  clearBg,
 } from '../core.js';
 import { rgbToYuv, yuvToRgb, chromaSubsample420 } from '../engines/media.js';
 
@@ -135,11 +136,6 @@ function rgbCanvas(r, g, b, w, h, map) {
   }
   c2.putImageData(im, 0, 0);
   return cv;
-}
-
-function blit(ctx, cv, x, y, w, h) {
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(cv, x, y, w, h);
 }
 
 function box(ctx, p, C) {
@@ -401,9 +397,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     rects.length = 0;
     if (s.mode === 'split') drawSplit(ctx, W, H, C);
     else drawSub(ctx, W, H, C);

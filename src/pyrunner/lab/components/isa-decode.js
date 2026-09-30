@@ -31,6 +31,7 @@
 import {
   themeColors, setupCanvas, buildSliders, buildToolbar, buildReadout,
   bindPointer, el, label, clamp,
+  clearBg,
 } from '../core.js';
 import { twosComplement } from '../engines/logic.js';
 
@@ -216,9 +217,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const Hh = cv.H;
-    ctx.clearRect(0, 0, W, Hh);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, Hh);
+    clearBg(ctx, W, Hh, C);
 
     const e = ISA.find((x) => x.m === m) || null;
     const type = e ? e.type : (((word >>> 26) & 0x3f) === 0 ? 'R' : 'I');

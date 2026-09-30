@@ -32,6 +32,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, buildToolbar,
   audioShell, rafLoop, mkBtn, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 import { ampToDb, dbToAmp } from '../engines/dsp.js';
 
@@ -86,9 +88,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const L = bx();
     const Bw = bw();
     const db = ampToDb(s.amp);
@@ -224,15 +224,6 @@ export default function render(host, spec) {
     };
   });
 
-  function syncSlider(sl, i, name, v, digits) {
-    const row = sl.box.children[i];
-    if (row) {
-      row.children[1].value = String(v);
-      row.children[2].textContent = fmt(v, digits);
-    }
-    sl.state[name] = v;
-  }
-
   const sliders = buildSliders(
     {
       sliders: [
@@ -254,7 +245,7 @@ export default function render(host, spec) {
   function setAmp(a) {
     s.amp = clamp(a, 0.001, 1);
     if (tone) tone.setGain(s.amp);
-    syncSlider(sliders, 0, 'amp', Math.round(s.amp * 1000) / 1000, 3);
+    setSliderRow(sliders, 0, Math.round(s.amp * 1000) / 1000, 3, 'amp');
     draw();
   }
 

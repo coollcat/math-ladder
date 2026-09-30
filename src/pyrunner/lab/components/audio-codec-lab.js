@@ -57,9 +57,15 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, engine, audioShell, buildSliders,
-  buildSegmented, buildReadout, polyline, label, clamp, fmt,
+  themeColors, setupCanvas, bindPointer, engine, audioShell, buildSliders, buildSegmented,
+  buildReadout, polyline, label, clamp, fmt, mulberry32,
+  clearBg,
 } from '../core.js';
+import {
+  bark,
+  spread,
+  ath,
+} from '../engines/dsp.js';
 
 const FS = 44100;
 const DUR = 1.0;
@@ -71,28 +77,6 @@ const NBARK = 24;
 
 const F_LO = 50;
 const F_HI = 22050;
-
-const bark = (f) => 13 * Math.atan(0.00076 * f) + 3.5 * Math.atan((f / 7500) ** 2);
-function spread(dz) {
-  const t = dz + 0.474;
-  return 15.81 + 7.5 * t - 17.5 * Math.sqrt(1 + t * t);
-}
-function ath(f) {
-  const k = f / 1000;
-  /* 末项在 15 kHz 以上会飞掉，夹到 90 dB SPL（反正已经远超「听不见」） */
-  return Math.min(90, 3.64 * k ** -0.8 - 6.5 * Math.exp(-0.6 * (k - 3.3) ** 2) + 1e-3 * k ** 4);
-}
-const dBToAmp = (d) => 10 ** (d / 20);
-
-function mulberry32(a) {
-  return function rnd() {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /* 合成「素材」：一个和弦 + 粉噪 + 若干高频泛音 + 中段一记镲。
    complexity 越大，高频内容越多（越难压）。 */
@@ -224,7 +208,7 @@ export default function render(host, spec) {
       for (let k = 1; k < bins; k += 1) {
         if (Math.min(NBARK - 1, Math.floor(zs[k])) !== b) continue;
         if (peakSet.has(k)) continue;
-        pw += dBToAmp(level[k] - SPL_REF) ** 2;
+        pw += dbToAmp(level[k] - SPL_REF) ** 2;
         zsum += zs[k];
         cnt += 1;
       }
@@ -303,7 +287,7 @@ export default function render(host, spec) {
     if (!dsp || !sig) return null;
     const noiseAmp = new Float64Array(bins);
     bands.forEach((bd) => {
-      const a = bd.served ? dBToAmp(bd.noiseDb - SPL_REF) : 0;
+      const a = bd.served ? dbToAmp(bd.noiseDb - SPL_REF) : 0;
       bd.ks.forEach((k) => { noiseAmp[k] = a; });
     });
     const w = dsp.window('hann', N);
@@ -351,9 +335,7 @@ export default function render(host, spec) {
     const barY = H - 62;
     const plotH = barY - PAD.t - 26;
     geom = { x0: PAD.l, x1: W - PAD.r, y0: PAD.t, y1: PAD.t + plotH, barY, W, H };
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const fx = (f) => geom.x0 + (Math.log(clamp(f, F_LO, F_HI) / F_LO) / Math.log(F_HI / F_LO)) * (geom.x1 - geom.x0);
     const DB_LO = -10;

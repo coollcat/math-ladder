@@ -4,24 +4,14 @@
 import {
   themeColors, setupCanvas, buildSliders, buildReadout,
   polyline, label, clamp, fmt,
+  mulberry32,
+  pointerXY,
+  clearBg,
+  gaussOf,
 } from '../core.js';
 
 const DEG = 180 / Math.PI;
 
-function rng(seed) {
-  let a = seed >>> 0;
-  return function next() {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function gaussOf(rand) {
-  const u1 = Math.max(rand(), 1e-9);
-  return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * rand());
-}
 const mul2 = (A, B) => [
   [A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]],
   [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]],
@@ -85,7 +75,7 @@ export default function render(host, spec) {
       S1: mul2(mul2(R, [[v1, 0], [0, v2]]), tran2(R)),
       S2: mul2(mul2([[ct, sn], [-sn, ct]], [[v1, 0], [0, v2]]), tran2([[ct, sn], [-sn, ct]])),
     };
-    const rand = rng(90210);
+    const rand = mulberry32(90210);
     data = [[], []];
     [cov.S1, cov.S2].forEach((S, ci) => {
       const L = [[Math.sqrt(S[0][0]), 0],
@@ -119,9 +109,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const ax = cx0data();
     const { S1, S2 } = cov;
@@ -305,15 +293,8 @@ export default function render(host, spec) {
     }
     draw();
   }
-  function local(ev) {
-    const rect = cv.canvas.getBoundingClientRect();
-    return {
-      x: (ev.clientX - rect.left) * (cv.canvas._W / rect.width),
-      y: (ev.clientY - rect.top) * (cv.canvas._H / rect.height),
-    };
-  }
   function onDown(ev) {
-    const p = local(ev);
+    const p = pointerXY(cv.canvas, ev);
     const ax = cx0data();
     if (p.x < ax.cx + 9 * ax.k + 12) {
       dragging = true;
@@ -322,7 +303,7 @@ export default function render(host, spec) {
   }
   function onMove(ev) {
     if (!dragging) return;
-    const p = local(ev);
+    const p = pointerXY(cv.canvas, ev);
     const ax = cx0data();
     setPhi(Math.atan2(ax.cy - p.y, p.x - ax.cx) * DEG);
   }

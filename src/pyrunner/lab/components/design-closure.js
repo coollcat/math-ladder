@@ -4,6 +4,7 @@
 import {
   themeColors, setupCanvas, buildReadout, buildSliders, bindPointer,
   polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const STEPS = [
@@ -60,9 +61,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* 闭环箭头：连到下一步，最后一步绕回需求 */
     for (let i = 0; i < STEPS.length; i += 1) {

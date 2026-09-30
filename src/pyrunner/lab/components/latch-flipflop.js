@@ -43,6 +43,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildSegmented, buildToolbar, mkBtn, anim, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 import { evalCombinational, createSim } from '../engines/logic.js';
 
@@ -264,9 +265,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const sr = s.mode === 'sr';
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const waveX = 58;
     const waveW = Math.max(120, W - waveX - 14);

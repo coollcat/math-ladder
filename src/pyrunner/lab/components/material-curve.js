@@ -4,6 +4,7 @@
 import {
   themeColors, setupCanvas, buildSegmented, buildReadout, buildSliders,
   polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const MATS = {
@@ -60,9 +61,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const m = MATS[s.mat];
     const eNow = s.t * m.eu * 0.999;
     const sNow = sigmaAt(m, eNow);

@@ -31,21 +31,15 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   audioShell, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
+  noteOf,
 } from '../core.js';
 
-const NOTES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
 const SOUND_SPEED = 343; /* m/s，约 20 ℃ 的空气 */
 const WINDOW_S = 0.02;   /* 波形窗固定 20 ms */
 
 /* 频率 → 音名 + 音分偏差（A4 = 440 Hz = MIDI 69） */
-function noteOf(f) {
-  const n = 69 + 12 * Math.log2(f / 440);
-  const near = Math.round(n);
-  return {
-    name: NOTES[((near % 12) + 12) % 12] + (Math.floor(near / 12) - 1),
-    cents: Math.round((n - near) * 100),
-  };
-}
 
 function hzText(f) {
   return f >= 1000 ? fmt(f / 1000, 2) + 'k' : fmt(f, 0);
@@ -85,9 +79,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* ---------- 上：固定 20 ms 波形窗 ---------- */
     const mid = (W_TOP + W_BOT) / 2;
@@ -224,15 +216,6 @@ export default function render(host, spec) {
     };
   });
 
-  function syncSlider(sl, i, name, v, digits) {
-    const row = sl.box.children[i];
-    if (row) {
-      row.children[1].value = String(v);
-      row.children[2].textContent = fmt(v, digits);
-    }
-    sl.state[name] = v;
-  }
-
   const sliders = buildSliders(
     {
       sliders: [
@@ -254,7 +237,7 @@ export default function render(host, spec) {
   function setFreq(f) {
     s.freq = clamp(f, s.fMin, s.fMax);
     if (tone) tone.setFreq(s.freq);
-    syncSlider(sliders, 0, 'freq', Math.round(s.freq), 0);
+    setSliderRow(sliders, 0, Math.round(s.freq), 0, 'freq');
     draw();
   }
 

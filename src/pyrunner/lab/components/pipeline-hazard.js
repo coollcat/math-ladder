@@ -39,6 +39,7 @@
 import {
   themeColors, setupCanvas, buildSegmented, buildSliders, buildReadout,
   bindPointer, label, clamp,
+  clearBg,
 } from '../core.js';
 
 const STAGE = ['IF', 'ID', 'EX', 'MEM', 'WB'];
@@ -195,9 +196,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const Hh = cv.H;
-    ctx.clearRect(0, 0, W, Hh);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, Hh);
+    clearBg(ctx, W, Hh, C);
 
     const n = prog.length;
     const total = Math.max(sim.total, 1);

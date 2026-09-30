@@ -32,6 +32,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
   buildReadout, rafLoop, audioShell, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 import { biquad, biquadResponse } from '../engines/dsp.js';
 import { chain } from '../engines/audio.js';
@@ -144,9 +146,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const x0 = 44, x1 = W - 14, y0 = 26, y1 = H - 32;
     const PW = Math.max(20, x1 - x0);
@@ -290,8 +290,8 @@ export default function render(host, spec) {
     s.freq = clamp(F(x), FMIN, FMAX);
     const u = clamp(1 - (y - geo.y0) / geo.h, 0, 1);
     s.gain = DBMIN + u * (DBMAX - DBMIN);
-    setSlider(0, s.freq);
-    setSlider(1, Math.round(s.gain * 10) / 10);
+    setSliderRow(sliders, 0, s.freq, 0, NAMES[0]);
+    setSliderRow(sliders, 1, Math.round(s.gain * 10) / 10, 2, NAMES[1]);
     applyFilter();
     draw();
   }
@@ -321,17 +321,6 @@ export default function render(host, spec) {
       if (!loop) draw();
     },
   );
-
-  /* 拖拽后把滑块把手同步回去（buildSliders 没给 setter，只能按行取 DOM） */
-  function setSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const range = row.querySelector('input');
-    const val = row.querySelector('.ml-slider__val');
-    if (range) range.value = String(v);
-    if (val) val.textContent = i === 0 ? fmt(v, 0) : fmt(v, 2);
-    sliders.state[NAMES[i]] = v;
-  }
 
   draw();
   cv.redraw = draw;

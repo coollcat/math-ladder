@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, anim, buildReadout, buildSliders, buildToolbar,
   mkBtn, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 /* 六步换向表（A/B/C 三相，+1 电流流入，−1 流出，0 悬空）。
@@ -77,9 +78,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const cx = Math.round(W * 0.42);
     const cy = Math.round(H * 0.52);
     const R = Math.min(W * 0.42, H * 0.52) - 26;

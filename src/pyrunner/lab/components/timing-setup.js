@@ -38,6 +38,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildReadout, buildToolbar,
   buildSliders, mkBtn, label, clamp, fmt,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 
 const TMAX = 40;          // 时间轴的固定满量程 ns（拖 T 时轴不动）
@@ -108,9 +110,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const g = geom();
     const td = tData();
     const suSlack = (s.T - s.tSU) - td;
@@ -303,17 +303,12 @@ export default function render(host, spec) {
   });
 
   let sliders = null;
-  let syncEls = null;
   function syncSliders() {
-    if (!syncEls) return;
-    syncEls.T.value = String(s.T);
-    syncEls.TVal.textContent = fmt(s.T, 1);
-    syncEls.tSU.value = String(s.tSU);
-    syncEls.tSUVal.textContent = fmt(s.tSU, 1);
-    syncEls.tH.value = String(s.tH);
-    syncEls.tHVal.textContent = fmt(s.tH, 1);
-    syncEls.tPD.value = String(s.tPD);
-    syncEls.tPDVal.textContent = fmt(s.tPD, 1);
+    if (!sliders) return;
+    setSliderRow(sliders, 0, s.T, 1);
+    setSliderRow(sliders, 1, s.tSU, 1);
+    setSliderRow(sliders, 2, s.tH, 1);
+    setSliderRow(sliders, 4, s.tPD, 1);
   }
 
   sliders = buildSliders(
@@ -335,14 +330,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-  const sIn = sliders.box.querySelectorAll('input');
-  const sVal = sliders.box.querySelectorAll('.ml-slider__val');
-  syncEls = {
-    T: sIn[0], TVal: sVal[0],
-    tSU: sIn[1], tSUVal: sVal[1],
-    tH: sIn[2], tHVal: sVal[2],
-    tPD: sIn[4], tPDVal: sVal[4],
-  };
 
   draw();
   cv.redraw = draw;

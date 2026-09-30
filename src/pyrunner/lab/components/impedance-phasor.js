@@ -4,6 +4,7 @@
    串联时三者直接相加；XL = XC 时虚部抵消，就是谐振——阻抗取最小值且为纯阻。 */
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 export default function render(host, spec) {
@@ -31,9 +32,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const f = hoverF !== null ? hoverF : freq();
     const v = values(f);
 

@@ -4,6 +4,7 @@
    本组件把原电路和等效电路分别丢给 circuit.dc 真解，逐点比对输出是否一致。 */
 import {
   themeColors, setupCanvas, buildSegmented, buildSliders, buildReadout, polyline, label, engine, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 export default function render(host, spec) {
@@ -57,9 +58,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     if (!circ) { label(ctx, '正在载入 circuit 引擎…', W / 2, H / 2, C.fg, { align: 'center', size: 12 }); return; }
     const th = thevenin();
     const vr = out(netReal(s.RL));

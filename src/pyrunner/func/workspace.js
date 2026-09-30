@@ -492,6 +492,9 @@ export function createWorkspace(host, opts) {
     if (!fu.inputs) return;
     const box = fu.inputs.preview;
     const raw = fu.src.trim();
+    /* 没改过的式子不重渲（把渲染键记在节点上，卡片重建后自然失效） */
+    if (box.dataset.painted === raw) return;
+    box.dataset.painted = raw;
     if (!raw) {
       box.className = 'ml-fn__preview is-empty';
       box.textContent = '在下面写个式子，或点下面的符号键盘拼一个';
@@ -604,15 +607,18 @@ export function createWorkspace(host, opts) {
     paramBox.appendChild(grid);
   }
 
-  /* 名字渲染成希腊字母（参数是 theta 就显示 θ） */
+  /* 名字渲染成希腊字母（参数是 theta 就显示 θ）。
+     渲染键记在节点 dataset 上：渲过的名字直接跳过，参数拖动不重跑 KaTeX。 */
   function paintParamNames() {
     paramBox.querySelectorAll('.ml-fn__paramname').forEach((node) => {
       const name = node.textContent;
+      if (node.dataset.painted === name) return;
       getKatex()
         .then((katex) => {
           const tex = /^[A-Za-z][A-Za-z0-9]*$/.test(name) ? '\\' + name : name;
           try {
             node.innerHTML = katex.renderToString(tex, { throwOnError: true });
+            node.dataset.painted = name;
           } catch (e) {
             void e; /* 不是已知命令就留着原名 */
           }

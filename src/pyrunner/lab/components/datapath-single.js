@@ -35,6 +35,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildSliders, buildToolbar,
   buildReadout, bindPointer, mkBtn, label, clamp,
+  clearBg,
 } from '../core.js';
 import { alu4, toBits, bitsToInt } from '../engines/logic.js';
 
@@ -318,9 +319,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const Hh = cv.H;
-    ctx.clearRect(0, 0, W, Hh);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, Hh);
+    clearBg(ctx, W, Hh, C);
 
     const st = compute();
     const bs = beatsFor(st);

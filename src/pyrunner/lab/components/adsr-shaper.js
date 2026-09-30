@@ -32,6 +32,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, buildSegmented,
   audioShell, rafLoop, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 
 const PRESETS = {
@@ -134,9 +136,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const TM = curTMax();
     const tot = total();
 
@@ -371,15 +371,6 @@ export default function render(host, spec) {
     };
   });
 
-  function syncSlider(sl, i, name, v, digits) {
-    const row = sl.box.children[i];
-    if (row) {
-      row.children[1].value = String(v);
-      row.children[2].textContent = fmt(v, digits);
-    }
-    sl.state[name] = v;
-  }
-
   const sliders = buildSliders(
     {
       sliders: [
@@ -403,11 +394,11 @@ export default function render(host, spec) {
   );
 
   function syncAll() {
-    syncSlider(sliders, 0, 'A', s.A, 3);
-    syncSlider(sliders, 1, 'D', s.D, 3);
-    syncSlider(sliders, 2, 'S', Math.round(s.S * 100) / 100, 2);
-    syncSlider(sliders, 3, 'R', s.R, 3);
-    syncSlider(sliders, 4, 'hold', s.hold, 2);
+    setSliderRow(sliders, 0, s.A, 3, 'A');
+    setSliderRow(sliders, 1, s.D, 3, 'D');
+    setSliderRow(sliders, 2, Math.round(s.S * 100) / 100, 2, 'S');
+    setSliderRow(sliders, 3, s.R, 3, 'R');
+    setSliderRow(sliders, 4, s.hold, 2, 'hold');
     draw();
   }
 

@@ -41,6 +41,9 @@ import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildToolbar, mkBtn, el, rafLoop, audioShell, audio,
   polyline, label, clamp, fmt,
+  clearBg,
+  lcg,
+  setSliderRow,
 } from '../core.js';
 import { shortTimeEnergy, zeroCrossRate, frame, biquad, resample } from '../engines/dsp.js';
 
@@ -54,11 +57,7 @@ const Z_MAX = 0.6;         /* 过零率轴上限 */
 function makeUtterance() {
   const N = Math.round(SIG_SEC * FS);
   const out = new Float64Array(N);
-  let seed = 1234567;
-  const rnd = () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x3fffffff - 1;
-  };
+  const rnd = lcg(1234567);
   const hp = biquad('highpass', 3800, 0.8, 0, FS);
   let x1 = 0;
   let x2 = 0;
@@ -154,9 +153,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const w = plotW();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const nF = eDb.length;
     const src = micBuf || sig;
@@ -472,13 +469,9 @@ export default function render(host, spec) {
 
   /* ---------- 滑块 ---------- */
 
-  let sliderEls = null;
   function syncSliders() {
-    if (!sliderEls) return;
-    sliderEls.thrE.value = String(s.thrE);
-    sliderEls.thrEVal.textContent = fmt(s.thrE, 0);
-    sliderEls.thrZ.value = String(s.thrZ);
-    sliderEls.thrZVal.textContent = fmt(s.thrZ, 2);
+    setSliderRow(sliders, 0, s.thrE, 0);
+    setSliderRow(sliders, 1, s.thrZ, 2);
   }
   const sliders = buildSliders(
     {
@@ -496,9 +489,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-  const inputs = sliders.box.querySelectorAll('input');
-  const vals = sliders.box.querySelectorAll('.ml-slider__val');
-  sliderEls = { thrE: inputs[0], thrEVal: vals[0], thrZ: inputs[1], thrZVal: vals[1] };
 
   recompute();
   draw();

@@ -19,12 +19,12 @@ async function createConfig() {
       faster: true,
       v4: true,
     },
-    /* Pyodide 运行时按需从这三个 CDN 拉取，提前建连省掉首次运行时
-       DNS+TLS 的几百毫秒（wasm 走 CORS fetch，需要 crossorigin 一份；
-       pyodide.js 是经典 script，免 crossorigin 一份）。 */
+    /* Pyodide 运行时按需从这两个 CDN 拉取（jsdelivr 主 + gcore 镜像），
+       提前建连省掉首次运行时 DNS+TLS 的几百毫秒。wasm 走 CORS fetch，
+       需要 crossorigin 一份。原先还挂着 registry.npmmirror.com 的
+       preconnect，但 PYODIDE_CDNS 里早已没有这个源——纯死的 TCP+TLS
+       开销，删（2026-09-30）。 */
     headTags: [
-      { tagName: 'link', attributes: { rel: 'preconnect', href: 'https://registry.npmmirror.com' } },
-      { tagName: 'link', attributes: { rel: 'preconnect', href: 'https://registry.npmmirror.com', crossorigin: 'anonymous' } },
       { tagName: 'link', attributes: { rel: 'preconnect', href: 'https://cdn.jsdelivr.net', crossorigin: 'anonymous' } },
       { tagName: 'link', attributes: { rel: 'preconnect', href: 'https://gcore.jsdelivr.net', crossorigin: 'anonymous' } },
     ],

@@ -41,6 +41,7 @@
 import {
   themeColors, setupCanvas, bindPointer, anim, buildSegmented, buildReadout,
   buildToolbar, buildSliders, mkBtn, label, clamp,
+  clearBg,
 } from '../core.js';
 import { bitsToInt } from '../engines/logic.js';
 
@@ -169,9 +170,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const g = geom();
     const nx = next();
     const off = nx.dir * phase * g.cw;

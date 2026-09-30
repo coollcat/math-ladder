@@ -49,8 +49,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSegmented, buildReadout,
-  engine, label, clamp, fmt,
+  themeColors, setupCanvas, bindPointer, buildSegmented, buildReadout, engine, label, clamp,
+  fmt, mulberry32,
+  clearBg,
 } from '../core.js';
 
 const FS = 16000;
@@ -104,16 +105,6 @@ const OUTPUTS = [
   { text: 'nihao → 你好', score: 0.93, alts: [['niha → 你好', 0.04], ['nǐ hǎo', 0.02]], note: '端到端到字，无需发音词典' },
   { text: '你好', score: 0.98, alts: [['你好。', 0.01], ['nǐ hǎo', 0.005]], note: '连标点都顺手生成' },
 ];
-
-function mulberry32(a) {
-  return function rnd() {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /* ---------- 源-滤波器合成「你好」 ---------- */
 function buildWave() {
@@ -474,9 +465,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     if (!wave || !nF) {
       label(ctx, '正在载入 dsp 引擎并合成示例语音…', W / 2, H / 2, C.fg, { align: 'center', size: 12 });

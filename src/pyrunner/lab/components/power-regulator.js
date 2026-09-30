@@ -6,6 +6,7 @@
    设计准则因此是：谷值（而不是平均值）必须留够压差。 */
 import {
   themeColors, setupCanvas, buildSegmented, buildSliders, buildReadout, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const VOUT = 5;
@@ -37,9 +38,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const vr = ripple();
     const vTrough = s.Vin - vr / 2;
     const tSpan = 2 / (2 * FMAINS); // 两个纹波周期

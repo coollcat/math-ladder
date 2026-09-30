@@ -39,6 +39,10 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildSegmented, buildToolbar, mkBtn, el, label, polyline, clamp, fmt, engine, audio, rafLoop,
+  normalizeTo,
+  clearBg,
+  cssToRGB,
+  lcg,
 } from '../core.js';
 
 const FS = 16000;      // 内置信号的设计采样率
@@ -47,28 +51,12 @@ const PADR = 12;
 
 /* ---------- 颜色表：从主题色插值出一张 256 级色标（跟着明暗主题走） ---------- */
 
-function parseColor(str, fb) {
-  const s0 = String(str || '').trim();
-  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(s0);
-  if (hex) {
-    let h = hex[1];
-    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
-    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-  }
-  const rgb = /rgba?\(([^)]+)\)/i.exec(s0);
-  if (rgb) {
-    const p = rgb[1].split(',').map((v) => parseFloat(v));
-    return [p[0] || 0, p[1] || 0, p[2] || 0];
-  }
-  return fb;
-}
-
 function buildColormap(C) {
   const stops = [
-    [0.00, parseColor(C.bg, [255, 255, 255])],
-    [0.26, parseColor(C.named('purple'), [90, 70, 160])],
-    [0.52, parseColor(C.named('red'), [200, 70, 60])],
-    [0.78, parseColor(C.named('amber'), [230, 170, 40])],
+    [0.00, cssToRGB(C.bg, [255, 255, 255])],
+    [0.26, cssToRGB(C.named('purple'), [90, 70, 160])],
+    [0.52, cssToRGB(C.named('red'), [200, 70, 60])],
+    [0.78, cssToRGB(C.named('amber'), [230, 170, 40])],
     /* 最亮那一档没有对应的主题色变量，只能按明暗各给一个：暗底配暖白，亮底配深褐 */
     [1.00, C.dark ? [255, 246, 214] : [110, 55, 15]],
   ];
@@ -92,66 +80,6 @@ function buildColormap(C) {
 
 /* ---------- 内置示例信号 ---------- */
 
-function normalizeTo(arr, peak) {
-  let mx = 1e-9;
-  for (let i = 0; i < arr.length; i += 1) mx = Math.max(mx, Math.abs(arr[i]));
-  for (let i = 0; i < arr.length; i += 1) arr[i] = (arr[i] / mx) * peak;
-  return arr;
-}
-
-/* 元音序列：声源（谐波串或噪声）过三个共振峰带通，分块递推（共振峰随时间跳变） */
-function synthUtterance(dsp, fs) {
-  const segs = [
-    { d: 0.16, kind: 'sil', f: [500, 1500, 2500] },
-    { d: 0.42, kind: 'v', f: [730, 1090, 2440] },
-    { d: 0.42, kind: 'v', f: [270, 2290, 3010] },
-    { d: 0.42, kind: 'v', f: [300, 870, 2240] },
-    { d: 0.30, kind: 'n', f: [4500, 6500, 7500] },
-    { d: 0.16, kind: 'sil', f: [500, 1500, 2500] },
-  ];
-  const block = Math.round(0.005 * fs);
-  const fadeBlk = Math.max(1, Math.round(0.015 * fs / block));
-  const total = Math.round(segs.reduce((a, x) => a + x.d, 0) * fs);
-  const out = new Float64Array(total);
-  const st = [0, 1, 2].map(() => ({ x1: 0, x2: 0, y1: 0, y2: 0 }));
-  let seed = 20260904;
-  const rnd = () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x3fffffff - 1;
-  };
-  let p = 0;
-  segs.forEach((sg) => {
-    const nBlk = Math.round((sg.d * fs) / block);
-    const bw = sg.kind === 'n' ? 2000 : 100;
-    const coefs = [0, 1, 2].map((i) => dsp.biquad('bandpass', sg.f[i], sg.f[i] / bw, 0, fs));
-    for (let b = 0; b < nBlk && p + block <= total; b += 1) {
-      const env = Math.max(0, Math.min(1, b / fadeBlk, (nBlk - b) / fadeBlk));
-      for (let i = 0; i < block; i += 1) {
-        let v = 0;
-        if (sg.kind === 'v') {
-          const t = (p + i) / fs;
-          const f0 = 132 - 22 * (t / (total / fs));   // 句末音高自然下降
-          for (let n = 1; n <= 30; n += 1) v += (1 / (n * n)) * Math.sin(2 * Math.PI * n * f0 * (p + i) / fs);
-          v *= 0.7;
-        } else if (sg.kind === 'n') {
-          v = rnd() * 0.6;
-        }
-        let y = v;
-        for (let m = 0; m < 3; m += 1) {
-          const c = coefs[m];
-          const s = st[m];
-          const y0 = c.b0 * y + c.b1 * s.x1 + c.b2 * s.x2 - c.a1 * s.y1 - c.a2 * s.y2;
-          s.x2 = s.x1; s.x1 = y; s.y2 = s.y1; s.y1 = y0;
-          y = y0;
-        }
-        out[p + i] = y * env;
-      }
-      p += block;
-    }
-  });
-  return normalizeTo(out, 0.9);
-}
-
 function synthChirp(fs) {
   const dur = 1.6;
   const N = Math.round(dur * fs);
@@ -172,11 +100,7 @@ function synthChirp(fs) {
 function synthBursts(fs) {
   const N = Math.round(1.6 * fs);
   const out = new Float64Array(N);
-  let seed = 4242;
-  const rnd = () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x3fffffff - 1;
-  };
+  const rnd = lcg(4242);
   [0.15, 0.65, 1.15].forEach((t0) => {
     const a = Math.round(t0 * fs);
     const len = Math.round(0.10 * fs);
@@ -249,7 +173,7 @@ export default function render(host, spec) {
     if (!dsp) return;
     if (s.kind === 'chirp') sig = synthChirp(FS);
     else if (s.kind === 'bursts') sig = synthBursts(FS);
-    else sig = synthUtterance(dsp, FS);
+    else sig = dsp.synthUtterance(FS);
     curData = sig;
     curFs = FS;
   }
@@ -410,9 +334,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const w = plotW();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     label(ctx, '① 波形', PADL, 18, C.fg, { size: 11 });
     label(ctx, '② 语谱图（横轴时间，纵轴频率，颜色 = 能量；拖竖线扫时间）', PADL, 110, C.fg, { size: 11 });

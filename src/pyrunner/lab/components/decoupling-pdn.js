@@ -4,6 +4,7 @@
 import {
   themeColors, setupCanvas, buildSegmented, buildReadout, buildSliders,
   engine, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const RSRC = 1000;   // 虚拟电流源内阻：1 V 源串 1 kΩ ≈ 1 mA 电流激励
@@ -82,9 +83,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const gx = 48;
     const gy = 26;
     const gw = W - gx - 14;

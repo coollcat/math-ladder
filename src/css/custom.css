@@ -73,16 +73,11 @@
   --ml-radius-pill: 999px; /* 胶囊、徽章 */
 
   /* ---- Infima 主色接进印章体系（2026-09-29） ----
-     此前从未覆盖过 --ifm-color-primary，于是全站的焦点环、链接、主按钮、
-     激活芯片全是 Infima 默认蓝 #3578e5，而品牌朱砂只活在几个作用域里——
-     暖纸 + 墨蓝 + 朱砂的系统里混进一个纯蓝主色。 */
-  --ifm-color-primary: #c2401c;
-  --ifm-color-primary-dark: #a63617;
-  --ifm-color-primary-darker: #9c3316;
-  --ifm-color-primary-darkest: #802a12;
-  --ifm-color-primary-light: #d45a34;
-  --ifm-color-primary-lighter: #dd6a46;
-  --ifm-color-primary-lightest: #eec4b6;
+     7 个 --ifm-color-primary* **只写在下面的 body 块里**（连同暗色那组在
+     [data-theme='dark'] body）。原先 :root 也写了一份同样的值，但 Infima 把
+     自己的变量声明在 `:root:not(#\#):not(#\#)` 上（特异性 2,1,0），普通 :root
+     （0,1,0）压不过它 —— 那 7 行从未生效过，已删，别再加回来。
+     机制说明见下方「Infima 变量覆盖」注释块。 */
 
   /* ---- 页面底色与正文（2026-09-29） ----
      课程页原先仍是 Infima 的纯白底 + 纯黑字，而顶栏是暖纸墨蓝——

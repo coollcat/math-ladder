@@ -40,6 +40,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   label, clamp,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 import { twosComplement, bitsToInt } from '../engines/logic.js';
 
@@ -82,14 +84,10 @@ export default function render(host, spec) {
   );
 
   function syncSliders() {
-    const inputs = sliders.box.querySelectorAll('input');
-    const vals = sliders.box.querySelectorAll('.ml-slider__val');
     s.value = signedOf(bits);
     s.b = signedOf(bitsB);
-    if (inputs[0]) inputs[0].value = String(s.value);
-    if (vals[0]) vals[0].textContent = String(s.value);
-    if (inputs[1]) inputs[1].value = String(s.b);
-    if (vals[1]) vals[1].textContent = String(s.b);
+    setSliderRow(sliders, 0, s.value);
+    setSliderRow(sliders, 1, s.b);
   }
 
   /* ---------- 几何 ---------- */
@@ -130,9 +128,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const g = geom();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const A = bitsToInt(bits);
     const As = signedOf(bits);

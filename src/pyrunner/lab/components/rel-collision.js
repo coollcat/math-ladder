@@ -22,14 +22,12 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, anim,
-  label, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, anim, label, fmt, clamp,
+  pickSlider,
+  clearBg,
+  gammaOf,
+  setSliderRow,
 } from '../core.js';
-
-function pickSlider(spec, name, def) {
-  const s = (spec.sliders || []).find((it) => it && it.name === name);
-  return s ? { name, label: s.label || def.label, min: s.min, max: s.max, step: s.step, value: s.value } : def;
-}
 
 export default function render(host, spec) {
   let u1 = clamp(Number(spec.u1 ?? 0.8), -0.95, 0.95);
@@ -48,7 +46,7 @@ export default function render(host, spec) {
   const XU = (u) => geo.x0 + ((u + 1) / 2) * (geo.x1 - geo.x0);
   const iXU = (x) => ((x - geo.x0) / (geo.x1 - geo.x0)) * 2 - 1;
   const rap = (u) => 0.5 * Math.log((1 + u) / (1 - u));
-  const gam = (u) => 1 / Math.sqrt(1 - u * u);
+  const gam = (u) => gammaOf(u);
 
   /* 质心系快度：解 Σ mᵢ sinh(θᵢ − θc) = 0。左边关于 θc 单调减，二分即可。 */
   function cmRapidity() {
@@ -72,9 +70,7 @@ export default function render(host, spec) {
     const C = themeColors();
     const ctx = cv.ctx;
     const W = cv.W, H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     geo.x0 = 34;
     geo.x1 = W - 26;
@@ -206,12 +202,9 @@ export default function render(host, spec) {
     tt = -1;
     draw();
   });
-  const inputs = sl.box.querySelectorAll('input');
   function syncSliders() {
-    if (inputs[0]) inputs[0].value = String(Math.round(u1 * 100) / 100);
-    if (inputs[1]) inputs[1].value = String(Math.round(u2 * 100) / 100);
-    sl.state.u1 = u1;
-    sl.state.u2 = u2;
+    setSliderRow(sl, 0, Math.round(u1 * 100) / 100, undefined, 'u1');
+    setSliderRow(sl, 1, Math.round(u2 * 100) / 100, undefined, 'u2');
   }
 
   bindPointer(cv.canvas, {

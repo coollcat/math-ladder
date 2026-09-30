@@ -4,6 +4,7 @@
    每一步都列出「要点」与「常见坑」，点方块切换。 */
 import {
   themeColors, setupCanvas, bindPointer, el, mkBtn, buildToolbar, buildReadout, label,
+  clearBg,
 } from '../core.js';
 
 const STEPS = [
@@ -98,9 +99,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const { bw, gap, y, bh } = geom();
     STEPS.forEach((st, i) => {
       const x = 12 + i * (bw + gap);

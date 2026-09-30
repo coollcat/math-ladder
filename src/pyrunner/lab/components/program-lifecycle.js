@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, bindPointer, anim, buildSegmented,
   buildReadout, el, label,
+  clearBg,
 } from '../core.js';
 
 const STAGES = [
@@ -59,9 +60,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const { bw, gap, y, bh } = geom();
 
     for (let i = 0; i < STAGES.length; i += 1) {

@@ -42,6 +42,8 @@
 import {
   themeColors, setupCanvas, bindPointer, anim, buildReadout, buildToolbar,
   buildSliders, mkBtn, label, clamp,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 import { toBits } from '../engines/logic.js';
 
@@ -179,9 +181,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const T = s.cycles;
     s.tA = Math.round(clamp(s.tA, 2, T - 10));
@@ -422,13 +422,9 @@ export default function render(host, spec) {
     onReset() { head = 0; draw(); },
   });
 
-  let sliderEls = null;
   function syncSliders() {
-    if (!sliderEls) return;
-    sliderEls.tA.value = String(s.tA);
-    sliderEls.tAVal.textContent = String(s.tA);
-    sliderEls.tB.value = String(s.tB);
-    sliderEls.tBVal.textContent = String(s.tB);
+    setSliderRow(sliders, 0, s.tA);
+    setSliderRow(sliders, 1, s.tB);
   }
   const sliders = buildSliders(
     {
@@ -445,9 +441,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-  const inputs = sliders.box.querySelectorAll('input');
-  const vals = sliders.box.querySelectorAll('.ml-slider__val');
-  sliderEls = { tA: inputs[0], tAVal: vals[0], tB: inputs[1], tBVal: vals[1] };
 
   draw();
   cv.redraw = draw;

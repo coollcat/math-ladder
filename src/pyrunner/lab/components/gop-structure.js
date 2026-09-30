@@ -43,6 +43,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, anim,
   buildReadout, label, el, fmt, clamp,
+  clearBg,
 } from '../core.js';
 
 const SIZE = { I: 1.0, P: 0.35, B: 0.15 };   /* 工程示意值，用于算相对码流 */
@@ -254,9 +255,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const bw = (W - 20) / N - 2;
     const y1 = 52;

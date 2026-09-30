@@ -46,8 +46,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
-  buildReadout, label, polyline, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented, buildReadout, label,
+  polyline, fmt, clamp, toCanvas,
+  clearBg,
 } from '../core.js';
 import { synth, conv2, KERNELS, blockMatch } from '../engines/media.js';
 
@@ -81,24 +82,6 @@ function cropView(big, ox, oy) {
     }
   }
   return out;
-}
-
-function toCanvas(data, w, h) {
-  const cv = document.createElement('canvas');
-  cv.width = w;
-  cv.height = h;
-  const cx = cv.getContext('2d');
-  const im = cx.createImageData(w, h);
-  for (let i = 0; i < w * h; i += 1) {
-    const v = clamp(data[i], 0, 1) * 255;
-    const k = i * 4;
-    im.data[k] = v;
-    im.data[k + 1] = v;
-    im.data[k + 2] = v;
-    im.data[k + 3] = 255;
-  }
-  cx.putImageData(im, 0, 0);
-  return cv;
 }
 
 export default function render(host, spec) {
@@ -241,9 +224,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const gap = 16;
     const pw = Math.min(196, (W - 20 - gap * 2) / 3);

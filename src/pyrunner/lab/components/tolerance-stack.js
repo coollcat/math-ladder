@@ -3,6 +3,7 @@
    装配合格率说明为什么工程上敢用 RSS：100% 覆盖的代价是公差被压到极紧。 */
 import {
   themeColors, setupCanvas, buildReadout, buildSliders, engine, label, fmt,
+  clearBg,
 } from '../core.js';
 
 /* 标准正态 CDF（Abramowitz-Stegun 7.1.26 近似） */
@@ -47,9 +48,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     compute();
     const { worst, rss, sig, pct } = out;
 

@@ -38,8 +38,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
-  buildReadout, label, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented, buildReadout, label,
+  fmt, clamp, toCanvas,
+  clearBg,
 } from '../core.js';
 import {
   synth, dct8x8, idct8x8, Q_LUMA, quantizeBlock, dequantizeBlock, countNonZero, psnr,
@@ -65,24 +66,6 @@ function sourceImage() {
 }
 
 /* 灰度数组 → 离屏 canvas（之后用 drawImage 放大，关掉平滑以保住像素感） */
-function toCanvas(data, w, h, map) {
-  const cv = document.createElement('canvas');
-  cv.width = w;
-  cv.height = h;
-  const cx = cv.getContext('2d');
-  const im = cx.createImageData(w, h);
-  for (let i = 0; i < w * h; i += 1) {
-    let v = map ? map(data[i], i) : data[i];
-    v = clamp(v, 0, 1) * 255;
-    const k = i * 4;
-    im.data[k] = v;
-    im.data[k + 1] = v;
-    im.data[k + 2] = v;
-    im.data[k + 3] = 255;
-  }
-  cx.putImageData(im, 0, 0);
-  return cv;
-}
 
 function crop(data, x0, y0, n) {
   const out = new Float64Array(n * n);
@@ -227,9 +210,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const gap = 14;
     const ps = Math.min(150, (W - 20 - gap * 2) / 3);

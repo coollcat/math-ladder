@@ -31,6 +31,7 @@ function routeFor(file) {
 const markdown = walk('docs').filter((file) => file.endsWith('.md') && path.basename(file) !== 'COMPONENT_SPEC.md');
 const problems = [];
 const warnings = []; // 预警级：打印但不作为失败依据
+let warnedNoPython = false;
 
 /* ---------- viz type 白名单（RENDERERS 键集合） ----------
    从 src/pyrunner/viz.js 尾部 type→renderer 映射表用正则抠取全部键，
@@ -154,7 +155,13 @@ for (const file of markdown) {
         input: Buffer.from(block.code, 'utf8'),
         encoding: 'utf8',
       });
-      if (compiled.status !== 0) {
+      if (compiled.error && compiled.error.code === 'ENOENT') {
+        /* 本机没有 python：compile 体检降级为预警，别把整条构建闸门顶死 */
+        if (!warnedNoPython) {
+          warnings.push('PATH 里找不到 python，跳过全部 Python compile 体检');
+          warnedNoPython = true;
+        }
+      } else if (compiled.status !== 0) {
         const detail = [compiled.stderr, compiled.stdout].find(Boolean)?.trim() || compiled.error?.message || `status=${compiled.status}`;
         problems.push(`${relative}:${block.line}: Python compile failed: ${detail}`);
       }

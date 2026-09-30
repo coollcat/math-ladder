@@ -39,6 +39,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildSegmented, anim, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 import { toBits } from '../engines/logic.js';
 
@@ -109,9 +110,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const G = gw();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const sp = samples();
     const nb = Math.round(s.bits);

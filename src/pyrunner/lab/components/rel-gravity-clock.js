@@ -21,8 +21,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
-  polyline, label, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, polyline, label, fmt,
+  clamp, pickSlider,
+  clearBg,
 } from '../core.js';
 
 const GM = 3.986004418e14;    /* 地球引力常数 GM（m³/s²） */
@@ -42,11 +43,6 @@ function rates(hkm) {
   return { gr, sr, net: gr + sr, r };
 }
 
-function pickSlider(spec, name, def) {
-  const s = (spec.sliders || []).find((it) => it && it.name === name);
-  return s ? { name, label: s.label || def.label, min: s.min, max: s.max, step: s.step, value: s.value } : def;
-}
-
 export default function render(host, spec) {
   let h = clamp(Number(spec.h ?? 20200), 0, H_MAX);
   let hover = null;
@@ -64,9 +60,7 @@ export default function render(host, spec) {
     const C = themeColors();
     const ctx = cv.ctx;
     const W = cv.W, H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     geo.x0 = 62;
     geo.x1 = W - 18;

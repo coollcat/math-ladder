@@ -4,6 +4,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildReadout, buildSliders,
   polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const TAU = 0.5;      // 对象时间常数 s
@@ -102,9 +103,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const Hh = cv.H;
-    ctx.clearRect(0, 0, W, Hh);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, Hh);
+    clearBg(ctx, W, Hh, C);
     const gx = 40;
     const gw = W - gx - 14;
     const t0 = Math.max(0, st.t - T_WIN);

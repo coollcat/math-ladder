@@ -37,6 +37,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildSegmented, label, polyline, clamp, fmt, engine,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 
 const FS = 8000;
@@ -224,9 +226,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const w = plotW();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     label(ctx, '① 整段波形（拖窗框平移，拖两端改帧长）', PADL, 18, C.fg, { size: 11 });
     label(ctx, '② 这一帧 × 窗函数（虚线是窗的形状）', PADL, 118, C.fg, { size: 11 });
@@ -386,10 +386,10 @@ export default function render(host, spec) {
         const right = start + s.frameLen;
         s.frameLen = clamp(right - iOf(X), 32, Math.min(1024, right));
         start = right - s.frameLen;
-        syncSlider(0, s.frameLen);
+        setSliderRow(sliders, 0, s.frameLen);
       } else {
         s.frameLen = clamp(iOf(X) - start, 32, Math.min(1024, N - start));
-        syncSlider(0, s.frameLen);
+        setSliderRow(sliders, 0, s.frameLen);
       }
       recompute();
       draw();
@@ -413,16 +413,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-
-  /* 拖出来的帧长要回写到滑块上，否则两边打架 */
-  function syncSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const r = row.querySelector('input[type="range"]');
-    const t = row.querySelector('.ml-slider__val');
-    if (r) r.value = String(v);
-    if (t) t.textContent = String(v);
-  }
 
   draw();
   cv.redraw = draw;

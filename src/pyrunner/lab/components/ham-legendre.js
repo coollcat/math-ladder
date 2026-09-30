@@ -34,8 +34,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, buildSliders, buildReadout, bindPointer, label, polyline,
-  fmt, clamp,
+  themeColors, setupCanvas, buildSliders, buildReadout, bindPointer, label, polyline, fmt,
+  clamp, mergeSpec,
+  clearBg,
 } from '../core.js';
 
 const VMAX = 1.6;      /* 自变量 v 的显示半宽 */
@@ -68,16 +69,6 @@ function fStar(p, m, b) {
 }
 
 /* 滑块规格：默认值 ← spec 顶层同名字段 ← spec.sliders 里的同名项（后者优先） */
-function mergeSpec(base, spec) {
-  const given = Array.isArray(spec && spec.sliders) ? spec.sliders : [];
-  return base.map((d) => {
-    const top = spec && typeof spec[d.name] === 'number' ? spec[d.name] : d.value;
-    const o = given.find((g) => g && g.name === d.name) || {};
-    const item = Object.assign({}, d, { value: top }, o, { name: d.name });
-    item.value = clamp(item.value, item.min, item.max);
-    return item;
-  });
-}
 
 export default function render(host, spec) {
   const sl = buildSliders(
@@ -110,9 +101,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const pMax = dfOf(VMAX, m, b);
     const fsMax = Math.max(fStar(pMax, m, b), 1e-6);

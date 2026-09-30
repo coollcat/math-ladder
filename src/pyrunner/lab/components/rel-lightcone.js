@@ -23,16 +23,13 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
-  polyline, label, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, polyline, label, fmt,
+  clamp, pickSlider,
+  clearBg,
+  gammaOf,
 } from '../core.js';
 
 const RANGE = 2.5;
-
-function pickSlider(spec, name, def) {
-  const s = (spec.sliders || []).find((it) => it && it.name === name);
-  return s ? { name, label: s.label || def.label, min: s.min, max: s.max, step: s.step, value: s.value } : def;
-}
 
 export default function render(host, spec) {
   let px0 = clamp(Number(spec.x ?? 1.2), -RANGE, RANGE);
@@ -49,15 +46,13 @@ export default function render(host, spec) {
   const Y = (t) => geo.cy - t * geo.s;
   const iX = (p) => (p - geo.cx) / geo.s;
   const iY = (p) => (geo.cy - p) / geo.s;
-  const gam = () => 1 / Math.sqrt(1 - beta * beta);
+  const gam = () => gammaOf(beta);
 
   function draw() {
     const C = themeColors();
     const ctx = cv.ctx;
     const W = cv.W, H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     geo.s = Math.min((W - 24) / (2 * RANGE), (H - 40) / (2 * RANGE));
     geo.size = geo.s * 2 * RANGE;

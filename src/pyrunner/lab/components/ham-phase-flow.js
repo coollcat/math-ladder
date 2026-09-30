@@ -33,8 +33,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, buildSliders, buildReadout, buildSegmented, bindPointer,
-  polyline, label, fmt, clamp, anim,
+  themeColors, setupCanvas, buildSliders, buildReadout, buildSegmented, bindPointer, polyline,
+  label, fmt, clamp, anim, mergeSpec,
+  clearBg,
 } from '../core.js';
 
 const QMAX = 3.4;      /* 相平面横轴半宽 */
@@ -103,17 +104,6 @@ function orbit(sys, q0, p0, k, a, n) {
   return { qs, ps, n };
 }
 
-function mergeSpec(base, spec) {
-  const given = Array.isArray(spec && spec.sliders) ? spec.sliders : [];
-  return base.map((d) => {
-    const top = spec && typeof spec[d.name] === 'number' ? spec[d.name] : d.value;
-    const o = given.find((g) => g && g.name === d.name) || {};
-    const item = Object.assign({}, d, { value: top }, o, { name: d.name });
-    item.value = clamp(item.value, item.min, item.max);
-    return item;
-  });
-}
-
 export default function render(host, spec) {
   const sysOf = (name) => {
     const hit = SYSTEMS.find((s) => s.id === name);
@@ -159,9 +149,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     g.w = W - g.x0 - 40;
     g.h = H - g.y0 - 46;

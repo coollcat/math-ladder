@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, anim, buildSliders, buildToolbar,
   buildReadout, mkBtn, label, polyline, fmt,
+  clearBg,
 } from '../core.js';
 
 const MSS = 1460;
@@ -88,9 +89,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const x0 = 42;
     const y0 = 22;
     const x1 = W - 12;

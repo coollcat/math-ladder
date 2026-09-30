@@ -23,18 +23,15 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, anim,
-  polyline, label, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, anim, polyline, label,
+  fmt, clamp, pickSlider,
+  clearBg,
+  gammaOf,
 } from '../core.js';
 
 const C_LIGHT = 299792458;   /* 光速 m/s */
 const TAU0 = 2.2e-6;         /* μ 子固有寿命（秒） */
 const RING = 0.55;           /* 光子在斜边上跑完一趟用掉的真实秒数 */
-
-function pickSlider(spec, name, def) {
-  const s = (spec.sliders || []).find((it) => it && it.name === name);
-  return s ? { name, label: s.label || def.label, min: s.min, max: s.max, step: s.step, value: s.value } : def;
-}
 
 export default function render(host, spec) {
   let beta = clamp(Number(spec.beta ?? 0.6), 0, 0.95);
@@ -49,8 +46,8 @@ export default function render(host, spec) {
   });
   host.appendChild(ro.box);
 
-  const g1 = () => 1 / Math.sqrt(1 - beta * beta);
-  const gm = () => 1 / Math.sqrt(1 - mb * mb);
+  const g1 = () => gammaOf(beta);
+  const gm = () => gammaOf(mb);
 
   function drawClock(ctx, C, x0, y0, w, h, g) {
     /* 两条镜面 + 光子斜边：竖边 D、横边 βγD、斜边 γD，整体缩放以塞进画框。
@@ -195,9 +192,7 @@ export default function render(host, spec) {
     const C = themeColors();
     const ctx = cv.ctx;
     const W = cv.W, H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const g = g1();
     const gm2 = gm();

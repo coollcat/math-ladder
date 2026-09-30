@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildReadout, buildSliders,
   bindPointer, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const BLOCKS = [
@@ -71,9 +72,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const { rects } = layout(W);
 
     label(ctx, s.mode === 'closed' ? '闭环：偏差被反复修正，扰动被压住' : '开环：扰动无人为它买单，全落在输出上',

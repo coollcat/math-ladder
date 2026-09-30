@@ -37,6 +37,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildReadout, buildSegmented,
   buildToolbar, mkBtn, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 import { kmapGrid, kmapGroups, GRAY } from '../engines/logic.js';
 
@@ -231,9 +232,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const A = analyze();
     computeGeo(A.rows, A.cols);

@@ -31,7 +31,8 @@
 
 import {
   themeColors, setupCanvas, buildSliders, buildReadout, buildToolbar, mkBtn, bindPointer,
-  polyline, label, fmt, clamp,
+  polyline, label, fmt, clamp, mergeSpec,
+  setSliderRow,
 } from '../core.js';
 
 const QMAX = 2.4;
@@ -69,17 +70,6 @@ function rk4(k, q, p, h) {
     q + (h / 6) * (k1q + 2 * k2q + 2 * k3q + k4q),
     p + (h / 6) * (k1p + 2 * k2p + 2 * k3p + k4p),
   ];
-}
-
-function mergeSpec(base, spec) {
-  const given = Array.isArray(spec && spec.sliders) ? spec.sliders : [];
-  return base.map((d) => {
-    const top = spec && typeof spec[d.name] === 'number' ? spec[d.name] : d.value;
-    const o = given.find((gg) => gg && gg.name === d.name) || {};
-    const item = Object.assign({}, d, { value: top }, o, { name: d.name });
-    item.value = clamp(item.value, item.min, item.max);
-    return item;
-  });
 }
 
 export default function render(host, spec) {
@@ -263,7 +253,7 @@ export default function render(host, spec) {
   const btn = mkBtn('取 f = H');
   btn.addEventListener('click', () => {
     k = 1; A = 0; B = 0; C = 1;
-    setSlider(0, 1); setSlider(1, 0); setSlider(2, 0); setSlider(3, 1);
+    setSliderRow(sl, 0, 1, 2); setSliderRow(sl, 1, 0, 2); setSliderRow(sl, 2, 0, 2); setSliderRow(sl, 3, 1, 2);
     rebuild();
     draw();
   });
@@ -286,16 +276,6 @@ export default function render(host, spec) {
     },
   );
   k = sl.state.k; A = sl.state.a; B = sl.state.b; C = sl.state.c;
-
-  /* 工具条回写滑块（buildSliders 没给 setter，按声明顺序取行） */
-  function setSlider(idx, value) {
-    const row = sl.box.children[idx];
-    if (!row) return;
-    const input = row.querySelector('input');
-    const val = row.querySelector('.ml-slider__val');
-    if (input) input.value = String(value);
-    if (val) val.textContent = fmt(value, 2);
-  }
 
   bindPointer(cv.canvas, {
     pick(x, y) {

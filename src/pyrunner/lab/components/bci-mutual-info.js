@@ -5,15 +5,11 @@
 import {
   themeColors, setupCanvas, buildSliders, buildReadout,
   polyline, label, clamp, fmt,
+  pois,
+  pointerXY,
+  clearBg,
 } from '../core.js';
 
-/* 泊松概率：走对数空间，避免 lam^k 溢出 */
-function pois(k, lam) {
-  if (lam <= 0) return k === 0 ? 1 : 0;
-  let lg = -lam + k * Math.log(lam);
-  for (let i = 2; i <= k; i += 1) lg -= Math.log(i);
-  return Math.exp(lg);
-}
 /* 两个等概率刺激的互信息（对计数求和，截到 KMAX 项） */
 function mutualInfo(l1, l2, kmax) {
   const K = kmax || Math.max(12, Math.ceil(Math.max(l1, l2) + 6 * Math.sqrt(Math.max(l1, l2)) + 4));
@@ -77,9 +73,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const lx = 46;
     const lw = Math.max(W * 0.5 - lx - 10, 120);
@@ -212,18 +206,11 @@ export default function render(host, spec) {
     }
     draw();
   }
-  function local(ev) {
-    const rect = cv.canvas.getBoundingClientRect();
-    return {
-      x: (ev.clientX - rect.left) * (cv.canvas._W / rect.width),
-      y: (ev.clientY - rect.top) * (cv.canvas._H / rect.height),
-    };
-  }
   function onDown(ev) {
-    const p = local(ev);
+    const p = pointerXY(cv.canvas, ev);
     if (p.y < 200) { dragging = true; setT(p.x); }
   }
-  function onMove(ev) { if (dragging) setT(local(ev).x); }
+  function onMove(ev) { if (dragging) setT(pointerXY(cv.canvas, ev).x); }
   function onUp() { dragging = false; }
   cv.canvas.style.cursor = 'ew-resize';
   cv.canvas.addEventListener('pointerdown', onDown);

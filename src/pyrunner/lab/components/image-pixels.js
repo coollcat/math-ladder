@@ -35,8 +35,10 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, buildSliders, buildSegmented, buildReadout,
-  bindPointer, label, clamp, fmt,
+  themeColors, setupCanvas, buildSliders, buildSegmented, buildReadout, bindPointer, label,
+  clamp, fmt, grayCanvas, blit,
+  sceneGray,
+  clearBg,
 } from '../core.js';
 import { synth } from '../engines/media.js';
 
@@ -48,68 +50,9 @@ const AR = W0 / H0;
    刻意塞进四类结构，供后续各组件反复使用——
    大块平滑渐变（看量化台阶）、规则竖条栅栏（看混叠）、
    高频棋盘（看采样极限）、清晰的斜边与圆弧（看边缘与频谱方向）。 */
-function sceneGray(w, h) {
-  const img = new Float64Array(w * h);
-  const ar = w / h;
-  const HZ = 0.58;
-  const bump = (u, c, s) => Math.exp(-((u - c) * (u - c)) / (2 * s * s));
-  for (let y = 0; y < h; y += 1) {
-    const v = y / (h - 1);
-    for (let x = 0; x < w; x += 1) {
-      const u = x / (w - 1);
-      const rA = HZ - 0.26 * bump(u, 0.26, 0.13) - 0.17 * bump(u, 0.68, 0.08);
-      const rB = HZ - 0.10 * bump(u, 0.5, 0.22);
-      const far = Math.min(rA, rB);
-      const near = Math.max(rA, rB);
-      let val;
-      if (v < far) {
-        /* 天空：上深下浅的平滑渐变 */
-        val = 0.30 + 0.44 * (v / HZ);
-        const sd = Math.hypot((u - 0.78) * ar, v - 0.16);
-        if (sd < 0.07) val = 0.99;
-        else if (sd < 0.14) val += 0.16 * (1 - (sd - 0.07) / 0.07);
-      } else if (v < near) {
-        val = 0.20 + 0.10 * bump(u, 0.26, 0.13);
-      } else if (v < HZ) {
-        val = 0.46 + 0.10 * Math.sin(u * 46);
-      } else {
-        val = 0.68 - 0.36 * ((v - HZ) / (1 - HZ));
-        if (v > 0.63 && v < 0.79 && u > 0.08 && u < 0.44) {
-          val = Math.floor(x / 3) % 2 ? 0.90 : 0.16;          // 竖条栅栏
-        }
-        if (v > 0.80 && u > 0.60) {
-          val = (Math.floor(x / 3) + Math.floor(y / 3)) % 2 ? 0.92 : 0.26; // 高频棋盘
-        }
-      }
-      img[y * w + x] = clamp(val, 0, 1);
-    }
-  }
-  return img;
-}
 
 /* Float64Array(0..1) → 离屏 canvas。放大时配合 imageSmoothingEnabled=false，
    像素是硬边方块，而不是插值糊成一片——这正是本组件要给人看的东西。 */
-function grayCanvas(data, w, h) {
-  const cv = document.createElement('canvas');
-  cv.width = w;
-  cv.height = h;
-  const c2 = cv.getContext('2d');
-  const im = c2.createImageData(w, h);
-  for (let i = 0; i < w * h; i += 1) {
-    const g = Math.round(clamp(data[i], 0, 1) * 255);
-    im.data[i * 4] = g;
-    im.data[i * 4 + 1] = g;
-    im.data[i * 4 + 2] = g;
-    im.data[i * 4 + 3] = 255;
-  }
-  c2.putImageData(im, 0, 0);
-  return cv;
-}
-
-function blit(ctx, cv, x, y, w, h) {
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(cv, x, y, w, h);
-}
 
 function frame(ctx, p, C) {
   ctx.strokeStyle = C.grid;
@@ -238,9 +181,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const pad = 8;
     const pw = (W - pad * 3) / 2;

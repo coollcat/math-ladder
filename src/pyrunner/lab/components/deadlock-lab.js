@@ -2,6 +2,7 @@
    一个事后检测、一个事前避免，两者放在一起才看得出「避免死锁」到底避免了什么。 */
 import {
   themeColors, setupCanvas, buildSegmented, buildToolbar, buildReadout, el, mkBtn, label,
+  clearBg,
 } from '../core.js';
 
 const P = ['P1', 'P2', 'P3'];
@@ -181,9 +182,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const px = 62;
     const rx = W - 62;
     const py = (i) => 34 + (i * (H - 60)) / (P.length - 1);

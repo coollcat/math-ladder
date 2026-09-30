@@ -6,7 +6,15 @@ import { scheduleEnhance } from '../../pyrunner/enhancer';
    全文档 querySelectorAll（拖滑块/看输出时尤其明显）。
    漏掉一个自留地的代价是实打实的：公式面板里每敲一个字符、补全候选框每次
    重画（innerHTML=''）、数据面板每次重绘，都会命中 childList 变更 →
-   scheduleEnhance() → 全文档重扫。 */
+   scheduleEnhance() → 全文档重扫。
+
+   交互卡片（viz/lab/quiz/paper/solve/progress）同理：viz.js 里 195 处
+   textContent 赋值（58 处在事件/rAF 上下文），拖一格滑块就改一次读数 →
+   一次 childList 变更 → 一轮全文档重扫。这些卡片都是叶子 widget，内部
+   不再造代码围栏（全站 createElement('pre') 零命中），所以过滤它们不会
+   漏掉真正需要增强的新围栏——新围栏的变更 target 落在正文父节点上。
+   注意：只过滤"卡片内部"的变更；卡片自身被插入正文时 target 是正文节点，
+   照常触发扫描。 */
 function isSelfMutation(mutation) {
   const t = mutation.target;
   return !!(
@@ -14,7 +22,8 @@ function isSelfMutation(mutation) {
     t.nodeType === 1 &&
     t.closest &&
     t.closest(
-      '#ml-console, #ml-notebook, #ml-repo, #ml-formula, #ml-backup, .ml-lightbox, .ml-ac, .ml-nav__datapop',
+      '#ml-console, #ml-notebook, #ml-repo, #ml-formula, #ml-backup, .ml-lightbox, .ml-ac, .ml-nav__datapop, ' +
+        '.ml-viz, .ml-lab, .ml-quiz, .ml-paper, .ml-solve, .ml-progress',
     )
   );
 }

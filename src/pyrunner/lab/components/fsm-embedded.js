@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildReadout, buildSliders,
   buildToolbar, mkBtn, label, fmt,
+  clearBg,
 } from '../core.js';
 
 /* 两个经典状态机：按键消抖、串口帧解析 */
@@ -146,9 +147,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const f = FSMS[s.fsm];
     const leftW = W * 0.58;
     const cx = leftW / 2;

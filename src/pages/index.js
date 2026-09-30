@@ -1,14 +1,21 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import { drawSinesFrame } from '../pyrunner/viz';
-import { openInConsole } from '../pyrunner/enhancer';
+import { openInConsole, loadVizModule } from '../pyrunner/enhancer';
 import { allChapterGroups, siteStats } from '@site/src/components/ml-home/data';
 import { ContinueButton, ProgressStrip } from '@site/src/components/ml-home/LearningEntry';
 import { Icon } from '@site/src/components/icons';
 import HomeTree from '@site/src/components/ml-home/HomeTree';
 import '../css/home.css';
 
+/* viz.js（约 514KB 的前五卷可视化单体）**不能静态 import**：首页 hero 只用到其中
+   一个纯绘制函数 drawSinesFrame，静态引会把它整份打进首页 chunk —— 实测产物里
+   viz 因此存在两份（首页 chunk 一份、enhancer 动态加载一份）。改成在 effect 里
+   动态加载，首页 chunk 即可甩掉这 514KB，纸带首帧延后一拍。
+
+   加载走 enhancer 的 loadVizModule()（全站唯一的 viz 动态 import 调用点，
+   自带 memoize）：如果这里另写一句 import('../pyrunner/viz')，bundler 会按
+   调用点各生成一份 chunk，实测多出 299KB。 */
 function HeroWave() {
   const ref = React.useRef(null);
   const ioRef = React.useRef(null);
@@ -19,6 +26,7 @@ function HeroWave() {
     let raf = null;
     let t = 0;
     let W = 800;
+    let disposed = false;
     const H = 170;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const resize = () => {
@@ -32,44 +40,59 @@ function HeroWave() {
     window.addEventListener('resize', resize);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const terms = [1, 3, 5, 7, 9];
+
+    let drawSinesFrame = null;
     const frame = () => {
       if (!document.body.contains(canvas)) { raf = null; return; }
       drawSinesFrame(ctx, W, H, t, terms);
       t += 0.03;
       raf = requestAnimationFrame(frame);
     };
-    if (reduced) {
-      drawSinesFrame(ctx, W, H, 0, terms);
-    } else {
-      /* 只在**看得见**的时候跑：这块示波器纸带在首屏，但用户一往下滚它就
-         完全不可见了，而每帧重画 5 条正弦叠加（800×170 的 canvas）是首屏
-         最贵的一笔持续开销。滚出视口就停、滚回来接着走。 */
-      let visible = true;
-      const start = () => {
-        if (raf || !visible || !document.body.contains(canvas)) return;
-        raf = requestAnimationFrame(frame);
-      };
-      const stop = () => {
-        if (raf) cancelAnimationFrame(raf);
-        raf = null;
-      };
-      if (typeof IntersectionObserver === 'function') {
-        const io = new IntersectionObserver(
-          (entries) => {
-            visible = entries.some((e) => e.isIntersecting);
-            if (visible) start();
-            else stop();
-          },
-          { threshold: 0.01 },
-        );
-        io.observe(canvas);
-        ioRef.current = io;
+    /* 模块到手才开画；若 effect 已卸载则丢弃，避免对已卸载画布作画 */
+    const begin = (draw) => {
+      if (disposed || !draw) return;
+      drawSinesFrame = draw;
+      if (reduced) {
+        drawSinesFrame(ctx, W, H, 0, terms);
       } else {
+        /* 只在**看得见**的时候跑：这块示波器纸带在首屏，但用户一往下滚它就
+           完全不可见了，而每帧重画 5 条正弦叠加（800×170 的 canvas）是首屏
+           最贵的一笔持续开销。滚出视口就停、滚回来接着走。 */
+        let visible = true;
+        const start = () => {
+          if (raf || !visible || !document.body.contains(canvas)) return;
+          raf = requestAnimationFrame(frame);
+        };
+        const stop = () => {
+          if (raf) cancelAnimationFrame(raf);
+          raf = null;
+        };
+        if (typeof IntersectionObserver === 'function') {
+          const io = new IntersectionObserver(
+            (entries) => {
+              visible = entries.some((e) => e.isIntersecting);
+              if (visible) start();
+              else stop();
+            },
+            { threshold: 0.01 },
+          );
+          io.observe(canvas);
+          ioRef.current = io;
+        } else {
+          start();
+        }
         start();
       }
-      start();
-    }
+    };
+
+    loadVizModule()
+      .then((m) => begin(m.drawSinesFrame))
+      .catch(() => {
+        /* viz 拉不到就让 hero 空着——纸带是装饰，不该影响首页可用性 */
+      });
+
     return () => {
+      disposed = true;
       if (raf) cancelAnimationFrame(raf);
       if (ioRef.current) {
         ioRef.current.disconnect();

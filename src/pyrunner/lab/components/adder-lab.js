@@ -42,6 +42,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildSegmented, anim, el, label, clamp, fmt,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 import { rippleAdder, evalCombinational, toBits, bitsToInt } from '../engines/logic.js';
 
@@ -160,9 +162,7 @@ export default function render(host, spec) {
     const tMax = (bits + 0.6) * s.tpd;
     const T = controls && controls.playing ? animT : 1e9;
 
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     label(ctx, '本图按电路习惯**从低位到高位**画：左边是最低位 LSB，进位从左往右爬（书写顺序相反）',
       8, 15, C.grid, { size: 10 });
 
@@ -478,11 +478,9 @@ export default function render(host, spec) {
   function syncSliders() {
     if (!sl) return;
     /* 点格子改了值时把滑块把手拉到同一位置 */
-    const ranges = slidersBox.querySelectorAll('input[type=range]');
-    const vals = slidersBox.querySelectorAll('.ml-slider__val');
-    const arr = [s.a, s.b, s.tpd];
-    ranges.forEach((r, i) => { r.value = String(arr[i]); });
-    vals.forEach((n, i) => { n.textContent = String(arr[i]); });
+    setSliderRow(sl, 0, s.a);
+    setSliderRow(sl, 1, s.b);
+    setSliderRow(sl, 2, s.tpd);
   }
   rebuildSliders();
 

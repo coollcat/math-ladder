@@ -33,8 +33,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, buildSliders, buildReadout, buildSegmented, bindPointer,
-  polyline, label, fmt, clamp, anim,
+  themeColors, setupCanvas, buildSliders, buildReadout, buildSegmented, bindPointer, polyline,
+  label, fmt, clamp, anim, mergeSpec,
+  clearBg,
 } from '../core.js';
 
 const BOX = 2.6;       /* 平面半宽 */
@@ -76,17 +77,6 @@ function rk4(mode, eps, g, s, h) {
 /* 守恒量候选：旋转对称下是角动量，平移对称下是 y 方向动量 */
 function charge(mode, x, y, vx, vy) {
   return mode === 1 ? vy : x * vy - y * vx;
-}
-
-function mergeSpec(base, spec) {
-  const given = Array.isArray(spec && spec.sliders) ? spec.sliders : [];
-  return base.map((d) => {
-    const top = spec && typeof spec[d.name] === 'number' ? spec[d.name] : d.value;
-    const o = given.find((gg) => gg && gg.name === d.name) || {};
-    const item = Object.assign({}, d, { value: top }, o, { name: d.name });
-    item.value = clamp(item.value, item.min, item.max);
-    return item;
-  });
 }
 
 export default function render(host, spec) {
@@ -172,9 +162,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     gx.w = Math.round((W - gx.x0 - 40) * 0.56);
     gx.h = H - gx.y0 - 44;

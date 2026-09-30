@@ -60,8 +60,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, engine, audioShell, buildSliders,
-  buildSegmented, buildReadout, polyline, label, clamp, fmt,
+  themeColors, setupCanvas, bindPointer, engine, audioShell, buildSliders, buildSegmented,
+  buildReadout, polyline, label, clamp, fmt, mulberry32,
+  clearBg,
 } from '../core.js';
 
 const FS = 16000;
@@ -94,16 +95,6 @@ const ENV = {
   normal: { label: '一般', noise: 0.02 },
   noisy: { label: '嘈杂', noise: 0.07 },
 };
-
-function mulberry32(a) {
-  return function rnd() {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /* 音节序列 → 共振峰轨迹（相邻音节之间 35 ms 过渡） */
 function buildTrack(syls, n) {
@@ -333,9 +324,7 @@ export default function render(host, spec) {
     const botY = topH + 30;
     const botH = H - botY - 34;
     geom = { W, H, topH, botY, botH };
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     if (!dsp || !stream) {
       label(ctx, '正在载入 dsp 引擎…', W / 2, H / 2, C.fg, { align: 'center', size: 12 });

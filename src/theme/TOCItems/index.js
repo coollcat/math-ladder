@@ -2,15 +2,18 @@ import React, { useEffect, useState } from 'react';
 import TOCItems from '@theme-original/TOCItems';
 import { useDoc } from '@docusaurus/plugin-content-docs/client';
 import PrereqPanel from '@site/src/components/doc-widgets/PrereqPanel';
-import { NODES } from '@site/src/components/ml-home/full-graph-data';
+import { LESSON_COUNT } from '@site/src/components/ml-home/prereq-index';
 import { readProgress, doneCount, progressNS, onProgressChange } from '../../learning/progress';
 
 /* 右栏 TOC 顶部挂件（swizzle wrap）：前置知识面板 + 学习进度条，位于目录上方。
  * 存储与文末进度按钮、首页「继续学习」共用 src/learning/progress.js 的命名空间实现：
  * 未登录读游客空间、登录后读账号空间，登录态一变这里也跟着换。
- * 挂件只在桌面右栏显示（≥997px），窄屏由正文内的横条版前置知识接管。 */
+ * 挂件只在桌面右栏显示（≥997px），窄屏由正文内的横条版前置知识接管。
+ *
+ * 这里只用到「总课数」一个数字，所以引 prereq-index.js 而不是 full-graph-data.js：
+ * 本文件是 theme 级、每个文档页都进首屏，引全量图谱会把约 317 KB 数据拖进 main.js。 */
 
-const TOTAL_LESSONS = NODES.length;
+const TOTAL_LESSONS = LESSON_COUNT;
 
 function useProgressSnapshot() {
   /* 初始值与 SSR 一致（空），挂载后再读真实值，避免水合不匹配 */

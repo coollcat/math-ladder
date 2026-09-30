@@ -3,6 +3,7 @@
    工程上的经验法则是采样频率取闭环带宽的 10–20 倍。 */
 import {
   themeColors, setupCanvas, anim, buildReadout, buildSliders, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const H = 2e-4;        // 对象积分步长（固定）
@@ -57,9 +58,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const Hh = cv.H;
-    ctx.clearRect(0, 0, W, Hh);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, Hh);
+    clearBg(ctx, W, Hh, C);
     const gx = 40;
     const gw = W - gx - 14;
     const gh = 150;

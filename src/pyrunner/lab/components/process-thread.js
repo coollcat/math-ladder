@@ -2,6 +2,7 @@
    进程视图是两个互不相干的地址空间；线程视图是共享代码/数据/堆、各带私有栈。 */
 import {
   themeColors, setupCanvas, bindPointer, buildSegmented, buildReadout, el, label,
+  clearBg,
 } from '../core.js';
 
 /* h 是相对高度（示意，不代表真实比例）；share 表示线程间共享 */
@@ -86,9 +87,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const cols = columns();
 
     cols.forEach((col) => {

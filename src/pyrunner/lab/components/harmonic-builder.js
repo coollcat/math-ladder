@@ -35,6 +35,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildToolbar, mkBtn, audioShell, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 import { rfft } from '../engines/dsp.js';
 
@@ -121,9 +122,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const sumA = s.amps.reduce((a, b) => a + b, 0);
     const halfH = (W_BOT - W_TOP) / 2;

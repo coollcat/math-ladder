@@ -36,6 +36,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
   buildReadout, rafLoop, audioShell, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 import { makeNoiseBuffer, chain } from '../engines/audio.js';
 
@@ -212,9 +214,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const x0 = 44, x1 = W - 16;
     const PW = Math.max(20, x1 - x0);
@@ -397,15 +397,15 @@ export default function render(host, spec) {
   function onDragTime(x, y) {
     s.time = clamp(geo.TT(x) * 1000, 0.5, DMAX);
     s.fb = clamp((geo.ay1 - y) / (geo.ay1 - geo.ay0), 0, 0.95);
-    setSlider(0, Math.round(s.time * 100) / 100);
-    setSlider(1, Math.round(s.fb * 100) / 100);
+    setSliderRow(sliders, 0, Math.round(s.time * 100) / 100, 2, NAMES[0]);
+    setSliderRow(sliders, 1, Math.round(s.fb * 100) / 100, 2, NAMES[1]);
     applyParams();
     draw();
   }
 
   function onDragFreq(x) {
     s.time = clamp(geo.TT(x) * 1000, 0.5, DMAX);
-    setSlider(0, Math.round(s.time * 100) / 100);
+    setSliderRow(sliders, 0, Math.round(s.time * 100) / 100, 2, NAMES[0]);
     applyParams();
     draw();
   }
@@ -445,16 +445,6 @@ export default function render(host, spec) {
       if (!loop) draw();
     },
   );
-
-  function setSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const range = row.querySelector('input');
-    const val = row.querySelector('.ml-slider__val');
-    if (range) range.value = String(v);
-    if (val) val.textContent = fmt(v, 2);
-    sliders.state[NAMES[i]] = v;
-  }
 
   draw();
   cv.redraw = draw;

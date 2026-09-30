@@ -33,6 +33,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
   buildReadout, rafLoop, audioShell, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 import { makeImpulse, chain } from '../engines/audio.js';
 
@@ -237,9 +239,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const x0 = 40, x1 = W - 16;
     const PW = Math.max(20, x1 - x0);
@@ -411,10 +411,10 @@ export default function render(host, spec) {
       const t = geo.T(x);
       if (id === 'pre') {
         s.predelay = clamp(t, 0, 0.25);
-        setSlider(2, Math.round(s.predelay * 100) / 100);
+        setSliderRow(sliders, 2, Math.round(s.predelay * 100) / 100, 2, NAMES[2]);
       } else if (id === 'end') {
         s.seconds = clamp(t - s.predelay, 0.1, 3);
-        setSlider(0, Math.round(s.seconds * 100) / 100);
+        setSliderRow(sliders, 0, Math.round(s.seconds * 100) / 100, 2, NAMES[0]);
       }
       scheduleIR();
       draw();
@@ -443,16 +443,6 @@ export default function render(host, spec) {
       if (!loop) draw();
     },
   );
-
-  function setSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const range = row.querySelector('input');
-    const val = row.querySelector('.ml-slider__val');
-    if (range) range.value = String(v);
-    if (val) val.textContent = fmt(v, 2);
-    sliders.state[NAMES[i]] = v;
-  }
 
   draw();
   cv.redraw = draw;

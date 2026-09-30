@@ -41,8 +41,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
-  buildReadout, audioShell, engine, label, clamp, fmt,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented, buildReadout,
+  audioShell, engine, label, clamp, fmt, mulberry32,
+  clearBg,
 } from '../core.js';
 
 const FS = 16000;
@@ -110,16 +111,6 @@ const TONES = {
 };
 
 const STAGES = ['① 文本→拼音', '② 语言学特征', '③ 梅尔谱', '④ 波形·试听'];
-
-function mulberry32(a) {
-  return function rnd() {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /* ---------- 文本 → 音素段计划 ---------- */
 function planText(txt, speed) {
@@ -316,9 +307,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     geom = { x0: 46, x1: W - 12, y0: 34, y1: H - 34 };
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const TX = (t) => geom.x0 + (clamp(t, 0, plan.total) / plan.total) * (geom.x1 - geom.x0);
 
     if (stage === 0) {

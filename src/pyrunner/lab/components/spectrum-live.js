@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, audioShell, buildSliders, buildSegmented,
   buildReadout, rafLoop, label, polyline, fmt,
+  clearBg,
 } from '../core.js';
 
 export default function render(host, spec) {
@@ -40,9 +41,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const topH = H * 0.38;
     const botY = topH + 18;

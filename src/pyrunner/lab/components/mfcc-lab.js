@@ -39,71 +39,15 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildToolbar, mkBtn, el, label, polyline, clamp, fmt, engine, audio, rafLoop,
+  setSliderRow,
+  normalizeTo,
+  clearBg,
+  setSliderMax,
 } from '../core.js';
 
 const FS = 16000;
 const PADL = 12;
 const PADR = 12;
-
-function normalizeTo(arr, peak) {
-  let mx = 1e-9;
-  for (let i = 0; i < arr.length; i += 1) mx = Math.max(mx, Math.abs(arr[i]));
-  for (let i = 0; i < arr.length; i += 1) arr[i] = (arr[i] / mx) * peak;
-  return arr;
-}
-
-/* 元音序列：声源（谐波串 / 噪声）过三个共振峰带通，逐块递推 */
-function synthUtterance(dsp, fs) {
-  const segs = [
-    { d: 0.16, kind: 'sil', f: [500, 1500, 2500] },
-    { d: 0.42, kind: 'v', f: [730, 1090, 2440] },
-    { d: 0.42, kind: 'v', f: [270, 2290, 3010] },
-    { d: 0.42, kind: 'v', f: [300, 870, 2240] },
-    { d: 0.30, kind: 'n', f: [4500, 6500, 7500] },
-    { d: 0.16, kind: 'sil', f: [500, 1500, 2500] },
-  ];
-  const block = Math.round(0.005 * fs);
-  const fadeBlk = Math.max(1, Math.round(0.015 * fs / block));
-  const total = Math.round(segs.reduce((a, x) => a + x.d, 0) * fs);
-  const out = new Float64Array(total);
-  const st = [0, 1, 2].map(() => ({ x1: 0, x2: 0, y1: 0, y2: 0 }));
-  let seed = 20260904;
-  const rnd = () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x3fffffff - 1;
-  };
-  let p = 0;
-  segs.forEach((sg) => {
-    const nBlk = Math.round((sg.d * fs) / block);
-    const bw = sg.kind === 'n' ? 2000 : 100;
-    const coefs = [0, 1, 2].map((i) => dsp.biquad('bandpass', sg.f[i], sg.f[i] / bw, 0, fs));
-    for (let b = 0; b < nBlk && p + block <= total; b += 1) {
-      const env = Math.max(0, Math.min(1, b / fadeBlk, (nBlk - b) / fadeBlk));
-      for (let i = 0; i < block; i += 1) {
-        let v = 0;
-        if (sg.kind === 'v') {
-          const t = (p + i) / fs;
-          const f0 = 132 - 22 * (t / (total / fs));
-          for (let n = 1; n <= 30; n += 1) v += (1 / (n * n)) * Math.sin(2 * Math.PI * n * f0 * (p + i) / fs);
-          v *= 0.7;
-        } else if (sg.kind === 'n') {
-          v = rnd() * 0.6;
-        }
-        let y = v;
-        for (let m = 0; m < 3; m += 1) {
-          const c = coefs[m];
-          const s = st[m];
-          const y0 = c.b0 * y + c.b1 * s.x1 + c.b2 * s.x2 - c.a1 * s.y1 - c.a2 * s.y2;
-          s.x2 = s.x1; s.x1 = y; s.y2 = s.y1; s.y1 = y0;
-          y = y0;
-        }
-        out[p + i] = y * env;
-      }
-      p += block;
-    }
-  });
-  return normalizeTo(out, 0.9);
-}
 
 export default function render(host, spec) {
   let C = themeColors();
@@ -161,7 +105,7 @@ export default function render(host, spec) {
   /* ---------- 计算 ---------- */
 
   function rebuildSignal() {
-    sig = synthUtterance(dsp, s.fs);
+    sig = dsp.synthUtterance(s.fs);
     nFrames = Math.max(1, Math.floor((sig.length - s.frameLen) / s.hop) + 1);
     idx = clamp(spec.frame ?? Math.round(nFrames * 0.45), 0, nFrames - 1);
   }
@@ -373,9 +317,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     if (!dsp || !stage) {
       label(ctx, '正在载入信号处理引擎…', W / 2, H / 2, C.fg, { align: 'center', size: 12 });
@@ -493,7 +435,7 @@ export default function render(host, spec) {
         if (mic) return;
         const t = clamp((X - PADL) / plotW(), 0, 1);
         idx = Math.round(t * (nFrames - 1));
-        syncSlider(0, idx);
+        setSliderRow(sliders, 0, idx);
         recompute();
         draw();
       } else if (id === 'nceps') {
@@ -501,7 +443,7 @@ export default function render(host, spec) {
         const a = area(b4);
         const t = clamp((X - a.x) / a.w, 0, 1);
         s.nCeps = Math.round(clamp(1 + t * (s.nFilters - 1), 2, s.nFilters));
-        syncSlider(1, s.nCeps);
+        setSliderRow(sliders, 1, s.nCeps);
         rebuildCache();
         draw();
       }
@@ -532,17 +474,6 @@ export default function render(host, spec) {
     },
   );
 
-  function syncSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const r = row.querySelector('input[type="range"]');
-    const t = row.querySelector('.ml-slider__val');
-    if (r) r.value = String(v);
-    if (t) t.textContent = String(v);
-    /* 同步内部状态对象，避免下一次拖动别的滑块时又把旧值写回来 */
-    sliders.state[['frame', 'nCeps', 'nFilters'][i]] = v;
-  }
-
   draw();
   cv.redraw = draw;
 
@@ -552,12 +483,8 @@ export default function render(host, spec) {
     rebuildFilterbank();
     rebuildCache();
     /* 帧号滑块的量程依赖实际帧数，载入后要改一次 */
-    const row = sliders.box.children[0];
-    if (row) {
-      const r = row.querySelector('input[type="range"]');
-      if (r) r.max = String(Math.max(1, nFrames - 1));
-      sliders.state.frame = idx;
-    }
+    setSliderMax(sliders, 0, Math.max(1, nFrames - 1));
+    sliders.state.frame = idx;
     recompute();
     draw();
   }).catch((e) => {

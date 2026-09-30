@@ -21,17 +21,14 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
-  label, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, label, fmt, clamp,
+  pickSlider,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 
 const PHI_MAX = 5.0;   /* 快度尺的范围 */
 const BETA_MAX = 1.2;  /* 速度尺画到 1.2c，好让"越界"看得见 */
-
-function pickSlider(spec, name, def) {
-  const s = (spec.sliders || []).find((it) => it && it.name === name);
-  return s ? { name, label: s.label || def.label, min: s.min, max: s.max, step: s.step, value: s.value } : def;
-}
 
 export default function render(host, spec) {
   let b1 = clamp(Number(spec.beta1 ?? 0.6), 0, 0.95);
@@ -84,9 +81,7 @@ export default function render(host, spec) {
     const C = themeColors();
     const ctx = cv.ctx;
     const W = cv.W, H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     geo.x0 = 34;
     geo.x1 = W - 22;
@@ -194,12 +189,9 @@ export default function render(host, spec) {
     b2 = clamp(st.beta2 ?? b2, 0, 0.95);
     draw();
   });
-  const inputs = sl.box.querySelectorAll('input');
   function syncSliders() {
-    if (inputs[0]) inputs[0].value = String(Math.round(b1 * 100) / 100);
-    if (inputs[1]) inputs[1].value = String(Math.round(b2 * 100) / 100);
-    sl.state.beta1 = b1;
-    sl.state.beta2 = b2;
+    setSliderRow(sl, 0, Math.round(b1 * 100) / 100, undefined, 'beta1');
+    setSliderRow(sl, 1, Math.round(b2 * 100) / 100, undefined, 'beta2');
   }
 
   bindPointer(cv.canvas, {

@@ -35,6 +35,8 @@
 import {
   themeColors, setupCanvas, bindPointer, anim, buildReadout, buildToolbar,
   buildSliders, mkBtn, label, clamp, fmt,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 
 const TOP = 46;
@@ -95,9 +97,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const n = bits();
     const NWIN = win();
@@ -290,13 +290,10 @@ export default function render(host, spec) {
   });
 
   let sliders = null;
-  let sliderEls = null;
   function syncSliders() {
-    if (!sliderEls) return;
-    sliderEls.mod.value = String(s.mod);
-    sliderEls.modVal.textContent = String(s.mod);
-    sliderEls.div.value = String(s.div);
-    sliderEls.divVal.textContent = String(s.div);
+    if (!sliders) return;
+    setSliderRow(sliders, 0, s.mod);
+    setSliderRow(sliders, 1, s.div);
   }
   /* 不重建滑块组（拖把手时会丢焦点），只在 s 变化时把数值写回 DOM */
   sliders = buildSliders(
@@ -317,13 +314,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-  /* 从滑块 DOM 里取出输入元素，供上面的按钮 / 拖拽反向同步 */
-  const inputs = sliders.box.querySelectorAll('input');
-  const vals = sliders.box.querySelectorAll('.ml-slider__val');
-  sliderEls = {
-    mod: inputs[0], modVal: vals[0],
-    div: inputs[1], divVal: vals[1],
-  };
   void dragKind;
 
   draw();

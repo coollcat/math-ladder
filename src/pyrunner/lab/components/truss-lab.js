@@ -1,11 +1,11 @@
 /* 桁架与杆件内力：五节点静定桁架，拖两个外载荷，逐节点列平衡方程解出全部杆力。
    受拉杆与受压杆染成两色——这是桁架设计里第一件要看懂的事（压杆还得防屈曲）。
-
-   注意：mech.solveTruss 目前恒返回 {ok:false}（见报告），因此这里先用引擎试算，
-   失败则回落到组件内的节点法平衡矩阵求解器；引擎修好后自动改走引擎。 */
+   求解统一走 mech.solveTruss（引擎的节点法平衡矩阵 + 高斯消元；2026-09-30
+   已实测返回 ok:true，组件内曾经的 82 行回落求解器按「只留活口」纪律删除）。 */
 import {
   themeColors, setupCanvas, bindPointer, buildReadout, buildToolbar, mkBtn,
   engine, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const NODES = [
@@ -28,89 +28,6 @@ const SUPPORTS = [
   { node: 'A', type: 'pin' },
   { node: 'C', type: 'roller-y' },
 ];
-
-/* 节点法：未知量 = 各杆轴力（拉为正）+ 各支座反力分量。
-   每个节点两个方程 ΣFx=0、ΣFy=0，方阵用高斯消元求解。 */
-function solveJoints(loads) {
-  const idx = new Map();
-  NODES.forEach((n, i) => idx.set(n.id, i));
-  const m = MEMBERS.length;
-  const rCols = [];
-  SUPPORTS.forEach((sp) => {
-    if (sp.type === 'pin') rCols.push({ node: sp.node, dir: 'x' }, { node: sp.node, dir: 'y' });
-    else rCols.push({ node: sp.node, dir: sp.type === 'roller-x' ? 'x' : 'y' });
-  });
-  const n = NODES.length * 2;
-  const A = [];
-  for (let i = 0; i < n; i += 1) A.push(new Float64Array(m + rCols.length));
-  const b = new Float64Array(n);
-
-  MEMBERS.forEach((mem, k) => {
-    const i = idx.get(mem.a);
-    const j = idx.get(mem.b);
-    const dx = NODES[j].x - NODES[i].x;
-    const dy = NODES[j].y - NODES[i].y;
-    const L = Math.hypot(dx, dy) || 1e-12;
-    const cx = dx / L;
-    const cy = dy / L;
-    /* 杆力 N（拉为正）在节点 i 上沿 i→j 方向拉，在节点 j 上沿 j→i 方向拉 */
-    A[i * 2][k] += cx;
-    A[i * 2 + 1][k] += cy;
-    A[j * 2][k] -= cx;
-    A[j * 2 + 1][k] -= cy;
-  });
-  rCols.forEach((rc, k) => {
-    const i = idx.get(rc.node);
-    A[i * 2 + (rc.dir === 'y' ? 1 : 0)][m + k] += 1;
-  });
-  loads.forEach((ld) => {
-    const i = idx.get(ld.node);
-    b[i * 2] -= ld.fx || 0;
-    b[i * 2 + 1] -= ld.fy || 0;
-  });
-
-  /* 高斯消元（部分主元） */
-  const M = A.map((row) => Float64Array.from(row));
-  const z = Float64Array.from(b);
-  const cols = m + rCols.length;
-  for (let col = 0; col < cols; col += 1) {
-    let piv = col;
-    for (let r = col + 1; r < n; r += 1) if (Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r;
-    if (Math.abs(M[piv][col]) < 1e-9) continue;
-    if (piv !== col) {
-      const t = M[piv]; M[piv] = M[col]; M[col] = t;
-      const sv = z[piv]; z[piv] = z[col]; z[col] = sv;
-    }
-    for (let r = col + 1; r < n; r += 1) {
-      const f = M[r][col] / M[col][col];
-      if (!f) continue;
-      for (let c = col; c < cols; c += 1) M[r][c] -= f * M[col][c];
-      z[r] -= f * z[col];
-    }
-  }
-  /* 超定系统（静定时应为一致）：回代后校验残差 */
-  const x = new Float64Array(cols);
-  for (let r = n - 1; r >= 0; r -= 1) {
-    let pcol = -1;
-    for (let c = 0; c < cols; c += 1) if (Math.abs(M[r][c]) > 1e-9) { pcol = c; break; }
-    if (pcol < 0) { if (Math.abs(z[r]) > 1e-6) return null; continue; }
-    let sval = z[r];
-    for (let c = pcol + 1; c < cols; c += 1) sval -= M[r][c] * x[c];
-    x[pcol] = sval / M[r][pcol];
-  }
-  let res = 0;
-  for (let r = 0; r < n; r += 1) {
-    let row = -b[r];
-    for (let c = 0; c < cols; c += 1) row += A[r][c] * x[c];
-    res = Math.max(res, Math.abs(row));
-  }
-  if (res > 1e-3 * (1 + b.reduce((t, v) => t + Math.abs(v), 0))) return null;
-
-  const forces = {};
-  MEMBERS.forEach((mem, k) => { forces[mem.id] = x[k]; });
-  const reactions = rCols.map((rc, k) => ({ node: rc.node, dir: rc.dir, value: x[m + k] }));
-  return { forces, reactions };
-}
 
 export default function render(host, spec) {
   const C = themeColors();
@@ -135,30 +52,29 @@ export default function render(host, spec) {
   const FSC = 0.03; // px per N
 
   function compute() {
-    /* 先试引擎，引擎不可用则回落 */
-    if (mech) {
-      const mems = MEMBERS.map((m) => ({ ...m }));
-      mech.indexMembers(mems, NODES);
-      const r = mech.solveTruss(NODES, mems, SUPPORTS, loads);
-      const vals = r && r.ok ? Object.values(r.forces) : [];
-      if (r && r.ok && vals.length && vals.every((v) => isFinite(v))) {
-        forces = r.forces;
-        src = 'mech.solveTruss';
-        return;
-      }
+    if (!mech) {
+      forces = null;
+      src = '引擎未就绪';
+      return;
     }
-    const r = solveJoints(loads);
-    forces = r ? r.forces : null;
-    src = r ? '节点法平衡矩阵（组件内）' : '求解失败';
+    const mems = MEMBERS.map((m) => ({ ...m }));
+    mech.indexMembers(mems, NODES);
+    const r = mech.solveTruss(NODES, mems, SUPPORTS, loads);
+    const vals = r && r.ok ? Object.values(r.forces) : [];
+    if (r && r.ok && vals.length && vals.every((v) => isFinite(v))) {
+      forces = r.forces;
+      src = 'mech.solveTruss';
+      return;
+    }
+    forces = null;
+    src = '求解失败';
   }
 
   function draw() {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     compute();
 
     let maxN = 1;

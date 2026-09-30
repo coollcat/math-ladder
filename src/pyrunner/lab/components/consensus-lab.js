@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, bindPointer, anim, buildToolbar,
   buildReadout, el, mkBtn, label, clamp,
+  clearBg,
 } from '../core.js';
 
 const N = 5;
@@ -126,9 +127,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const y = 62;
     const split = nodes.some((n) => n.part === 1);
     if (split) {

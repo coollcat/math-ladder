@@ -4,6 +4,8 @@
 import {
   themeColors, setupCanvas, buildSliders, buildReadout, buildToolbar, mkBtn,
   label, clamp, fmt,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 
 /* z = (u, v)，v > 0  ↔  行列式为 1 的 SPD 矩阵 */
@@ -63,14 +65,10 @@ export default function render(host, spec) {
     },
     (x) => { s.u = x.u; s.v = Math.max(x.v, 0.12); s.tau = x.tau; draw(); },
   );
-  const ranges = sl.box.querySelectorAll('input[type="range"]');
   function syncSliders() {
-    [s.u, s.v, s.tau].forEach((val, i) => {
-      if (!ranges[i]) return;
-      ranges[i].value = String(val);
-      const box = ranges[i].parentNode.querySelector('.ml-slider__val');
-      if (box) box.textContent = fmt(val, 2);
-    });
+    setSliderRow(sl, 0, s.u, 2);
+    setSliderRow(sl, 1, s.v, 2);
+    setSliderRow(sl, 2, s.tau, 2);
   }
 
   /* 视窗：u ∈ [-3.2, 3.2]，v ∈ [0.08, 4.2] */
@@ -134,9 +132,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const V = view();
     const test = { u: s.u, v: s.v, tau: s.tau };
 

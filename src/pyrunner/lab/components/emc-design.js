@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, buildReadout, buildSliders, buildToolbar,
   mkBtn, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 /* 小环天线远场估算：E(µV/m) = 1.316e-14 · f²(Hz) · A(cm²) · I(mA) / r(m)，
@@ -52,9 +53,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const E = level() - atten();
     const lim = limit();
     const over = E - lim;

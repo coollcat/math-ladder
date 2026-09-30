@@ -433,6 +433,111 @@ function spectrogram(x, { frameLen = 512, hop = 128, win = 'hann' } = {}) {
   return { cols, bins, hop, frameLen };
 }
 
+/* ---------- 心理声学（音频编码 / 掩蔽效应组件共用） ---------- */
+
+/* Bark 尺度：线性频率 → 临界频带编号 */
+function bark(f) {
+  return 13 * Math.atan(0.00076 * f) + 3.5 * Math.atan((f / 7500) ** 2);
+}
+
+/* 扩展函数：Δz 为 Bark 距离（正 = 探针在掩蔽音的高频一侧） */
+function spread(dz) {
+  const t = dz + 0.474;
+  return 15.81 + 7.5 * t - 17.5 * Math.sqrt(1 + t * t);
+}
+
+/* 绝对听阈（dB SPL）。ceiling 可选：15 kHz 以上末项会飞掉，
+   音频编码组件传 90 把它夹住，掩蔽教学组件不传看原始曲线。 */
+function ath(f, ceiling) {
+  const k = f / 1000;
+  const v = 3.64 * k ** -0.8 - 6.5 * Math.exp(-0.6 * (k - 3.3) ** 2) + 1e-3 * k ** 4;
+  return ceiling === undefined ? v : Math.min(ceiling, v);
+}
+
+/* ---------- 二维 FFT（图像频域组件用） ---------- */
+
+/* 二维 FFT：先逐行做一维 FFT，再逐列做一维 FFT（可分离性）。
+   正反变换都走这里，inverse=true 时 fft 内部会除以 n。 */
+function fft2(re0, n, inverse) {
+  const re = Float64Array.from(re0);
+  const im = new Float64Array(n * n);
+  const br = new Float64Array(n);
+  const bi = new Float64Array(n);
+  for (let y = 0; y < n; y += 1) {
+    for (let x = 0; x < n; x += 1) { br[x] = re[y * n + x]; bi[x] = im[y * n + x]; }
+    fft(br, bi, inverse);
+    for (let x = 0; x < n; x += 1) { re[y * n + x] = br[x]; im[y * n + x] = bi[x]; }
+  }
+  for (let x = 0; x < n; x += 1) {
+    for (let y = 0; y < n; y += 1) { br[y] = re[y * n + x]; bi[y] = im[y * n + x]; }
+    fft(br, bi, inverse);
+    for (let y = 0; y < n; y += 1) { re[y * n + x] = br[y]; im[y * n + x] = bi[y]; }
+  }
+  return { re, im };
+}
+
+/* ---------- 内置语音信号 ---------- */
+
+/* 元音序列：声源（谐波串 / 噪声）过三个共振峰带通，逐块递推。
+   句末音高自然下降（132 → 约 110 Hz）。原先 mfcc-lab 与 spectrogram-lab
+   各一份逐行相同的实现，统一收进来。 */
+function synthUtterance(fs) {
+  const segs = [
+    { d: 0.16, kind: 'sil', f: [500, 1500, 2500] },
+    { d: 0.42, kind: 'v', f: [730, 1090, 2440] },
+    { d: 0.42, kind: 'v', f: [270, 2290, 3010] },
+    { d: 0.42, kind: 'v', f: [300, 870, 2240] },
+    { d: 0.30, kind: 'n', f: [4500, 6500, 7500] },
+    { d: 0.16, kind: 'sil', f: [500, 1500, 2500] },
+  ];
+  const block = Math.round(0.005 * fs);
+  const fadeBlk = Math.max(1, Math.round(0.015 * fs / block));
+  const total = Math.round(segs.reduce((a, x) => a + x.d, 0) * fs);
+  const out = new Float64Array(total);
+  const st = [0, 1, 2].map(() => ({ x1: 0, x2: 0, y1: 0, y2: 0 }));
+  let seed = 20260904;
+  const rnd = () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x3fffffff - 1;
+  };
+  let p = 0;
+  segs.forEach((sg) => {
+    const nBlk = Math.round((sg.d * fs) / block);
+    const bw = sg.kind === 'n' ? 2000 : 100;
+    const coefs = [0, 1, 2].map((i) => biquad('bandpass', sg.f[i], sg.f[i] / bw, 0, fs));
+    for (let b = 0; b < nBlk && p + block <= total; b += 1) {
+      const env = Math.max(0, Math.min(1, b / fadeBlk, (nBlk - b) / fadeBlk));
+      for (let i = 0; i < block; i += 1) {
+        let v = 0;
+        if (sg.kind === 'v') {
+          const t = (p + i) / fs;
+          const f0 = 132 - 22 * (t / (total / fs));
+          for (let n = 1; n <= 30; n += 1) v += (1 / (n * n)) * Math.sin(2 * Math.PI * n * f0 * (p + i) / fs);
+          v *= 0.7;
+        } else if (sg.kind === 'n') {
+          v = rnd() * 0.6;
+        }
+        let y = v;
+        for (let m = 0; m < 3; m += 1) {
+          const c = coefs[m];
+          const s = st[m];
+          const y0 = c.b0 * y + c.b1 * s.x1 + c.b2 * s.x2 - c.a1 * s.y1 - c.a2 * s.y2;
+          s.x2 = s.x1; s.x1 = y; s.y2 = s.y1; s.y1 = y0;
+          y = y0;
+        }
+        out[p + i] = y * env;
+      }
+      p += block;
+    }
+  });
+  /* 峰值归一到 0.9，防后级削波 */
+  let mx = 1e-9;
+  for (let i = 0; i < out.length; i += 1) mx = Math.max(mx, Math.abs(out[i]));
+  const k = 0.9 / mx;
+  for (let i = 0; i < out.length; i += 1) out[i] *= k;
+  return out;
+}
+
 export {
   ampToDb,
   dbToAmp,
@@ -461,4 +566,9 @@ export {
   lpcEnvelope,
   goertzel,
   spectrogram,
+  bark,
+  spread,
+  ath,
+  fft2,
+  synthUtterance,
 };

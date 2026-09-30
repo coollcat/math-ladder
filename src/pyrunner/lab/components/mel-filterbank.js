@@ -37,6 +37,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   label, polyline, clamp, fmt, engine,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 
 const PADL = 44;
@@ -166,9 +168,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const w = plotW();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     label(ctx, '① 线性频率轴（Hz）：低频挤、高频散（拖最右端把手改 fmax）', PADL, 20, C.fg, { size: 11 });
     label(ctx, '② 梅尔轴（mel）：同样这一组，立刻变得等宽等高', PADL, 180, C.fg, { size: 11 });
@@ -318,7 +318,7 @@ export default function render(host, spec) {
 
   function setProbe(f) {
     s.probe = Math.round(clamp(f, s.fmin + 1, s.fmax - 1));
-    syncSlider(2, s.probe);
+    setSliderRow(sliders, 2, s.probe);
   }
 
   bindPointer(cv.canvas, {
@@ -332,7 +332,7 @@ export default function render(host, spec) {
     move(id, X) {
       if (id === 'fmax') {
         s.fmax = Math.round(clamp(invHzX(X), 2000, Math.min(8000, s.fs / 2)));
-        syncSlider(1, s.fmax);
+        setSliderRow(sliders, 1, s.fmax);
         s.probe = Math.min(s.probe, s.fmax - 1);
       } else if (id === 'p1') {
         setProbe(invHzX(X));
@@ -366,15 +366,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-
-  function syncSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const r = row.querySelector('input[type="range"]');
-    const t = row.querySelector('.ml-slider__val');
-    if (r) r.value = String(v);
-    if (t) t.textContent = String(v);
-  }
 
   draw();
   cv.redraw = draw;

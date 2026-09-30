@@ -4,6 +4,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildReadout, buildSliders,
   polyline, label, fmt,
+  clearBg,
 } from '../core.js';
 
 const VBUS = 24;     // 母线电压
@@ -159,9 +160,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const w0 = omega0();
     const E = KE * w0;
     const rp = ripple(E);

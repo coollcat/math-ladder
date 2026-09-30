@@ -39,21 +39,14 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildSegmented, buildToolbar, mkBtn, el, label, polyline, clamp, fmt, engine, audio, rafLoop,
+  setSliderRow,
+  clearBg,
+  lcg,
+  noteOf,
 } from '../core.js';
 
 const PADL = 44;
 const PADR = 12;
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-
-function noteOf(f) {
-  if (!isFinite(f) || f <= 0) return { name: '—', cents: 0 };
-  const n = 69 + 12 * Math.log2(f / 440);
-  const r = Math.round(n);
-  return {
-    name: NOTE_NAMES[((r % 12) + 12) % 12] + (Math.floor(r / 12) - 1),
-    cents: Math.round((n - r) * 100),
-  };
-}
 
 /* 元音：谐波串（相位逐点累加，f0 变化时不会爆音）过三个共振峰带通 */
 function synthVowel(dsp, fs, kind) {
@@ -64,11 +57,7 @@ function synthVowel(dsp, fs, kind) {
   const coefs = [0, 1, 2].map((i) => dsp.biquad('bandpass', F[i], F[i] / 110, 0, fs));
   const st = [0, 1, 2].map(() => ({ x1: 0, x2: 0, y1: 0, y2: 0 }));
   const ph = new Float64Array(25);
-  let seed = 987654321;
-  const rnd = () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x3fffffff - 1;
-  };
+  const rnd = lcg(987654321);
   for (let i = 0; i < N; i += 1) {
     const u = i / N;
     const f0 = kind === 'glide' ? 110 + 110 * u : 150;
@@ -297,9 +286,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const w = plotW();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     label(ctx, '① 当前帧的波形（已加汉宁窗）', PADL, 18, C.fg, { size: 11 });
     label(ctx, '② 自相关 r[k]：峰的位置 = 一个周期（拖橙线手动挑峰）', PADL, 118, C.fg, { size: 11 });
@@ -491,7 +478,7 @@ export default function render(host, spec) {
         draw();
       } else if (id === 'frame') {
         idx = Math.round(clamp((X - PADL) / plotW(), 0, 1) * (nFrames - 1));
-        syncSlider(0, idx);
+        setSliderRow(sliders, 0, idx);
         recompute();
         draw();
       }
@@ -519,16 +506,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-
-  function syncSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const r = row.querySelector('input[type="range"]');
-    const t = row.querySelector('.ml-slider__val');
-    if (r) r.value = String(v);
-    if (t) t.textContent = String(v);
-    sliders.state[['frame', 'fmin', 'fmax'][i]] = v;
-  }
 
   draw();
   cv.redraw = draw;

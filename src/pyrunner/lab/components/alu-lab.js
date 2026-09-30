@@ -44,6 +44,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
   buildReadout, label, clamp, fmt,
+  clearBg,
+  setSliderRow,
 } from '../core.js';
 import { alu4, toBits, bitsToInt } from '../engines/logic.js';
 
@@ -112,14 +114,10 @@ export default function render(host, spec) {
   );
 
   function syncSliders() {
-    const inputs = sl.box.querySelectorAll('input');
-    const vals = sl.box.querySelectorAll('.ml-slider__val');
     s.a = bitsToInt(bitsA);
     s.b = bitsToInt(bitsB);
-    [s.a, s.b].forEach((v, i) => {
-      if (inputs[i]) inputs[i].value = String(v);
-      if (vals[i]) vals[i].textContent = String(v);
-    });
+    setSliderRow(sl, 0, s.a);
+    setSliderRow(sl, 1, s.b);
   }
 
   function geom() {
@@ -150,9 +148,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const g = geom();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const r = alu4(bitsA, bitsB, s.op);
     const out = r.out;

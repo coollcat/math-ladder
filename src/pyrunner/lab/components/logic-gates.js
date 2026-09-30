@@ -36,6 +36,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildReadout, buildToolbar, mkBtn,
   label, clamp,
+  clearBg,
 } from '../core.js';
 import { truthTable, evalCombinational, X } from '../engines/logic.js';
 
@@ -247,9 +248,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const ev = evaluate();
     const V = ev.values;

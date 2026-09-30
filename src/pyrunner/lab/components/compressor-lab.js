@@ -40,6 +40,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
   buildReadout, rafLoop, audioShell, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 import { chain } from '../engines/audio.js';
 
@@ -238,9 +240,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const lx0 = 46, lx1 = Math.max(lx0 + 60, W * 0.52 - 12);
     const ly0 = 32, ly1 = 302;
@@ -434,14 +434,14 @@ export default function render(host, spec) {
       if (!geo) return;
       if (id === 'thr') {
         s.threshold = clamp(geo.XI(x), DBMIN, DBMAX);
-        setSlider(0, Math.round(s.threshold * 10) / 10);
+        setSliderRow(sliders, 0, Math.round(s.threshold * 10) / 10, 1, NAMES[0]);
       } else if (id === 'ratio') {
         const out = clamp(geo.YI(y), s.threshold + 0.5, DBMAX);
         s.ratio = clamp(-s.threshold / (out - s.threshold), 1, 20);
-        setSlider(1, Math.round(s.ratio * 10) / 10);
+        setSliderRow(sliders, 1, Math.round(s.ratio * 10) / 10, 1, NAMES[1]);
       } else if (id === 'knee') {
         s.knee = clamp(2 * (s.threshold - geo.XI(x)), 0, 40);
-        setSlider(2, Math.round(s.knee * 10) / 10);
+        setSliderRow(sliders, 2, Math.round(s.knee * 10) / 10, 1, NAMES[2]);
       }
       applyComp();
       draw();
@@ -477,16 +477,6 @@ export default function render(host, spec) {
       if (!loop) draw();
     },
   );
-
-  function setSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const range = row.querySelector('input');
-    const val = row.querySelector('.ml-slider__val');
-    if (range) range.value = String(v);
-    if (val) val.textContent = fmt(v, 1);
-    sliders.state[NAMES[i]] = v;
-  }
 
   draw();
   cv.redraw = draw;

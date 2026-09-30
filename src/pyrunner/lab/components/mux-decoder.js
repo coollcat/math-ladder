@@ -42,6 +42,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildReadout, buildSegmented,
   label, clamp,
+  clearBg,
 } from '../core.js';
 import { evalCombinational } from '../engines/logic.js';
 
@@ -178,9 +179,7 @@ export default function render(host, spec) {
     const R = solve();
     const V = R.values;
 
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* ---------- 选择线 ---------- */
     const sbw = 34;

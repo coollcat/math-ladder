@@ -41,6 +41,8 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildSliders, buildToolbar,
   buildReadout, bindPointer, mkBtn, label, polyline, clamp, fmt,
+  clearBg,
+  lcg,
 } from '../core.js';
 import { cacheSim } from '../engines/logic.js';
 
@@ -53,8 +55,7 @@ const PRESETS = {
 
 /* 固定种子，保证随机替换可复现 */
 function makeRnd() {
-  let s = 20240913;
-  return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+  return lcg(20240913, true);
 }
 
 /* 逐次访问的步模拟器：额外给出「被踢掉的是谁、它脏不脏」 */
@@ -228,9 +229,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const Hh = cv.H;
-    ctx.clearRect(0, 0, W, Hh);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, Hh);
+    clearBg(ctx, W, Hh, C);
 
     const n = seq.length;
     const chipY = 20;

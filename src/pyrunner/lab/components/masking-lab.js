@@ -55,28 +55,19 @@
 import {
   themeColors, setupCanvas, bindPointer, audioShell, buildSliders, buildSegmented,
   buildReadout, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
+import {
+  bark,
+  spread,
+  ath,
+  dbToAmp,
+} from '../engines/dsp.js';
 
 const F_LO = 50;
 const F_HI = 16000;
 const DB_LO = 0;
 const DB_HI = 100;
-
-const bark = (f) => 13 * Math.atan(0.00076 * f) + 3.5 * Math.atan((f / 7500) ** 2);
-
-/* 扩展函数：Δz 为 Bark 距离（正 = 探针在掩蔽音的高频一侧） */
-function spread(dz) {
-  const t = dz + 0.474;
-  return 15.81 + 7.5 * t - 17.5 * Math.sqrt(1 + t * t);
-}
-
-/* 绝对听阈（dB SPL） */
-function ath(f) {
-  const k = f / 1000;
-  return 3.64 * k ** -0.8 - 6.5 * Math.exp(-0.6 * (k - 3.3) ** 2) + 1e-3 * k ** 4;
-}
-
-const dBToAmp = (d) => 10 ** (d / 20);
 
 export default function render(host, spec) {
   const C = themeColors();
@@ -130,9 +121,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     geom = { x0: PAD.l, x1: W - PAD.r, y0: PAD.t, y1: H - PAD.b, W, H };
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* 网格：频率（对数）+ 声压级 */
     ctx.strokeStyle = C.grid;
@@ -292,8 +281,8 @@ export default function render(host, spec) {
     /* 绝对电平关系要真实还原，否则掩蔽演示就是骗人的：
        以「两者中更响的一个」为参考，保证最响的那个正好是 vol */
     const ref = Math.max(s.maskL, s.probeL);
-    const gm = dBToAmp(s.maskL - ref) * s.vol;
-    const gp = dBToAmp(s.probeL - ref) * s.vol;
+    const gm = dbToAmp(s.maskL - ref) * s.vol;
+    const gp = dbToAmp(s.probeL - ref) * s.vol;
     masker.setGain(listen === 'both' ? gm : 0);
     probe.setGain(gp);
   }

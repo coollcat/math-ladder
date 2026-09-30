@@ -30,6 +30,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   audioShell, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 
 const INTERVALS = [
@@ -97,9 +99,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const f1 = s.f1;
     const f2 = s.f1 + s.df;
     const adf = Math.abs(s.df);
@@ -281,15 +281,6 @@ export default function render(host, spec) {
     };
   });
 
-  function syncSlider(sl, i, name, v, digits) {
-    const row = sl.box.children[i];
-    if (row) {
-      row.children[1].value = String(v);
-      row.children[2].textContent = fmt(v, digits);
-    }
-    sl.state[name] = v;
-  }
-
   const sliders = buildSliders(
     {
       sliders: [
@@ -309,8 +300,8 @@ export default function render(host, spec) {
   function update() {
     if (t1) t1.setFreq(s.f1);
     if (t2) t2.setFreq(s.f1 + s.df);
-    syncSlider(sliders, 0, 'f1', Math.round(s.f1), 0);
-    syncSlider(sliders, 1, 'df', Math.round(s.df * 10) / 10, 1);
+    setSliderRow(sliders, 0, Math.round(s.f1), 0, 'f1');
+    setSliderRow(sliders, 1, Math.round(s.df * 10) / 10, 1, 'df');
     draw();
   }
 

@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildSliders,
   buildReadout, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const PRESETS = {
@@ -141,9 +142,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const tasks = PRESETS[preset].tasks;
     const x0 = 52;
     const x1 = W - 14;

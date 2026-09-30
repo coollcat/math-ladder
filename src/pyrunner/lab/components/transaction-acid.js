@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildSliders, buildToolbar,
   buildReadout, el, mkBtn, label, clamp,
+  clearBg,
 } from '../core.js';
 
 const SCENES = {
@@ -168,9 +169,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const n = res.order.length;
     const bw = Math.min(96, (W - 30) / n - 6);
     const laneY = [44, 118];

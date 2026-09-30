@@ -29,6 +29,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 
 const F_LO = 20;
@@ -102,9 +104,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* ---------- 网格 ---------- */
     ctx.lineWidth = 1;
@@ -221,15 +221,6 @@ export default function render(host, spec) {
       PAD_L, H - 8, C.fg, { size: 10 });
   }
 
-  function syncSlider(sl, i, name, v, digits) {
-    const row = sl.box.children[i];
-    if (row) {
-      row.children[1].value = String(v);
-      row.children[2].textContent = fmt(v, digits);
-    }
-    sl.state[name] = v;
-  }
-
   const sliders = buildSliders(
     {
       sliders: [
@@ -247,8 +238,8 @@ export default function render(host, spec) {
   function setView(f, phon) {
     s.freq = clamp(f, F_LO, F_HI);
     s.phon = clamp(phon, 0, 100);
-    syncSlider(sliders, 0, 'phon', Math.round(s.phon), 0);
-    syncSlider(sliders, 1, 'freq', Math.round(s.freq), 0);
+    setSliderRow(sliders, 0, Math.round(s.phon), 0, 'phon');
+    setSliderRow(sliders, 1, Math.round(s.freq), 0, 'freq');
     draw();
   }
 
@@ -259,7 +250,7 @@ export default function render(host, spec) {
     hover: (x, y) => {
       if (y >= TOP - 10 && y <= BOT + 10) {
         s.freq = clamp(fOf(x), F_LO, F_HI);
-        syncSlider(sliders, 1, 'freq', Math.round(s.freq), 0);
+        setSliderRow(sliders, 1, Math.round(s.freq), 0, 'freq');
         draw();
       }
     },

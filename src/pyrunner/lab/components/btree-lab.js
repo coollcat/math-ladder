@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, anim, buildSliders, buildToolbar,
   buildReadout, mkBtn, label, clamp,
+  clearBg,
 } from '../core.js';
 
 const KW = 20;
@@ -156,9 +157,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const tree = copy(history[view].tree);
     if (!tree.keys.length) {
       label(ctx, '空树：先插入几个键', W / 2, H / 2, C.fg, { align: 'center', size: 13 });

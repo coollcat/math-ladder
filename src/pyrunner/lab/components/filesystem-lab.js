@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSegmented, buildToolbar,
   buildReadout, el, mkBtn, label,
+  clearBg,
 } from '../core.js';
 
 const FILES = {
@@ -80,9 +81,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const x = f();
 
     /* 上：路径解析链（目录项 → inode） */

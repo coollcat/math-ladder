@@ -47,8 +47,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, engine, buildSliders, buildSegmented,
-  buildReadout, polyline, label, clamp, fmt,
+  themeColors, setupCanvas, bindPointer, engine, buildSliders, buildSegmented, buildReadout,
+  polyline, label, clamp, fmt, mulberry32,
+  clearBg,
 } from '../core.js';
 
 const FS = 16000;               // 语音分析常用采样率
@@ -63,15 +64,6 @@ const VOWELS = {
 };
 
 /* 确定性伪随机（同一个种子每次刷新都一样，便于课文复现） */
-function mulberry32(a) {
-  return function rnd() {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /* 声门脉冲串：占空比 0.4 的升余弦，自带约 -12 dB/oct 的频谱倾斜，
    与真实声门波的频谱形态接近（谐波一个比一个低）。 */
@@ -245,9 +237,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const L = LAY(W, H);
     geom = L;
 

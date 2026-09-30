@@ -2,18 +2,16 @@
 
 /* 全页作用域：暖纸底、方格纸网格、衬线大标题、朱砂印章点缀。
    样式全部收在 .ml-home 里，不影响站内其余页面；
-   英雄区规则比 custom.css 的旧 .ml-hero 多一级限定，保证覆盖。 */
+   英雄区规则比 custom.css 的旧 .ml-hero 多一级限定，保证覆盖。
+
+   纸底/卡片/墨蓝/朱砂/衬线字栈**只在 custom.css 的 :root 与 [data-theme='dark']
+   各定义一份**，本块靠继承取值（原先两处各写一份同样的值，改色必漏一处）。
+   只有 custom.css 没有的 --ml-grid / --ml-hardshadow，以及首页专属的字号，
+   才留在这里。Infima 的标题规则带 :not(#\#) 双保险（ID 级特异性），类选择器
+   压不过它，所以字号只能在 .ml-home 作用域里改这些变量。 */
 .ml-home {
   --ml-grid: rgba(35, 48, 80, 0.08);
-  --ml-paper: #fbf8f1;
-  --ml-card: #ffffff;
-  --ml-ink: #26324b;
-  --ml-vermilion: #c2401c;
   --ml-hardshadow: rgba(38, 50, 75, 0.16);
-  --ml-display: Georgia, 'Times New Roman', 'Songti SC', STSong, SimSun, serif;
-  /* Infima 的标题规则带 :not(#\#) 双保险（ID 级特异性），类选择器压不过它，
-     只能在 .ml-home 作用域里改这些变量来换标题字体/字号 */
-  --ifm-heading-font-family: var(--ml-display);
   --ifm-h1-font-size: clamp(2.6rem, 6vw, 3.9rem);
   --ifm-h2-font-size: 1.65rem;
   --ifm-heading-font-weight: 800;
@@ -27,9 +25,6 @@
 
 [data-theme='dark'] .ml-home {
   --ml-grid: rgba(148, 163, 184, 0.11);
-  --ml-paper: #1b202a;
-  --ml-card: #232a36;
-  --ml-ink: #c7d0e0;
   --ml-hardshadow: rgba(0, 0, 0, 0.4);
 }
 

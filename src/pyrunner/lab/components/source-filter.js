@@ -38,6 +38,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
   buildSegmented, label, polyline, clamp, fmt, engine, audioShell,
+  clearBg,
+  lcg,
 } from '../core.js';
 
 /* 五个元音的三个共振峰（Hz）与带宽（Hz）：男声常见值，取教学用整数 */
@@ -182,10 +184,9 @@ export default function render(host, spec) {
     const out = new Float64Array(N);
     if (s.src === 'noise') {
       /* 定种子的伪随机：让波形别每帧乱跳，便于看清"它是乱的" */
-      let seed = 20260904;
+      const rnd = lcg(20260904);
       for (let i = 0; i < N; i += 1) {
-        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-        out[i] = seed / 0x3fffffff - 1;
+        out[i] = rnd();
       }
       if (withFormants) coefs.forEach((c) => runBiquad(c, out));
       return normalize(out);
@@ -288,9 +289,7 @@ export default function render(host, spec) {
     const W = cv.W;
     const H = cv.H;
     const w = plotW();
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     label(ctx, '① 激励（声源）', PADL, 18, C.fg, { size: 11 });
     label(ctx, '② 频谱：声源 × 声道 = 输出（拖 F1/F2/F3）', PADL, 118, C.fg, { size: 11 });

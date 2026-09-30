@@ -2,6 +2,7 @@
    V = E + I·R 就锁定了工作点。左边看转子在磁场里怎么受力，右边看 n–T 曲线上的落点。 */
 import {
   themeColors, setupCanvas, anim, buildReadout, buildSliders, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 const RAD2RPM = 60 / (2 * Math.PI);
@@ -59,9 +60,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const p = point();
     const splitX = Math.round(W * 0.46);
     const cx = splitX / 2;

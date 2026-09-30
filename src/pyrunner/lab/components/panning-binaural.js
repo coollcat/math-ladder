@@ -37,6 +37,8 @@
 import {
   themeColors, setupCanvas, bindPointer, buildSliders, buildSegmented,
   buildReadout, audioShell, polyline, label, clamp, fmt,
+  setSliderRow,
+  clearBg,
 } from '../core.js';
 import { chain } from '../engines/audio.js';
 
@@ -210,9 +212,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const dt = itd(s.azimuth);
     const db = ild(s.azimuth, s.freq);
@@ -473,11 +473,11 @@ export default function render(host, spec) {
       if (id === 'az') {
         const deg = (Math.atan2(x - geo.hcx, geo.hcy - y) * 180) / Math.PI;
         s.azimuth = clamp(deg, -90, 90);
-        setSlider(0, Math.round(s.azimuth * 10) / 10);
+        setSliderRow(sliders, 0, Math.round(s.azimuth * 10) / 10, 2, NAMES[0]);
       } else if (id === 'pan') {
         const P = geo.panTrack;
         s.pan = clamp(((x - P.x0) / (P.x1 - P.x0)) * 2 - 1, -1, 1);
-        setSlider(1, Math.round(s.pan * 100) / 100);
+        setSliderRow(sliders, 1, Math.round(s.pan * 100) / 100, 2, NAMES[1]);
       }
       applyAudio();
       draw();
@@ -506,16 +506,6 @@ export default function render(host, spec) {
       draw();
     },
   );
-
-  function setSlider(i, v) {
-    const row = sliders.box.children[i];
-    if (!row) return;
-    const range = row.querySelector('input');
-    const val = row.querySelector('.ml-slider__val');
-    if (range) range.value = String(v);
-    if (val) val.textContent = fmt(v, 2);
-    sliders.state[NAMES[i]] = v;
-  }
 
   draw();
   cv.redraw = draw;

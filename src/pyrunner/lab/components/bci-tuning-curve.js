@@ -4,33 +4,17 @@
 import {
   themeColors, setupCanvas, buildSliders, buildReadout,
   polyline, label, clamp, fmt,
+  pois,
+  mulberry32,
+  clearBg,
 } from '../core.js';
 
 const DEG = 180 / Math.PI;
-
-/* 稳定伪随机：参数不变则栅格不变，免得每帧都在跳 */
-function rng(seed) {
-  let a = seed >>> 0;
-  return function next() {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 function wrapDeg(d) {
   let x = ((d + 180) % 360 + 360) % 360 - 180;
   if (x === -180) x = 180;
   return x;
-}
-
-function pois(k, lam) {
-  if (lam <= 0) return k === 0 ? 1 : 0;
-  let lg = -lam + k * Math.log(lam);
-  for (let i = 2; i <= k; i += 1) lg -= Math.log(i);
-  return Math.exp(lg);
 }
 
 export default function render(host, spec) {
@@ -59,7 +43,7 @@ export default function render(host, spec) {
     const nb = Math.max(2, Math.round(s.T / DT));
     const seed = (Math.round(s.theta * 7 + s.pref * 13) * 131
       + Math.round(s.sigma * 17 + s.rmax * 3 + s.T * 1000)) >>> 0;
-    const rand = rng(seed || 1);
+    const rand = mulberry32(seed || 1);
     const p = clamp(rate(s.theta) * DT, 0, 1);
     raster = [];
     counts = [];
@@ -89,9 +73,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* ===== 左：极坐标调谐曲线 ===== */
     const cx = Math.min(W * 0.23, 150);

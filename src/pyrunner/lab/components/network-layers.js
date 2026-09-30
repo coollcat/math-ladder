@@ -2,6 +2,7 @@
    下面那条越走越长的报文，就是「封装」——每往下一层就多套一层首部。 */
 import {
   themeColors, setupCanvas, bindPointer, anim, buildReadout, el, label, clamp,
+  clearBg,
 } from '../core.js';
 
 const OSI = [
@@ -63,9 +64,7 @@ export default function render(host) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const { lw, lx, rx } = geom();
 
     label(ctx, 'OSI 七层（参考模型）', lx, 14, C.fg, { size: 11, weight: 600 });

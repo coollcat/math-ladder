@@ -5,6 +5,7 @@
 import {
   themeColors, setupCanvas, anim, buildSegmented, buildReadout, buildSliders,
   polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 export default function render(host, spec) {
@@ -31,9 +32,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     if (s.mode === 'belt') {
       /* ---------- 带传动 ---------- */

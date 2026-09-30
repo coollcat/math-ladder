@@ -4,6 +4,8 @@
 import {
   themeColors, setupCanvas, buildSegmented, buildReadout, buildSliders,
   label, clamp, fmt,
+  arrow,
+  clearBg,
 } from '../core.js';
 
 const MATS = {
@@ -12,30 +14,6 @@ const MATS = {
   copper: { label: '紫铜', E: 110e9, sy: 70e6 },
   wood: { label: '木材（顺纹）', E: 11e9, sy: 40e6 },
 };
-
-function arrow(ctx, x0, y0, x1, y1, color, w, head) {
-  const ang = Math.atan2(y1 - y0, x1 - x0);
-  const len = Math.hypot(x1 - x0, y1 - y0);
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = w || 2;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(x0, y0);
-  ctx.lineTo(x1, y1);
-  ctx.stroke();
-  if (len > 5) {
-    const h = head || 9;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x1 - h * Math.cos(ang - 0.42), y1 - h * Math.sin(ang - 0.42));
-    ctx.lineTo(x1 - h * Math.cos(ang + 0.42), y1 - h * Math.sin(ang + 0.42));
-    ctx.closePath();
-    ctx.fill();
-  }
-  ctx.restore();
-}
 
 export default function render(host, spec) {
   const C = themeColors();
@@ -70,9 +48,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const st = state();
     const m = st.m;
 

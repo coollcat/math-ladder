@@ -3,6 +3,8 @@
    「噪声淹没」两头打架。 */
 import {
   themeColors, setupCanvas, anim, buildReadout, buildSliders, polyline, label, clamp, fmt,
+  clearBg,
+  lcg,
 } from '../core.js';
 
 const VFS = 3.3;       // ADC 满量程
@@ -11,11 +13,7 @@ const NS = 720;        // 噪声序列长度
 
 /* 确定性伪随机噪声：每次刷新形状一致，便于观察参数影响 */
 function noiseSeq() {
-  let seed = 20240915;
-  const rnd = () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x7fffffff;
-  };
+  const rnd = lcg(20240915, true);
   const a = new Float64Array(NS);
   for (let i = 0; i < NS; i += 1) a[i] = (rnd() + rnd() + rnd() - 1.5) * 1.2;
   let s = 0;
@@ -55,9 +53,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     const A = ampOut();
     const sg = sigmaOut();
     const l = lsb();

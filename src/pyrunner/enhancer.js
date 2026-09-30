@@ -8,12 +8,14 @@ import { watchPanel, bringToFront, isTopmost } from './zorder';
 import { iconSvg } from '../components/icons';
 
 /* viz 组件库很大（源码约 400KB），静态 import 会把它打进每页必下的主包。
-   这里改成按需动态加载：页面里真出现 ```viz 围栏才拉取对应 chunk。 */
+   这里改成按需动态加载：页面里真出现 ```viz 围栏才拉取对应 chunk。
+   导出给首页 hero 复用——**全站只保留这一个动态 import 调用点**，
+   否则 bundler 会为每个调用点各生成一份 viz chunk（实测出过两份 299KB）。 */
 let vizModPromise = null;
-function loadVizModule() {
+export function loadVizModule() {
   if (!vizModPromise) {
     vizModPromise = import('./viz').then(
-      (mod) => mod.enhanceViz,
+      (mod) => mod,
       (e) => {
         vizModPromise = null;
         throw e;
@@ -779,9 +781,12 @@ export function openInConsole(opts) {
   /* 显示模式：窄屏默认整页、宽屏默认浮窗（用户手动选过的偏好优先）。
      这一步不能省——正文里的按钮只加 is-open，不经过 setOpen()。 */
   if (typeof st._applyMode === 'function') st._applyMode();
-  /* 路由切换后，旧页面练习的回调不会再被触发：顺手清掉，防 Map 无限增长 */
+  /* 路由切换后，旧页面练习/解题的回调不会再被触发：顺手清掉，防 Map 无限增长。
+     #ex- 是判题练习、#solve- 是「用 Python 解题」，两条入口都要清。 */
   for (const k of Array.from(st.callbacks.keys())) {
-    if (k.includes('#ex-') && !k.startsWith(location.pathname)) st.callbacks.delete(k);
+    if ((k.includes('#ex-') || k.includes('#solve-')) && !k.startsWith(location.pathname)) {
+      st.callbacks.delete(k);
+    }
   }
   if (opts?.exercise?.key) {
     st.callbacks.set(opts.exercise.key, opts.exercise.onPass || null);
@@ -1730,12 +1735,25 @@ function buildQuizCard(source) {
 }
 
 function bindCodeBlocks() {
+  /* 练习块的通过表与旧版草稿表按需各读一次（原来每个练习块全量 JSON.parse 两遍，
+     一页 15 个练习就是 30 次全表解析；无练习块的页面保持零开销）。 */
+  let passMap = null;
+  let legacyDrafts = null;
+  const getPassMap = () => (passMap = passMap || passStore());
+  const getLegacyDrafts = () => (legacyDrafts = legacyDrafts || loadJSON('ml-exercise-drafts', {}));
   document.querySelectorAll('pre[class*="language-"]').forEach((pre) => {
     const lang = (pre.className.match(/language-([a-z0-9]+)/) || [])[1] || '';
     if (lang !== 'python' && lang !== 'quiz' && lang !== 'exercise') return;
 
     const container = pre.closest('.theme-code-block') || pre.parentElement;
     if (!container) return;
+    /* 已绑定的块直接跳过——取源（逐 token-line 拼接）与全串哈希是本函数最贵的
+       两步，放在 mlBound 判定之前等于每轮重扫都对全页已绑定块白算一遍
+       （全站 1861 python + 1184 exercise + 1053 quiz，均值 4–5 块/课）。
+       与 lab/index.js 的守卫顺序保持一致。staleQuiz 分支只在**新容器**
+       （React 重建、mlBound 尚未置位）上才有意义，先判 mlBound 不会漏掉它。 */
+    if (container.dataset.mlBound === '1') return;
+
     const source = extractSource(container);
     const sourceKey = String(hashStr(source));
     const staleQuiz = [container.previousElementSibling, container.nextElementSibling]
@@ -1745,7 +1763,6 @@ function bindCodeBlocks() {
       container.dataset.mlBound = '1';
       return;
     }
-    if (container.dataset.mlBound === '1') return;
     container.dataset.mlBound = '1';
 
     if (lang === 'quiz') {
@@ -1800,10 +1817,11 @@ function bindCodeBlocks() {
         '#ex-' +
         hashStr(meta.title + '\u0000' + meta.initial + '\u0000' + meta.check.join('|'));
       const savedDraft = consoleStore().drafts[key];
-      const legacyDraft = loadJSON('ml-exercise-drafts', {})[key];
+      const legacyDraft = getLegacyDrafts()[key];
       const startSource = savedDraft || legacyDraft || meta.initial;
-      const btn = makeMiniBtn(passStore()[key] ? '✓ 已通过' : '▶ 在浮窗作答');
-      if (passStore()[key]) btn.classList.add('ok');
+      const passed = !!getPassMap()[key];
+      const btn = makeMiniBtn(passed ? '✓ 已通过' : '▶ 在浮窗作答');
+      if (passed) btn.classList.add('ok');
       btn.title = '打开浮窗完成这道练习';
       btn.addEventListener('click', () => {
         openInConsole({
@@ -2083,6 +2101,8 @@ function enhancePapers() {
   document.querySelectorAll('pre[class*="language-paper"]').forEach((pre) => {
     const container = pre.closest('.theme-code-block') || pre.parentElement;
     if (!container) return;
+    /* 同 bindCodeBlocks：先判 mlBound 再取源+哈希，省掉每轮对已绑定块的白算 */
+    if (container.dataset.mlBound === '1') return;
     const source = extractSource(container);
     const sourceKey = String(hashStr(source));
     /* 水合安全：不删除 React 管辖的节点——隐藏原容器，把文献卡插到它后面 */
@@ -2094,7 +2114,6 @@ function enhancePapers() {
       container.dataset.mlBound = '1';
       return;
     }
-    if (container.dataset.mlBound === '1') return;
     container.dataset.mlBound = '1';
 
     const widget = buildPaperCard(parsePaperMeta(source));
@@ -2109,22 +2128,44 @@ function enhancePapers() {
 
 /* ---------- 扫描入口 ---------- */
 
+/* queueMicrotask 只合并"同一个任务"里的变更，而一次拖动/流式输出会连着发很多个
+   任务 —— 结果是每帧跑 1 轮（甚至多轮）全文档扫描（8 个文档级查询 + 逐块取源）。
+   改成两段合并：
+     ① rAF 合并同一帧内的全部变更（一帧最多一轮）；
+     ② 静默窗口：距上一轮不到 QUIET_MS 的新变更不立刻跑，等窗口结束补跑一次，
+        把"连续变更"从每帧一轮压到约每 QUIET_MS 一轮。
+   首轮不受影响（lastRunAt=0 直接走 rAF），所以路由切换后的首扫照样及时。 */
 let scheduled = false;
+let lastRunAt = 0;
+let trailingTimer = 0;
+const QUIET_MS = 100;
+
+function runEnhance() {
+  scheduled = false;
+  lastRunAt = Date.now();
+  enhanceAll();
+}
 
 export function scheduleEnhance() {
-  if (scheduled) return;
+  if (scheduled || trailingTimer) return;
+  const since = lastRunAt ? Date.now() - lastRunAt : Infinity;
+  if (since < QUIET_MS) {
+    trailingTimer = setTimeout(() => {
+      trailingTimer = 0;
+      scheduleEnhance();
+    }, QUIET_MS - since);
+    return;
+  }
   scheduled = true;
-  queueMicrotask(() => {
-    scheduled = false;
-    enhanceAll();
-  });
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(runEnhance);
+  else runEnhance();
 }
 
 function maybeEnhanceViz() {
   if (!document.querySelector('pre[class*="language-viz"]')) return;
   loadVizModule().then(
-    (enhanceViz) => {
-      try { enhanceViz(); } catch (e) { console.error('[ml] viz:', e); }
+    (mod) => {
+      try { mod.enhanceViz(); } catch (e) { console.error('[ml] viz:', e); }
     },
     (e) => console.error('[ml] viz 加载失败:', e),
   );
@@ -2159,11 +2200,15 @@ function maybeEnhanceLab() {
 export function enhanceAll() {
   /* 任一阶段出错都不拖垮其余阶段，更不冒泡打断 React 提交 */
   try { ensureConsole(); } catch (e) { console.error('[ml] console:', e); }
-  try { bindCodeBlocks(); } catch (e) { console.error('[ml] code blocks:', e); }
+  /* 首页 / /tree / /graph / /function / /login 这些页面连一个代码围栏都没有：
+     一次 body 级预判跳过 viz/lab/papers/代码块四个逐语言全文档扫描
+     （每次路由切换的 MutationObserver 触发都吃这个收益）。 */
+  const hasCode = !!document.body && !!document.body.querySelector('pre[class*="language-"]');
+  try { if (hasCode) bindCodeBlocks(); } catch (e) { console.error('[ml] code blocks:', e); }
   try { bindSolutionDetails(); } catch (e) { console.error('[ml] solutions:', e); }
-  try { maybeEnhanceViz(); } catch (e) { console.error('[ml] viz:', e); }
-  try { maybeEnhanceLab(); } catch (e) { console.error('[ml] lab:', e); }
-  try { enhancePapers(); } catch (e) { console.error('[ml] papers:', e); }
+  try { if (hasCode) maybeEnhanceViz(); } catch (e) { console.error('[ml] viz:', e); }
+  try { if (hasCode) maybeEnhanceLab(); } catch (e) { console.error('[ml] lab:', e); }
+  try { if (hasCode) enhancePapers(); } catch (e) { console.error('[ml] papers:', e); }
   try { enhanceProgress(); } catch (e) { console.error('[ml] progress:', e); }
 }
 

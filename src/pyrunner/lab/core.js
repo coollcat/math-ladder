@@ -75,11 +75,8 @@ function ensureThemeObserver() {
   themeObserverReady = true;
   new MutationObserver(() => {
     themeCache = null;
+    pruneRedraws();
     redraws.forEach((fn) => {
-      if (!fn.el || !fn.el.isConnected) {
-        redraws.delete(fn);
-        return;
-      }
       try {
         fn();
       } catch (err) {
@@ -87,6 +84,15 @@ function ensureThemeObserver() {
       }
     });
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+}
+
+/* 清掉已脱离文档的组件留下的重绘回调。组件销毁（路由切换）不会主动注销，
+   全靠这里兜底：否则死回调会滞留在 redraws 里直到下次主题切换。
+   每次有新画布注册时也扫一遍，把滞留窗口压到「本轮新增的画布」级别。 */
+function pruneRedraws() {
+  redraws.forEach((fn) => {
+    if (!fn.el || !fn.el.isConnected) redraws.delete(fn);
+  });
 }
 
 function onScreen(el, cb) {
@@ -175,6 +181,7 @@ function setupCanvas(box, height, opts = {}) {
     if (holder.redraw) holder.redraw();
   };
   themeRedraw.el = box;
+  pruneRedraws();
   redraws.add(themeRedraw);
   ensureThemeObserver();
   return holder;
@@ -182,13 +189,7 @@ function setupCanvas(box, height, opts = {}) {
 
 function bindPointer(canvas, handlers) {
   let activeId = null;
-  const toLogical = (ev) => {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: (ev.clientX - rect.left) * (canvas._W / rect.width),
-      y: (ev.clientY - rect.top) * (canvas._H / rect.height),
-    };
-  };
+  const toLogical = (ev) => pointerXY(canvas, ev);
   canvas.addEventListener('pointerdown', (ev) => {
     const p = toLogical(ev);
     const id = handlers.pick ? handlers.pick(p.x, p.y) : 'main';
@@ -225,6 +226,16 @@ function bindPointer(canvas, handlers) {
   canvas.addEventListener('pointerleave', () => {
     if (handlers.leave) handlers.leave();
   });
+}
+
+/* 把指针事件换算成画布逻辑坐标（setupCanvas 的 _W/_H 口径）。
+   bindPointer 内部也用它；组件自管指针事件时直接调这个，别再各写一份。 */
+function pointerXY(canvas, ev) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (ev.clientX - rect.left) * (canvas._W / rect.width),
+    y: (ev.clientY - rect.top) * (canvas._H / rect.height),
+  };
 }
 
 /* 常用绘图：网格 + 坐标轴 + 折线。各组件自行决定是否调用。 */
@@ -271,6 +282,32 @@ function label(ctx, text, x, y, color, opts = {}) {
   ctx.restore();
 }
 
+/* 带箭头的线段（力学/电路类组件画力矢量、流向用）。
+   head 是箭头长度像素，w 是线宽，长度不足 5px 时不画箭头。 */
+function arrow(ctx, x0, y0, x1, y1, color, w, head) {
+  const ang = Math.atan2(y1 - y0, x1 - x0);
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = w || 2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1, y1);
+  ctx.stroke();
+  if (len > 5) {
+    const h = head || 9;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - h * Math.cos(ang - 0.42), y1 - h * Math.sin(ang - 0.42));
+    ctx.lineTo(x1 - h * Math.cos(ang + 0.42), y1 - h * Math.sin(ang + 0.42));
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 /* ---------- 控件 ---------- */
 
 function buildSliders(spec, onChange) {
@@ -296,6 +333,22 @@ function buildSliders(spec, onChange) {
     box.appendChild(row);
   });
   return { box, state };
+}
+
+/* 把一个值回写到 buildSliders 造出的第 i 行滑块（拖拽联动 / 工具条同步用）。
+   buildSliders 没给 setter，组件里做「拖画布改滑块」时全靠这个按行序号回写：
+   - digits 给了就用 fmt(v, digits) 更新数值标签；不给就原样 String(v)（整数滑块）。
+   - name 给了就顺带 sliders.state[name] = v（与用户拖滑块的行为对齐）。
+   行结构固定是 label / input / span 三个孩子，直接按位取，比 querySelector 快。 */
+function setSliderRow(sliders, i, v, digits, name) {
+  const row = sliders.box.children[i];
+  if (row) {
+    const input = row.children[1];
+    const val = row.children[2];
+    if (input) input.value = String(v);
+    if (val) val.textContent = digits === undefined ? String(v) : fmt(v, digits);
+  }
+  if (name !== undefined) sliders.state[name] = v;
 }
 
 function buildToolbar(...buttons) {
@@ -508,7 +561,6 @@ function audioShell(host, setup) {
 }
 
 /* ---------- 引擎懒加载门面 ---------- */
-
 const engineLoaders = {
   dsp: () => import('./engines/dsp.js'),
   media: () => import('./engines/media.js'),
@@ -524,6 +576,221 @@ function engine(name) {
   return l();
 }
 
+/* ---------- 组件通用工具 ----------
+   这一节的函数原先在 lab/components/ 里被各组件各写一份（多则十几份），
+   语义一致，统一收敛到这里。组件直接从 core.js 引，不必再自带副本。
+   注意：core.js 已被全部组件引用，加导出不增加任何加载成本。 */
+
+/* 灰度数组 -> 离屏 canvas。map 可选，用于显示前做一次逐点映射
+   （传不传都行，不传就直接把 [0,1] 值画成灰阶）。
+   ImageData 的 data 是 Uint8ClampedArray，赋值时自己会夹紧，
+   所以这里只负责 clamp + 四舍五入。 */
+function grayCanvas(data, w, h, map) {
+  const cv = document.createElement('canvas');
+  cv.width = w;
+  cv.height = h;
+  const c2 = cv.getContext('2d');
+  const im = c2.createImageData(w, h);
+  for (let i = 0; i < w * h; i += 1) {
+    const g = Math.round(clamp(map ? map(data[i], i) : data[i], 0, 1) * 255);
+    im.data[i * 4] = g;
+    im.data[i * 4 + 1] = g;
+    im.data[i * 4 + 2] = g;
+    im.data[i * 4 + 3] = 255;
+  }
+  c2.putImageData(im, 0, 0);
+  return cv;
+}
+
+/* 老名字，与 grayCanvas 是同一件事（视频/编码类组件在用）。留作别名，
+   免得 6 个文件各改一遍调用点。 */
+const toCanvas = grayCanvas;
+
+/* 把离屏 canvas 贴到目标上下文，关掉插值以免灰阶图被平滑糊掉。 */
+function blit(ctx, cv, x, y, w, h) {
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(cv, x, y, w, h);
+}
+
+/* 从 spec.sliders 里按名取一项滑块规格，取不到就用组件给的默认值。
+   课文 ```lab 围栏里写了同名滑块时，用它覆盖组件默认范围。 */
+function pickSlider(spec, name, def) {
+  const s = (spec.sliders || []).find((it) => it && it.name === name);
+  return s
+    ? { name, label: s.label || def.label, min: s.min, max: s.max, step: s.step, value: s.value }
+    : def;
+}
+
+/* 把课文 spec 里散落的滑块初值合回组件的默认规格表，
+   合完统一 clamp 回各自范围，保证初值不会越界。 */
+function mergeSpec(base, spec) {
+  const given = Array.isArray(spec && spec.sliders) ? spec.sliders : [];
+  return base.map((d) => {
+    const top = spec && typeof spec[d.name] === 'number' ? spec[d.name] : d.value;
+    const o = given.find((g) => g && g.name === d.name) || {};
+    const item = Object.assign({}, d, { value: top }, o, { name: d.name });
+    item.value = clamp(item.value, item.min, item.max);
+    return item;
+  });
+}
+
+/* 确定性伪随机（同一 seed 永远同一串），用于"每次刷新结果都一样"的教学演示，
+   避免学生对照答案时被随机数干扰。 */
+function mulberry32(a) {
+  return function rnd() {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* 把数组按峰值缩放到 peak（默认 0.9，留一点余量防削波）。
+   频谱/倒谱类组件画图前的例行公事，原先 mfcc-lab 与 spectrogram-lab 各一份。 */
+function normalizeTo(arr, peak = 0.9) {
+  let mx = 1e-9;
+  for (let i = 0; i < arr.length; i += 1) mx = Math.max(mx, Math.abs(arr[i]));
+  const k = peak / mx;
+  for (let i = 0; i < arr.length; i += 1) arr[i] *= k;
+  return arr;
+}
+
+/* 泊松分布 pmf：P(X=k|λ)。连乘算 log 避免阶乘溢出，λ≤0 时只 k=0 有意义。
+   bci 章两个组件（互信息 / 调谐曲线）共用。 */
+function pois(k, lam) {
+  if (lam <= 0) return k === 0 ? 1 : 0;
+  let lg = -lam + k * Math.log(lam);
+  for (let i = 2; i <= k; i += 1) lg -= Math.log(i);
+  return Math.exp(lg);
+}
+
+/* 程序化生成的内置示例图（图像处理类组件共用同一张「风景」：
+   天空亮斑 / 双层山脊 / 水面波纹 / 码头条纹 / 棋盘角），返回 [0,1] 灰度。
+   原先 5 个图像组件各抄一份，现在统一从这里出。 */
+function sceneGray(w, h) {
+  const img = new Float64Array(w * h);
+  const ar = w / h;
+  const HZ = 0.58;
+  const bump = (u, c, s) => Math.exp(-((u - c) * (u - c)) / (2 * s * s));
+  for (let y = 0; y < h; y += 1) {
+    const v = y / (h - 1);
+    for (let x = 0; x < w; x += 1) {
+      const u = x / (w - 1);
+      const rA = HZ - 0.26 * bump(u, 0.26, 0.13) - 0.17 * bump(u, 0.68, 0.08);
+      const rB = HZ - 0.10 * bump(u, 0.5, 0.22);
+      const far = Math.min(rA, rB);
+      const near = Math.max(rA, rB);
+      let val;
+      if (v < far) {
+        val = 0.30 + 0.44 * (v / HZ);
+        const sd = Math.hypot((u - 0.78) * ar, v - 0.16);
+        if (sd < 0.07) val = 0.99;
+        else if (sd < 0.14) val += 0.16 * (1 - (sd - 0.07) / 0.07);
+      } else if (v < near) {
+        val = 0.20 + 0.10 * bump(u, 0.26, 0.13);
+      } else if (v < HZ) {
+        val = 0.46 + 0.10 * Math.sin(u * 46);
+      } else {
+        val = 0.68 - 0.36 * ((v - HZ) / (1 - HZ));
+        if (v > 0.63 && v < 0.79 && u > 0.08 && u < 0.44) {
+          val = Math.floor(x / 3) % 2 ? 0.90 : 0.16;
+        }
+        if (v > 0.80 && u > 0.60) {
+          val = (Math.floor(x / 3) + Math.floor(y / 3)) % 2 ? 0.92 : 0.26;
+        }
+      }
+      img[y * w + x] = clamp(val, 0, 1);
+    }
+  }
+  return img;
+}
+
+/* 画布开屏三连：清底 + 填主题底色。各组件 draw() 的第一步原先都是这三行。 */
+function clearBg(ctx, W, H, C) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+}
+
+/* LCG 线性同余（经典 glibc 参数，seed*1103515245+12345）。
+   unit=true 给 [0,1]（概率采样 / Box-Muller 用），默认给 [-1,1] 的带符号噪声
+   （波形注入 / 抖动用）。注意与 mulberry32 是两种分布口径，别互相替换。 */
+function lcg(seed, unit) {
+  return function rnd() {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return unit ? seed / 0x7fffffff : seed / 0x3fffffff - 1;
+  };
+}
+
+/* Box-Muller 高斯：rand 是 [0,1] 随机源（传 lcg(seed, true) 或 mulberry32(seed)）。
+   u1 带 1e-9 下限防 log(0)。 */
+function gaussOf(rand) {
+  const u1 = Math.max(rand(), 1e-9);
+  return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * rand());
+}
+
+/* 泊松采样：λ<30 用 Knuth 乘法逐个试，大 λ 用正态近似 λ+√λ·z（并夹到 ≥0）。 */
+function poissonSample(lam, rand) {
+  if (lam <= 0) return 0;
+  if (lam < 30) {
+    let k = 0;
+    let p = 1;
+    const L = Math.exp(-lam);
+    do { k += 1; p *= rand(); } while (p > L);
+    return k - 1;
+  }
+  const u1 = Math.max(rand(), 1e-12);
+  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * rand());
+  return Math.max(0, Math.round(lam + Math.sqrt(lam) * z));
+}
+
+/* 洛伦兹因子 γ(v) = 1/√(1−v²)，相对论各组件共用（v 用无量纲 β = v/c）。 */
+function gammaOf(v) {
+  return 1 / Math.sqrt(1 - v * v);
+}
+
+/* 频率 → 音名 + 音分偏差（A4 = 440 Hz = MIDI 69，音名用升号 ♯ 记法）。
+   非有限 / 非正频率给 { name: '—', cents: 0 }，调用方不必自己判。 */
+const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+function noteOf(f) {
+  if (!isFinite(f) || f <= 0) return { name: '—', cents: 0 };
+  const n = 69 + 12 * Math.log2(f / 440);
+  const near = Math.round(n);
+  return {
+    name: NOTE_NAMES[((near % 12) + 12) % 12] + (Math.floor(near / 12) - 1),
+    cents: Math.round((n - near) * 100),
+  };
+}
+
+/* CSS 颜色串 → [r,g,b]：hex3/hex6、rgb()/rgba()、裸「r, g, b」数字串都认，
+   全部失败给 fallback（三版组件私有解析的正则并集）。 */
+function cssToRGB(css, fallback) {
+  const s0 = String(css || '').trim();
+  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(s0);
+  if (hex) {
+    let h = hex[1];
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  const rgb = /rgba?\(([^)]+)\)/i.exec(s0);
+  if (rgb) {
+    const p = rgb[1].split(',').map((v) => parseFloat(v));
+    return [p[0] || 0, p[1] || 0, p[2] || 0];
+  }
+  const bare = /(\d+)[,\s]+(\d+)[,\s]+(\d+)/.exec(s0);
+  if (bare) return [+bare[1], +bare[2], +bare[3]];
+  return fallback;
+}
+
+/* 改某一行滑块的量程上限（异步引擎装载数据后帧数/档位才定的场景）。 */
+function setSliderMax(sliders, i, max) {
+  const row = sliders.box.children[i];
+  if (!row) return;
+  const r = row.querySelector('input[type="range"]');
+  if (r) r.max = String(max);
+}
+
 export {
   cssVar,
   isDarkMode,
@@ -537,10 +804,14 @@ export {
   fmt,
   setupCanvas,
   bindPointer,
+  pointerXY,
   drawGrid,
   polyline,
   label,
+  arrow,
   buildSliders,
+  setSliderRow,
+  setSliderMax,
   buildToolbar,
   buildSegmented,
   buildReadout,
@@ -550,4 +821,20 @@ export {
   audioShell,
   engine,
   SERIES,
+  grayCanvas,
+  toCanvas,
+  blit,
+  pickSlider,
+  mergeSpec,
+  mulberry32,
+  lcg,
+  gaussOf,
+  poissonSample,
+  gammaOf,
+  noteOf,
+  cssToRGB,
+  normalizeTo,
+  pois,
+  sceneGray,
+  clearBg,
 };

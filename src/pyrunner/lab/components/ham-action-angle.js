@@ -32,8 +32,9 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, buildSliders, buildReadout, bindPointer,
-  polyline, label, fmt, clamp, anim,
+  themeColors, setupCanvas, buildSliders, buildReadout, bindPointer, polyline, label, fmt,
+  clamp, anim, mergeSpec,
+  clearBg,
 } from '../core.js';
 
 const RMAX = 2.0;      /* 相空间的显示半径 */
@@ -51,17 +52,6 @@ function bestRational(x, qmax) {
     if (!best || err < best.err - 1e-12) best = { p, q, err };
   }
   return best;
-}
-
-function mergeSpec(base, spec) {
-  const given = Array.isArray(spec && spec.sliders) ? spec.sliders : [];
-  return base.map((d) => {
-    const top = spec && typeof spec[d.name] === 'number' ? spec[d.name] : d.value;
-    const o = given.find((gg) => gg && gg.name === d.name) || {};
-    const item = Object.assign({}, d, { value: top }, o, { name: d.name });
-    item.value = clamp(item.value, item.min, item.max);
-    return item;
-  });
 }
 
 export default function render(host, spec) {
@@ -106,9 +96,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     /* ---- 左：相空间的圆，面积 = 2πJ ---- */
     const side = Math.min(Math.round(W * 0.4), H - 60);

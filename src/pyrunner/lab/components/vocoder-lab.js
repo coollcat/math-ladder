@@ -49,8 +49,10 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, engine, audioShell, buildSliders,
-  buildSegmented, buildReadout, rafLoop, polyline, label, clamp, fmt,
+  themeColors, setupCanvas, bindPointer, engine, audioShell, buildSliders, buildSegmented,
+  buildReadout, rafLoop, polyline, label, clamp, fmt, mulberry32,
+  clearBg,
+  cssToRGB,
 } from '../core.js';
 
 const FS = 16000;
@@ -67,16 +69,6 @@ const UTT = [
   { t: 1.55, F: [400, 900, 2400], v: 1, a: 0.0 },
 ];
 const BAND = [80, 110, 170];   // 三个共振峰的带宽（Hz）
-
-function mulberry32(a) {
-  return function rnd() {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 /* 在航点表上按时间插值 */
 function track(t) {
@@ -174,16 +166,6 @@ function quantizeK(k, bits) {
 }
 
 /* ---------- 颜色工具（语谱图用；要同时吃 hex 与 rgb()/rgba()） ---------- */
-function parseRGB(c) {
-  if (c[0] === '#') {
-    let h = c.slice(1);
-    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
-    const v = parseInt(h, 16);
-    return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
-  }
-  const m = c.match(/-?\d+(\.\d+)?/g);
-  return m ? [+m[0], +m[1], +m[2]] : [128, 128, 128];
-}
 
 /* 把 dB 矩阵画成一张离屏位图（行翻转：高频在上） */
 function specBitmap(cols, bins, db, lo, hi, c0, c1, c2) {
@@ -192,9 +174,9 @@ function specBitmap(cols, bins, db, lo, hi, c0, c1, c2) {
   off.height = Math.max(1, bins);
   const octx = off.getContext('2d');
   const img = octx.createImageData(off.width, off.height);
-  const A = parseRGB(c0);
-  const B = parseRGB(c1);
-  const Cc = parseRGB(c2);
+  const A = cssToRGB(c0, [128, 128, 128]);
+  const B = cssToRGB(c1, [128, 128, 128]);
+  const Cc = cssToRGB(c2, [128, 128, 128]);
   for (let i = 0; i < cols; i += 1) {
     for (let j = 0; j < bins; j += 1) {
       const t = clamp((db[i][j] - lo) / (hi - lo), 0, 1);
@@ -379,9 +361,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const specH = Math.round(H * 0.40);
     const waveY = specH + 22;

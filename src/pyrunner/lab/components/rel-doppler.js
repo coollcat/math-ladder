@@ -23,19 +23,16 @@
  * ========================================================================= */
 
 import {
-  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout,
-  polyline, label, fmt, clamp,
+  themeColors, setupCanvas, bindPointer, buildSliders, buildReadout, polyline, label, fmt,
+  clamp, pickSlider,
+  clearBg,
+  gammaOf,
 } from '../core.js';
 
 const LINES = [410.2, 434.0, 486.1, 656.3];  /* 氢原子巴尔末线（nm） */
 const LAM0 = 656.3;                          /* 高亮追踪的那条：Hα */
 const LAM_MIN = 260;
 const LAM_MAX = 1000;
-
-function pickSlider(spec, name, def) {
-  const s = (spec.sliders || []).find((it) => it && it.name === name);
-  return s ? { name, label: s.label || def.label, min: s.min, max: s.max, step: s.step, value: s.value } : def;
-}
 
 export default function render(host, spec) {
   let beta = clamp(Number(spec.beta ?? 0.6), 0, 0.99);
@@ -46,7 +43,7 @@ export default function render(host, spec) {
   host.appendChild(ro.box);
 
   const geo = { sx: 0, sy: 0, ox: 0, oy: 0, lx0: 0, lx1: 0, ly: 0 };
-  const gam = () => 1 / Math.sqrt(1 - beta * beta);
+  const gam = () => gammaOf(beta);
   /* 多普勒因子：θ 从"光源 → 观察者"方向量起 */
   const factor = () => 1 / (gam() * (1 - beta * Math.cos((theta * Math.PI) / 180)));
   const XL = (lam) => geo.lx0 + ((lam - LAM_MIN) / (LAM_MAX - LAM_MIN)) * (geo.lx1 - geo.lx0);
@@ -55,9 +52,7 @@ export default function render(host, spec) {
     const C = themeColors();
     const ctx = cv.ctx;
     const W = cv.W, H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
 
     const g = gam();
     const D = factor();

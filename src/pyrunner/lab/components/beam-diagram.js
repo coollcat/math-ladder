@@ -3,6 +3,7 @@
 import {
   themeColors, setupCanvas, buildSegmented, buildReadout, buildSliders,
   engine, polyline, label, clamp, fmt,
+  clearBg,
 } from '../core.js';
 
 export default function render(host, spec) {
@@ -38,9 +39,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const H = cv.H;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, H);
+    clearBg(ctx, W, H, C);
     compute();
     if (!res) {
       label(ctx, '正在载入 mech 引擎…', W / 2, H / 2, C.fg, { align: 'center', size: 12 });

@@ -166,6 +166,7 @@ function paintBtn(btn, tex, label) {
       try {
         btn.innerHTML = katex.renderToString(tex, { throwOnError: false });
         btn.title = tex;
+        btn.dataset.katexPainted = '1';
       } catch {
         /* 渲染不出来就留着 LaTeX 源码 */
       }
@@ -182,6 +183,7 @@ function renderGrid() {
     const btn = el('button', 'ml-formula__sym', '');
     btn.type = 'button';
     btn.dataset.tex = tex;
+    btn.dataset.label = label || '';
     paintBtn(btn, tex, label);
     btn.addEventListener('click', () => insertIntoSource(tex));
     els.grid.appendChild(btn);
@@ -457,10 +459,15 @@ export async function openFormula() {
   updateTargetHint();
   els.panel.classList.add('is-open');
   bringToFront(els.panel);
-  /* 先把 KaTeX 拉起来，符号按钮的图形才不会迟到 */
+  /* 先把 KaTeX 拉起来，符号按钮的图形才不会迟到。
+     只补渲还没升级的按钮（首次 build 时 KaTeX 未到货会留 LaTeX 源码），
+     别整格重拉——原先每次打开面板都白白重跑上百次 renderToString。 */
   try {
     await getKatex();
-    renderGrid();
+    els.grid.querySelectorAll('.ml-formula__sym[data-tex]').forEach((btn) => {
+      if (btn.dataset.katexPainted) return;
+      paintBtn(btn, btn.dataset.tex, btn.dataset.label || null);
+    });
     updatePreview();
   } catch {
     /* 拉不到就显示 LaTeX 源码 */

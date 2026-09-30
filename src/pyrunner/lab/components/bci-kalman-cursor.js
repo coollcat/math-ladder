@@ -4,6 +4,10 @@
 import {
   themeColors, setupCanvas, anim, buildSliders, buildReadout,
   label, clamp, fmt,
+  pointerXY,
+  clearBg,
+  lcg,
+  gaussOf,
 } from '../core.js';
 
 const N = 4;                 // 状态数
@@ -95,14 +99,8 @@ export default function render(host, spec) {
   };
 
   /* 伪随机标准正态 */
-  let seed = 12345;
-  function gauss() {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    const u1 = Math.max(seed / 0x7fffffff, 1e-9);
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    const u2 = seed / 0x7fffffff;
-    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-  }
+  const rand = lcg(12345, true);
+  const gauss = () => gaussOf(rand);
 
   let lastK = [[0, 0], [0, 0], [0, 0], [0, 0]];
   function kalmanStep(z, doUpdate) {
@@ -162,9 +160,7 @@ export default function render(host, spec) {
     const ctx = cv.ctx;
     const W = cv.W;
     const Hh = cv.H;
-    ctx.clearRect(0, 0, W, Hh);
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, W, Hh);
+    clearBg(ctx, W, Hh, C);
     /* 工作区：0–200 mm 映射到画布 */
     const pad = 34;
     const side = Math.min(W - 2 * pad - 130, Hh - 2 * pad);
@@ -302,14 +298,6 @@ export default function render(host, spec) {
     lastK = [[0, 0], [0, 0], [0, 0], [0, 0]];
   }
 
-  /* ---------- 拖动：直接拽真实光标 ---------- */
-  function local(ev) {
-    const rect = cv.canvas.getBoundingClientRect();
-    return {
-      x: (ev.clientX - rect.left) * (cv.canvas._W / rect.width),
-      y: (ev.clientY - rect.top) * (cv.canvas._H / rect.height),
-    };
-  }
   function toPlane(x, y) {
     const pad = 34;
     const side = Math.min(cv.W - 2 * pad - 130, cv.H - 2 * pad);
@@ -319,7 +307,7 @@ export default function render(host, spec) {
     return [clamp((x - ox) / k, 0, 200), clamp(200 - (y - oy) / k, 0, 200)];
   }
   function onDown(ev) {
-    const p = local(ev);
+    const p = pointerXY(cv.canvas, ev);
     const q = toPlane(p.x, p.y);
     if (Math.hypot(q[0] - st.x[0], q[1] - st.x[1]) < 60) {
       st.dragging = true;
@@ -329,7 +317,7 @@ export default function render(host, spec) {
   }
   function onMove(ev) {
     if (!st.dragging) return;
-    const p = local(ev);
+    const p = pointerXY(cv.canvas, ev);
     const q = toPlane(p.x, p.y);
     if (st.dragPrev) {
       st.x[2] = (q[0] - st.dragPrev[0]) / DT;
