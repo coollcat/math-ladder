@@ -41,7 +41,7 @@ exits:
 
 ## 3. 正式定义
 
-对同一个输入 $X$，先用$h$组小矩阵把它投进$h$个低维子空间（每组维度 $d_k = d_{model}/h$），各组独立跑全套自注意力，再拼接融合：
+对同一个输入 $X$，先用$h$组小矩阵把它投进$h$个低维子空间（每组维度 $d_k = d_{model}/h$；下文把每头维度统一记作 $d_h$，即 $d_h=d_k=d_v$），各组独立跑全套自注意力，再拼接融合：
 
 $$\text{head}_i = \text{Attention}\!\left(QW_i^{Q},\ KW_i^{K},\ VW_i^{V}\right)\qquad \text{MultiHead}(Q,K,V) = \text{Concat}(\text{head}_1,\dots,\text{head}_h)\,W_O$$
 
@@ -121,8 +121,8 @@ fig, axes = plt.subplots(1, 2, figsize=(9, 4))    # 一排两张子图
 for ax, mat, name in [(axes[0], row_softmax(scores_near), "头A 局部位置"),
                       (axes[1], row_softmax(scores_pair), "头B 语义配对")]:
     ax.imshow(mat, cmap="viridis")                # imshow：二维列表当图像渲染
-    ax.set_xticks(range(4)); ax.set_yticks(range(4))
-    ax.set_xticklabels(words); ax.set_yticklabels(words)
+    ax.set_xticks(range(4)); ax.set_yticks(range(4))       # set_xticks/set_yticks：先定刻度位置
+    ax.set_xticklabels(words); ax.set_yticklabels(words)   # 再把刻度文字换成词标签
     ax.set_title(name)
 
 plt.tight_layout()

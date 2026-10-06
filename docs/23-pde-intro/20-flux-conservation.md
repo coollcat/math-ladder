@@ -93,7 +93,7 @@ $$u_t+q_x=s.$$
 
 ### 实验 3：离散记账
 
-```python title="用有限差分算边界通量"
+```python title="用离散点算两端通量"
 h = 0.01
 x_left = 0.1
 x_right = 0.9
@@ -187,7 +187,7 @@ net=0.01-0.81=-0.80
 <details>
 <summary>选读 · 让区间缩短</summary>
 
-对
+对 $t$ 求导：
 
 $$\int_a^b u_t\,dx=q(a)-q(b)=-\int_a^b q_x\,dx.$$
 

@@ -121,7 +121,7 @@ for t in range(trials):
         if random.random() < p:   # 掷出 [0,1) 均匀小数，小于 p 即算正面
             heads += 1
     frac = heads / n              # 这条序列的正面占比
-    if p - 0.1 <= frac and frac <= p + 0.1:   # 占比落在 0.7 到 0.9 之间：典型
+    if 0.7 <= frac <= 0.9:   # 占比落在 0.7 到 0.9 之间：典型
         typical += 1
 
 print(f"{trials} 条抽样中典型序列占 {round(typical / trials, 3)}")
@@ -139,7 +139,7 @@ print(f"{trials} 条抽样中典型序列占 {round(typical / trials, 3)}")
 ? H=1 时 2^{nH} 恰好等于 2^n：每条序列都典型。坍缩是"偏"才有的现象。
 ```
 
-::::warning[常见误区]
+:::warning[常见误区]
 
 **误区一**："你以为概率最大的那条序列是主角。" 全正面（概率 $0.8^{100}\approx 2\times 10^{-10}$）确实比任何一条典型序列都常见，可它只有 1 条，总质量的大头永远不在它手里；典型大军有 $2^{72}$ 条。单条明星比拼不过集体阵容。
 
@@ -147,7 +147,7 @@ print(f"{trials} 条抽样中典型序列占 {round(typical / trials, 3)}")
 
 **误区三**："你以为 $2^{nH}$ 是精确条数。" 它是量级估算：正式的 AEP 给出的是上下界 $2^{n(H-\varepsilon)}$ 到 $2^{n(H+\varepsilon)}$。要紧的是指数尺度——它与 $2^n$ 的鸿沟随 $n$ 拉开——不是个位数字。
 
-::::
+:::
 
 ## 6. 练习
 

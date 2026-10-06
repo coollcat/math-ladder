@@ -91,7 +91,7 @@ $$\forall \epsilon>0,\ \exists N,\ \forall m,n>N:\ |a_m-a_n|<\epsilon.$$
 
 ### 实验 3：Python 计算 n>N 的尾部最大差
 
-本课正式引入 `max` 和 `min`：不用它们时，只能逐项比较并手工记录当前最大值和最小值；有了它们，一行就能找出整段数据的两端。
+本课正式引入 `min`（`max` 已在圆锥曲线一课登场）：不用它们时，只能逐项比较并手工记录当前最大值和最小值；有了它们，一行就能找出整段数据的两端。
 
 ```python title="检查第 10 项之后的最大尾幅"
 def a(n):
@@ -114,7 +114,7 @@ print("cauchy" if spread < 0.2 else "not yet")
 # @title: 练习：修正尾部最大差
 # @check: 0.0709
 # @check: cauchy
-# @hint: Cauchy 看第 10 项之后任意两项的最大差，不是只看第 10 项和第 11 项。
+# @hint: Cauchy 看第 10 项之后任意两项的最大差，不是只看第 10 项和第 11 项；尾幅小于 0.2 时还要把 verdict 从 "not yet" 改成 "cauchy"。
 def a(n):
     return 1 + 1 / n
 
@@ -138,10 +138,9 @@ for n in range(11, 51):
     values.append(a(n))
 
 spread = max(values) - min(values)
-verdict = "cauchy" if spread < 0.2 else "not yet"
-
-print(round(spread, 4))   # 0.0709
-print(verdict)            # cauchy
+verdict = "cauchy" if spread < 0.2 else "not yet"   # 尾幅小于 0.2，判为 cauchy
+print(round(spread, 4))                             # 0.0709
+print(verdict)                                      # cauchy
 ```
 
 注意 `verdict` 这一行不能省：初始代码把它写死成 `"not yet"`，

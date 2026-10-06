@@ -38,7 +38,7 @@ introduces_import: []
 
 $$\text{真实值} \approx \text{估计值},\qquad \text{误差}=\text{真实值}-\text{估计值}$$
 
-注意符号：少估了是负误差，多估了是正误差。
+注意符号：少估了是正误差，多估了是负误差。
 
 ## 3. 正式定义
 

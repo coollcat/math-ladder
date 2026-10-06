@@ -91,7 +91,7 @@ def describe(arrows):
             return "relation"
     return "function"
 
-print(describe([[1, 0], [0, 1], [1, 0]]))
+print(describe([[1, 0], [0, 1], [1, 1]]))
 print(describe([[1, 0], [0, 1]]))
 ```
 

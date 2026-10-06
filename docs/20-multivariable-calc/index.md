@@ -21,7 +21,7 @@ difficulty: 4
 2. [二元极限与连续：路径一变命运就变](./15-two-var-limits.md)——逼近一个点的路有无穷多条，所有路径必须异口同声，极限才存在；
 3. [偏导数与梯度](./20-partial-gradient.md)——飞机同时受风速和油门影响；
 4. [Jacobian 与多元链式法则](./30-jacobian-chain.md)——一元函数的导数是一个数：输入动一点，输出放大多少倍；
-5. [Hessian 与局部形状](./40-hessian-shape.md)——地形图上高度为零的点可能是谷底、山顶，也可能是马鞍；
+5. [Hessian 与局部形状](./40-hessian-shape.md)——地形图上坡度为零的点可能是谷底、山顶，也可能是马鞍；
 6. [二重积分与 Fubini 直觉](./50-double-integrals.md)——一元积分把曲线下的线段切成小条；
 7. [二重积分换元：极坐标与雅可比](./55-change-variables.md)——换地砖重记账：扇形地砖 r·dr·dθ 与高斯积分 √π 的现场推演；
 8. [路径积分与 Green 定理](./60-green-path-integrals.md)——风吹过一片湖面；
@@ -71,7 +71,7 @@ x = 1   # P 点横坐标
 y = 1   # P 点纵坐标
 
 gx = 3 * x        # ← 有错一：对 x 的偏导是 -6x
-gy = -4 * y       # 对 y 的偏导（这行是对的）
+gy = -8 * y       # 对 y 的偏导（这行是对的）
 print(gx)
 print(gy)
 

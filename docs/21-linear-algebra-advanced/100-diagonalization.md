@@ -48,7 +48,7 @@ $$D=\begin{pmatrix}\lambda_1&0\\0&\lambda_2\end{pmatrix}.$$
 
 $$D=P^{-1}AP,$$
 
-则称 $A$ 与 $D$ 相似。等价地：
+则称 $A$ 与 $D$ 相似；当 $D$ 是对角矩阵时，称 $A$ **可对角化**。等价地：
 
 $$A=PDP^{-1}.$$
 

@@ -127,7 +127,7 @@ d = -3.0
 trace = a + d
 det = a * d - b * c
 disc = trace * trace - 4 * det
-status = "stable node" if disc > 0 and trace < 0 else "other"
+status = "stable node" if disc > 0 and trace < 0 and det > 0 else "other"
 print(round(trace, 3))
 print(round(det, 3))
 print(round(disc, 3))

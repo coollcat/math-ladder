@@ -103,7 +103,7 @@ print(round(residue_sum.real, 3))
 print(round(residue_sum.imag, 3))
 ```
 
-输出接近 `0 8`，说明总留数确实是 8。
+输出接近 `8 0`，说明总留数确实是 8。
 
 ### 实验 3（python）：一阶极点公式抽查
 

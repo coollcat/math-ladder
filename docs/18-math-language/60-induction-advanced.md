@@ -129,7 +129,7 @@ for n in range(2, 11):
 # @check: 16
 # @check: 25
 # @check: 36
-# @hint: 数列从 a1=1 开始；初始列表不能先放 0。
+# @hint: 数列从 a1=1 开始：初始列表不能先放 0；循环也要从 n=2 开始，否则 n=1 会多算一项。
 squares = [0]
 for n in range(1, 6):
     next_value = squares[-1] + 2 * n - 1   # [-1] 取列表最后一项

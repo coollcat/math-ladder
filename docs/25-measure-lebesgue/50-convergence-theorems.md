@@ -189,7 +189,7 @@ MCT 不适用：脉冲列不单调——第 $n+1$ 号在 $(0,\tfrac1{n+1}]$ 外�
 <details>
 <summary>选读 · 从简单函数到 MCT 的三步走</summary>
 
-证明骨架只有三句：(1) 由单调性 $\int f_n\le\int f$ 对每个 $n$ 成立；(2) 任取简单函数 $s\le f$ 和常数 $c\in(0,1)$，可证 $\lim_n\int c\,s\,f_n\ge c\int s$（在 $s$ 取正值的有限块地盘上，$f_n$ 迟早越过 $cs$ 的每一档，用的是上一课切片地盘的测度论据）；(3) 让 $c\nearrow 1$ 并对简单函数托举取 sup，两端同时夹出等号。DCT 则由 Fatou 引理（$\int\liminf f_n\le\liminf\int f_n$）套在 $g-f_n$ 与 $g+f_n$ 两边得到。整座收敛大厦的地基，仍是第 40 课那台"简单函数托举"电梯。
+证明骨架只有三句：(1) 由单调性 $\int f_n\le\int f$ 对每个 $n$ 成立；(2) 任取简单函数 $s\le f$ 和常数 $c\in(0,1)$，可证 $\lim_n\int f_n\ge c\int s$（在 $s$ 取正值的有限块地盘上，$f_n$ 迟早越过 $cs$ 的每一档，用的是上一课切片地盘的测度论据）；(3) 让 $c\nearrow 1$ 并对简单函数托举取 sup，两端同时夹出等号。DCT 则由 Fatou 引理（$\int\liminf f_n\le\liminf\int f_n$）套在 $g-f_n$ 与 $g+f_n$ 两边得到。整座收敛大厦的地基，仍是第 40 课那台"简单函数托举"电梯。
 
 </details>
 

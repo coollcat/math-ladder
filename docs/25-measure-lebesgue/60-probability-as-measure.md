@@ -3,6 +3,7 @@ title: 概率论的测度论视角
 lesson_id: measure-lebesgue/probability-as-measure
 prereqs:
   - measure-lebesgue/convergence-theorems
+  - measure-lebesgue/product-fubini
   - prob/law
   - sequences/arith-geom
 volume: 2
@@ -78,7 +79,7 @@ $$P(\text{迟早正面})=\sum_{k=1}^{\infty}\Bigl(\frac{1}{2}\Bigr)^{k}=1$$
 
 1. 前 2 次必须全反面：占位概率 $(\tfrac12)^2=\tfrac14$；
 2. 第 3 次正面：再乘 $\tfrac12$，得 $\tfrac18$；
-3. 通式：$P(k)=2^{-k}$，即 $1, \tfrac12,\tfrac14,\tfrac18,\dots$ 的一半接一半；
+3. 通式：$P(k)=2^{-k}$，即 $\tfrac12,\tfrac14,\tfrac18,\dots$ 的一半接一半；
 4. 总账：$\sum_{k\ge1}2^{-k}=1$（首项 $\tfrac12$、公比 $\tfrac12$ 的几何级数），所有可能性恰好分光全部质量，无遗漏无重复 ✓。
 
 ## 5. 动手实验
@@ -90,7 +91,7 @@ $$P(\text{迟早正面})=\sum_{k=1}^{\infty}\Bigl(\frac{1}{2}\Bigr)^{k}=1$$
   "type": "plot",
   "title": "迟早正面的部分和爬向 1",
   "expr": "1-2^(-x)",
-  "xmin": 0,
+  "xmin": 1,
   "xmax": 10
 }
 ```
@@ -126,7 +127,7 @@ print(f"K={K} 时部分和: {total}")
 :::warning[常见误区]
 
 **误区一**："概率为零就是不可能发生。"
-零测与空集是两码事。"永远反面"概率为 0，却明明白白躺在样本空间里；反过来"掷出正面"概率 1，也不排除出现反面的世界线。测度语言里 0 和 1 只管"几乎"。
+零测与空集是两码事。"永远反面"概率为 0，却明明白白躺在样本空间里；反过来"迟早正面"概率 1，也不排除出现反面的世界线。测度语言里 0 和 1 只管"几乎"。
 
 **误区二**："每个样本点都该分到一份正概率。"
 不可数样本空间做不到：若每个点的概率都是正数，可数个点加起来早就爆表。正确做法是把质量分配给柱集这类"块状事件"，单点只配零测。

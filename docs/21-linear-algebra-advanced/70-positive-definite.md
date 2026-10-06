@@ -62,7 +62,7 @@ $$\vec x^TA\vec x>0\quad\text{对所有非零}\ \vec x.$$
 
 $$A=\begin{pmatrix}2&1\\1&2\end{pmatrix}.$$
 
-1. 第一主子式 $a=2>0$；
+1. 第一顺序主子式 $a=2>0$；
 2. 行列式 $=2\cdot2-1\cdot1=3>0$；
 3. 所以 $A$ 正定；
 4. 验证两个点：$Q(1,1)=6$，$Q(-1,1)=2$，都大于零。
@@ -121,7 +121,7 @@ print(status)
 # @check: 6
 # @check: 2
 # @check: positive definite
-# @hint: 交叉项系数是 2b；行列式用 ac-b²。
+# @hint: 交叉项系数是 2b（减号要改回加号）；行列式用 ac-b²；再按 a>0 且 det>0 判定，输出 "positive definite"。
 a = 2
 b = 1
 c = 2
@@ -154,7 +154,7 @@ Q(-1,1)=2-2+2=2
 det=2*2-1*1=3
 ```
 
-两个主子式都为正，所以输出 `positive definite`。
+两个顺序主子式都为正，所以输出 `positive definite`。
 
 </details>
 

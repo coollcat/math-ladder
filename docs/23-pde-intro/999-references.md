@@ -21,7 +21,7 @@ difficulty: 5
 # @year: 1822
 # @venue: 《热的解析理论》
 # @tag: 原著
-# @desc: 为解热方程而发明级数展开：偏微分方程与傅里叶分析是同一次 births。
+# @desc: 为解热方程而发明级数展开：偏微分方程与傅里叶分析是同一次诞生。
 # @page: https://en.wikipedia.org/wiki/Heat_equation
 ```
 

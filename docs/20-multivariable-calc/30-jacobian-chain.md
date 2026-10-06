@@ -40,7 +40,7 @@ $$F(u,v)=\binom{f(u,v)}{g(u,v)}.$$
 
 $$J=\begin{pmatrix}\frac{\partial f}{\partial u} & \frac{\partial f}{\partial v}\\\frac{\partial g}{\partial u} & \frac{\partial g}{\partial v}\end{pmatrix}.$$
 
-行列式 $\det J$ 告诉面积被放大多少倍；绝对值才面积，负号表示翻面。
+行列式 $\det J$ 告诉面积被放大多少倍；绝对值才是面积，负号表示翻面。
 
 ## 3. 正式定义
 

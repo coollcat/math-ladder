@@ -57,7 +57,7 @@ introduces_import: []
 2. 横向和纵向差互相**垂直**——这不就是勾股定理的两条直角边吗！
 3. 距离 $=\sqrt{3^2+4^2}=\sqrt{25}=5$。
 
-坐标系干了一件漂亮事：把"两点距离"这个几何问题，改写成了"两次减法 + 一次勾股"的算术流程。第 5 章的勾股定理在这里拿到了新岗位，从此它在坐标系里有了大名鼎鼎的推广形态——**距离公式**。
+坐标系干了一件漂亮事：把"两点距离"这个几何问题，改写成了"两次减法 + 一次勾股"的算术流程。本章的勾股定理在这里拿到了新岗位，从此它在坐标系里有了大名鼎鼎的推广形态——**距离公式**。
 
 ## 5. 动手实验
 
@@ -101,7 +101,7 @@ for t in tickets:                  # 逐张拆票
 fig, ax = plt.subplots(figsize=(6, 6))   # 开一张正方形画纸
 ax.scatter(xs, ys, s=130, color='#3b74d6')          # 在坐标平面钉点，s 是点的大小
 for i in range(len(tickets)):       # 逐个点标注门牌号
-    ax.annotate(str(tickets[i]), (xs[i], ys[i]), xytext=(7, 7), textcoords='offset points')
+    ax.annotate(str(tickets[i]), (xs[i], ys[i]), xytext=(7, 7), textcoords='offset points')  # textcoords='offset points'：偏移按屏幕像素量
 ax.axhline(0, color='gray')         # 画横轴：y=0 的水平线
 ax.axvline(0, color='gray')         # 画纵轴：x=0 的竖直线
 ax.set_xlim(-1, 6)                  # 横轴显示范围
@@ -152,7 +152,7 @@ dist = dx * dx + dy * dy          # ← 这是距离的平方，还没开方
 print(round(dist, 1))
 ```
 
-$\Delta x=4$、$\Delta y=3$，距离 $=\sqrt{4^2+3^2}=\sqrt{25}=5.0$。错版打印的是 $25.0$——勾股定理只到"斜边的平方"，最后一步开方把它交给 `math.hypot(dx, dy)`（它直接返回 $\sqrt{dx^2+dy^2}$，第 5 章算直角三角形时用过）。也可以手写 `math.sqrt(dx * dx + dy * dy)`，一码事。
+$\Delta x=4$、$\Delta y=3$，距离 $=\sqrt{4^2+3^2}=\sqrt{25}=5.0$。错版打印的是 $25.0$——勾股定理只到"斜边的平方"，最后一步开方把它交给 `math.hypot(dx, dy)`（它直接返回 $\sqrt{dx^2+dy^2}$，本章算直角三角形时用过）。也可以手写 `math.sqrt(dx * dx + dy * dy)`，一码事。
 
 <details>
 <summary>点开查看逐步解答</summary>

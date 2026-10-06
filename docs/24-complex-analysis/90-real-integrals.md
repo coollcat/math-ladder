@@ -116,7 +116,7 @@ print(round(contour_value.real, 6))
 print(round(contour_value.imag, 6))
 ```
 
-输出 `3.141593 0`。复数配额完全落在实轴积分上。
+输出 `3.141593` 与 `0.0`。复数配额完全落在实轴积分上。
 
 ```quiz
 用上半大半圆计算实积分时，哪些极点进入留数和？

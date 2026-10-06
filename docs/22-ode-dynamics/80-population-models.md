@@ -57,7 +57,7 @@ $$R_0=\frac{\beta}{\gamma}$$
 
 $$S^\ast=\frac{\gamma}{\beta}=\frac{1}{R_0}:$$
 
-初始 $S_0>S^\ast$（等价于 $R_0>1$）疫情先扬后抑，否则自行熄灭。全部人口患病也不会人人中招——疫情烧过一遍后必有剩余易感者（黑洞效应），这在第 5 节的账本里看得清清楚楚。
+初始 $S_0>S^\ast$（初始几乎全员易感、$S_0\approx1$ 时等价于 $R_0>1$）疫情先扬后抑，否则自行熄灭。全部人口患病也不会人人中招——疫情烧过一遍后必有剩余易感者（黑洞效应），这在第 5 节的账本里看得清清楚楚。
 
 **Lotka-Volterra 捕食模型**：设 $x(t)$ 猎物密度、$y(t)$ 捕食者密度，
 
@@ -138,7 +138,7 @@ def f(p):
 
 def energy(p):
     x, y = p
-    return d_ * x - q_ * math.log(x) + n_ * y - a_ * math.log(y)   # 守恒量 V
+    return n_ * x - q_ * math.log(x) + d_ * y - a_ * math.log(y)   # 守恒量 V
 
 state = [3.0, 1.0]                            # 起点：三只兔子一份狐狸
 v0 = energy(state)
@@ -164,7 +164,7 @@ plt.title("围绕中心平衡点的圆舞曲")
 plt.show()
 ```
 
-四千来步之后兔子狐狸回到出发点身旁，"能量"$V=\delta x-q\ln x+\eta y-a\ln y$ 的漂移小于百万分之一——这颗人造卫星稳稳贴着自己的跑道。轨迹是一圈闭环：兔子多起来（横轴向右）喂肥狐狸（纵轴上行）→ 狐狸吃垮兔子（往左）→ 狐狸挨饿（往下）→ 循环重启。对比第一课 logistic 的单物种版本：相互作用没有让世界更乱，反而锁出了优雅的秩序。
+四千来步之后兔子狐狸回到出发点身旁，"能量"$V=\eta x-q\ln x+\delta y-a\ln y$ 的漂移小于百万分之一——这颗人造卫星稳稳贴着自己的跑道。轨迹是一圈闭环：兔子多起来（横轴向右）喂肥狐狸（纵轴上行）→ 狐狸吃垮兔子（往左）→ 狐狸挨饿（往下）→ 循环重启。对比上一课 logistic 的单物种版本：相互作用没有让世界更乱，反而锁出了优雅的秩序。
 
 ## 6. 常见误区
 
@@ -194,7 +194,8 @@ h = 0.02           # 步长（合适的时间小份）
 beta = 0.5         # 传播强度
 gamma = 0.25       # 康复率
 
-print(round(100 * (gamma / beta)))    # ← 第一处想当然：这里该印的是 R0 = β/γ
+print(round(100 * (gamma / beta)))    # ← 第一处想当然：R0 的比值写反了，本该是 beta/gamma
+print(round(100 * (beta / gamma)))    # ← 阈值也跟着写反了：本该是 gamma/beta
 s_new = s - h * beta * s * i          # 这一行是对的
 i_new = i + h * beta * s * i          # ← 第二处想当然：少了治愈退场的一笔
 print(round(1000 * s_new))
@@ -204,7 +205,14 @@ print(round(1000 * i_new))
 <details>
 <summary>点开查看逐步解答</summary>
 
-第一问：基本再生数 $R_0=\beta/\gamma=0.5/0.25=2$，放大一百倍后打印 `200`；全人群对应的全员门槛是它的倒数 $S^\ast=\gamma/\beta=0.5$，即 `50`。这两个数分列在失控线的两侧——判据本身就写在符号里。
+第一问：基本再生数 $R_0=\beta/\gamma=0.5/0.25=2$，放大一百倍后打印 `200`；全人群对应的全员门槛是它的倒数 $S^\ast=\gamma/\beta=0.5$，即 `50`。两行判据的比值被写反了，对调即可：
+
+```python
+print(round(100 * (beta / gamma)))    # R0 = 2 → 200
+print(round(100 * (gamma / beta)))    # 阈值 S* = 0.5 → 50
+```
+
+这两个数分列在失控线的两侧——判据本身就写在符号里。
 
 第二问：感染仓室有进水管也有出水管，正确的一步是：
 
@@ -230,9 +238,9 @@ i_new = i + h * (beta * s * i - gamma * i)            # 0.1004 → 放大一千�
 <details>
 <summary>选读 · 为什么 Lotka-Volterra 的轨道一定是闭合的</summary>
 
-猜一个守恒量 $V(x,y)=\delta x-q\ln x+\eta y-a\ln y$，沿轨道求全导数：
+猜一个守恒量 $V(x,y)=\eta x-q\ln x+\delta y-a\ln y$，沿轨道求全导数：
 
-$$\frac{dV}{dt}=(\delta x-q)\frac{x'}{x}+(\eta y-a)\frac{y'}{y},$$
+$$\frac{dV}{dt}=(\eta x-q)\frac{x'}{x}+(\delta y-a)\frac{y'}{y},$$
 
 代入 $x'=\alpha x-\delta xy,\ y'=\eta xy-qy$ 展开，所有项两两抵消，$dV/dt=0$。轨道被困在一条 $V$ 取常值的封闭曲线上——这就是为什么它既不散架也不坍缩，也只能永远绕圈。这类"人为凑出的守恒量"叫首次积分，是研究二维系统的经典武器；实验 2 的能量账本量的正是它。
 

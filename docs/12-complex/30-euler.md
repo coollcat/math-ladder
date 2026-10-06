@@ -94,7 +94,7 @@ right = math.cos(rad) + 1j * math.sin(rad)  # 右边：手拼 cosθ + i·sinθ
 print(f"θ = {theta_deg}°")
 print(f"e^(iθ) : 实部 {round(left.real, 4)}，虚部 {round(left.imag, 4)}")
 print(f"cos/sin: cosθ {round(math.cos(rad), 4)}，sinθ {round(math.sin(rad), 4)}")
-diff = abs(left - right)                    # 复数相减再 abs —— 差距的模长（上一课的用法）
+diff = abs(left - right)                    # 复数相减再 abs —— 差距的模长（复平面课的老朋友）
 print(f"差距 = {diff}")                     # 拖到哪都是 0.0 —— 两条路线完全重合
 ```
 
@@ -106,7 +106,7 @@ print(f"差距 = {diff}")                     # 拖到哪都是 0.0 —— 两�
 import math
 
 z = math.e ** (1j * math.pi)
-print(z)          # (-1+1.22e-16j)：虚部只剩浮点尘埃，实部正是 -1
+print(z)          # (-1+1.2246467991473532e-16j)：虚部只剩浮点尘埃，实部正是 -1
 print(z.real)     # -1.0
 print(abs(z))     # 1.0 —— 它确实在单位圆上（模长恒为 1）
 # 于是 e^(iπ) + 1 = 0：e、i、π、1、0 五大常数同框

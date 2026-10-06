@@ -117,7 +117,7 @@ print("uniform" if sup_error < 0.2 else "not uniform yet")
 # @check: 0.1
 # @check: 0.1
 # @check: uniform
-# @hint: sin(nx)/n 的全域最大绝对值是 1/n；取 n=10。
+# @hint: sin(nx)/n 的全域最大绝对值是 1/n；取 n=10，sup_error 用 1/n 算；尾幅小于 0.2 时把 verdict 从 "pointwise only" 改成 "uniform"。
 import math
 
 n = 5

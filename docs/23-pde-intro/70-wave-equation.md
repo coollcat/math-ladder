@@ -173,6 +173,8 @@ print(round(peak_l, 3))    # 0.0
 gap = peak_r - peak_l
 print(round(gap, 3))       # 6.0
 
+tension = 4.0              # 弦的张力 T
+density = 1.0              # 线密度 rho
 speed = math.sqrt(tension / density)
 print(round(speed, 3))     # 2.0
 ```

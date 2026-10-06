@@ -49,7 +49,7 @@ $$A\vec v=\binom{4+1}{2+3}=\binom55=5\binom11.$$
 
 $$A\vec v=\lambda \vec v,$$
 
-则 $\vec v$ 是特征向量，$\lambda$ 是特征值。
+则 $\vec v$ 是特征向量，$\lambda$ 是特征值；二者成对出现，合称一个**特征对**。
 
 把右边移项：
 
@@ -203,4 +203,4 @@ $\Delta>0$ 有两个实特征方向；$\Delta=0$ 有重根；$\Delta<0$ 没有�
 
 特征方向找到了，但它们常常歪歪扭扭。有一类矩阵天生享受正交特征方向——对称矩阵，这条保障叫谱定理。下一课先立这条法律，再让 SVD 出场收拾一般矩阵。
 
-→ [对称矩阵与谱定理](./45-symmetric-spectral-theorem.md)
+→ [对称矩阵与谱定理：正交的特征方向](./45-symmetric-spectral-theorem.md)

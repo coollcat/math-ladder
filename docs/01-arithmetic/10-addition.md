@@ -55,7 +55,7 @@ $$a + 0 = a, \qquad a + (k+1) = (a+k) + 1$$
 
 竖式里第 4 步写成"进 1"：个位写 5，向十位进 1。**竖式不是新知识，只是性质 2、3 的记账格式。**
 
-## 5. Python 验证
+## 5. 动手实验
 
 ### 实验 1：交换律大规模抽查
 
@@ -105,7 +105,7 @@ plt.legend()   # legend：显示左上角的线名对照表，配合上面的 la
 plt.grid(True)
 ```
 
-虚线是 $y=n$（每步只加 1），实线越爬越陡——每次新增的量本身在变大。这个"越来越陡"的形状，8 章会用公式 $1+2+\cdots+n=\frac{n(n+1)}{2}$ 精确捕捉。
+虚线是 $y=n$（每步只加 1），实线越爬越陡——每次新增的量本身在变大。这个"越来越陡"的形状，第 8 章会用公式 $1+2+\cdots+n=\frac{n(n+1)}{2}$ 精确捕捉。
 
 ### 实验 4：把交换律画出来——两条路线，同一落点
 
@@ -137,9 +137,9 @@ for k in range(2):
     a = pairs[k][0]  # pairs[k][0]：取第 k 对里的第一个数（下标从 0 数起）
     b = pairs[k][1]  # [1]：取第 k 对里的第二个数
     ax = axes[k]
-    ax.hlines(0, 0, 9, color="lightgray", linewidth=6)  # 灰色粗线当数轴
+    ax.hlines(0, 0, 9, color="lightgray", linewidth=6)  # 灰色粗线当数轴；linewidth 是线宽
     for p in range(10):
-        ax.plot(p, 0, marker="|", markersize=9, color="gray")  # 每个整数刻度画一道
+        ax.plot(p, 0, marker="|", markersize=9, color="gray")  # 每个整数刻度画一道；markersize 是刻度线的长度
     # annotate：从 xytext 指向 xy 的箭头；arrowprops 里 lw 是箭头线宽
     ax.annotate("", xy=(a, 0), xytext=(0, 0),
                 arrowprops=dict(arrowstyle="->", color="steelblue", lw=2.5))
@@ -211,7 +211,7 @@ $5-3=2$ 而 $3-5=$ 一个我们还不会算的东西（下一课它叫 $-2$）�
 
 $98 + 37 = (100 - 2) + 37 = 100 + (37 - 2) = 135$。
 
-依据：从 98 里借 2 给 37 还回去，总和不变（结合律的应用）。
+依据：98 离 100 差 2，从 37 里借这 2 补满 98（37 相应减 2），总和不变（结合律的应用）。
 </details>
 
 **练习 2**：算 $1+3+5+\cdots$ 的前 5 个奇数之和、前 10 个奇数之和，各打印一行。先猜猜规律再看结果：

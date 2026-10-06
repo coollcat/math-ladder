@@ -107,9 +107,9 @@ for person in range(1, people + 1):   # person 依次取 1..4
     my_blocks = []
     for block in range(person, total + 1, people):  # range 第三参数=步长：隔 people 个取一个
         my_blocks.append(block)
-    print(f"{person} 号拿到 {len(my_blocks)} 块 -> 块号 {my_blocks}")
+    print(f"{person} 号拿到 {len(my_blocks)} 块 -> 块号 {my_blocks}")  # len()：数一数列表里有几个元素
 
-print(3 / 4)    # 除号 / 在 Python 里直接给出分数值（30 课细讲小数）
+print(3 / 4)    # 除号 / 在 Python 里直接给出分数值（第 30 课《小数与十进制》细讲）
 print(7 / 2)    # 整除不了的除法照样有答案
 ```
 
@@ -199,7 +199,7 @@ print(8)   # 每 8 块凑成一张整饼 -> 每人 5/8 张
 <details>
 <summary>选读 · 商余分离视角</summary>
 
-第 1 章的带余除法说 $a=b\times q+r$（$r<b$）。两边同除以 $b$，得 $\frac{a}{b}=q+\frac{r}{b}$：商 $q$ 变成整数部分，余数 $r$ 变成真分数尾巴。所以"三又二分之一"与 $\frac{7}{2}$ 从来不用换算技巧，它们就是同一次除法的两种记账方式：一种把商和余数分开写，一种合并成一个分数。以后嫌带分数别扭的话，随时可以全部化回假分数处理——本章后续课程就是这么干的。
+第 1 章的带余除法说 $a=b\times q+r$（$r<b$）。两边同除以 $b$，得 $\frac{a}{b}=q+\frac{r}{b}$：商 $q$ 变成整数部分，余数 $r$ 变成真分数尾巴。所以"三又二分之一"与 $\frac{7}{2}$ 从来不用换算技巧，它们就是同一次除法的两种记账方式：一种把商和余数分开写，一种合并成一个分数。以后嫌带分数别扭的话，随时可以全部化回假分数处理。
 
 </details>
 

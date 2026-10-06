@@ -37,7 +37,7 @@ $$\lVert v\rVert=0\Leftrightarrow v=0,\quad \lVert kv\rVert=|k|\lVert v\rVert,\q
 
 $$\lVert x\rVert_p=\left(\sum_{i=1}^n |x_i|^p\right)^{1/p},\qquad \lVert x\rVert_\infty=\max_i |x_i|.$$
 
-若序列满足 $\lVert x_m-x_n\rVert\to0$，称为 Cauchy 列；空间中所有 Cauchy 列都有极限时称为**完备**。
+若当 $m,n\to\infty$ 时 $\lVert x_m-x_n\rVert\to0$，称为 Cauchy 列；空间中所有 Cauchy 列都有极限时称为**完备**。
 
 ## 4. 分步例题
 
@@ -137,7 +137,7 @@ print("Linf=" + str(value))
 <details>
 <summary>选读 · 完备化的构造思路</summary>
 
-先把 Cauchy 列 $(x_n)$ 当作候选点；若两个候选列满足 $\lVert x_n-y_n\rVert\to0$，视为同一个新点。原空间按常值列嵌入其中；范数由 $\lVert[(x_n)]\rVert=\lim_n\lVert x_n\rVert$ 定义。这个构造把有理数补成实数，也能把不完备赋范空间补成 Banach 空间。
+先把 Cauchy 列 $(x_n)$ 当作候选点；若两个候选列满足当 $n\to\infty$ 时 $\lVert x_n-y_n\rVert\to0$，视为同一个新点。原空间按常值列嵌入其中；范数由 $\lVert[(x_n)]\rVert=\lim_n\lVert x_n\rVert$ 定义。这个构造把有理数补成实数，也能把不完备赋范空间补成 Banach 空间。
 </details>
 
 ## 10. 下一站

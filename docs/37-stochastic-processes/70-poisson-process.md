@@ -194,7 +194,7 @@ p_wait_4  = pow(e, -(lam * 4))                        # e^{−2} ≈ 0.1353
 
 $$\Bigl(1-\frac{\lambda}{n}\Bigr)^{n}.$$
 
-这是第 04 章"利滚利与 e"那串式子的孪生兄弟：对它取对数并用第 13 章的局部线性化 $\log(1-x)\approx-x$，得到
+这是第 12 章"利滚利与 e"那串式子的孪生兄弟：对它取对数并用第 15 章的一阶近似 $\log(1-x)\approx-x$，得到
 
 $$\lim_{n\to\infty}\Bigl(1-\frac{\lambda}{n}\Bigr)^{n}=e^{-\lambda}.$$
 

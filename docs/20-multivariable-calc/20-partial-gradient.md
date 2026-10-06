@@ -123,7 +123,7 @@ print([round(fx, 3), round(fy, 3)])
 # @check: 4.0
 # @check: 5.0
 # @check: [4.0, 5.0]
-# @hint: 对 y 求偏导时，x 是常数；xy 的导数就是 x。
+# @hint: 对 y 求偏导时 x 是常数：xy 求导得 x（这没错），但 y² 求导得 2y，别丢系数 2。
 def f(x, y):
     return x * x + x * y + y * y
 
@@ -139,7 +139,7 @@ print([round(fx, 3), round(fy, 3)])
 <details>
 <summary>点开查看逐步解答</summary>
 
-这段初始代码的函数定义和 `x,y` 都没问题；真正错在 $f_y$ 的公式：$x$ 对 $y$ 是常数，所以 $xy$ 对 $y$ 求导得 $x$。完整数值版：
+这段初始代码的函数定义和 `x,y` 都没问题；真正错在 $f_y$ 的公式：$x$ 对 $y$ 是常数，$xy$ 对 $y$ 求导得 $x$（这项没问题），错在 $y^2$ 对 $y$ 求导应得 $2y$，代码里漏了系数 $2$。完整数值版：
 
 ```python
 x = 1.0

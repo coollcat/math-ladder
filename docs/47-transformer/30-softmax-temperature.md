@@ -95,7 +95,7 @@ scores = [2.0, 1.0, 0.0]              # 三个候选词的原始分数
 words = ["蓝", "青", "绿"]
 
 def softmax(zs, T):
-    m = max(zs)                       # 减最大值防溢出：exp(700) 会爆掉
+    m = max(zs)                       # 减最大值防溢出：exp(1000) 会爆掉
     exps = []
     for s in zs:
         exps.append(math.exp((s - m) / T))

@@ -101,6 +101,7 @@ import math  # 老朋友 math（第 3 章引入）：这回请出住在里面的
 numbers = [-2.5, -1.2, 0, 0.8, 2.9, 3]
 
 for n in numbers:
+    # 三兄弟首次同台：abs 距离、math.floor 向左取整、math.ceil 向右取整
     print(f"x={n}   abs={abs(n)}   floor={math.floor(n)}   ceil={math.ceil(n)}")
 ```
 
@@ -191,7 +192,7 @@ floor(-2.5) 等于几？
 # @title: 练习：三兄弟初体验
 # @check: 7
 # @check: 2
-# @hint: 第一行：距离永远不带负号，检查是不是多乘了东西。第二行：floor 向左取整，别用成 ceil
+# @hint: 第一行：距离永远不带负号，检查是不是多带了个负号。第二行：floor 向左取整，别用成 ceil
 import math
 print(-abs(7))
 print(math.ceil(2.9))

@@ -80,7 +80,7 @@ def partial(M, xs):              # 自定义函数：算 M 项部分和在一串
     for x in xs:
         total = 0.0
         n = 1
-        while n <= M:            # 只扫奇次谐波 1,3,5,...,M
+        while n <= 2 * M - 1:    # 只扫前 M 项奇次谐波 1,3,...,2M-1
             total = total + math.sin(n * x) / n
             n = n + 2
         ys.append(4 * total / math.pi)

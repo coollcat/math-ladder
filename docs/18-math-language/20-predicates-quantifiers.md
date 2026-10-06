@@ -56,7 +56,7 @@ $$\neg \forall x\,P(x) \equiv \exists x\,\neg P(x), \qquad \neg \exists x\,P(x) 
 设论域是 $2,3,4$，$P(x)$ 表示“$x$ 是偶数”。
 
 1. $\forall x\,P(x)$ 为假，因为 $3$ 是反例；
-2. $\exists x\,P(x)$ 为真，$2$ 是 witness；
+2. $\exists x\,P(x)$ 为真，$2$ 是 witness（见证元，使存在命题为真的那个元素）；
 3. $\neg \forall x\,P(x)$ 为真，等价于“存在不是偶数的 $x$”；
 4. 若把论域改成 $2,4$，同一个 $\forall x\,P(x)$ 就变成真。
 

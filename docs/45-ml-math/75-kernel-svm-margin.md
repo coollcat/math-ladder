@@ -52,7 +52,7 @@ $$\max_{w,b}\ \frac{2}{\lVert w\rVert}\quad\Leftrightarrow\quad\min_{w,b}\ \frac
 | 支持向量 | 恰好踩在线 $y_i(w\cdot x_i+b)=1$ 上的临界样本 |
 | 凸二次规划 | 目标凸、约束线性，局部最优即全局（第 43 章的老朋友） |
 
-它的对偶形式（第 43 章 40 号课的手艺）才是主角：
+它的对偶形式（第 43 章 80 号课的手艺）才是主角：
 
 $$\max_{\alpha}\ \sum_i \alpha_i-\frac12\sum_i\sum_j \alpha_i\alpha_j y_i y_j\,\langle x_i,x_j\rangle$$
 

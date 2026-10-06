@@ -56,7 +56,7 @@ $$A=U\Sigma V^T,$$
 
 $$\sigma_i=\sqrt{\lambda_i(A^TA)}.$$
 
-保留前 $k$ 个奇异项，是在 Frobenius 范数意义下所有 rank-$k$ 矩阵中最优的近似。
+保留前 $k$ 个奇异项，是在 Frobenius 范数（矩阵所有元素平方求和再开方）意义下，所有 rank-$k$ 矩阵中最优的近似。
 
 ## 4. 分步例题
 

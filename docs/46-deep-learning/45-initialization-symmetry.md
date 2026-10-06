@@ -71,7 +71,7 @@ He 配方里的因子 2 来自一个残酷事实：ReLU 把负半轴直接清零
 2. 标准差 = 方差开根号：$\sigma=\sqrt{2/60}=\sqrt{0.03333}\approx 0.1826$；
 3. 对照 Xavier：$\sqrt{1/60}\approx0.1291$——两者的比值恰为 $\sqrt2\approx1.414$（那一倍的损失就补在这里）。
 
-顺手算一下"忘开根号"的经典笔误：把 0.0333 当作标准差直接用，等价于方差取了 $0.0011$——信号每层缩水到原来的千分之一量级，深层必然消亡。
+顺手算一下"忘开根号"的经典笔误：把 0.0333 当作标准差直接用，等价于方差取了 $0.0011$——只有应有方差 $1/60\approx0.0167$ 的约 $1/15$；每过一层信号方差就乘上 $60\times0.0011\approx0.066$，深层必然消亡。
 
 ## 5. 动手实验
 
@@ -84,16 +84,16 @@ random.seed(46)                     # 固定种子保证复现
 def one_signal_chain(var_w, depth, n_in):
     """信号穿过 depth 个线性层后的实际方差（模拟估计）。"""
     xs = []                          # 这一批输入同时出发，逐层看它们的方差
-    for i in range(200):
+    for i in range(2000):            # 样本要足够多，方差估计才稳定
         xs.append(random.gauss(0, 1))
     for _ in range(depth):
         nxt = []
-        for value in xs:
+        for _ in xs:                 # 每个输出各走一遍
             acc = 0.0
-            for _ in range(n_in):    # n_in 路求和近似线性层（忽略偏置）
-                acc += value * random.gauss(0, var_w ** 0.5)
+            for _ in range(n_in):    # n_in 路独立输入求和近似线性层（忽略偏置）
+                acc += random.choice(xs) * random.gauss(0, var_w ** 0.5)  # 每路独立抽一个输入
             nxt.append(acc)
-        xs = [v / n_in for v in nxt] # 方差按 n·Var(w) 放大后此处整体归位，便于对照
+        xs = nxt                     # 不归一化：方差每层乘上 n·Var(w)，直接看累积效果
     return sum(v * v for v in xs) / len(xs)
 
 for name, vw in [("Xavier 1/n", 1 / 64), ("偏小 0.5/n", 0.5 / 64)]:
@@ -145,7 +145,7 @@ print(round(weight_sigma(60, 2), 4))   # 0.1826
 print(round(weight_sigma(60, 1) / weight_sigma(60, 2), 4))   # 0.7071
 ```
 
-第三行的比值为 $\sqrt{(1/60)/(2/60)}=\sqrt{0.5}=0.7071$——Xavier 的"嗓门"天然比 He 小一号，因为 ReLU 已经替它多扛了一倍的损耗。初始代码的三处毛病：返回值没开根号、He 档少乘 2、第三行对已错误的结果再做无意义的开根号。
+第三行的比值为 $\sqrt{(1/60)/(2/60)}=\sqrt{0.5}=0.7071$——Xavier 的"嗓门"天然比 He 小一号，因为 ReLU 已经替它多扛了一倍的损耗。初始代码的三处毛病：返回值没开根号、He 档少乘 2、第三行又多补了一次开根号——它只是在替函数漏掉的开根号打补丁，函数修好后必须删掉，否则会变成多余的双重开根。
 </details>
 
 ## 8. 选读证明：Glorot 的前后兼顾

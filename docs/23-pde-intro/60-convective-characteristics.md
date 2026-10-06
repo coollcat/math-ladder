@@ -118,7 +118,7 @@ x0 = 1.0       # 特征线在 t=0 时的出发点
 x_now = x0 + c * t
 
 # f(s)=exp(-s*s)：初始分布；特征线上的自变量恒为 x - c*t = x0
-u_here = math.exp(-x_now ** 2 + 2 * c * t * x0 - (c * t) ** 2)   # 展开 (x-ct)^2 的直接计算
+u_here = math.exp(-x_now ** 2 + 2 * x_now * c * t - (c * t) ** 2)   # 展开 (x_now - c*t)^2 的直接计算
 u_start = math.exp(-x0 ** 2)
 drift = u_here - u_start   # 两处取值之差：应为 0
 print(round(u_here, 3))

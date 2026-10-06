@@ -97,7 +97,7 @@ for k in range(N):
 print(round(total.real, 3), round(total.imag, 3))
 ```
 
-数值结果接近 `0 6.283`，除以 $2\pi i$ 后等于 1。
+数值结果为 `-0.001 6.283`（实部是离散化噪声，本质为 0），除以 $2\pi i$ 后等于 1。
 
 ### 实验 3（python）：用边界值还原 e^z 在 z=1 的值
 
@@ -118,7 +118,7 @@ value = acc / (2 * math.pi * 1j)
 print(round(value.real, 3), round(value.imag, 3))
 ```
 
-结果接近 $e\approx2.718$ 的坐标 `2.718 0`。
+结果接近 $e\approx2.718$，输出坐标为 `2.718 0.0`。
 
 ```quiz
 圆内奇点 z=1，函数是 e^z 除以 z 减 1。闭路积分等于什么？
@@ -128,7 +128,7 @@ print(round(value.real, 3), round(value.imag, 3))
 ? 把无奇点的 e^z 看作 Cauchy 公式里的 f，积分等于 2*pi*i*f(1)。
 ```
 
-::::warning[常见误区]
+:::warning[常见误区]
 
 **误区一**：你以为任何分式都能直接套公式。必须把分子分离成“在围道内解析的函数”除以 $z-z_0$。
 
@@ -136,7 +136,7 @@ print(round(value.real, 3), round(value.imag, 3))
 
 **误区三**：你以为公式只用于计算积分。它还是推导泰勒展开、Liouville 定理和解析延拓的基础工具。
 
-::::
+:::
 
 ## 6. 练习
 

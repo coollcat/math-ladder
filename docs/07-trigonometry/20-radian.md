@@ -62,7 +62,7 @@ $$\text{弧度} = \text{度} \times \frac{\pi}{180}, \qquad \text{度} = \text{�
 
 1. 套反向公式：$\dfrac{3\pi}{2} \times \dfrac{180}{\pi}$；
 2. $\pi$ 消掉，$\dfrac{3}{2} \times 180 = 270$；
-3. 结论：$\dfrac{3\pi}{2}$ rad $= 270°$——三个直角，指针指在"9 点"方向。
+3. 结论：$\dfrac{3\pi}{2}$ rad $= 270°$——三个直角，指针指在"6 点"方向。
 
 ## 5. 动手实验
 
