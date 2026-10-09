@@ -124,7 +124,7 @@ print(run_goal(GOAL_TEXT, [("intro", "hx"), ("exact", "hx")]))
 
 ### 实验 2：修好这条被写乱的工作流
 
-下面的计划把第三步抄漏了又抄重了位置：当前它会卡在第 2 步。请调整 `plan` 中元素的排列（不允许增删指令、不允许改参数），让它重新通过。
+下面的计划把第三条 `exact` 抄漏了，只剩两条 `intro`，目标没法关闭：它会提示「计划走完但目标还剩」。请调整 `plan` 中元素的排列（不允许增删指令、不允许改参数），让它重新通过。
 
 ```exercise
 # @title: 练习：修复乱序的 tactic 计划
@@ -135,25 +135,24 @@ GOAL_TEXT = "P -> Q -> P"
 
 plan = [
     ("intro", "h1"),
-    ("exact", "h1"),     # ← 问题在这：此刻目标还是 Q -> P，无处可示
     ("intro", "h2"),
 ]
 
 # 下面是和实验 1 相同的引擎，别改它，只排上面的顺序。
 def split_arrow(text):
-    return [s.strip() for s in text.split("->")]
+    return [s.strip() for s in text.split("->")]   # split：按分隔符切碎字符串成列表
 
 def run_plan():
     parts = split_arrow(GOAL_TEXT)
     k = 0
     hyps = {}
-    for i, step in enumerate(plan):
+    for i, step in enumerate(plan):                # enumerate：遍历时同时给出序号
         tactic, arg = step[0], step[1]
         remaining = parts[k:]
         if len(remaining) > 1:
             if tactic == "intro":
                 if arg in hyps:
-                    return "第%d步卡住: 假设名 %s 已被占用" % (i + 1, arg)
+                    return "第%d步卡住: 假设名 %s 已被占用" % (i + 1, arg)   # % 格式化：把参数填进字符串占位符
                 hyps[arg] = remaining[0]
                 k += 1
             elif tactic == "exact":
@@ -161,7 +160,7 @@ def run_plan():
             else:
                 return "第%d步卡住: 收到未知指令 %s" % (i + 1, tactic)
         else:
-            target = remaining[0]
+            target = remaining[0]                  # 目标已是命题（不再是箭头式）
             if tactic == "exact":
                 if arg not in hyps:
                     return "第%d步卡住: 库里找不到假设 %s" % (i + 1, arg)
@@ -177,7 +176,7 @@ print(run_plan())
 print("步数:", len(plan))
 ```
 
-修好后的输出与手演分步例题一一对应。注意唯一的合法解：两条 intro 先后拆掉两层箭头，`exact h1` 收尾——即便调换 `h1`、`h2` 的引入位置，箭头的嵌套结构也锁死了先后，这就是 checker 的语法秩序。
+修好后的输出与手演分步例题一一对应。三条指令的正确秩序是：两条 `intro` 先后拆掉两层箭头，`exact h1` 收尾——即便调换 `h1`、`h2` 谁先被引入，`exact` 也必须排在两条 `intro` 之后，这就是 checker 的语法秩序。
 
 ```quiz
 Mathlib 这类大规模证明库的持续集成里，含有一个 sorry（未完成的洞）的文件会被怎样对待？
