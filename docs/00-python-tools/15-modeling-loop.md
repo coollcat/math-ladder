@@ -89,15 +89,15 @@ $$y_A = \begin{cases} 30, & 0 \le x \le 5 \\ 30 + 5(x-5), & x > 5 \end{cases} \q
 
 ```python
 # sliders: usage=9 [1:30:1]
-# usage：每月使用的流量（GB），由滑块注入
+usage = 9                   # usage：每月使用的流量（GB）；初值给一份，浮窗运行时由滑块覆盖
 
 def cost_a(gb):                 # def：把"套餐 A 怎么算钱"封进一个函数
-    if gb <= 5:                 # if：条件成立才走这一支
+    if gb <= 5:                 # if：条件成立才走这一支；<= 是"小于等于"比较，含等于本身
         return 30               # 没超额度，只交月租
     return 30 + 5 * (gb - 5)    # 超出部分每 GB 收 5 元
 
 def cost_b(gb):
-    if gb <= 20:
+    if gb <= 20:                # if：条件成立才走这一支；<= 是"小于等于"比较，含等于本身
         return 50
     return 50 + 3 * (gb - 20)
 
@@ -129,11 +129,11 @@ print(cost_b(usage))
 # @check: 50
 # @hint: 超出的流量是 gb − 5 而不是 gb：已经免费的 5 GB 不该再收一次钱。
 def cost_a(gb):
-    if gb <= 5:
+    if gb <= 5:                 # if：条件成立才走这一支；<= 是"小于等于"比较，含等于本身
         return 30
     return 30 + 5 * gb        # ← 免费额度没扣掉
 def cost_b(gb):
-    if gb <= 20:
+    if gb <= 20:                # if：条件成立才走这一支；<= 是"小于等于"比较，含等于本身
         return 50
     return 50 + 3 * (gb - 20)
 print(cost_a(15))

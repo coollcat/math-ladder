@@ -47,7 +47,7 @@ a = 3、b = 4 时，print(f"{a} + {b} = {a + b}") 输出什么？
 
 ### 约定三：for 循环 = "对每个数做一遍"
 
-高斯小时候被要求算 $1+2+\cdots+100$。我们不管技巧，直接暴力算。这也是你在本站遇到的**第一个滑块实验**：点「▶ 浮窗运行」，拖动 `top` 滑杆，代码每停一次就自动重跑一遍：
+高斯小时候被要求算 $1+2+\cdots+100$。我们不管技巧，直接暴力算。这也是你第一次**用滑块算数学**：点「▶ 浮窗实验」，拖动 `top` 滑杆，代码每停一次就自动重跑一遍：
 
 ```python title="暴力但诚实：循环累加"
 # sliders: top=100 [10:500:10]
@@ -62,11 +62,11 @@ print(f"1 加到 {top} 的和是 {total}")
 ### 约定四：def 函数 = "把一个想法装进盒子"
 
 ```python title="把'加到 n'封装成函数"
-def add_up_to(n):
+def add_up_to(n):   # def 函数名(参数)：把一个想法装进盒子，之后随时喊它干活
     total = 0
     for k in range(1, n + 1):
         total = total + k
-    return total
+    return total   # return：把盒子里的答案交还给喊它的人
 
 print(add_up_to(100))
 print(add_up_to(1000))
@@ -107,7 +107,7 @@ while 循环的缩进块里如果什么都不改条件依赖的变量，会发�
 
 ```python title="sum 就是那个循环的快捷方式"
 numbers = [1, 2, 3, 4, 5]   # 方括号列表：把一组数按顺序装在一起
-print(sum(numbers))
+print(sum(numbers))   # sum(一串数)：把里面的数全部加起来，返回总和
 
 print(sum(range(1, 101)))
 ```
@@ -164,7 +164,7 @@ range(1, 101) 一共产生多少个数？
 
 - **没有 `input()`**：需要"外部数据"时，直接给变量赋值；
 - **别写死循环**：`while True:` 没有限制条件会让页面卡住（条件怎么推动、怎么收工，见约定五）；
-- **画图自动显示**：用了 matplotlib 的代码，图会出现在输出区（下一课讲）。
+- **画图自动显示**：用了 matplotlib 的代码，图会出现在输出区（《matplotlib 入门》那一课讲）。
 
 ## 6. 练习
 
@@ -202,7 +202,7 @@ print(total)
 ```python
 def countdown(n):
     count = 0
-    for k in range(n, 0, -1):
+    for k in range(n, 0, -1):   # range(起, 止, 步长)：步长 -1 表示从 n 一路倒数到 1
         print(k)
         count = count + 1
     return count
@@ -224,6 +224,6 @@ print(f"一共 {countdown(5)} 个数")
 
 ## 8. 下一站
 
-下一课我们让数字**变成图形**：matplotlib 入门。
+规矩立好了，装备也齐了。下一课拿这套装备做第一件真事：把生活里的问题翻译成算式。
 
-→ [matplotlib 入门](./20-matplotlib.md)
+→ [数学建模五步：把现实问题翻译成算式](./15-modeling-loop.md)
