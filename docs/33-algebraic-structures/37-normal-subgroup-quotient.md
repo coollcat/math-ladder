@@ -36,7 +36,7 @@ exits:
 
 但不是所有分组方式都行。关键要求是：**无论先运算再分组，还是先分组再运算，结果必须一致**。这需要分组方式与群运算"兼容"。
 
-正规子群就是保证这种兼容性的条件。它说的是：用 $N$ 的元素去"平移" $N$ 自己，得到的还是 $N$（左陪集等于右陪集）。
+正规子群就是保证这种兼容性的条件。它说的是：用外层群 $G$ 的任意元素 $g$ 去平移 $N$，左边平移得到的 $gN$ 与右边平移得到的 $Ng$ 必须是同一批元素（左陪集等于右陪集）。
 
 ## 3. 正式定义
 
@@ -143,10 +143,10 @@ for g in S3:
 print(f"A3 是 S3 的正规子群? {is_normal}")
 
 # 商群的陪集
-cosets = set()
+cosets = set()  # set()：空集合，专门收集互不相同的陪集
 for g in S3:
     coset = frozenset(compose(g, n) for n in A3)  # frozenset：不可变集合，可作为集合元素
-    cosets.add(coset)
+    cosets.add(coset)  # .add()：往集合里加一个元素（已存在的自动合并）
 
 print(f"陪集个数: {len(cosets)}")
 ```
@@ -181,18 +181,18 @@ A3 确实正规，商群恰好有两个陪集，对应 $\mathbb{Z}_2$。
 
 ```exercise
 # @title: 练习：求 Z_8 的所有正规子群和商群
-# @check: Subgroup {0,4}: quotient has 4 elements
-# @check: Subgroup {0,2,4,6}: quotient has 2 elements
-# @hint: Z_8 是阿贝尔群，所有子群都正规。子群由 8 的因子生成：{0}, {0,4}, {0,2,4,6}, Z_8。
+# @check: Subgroup {0, 4}: quotient has 4 elements
+# @check: Subgroup {0, 2, 4, 6}: quotient has 2 elements
+# @hint: Z_8 是阿贝尔群，所有子群都正规。子群由 8 的因子生成：{0}, {0,4}, {0,2,4,6}, Z_8。商群的阶是 |G|/|N|（Lagrange 定理），不是 |N| 自己。
 n = 8
 elements = list(range(n))
 
 # 找出所有子群（由生成元生成）
 def subgroup_of(gen, n):
     """由生成元 gen 在 Z_n 中生成的子群"""
-    s = set()
+    s = set()  # set()：空集合，逐个收集生成的元素
     x = 0
-    for _ in range(n):
+    for _ in range(n):  # _：这轮用不到循环变量，约定用下划线占位
         s.add(x)
         x = (x + gen) % n
     return frozenset(s)
@@ -202,9 +202,9 @@ for gen in range(n):
     subgroups.add(subgroup_of(gen, n))
 
 # 打印非平凡正规子群及其商群
-for sg in sorted(subgroups, key=len):
+for sg in sorted(subgroups, key=len):  # key=len：按子群的元素个数（阶）从小到大排
     if len(sg) > 1 and len(sg) < n:
-        quotient_size = n // len(sg)
+        quotient_size = len(sg)  # ← 这是子群自己的阶，不是商群的阶
         print(f"Subgroup {set(sg)}: quotient has {quotient_size} elements")
 ```
 

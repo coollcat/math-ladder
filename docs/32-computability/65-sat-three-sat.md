@@ -147,7 +147,7 @@ print(1, 1, 1, int(evaluate({"x": True, "y": True, "z": True})))
 print(0, 0, 0, int(evaluate({"x": False, "y": False, "z": False})))
 ```
 
-初始 `lit` 函数把负文字也当成正文字处理，导致全假世界被错误判死。请修正为：正文字看原值，负文字取相反值。
+初始 `lit` 函数写成了 `value and positive`，负文字被一律判成假，导致全假世界被错误判死。请修正为：正文字看原值，负文字取相反值。
 
 <details>
 <summary>点开查看逐步解答</summary>

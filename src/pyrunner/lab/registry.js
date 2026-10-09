@@ -7,6 +7,9 @@
 
 /* ch00 是通用工具分册，放不属于某一章的站级组件（如「看见函数」） */
 import ch00 from './registries/ch00.js';
+
+/* ch04 是代数章（卷一）的分册：3Blue1Brown 式分幕动画演示组件 */
+import ch04 from './registries/ch04.js';
 import ch68 from './registries/ch68.js';
 import ch69 from './registries/ch69.js';
 import ch70 from './registries/ch70.js';
@@ -23,6 +26,7 @@ import ch78 from './registries/ch78.js';
 export const RENDERERS = Object.assign(
   {},
   ch00,
+  ch04,
   ch68,
   ch69,
   ch70,

@@ -55,6 +55,8 @@ $$\langle G,*\rangle$$
 | 单位元 | 存在 $e$，$a*e=e*a=a$ |
 | 逆元 | 每个 $a$ 有 $a^{-1}$，$a*a^{-1}=a^{-1}*a=e$ |
 
+四个条件在表里只占三行：封闭性已经含在“$G$ 上的二元运算”里——$*$ 的结果必须落在 $G$ 内，这正是上一课 $*:S\times S\to S$ 的题设。
+
 若还满足 $a*b=b*a$，则称阿贝尔群。
 
 ## 4. 分步例题
@@ -136,7 +138,7 @@ answers = {}   # 字典：把每个输入 a 和它的答案配成一对
 for a in [1, 3, 5]:
     answers[a] = None   # 先占位，表示还没找到逆元
 
-for key in answers:
+for key in answers:   # 遍历字典：依次取出每个键 a
     answers[key] = 0
 
 print("inverse[1]=" + str(answers[1]))

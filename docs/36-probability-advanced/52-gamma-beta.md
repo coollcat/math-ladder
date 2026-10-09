@@ -39,7 +39,7 @@ exits:
 
 Gamma 分布是"等到第 $k$ 件事发生要多久"的模型。如果每次事件之间的等待时间独立且服从指数分布，那么总共等 $k$ 次的总时间就服从 Gamma 分布。
 
-- $k=1$ 时退化为指数分布；
+- $k=1$ 时退化为指数分布（它的正式出场在[连续分布：均匀、指数与正态](./60-continuous-normal.md)一课）；
 - $k$ 越大，分布越往右移、越对称（中心极限定理的效果）；
 - $k$ 为整数时叫 Erlang 分布，是排队论的基石。
 
@@ -97,7 +97,7 @@ $$E[X]=\frac{a}{a+b},\quad \text{Var}(X)=\frac{ab}{(a+b)^2(a+b+1)}$$
 
 ```python title="不同 alpha 和 beta 下的 Gamma 密度"
 import numpy as np  # 数值计算库
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # matplotlib：画图库，plt 是常用简称
 from scipy.stats import gamma  # scipy.stats：统计分布工具箱
 
 x = np.linspace(0.01, 10, 500)  # linspace：在区间内均匀取 500 个点
@@ -124,9 +124,11 @@ $\alpha=1$ 时是指数分布（单调递减）；$\alpha$ 增大后逐渐变成
 ### 实验 2（python）：Beta 分布族的形状
 
 ```python title="Beta 分布：从 U 形到钟形"
-from scipy.stats import beta
+import numpy as np  # 数值计算库
+import matplotlib.pyplot as plt  # matplotlib：画图库，plt 是常用简称
+from scipy.stats import beta  # scipy.stats：统计分布工具箱
 
-x = np.linspace(0.001, 0.999, 500)
+x = np.linspace(0.001, 0.999, 500)  # linspace：在区间内均匀取 500 个点
 
 params = [(0.5, 0.5), (1, 1), (2, 5), (5, 2), (2, 2)]
 for a, b in params:
@@ -143,7 +145,11 @@ $a=b=1$ 是均匀分布；$a<1,b<1$ 是 U 形（两端高）；$a>1,b>1$ 是钟�
 ### 实验 3（python）：卡方分布与 Gamma 的关系
 
 ```python title="χ²(k) = Gamma(k/2, 1/2)"
-from scipy.stats import chi2
+import numpy as np  # 数值计算库
+import matplotlib.pyplot as plt  # matplotlib：画图库，plt 是常用简称
+from scipy.stats import gamma, chi2  # gamma、chi2：Gamma 分布与卡方分布
+
+x = np.linspace(0.01, 25, 500)  # 横轴取到 25：左图 xlim(0, 25) 内的曲线都画得下
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 
@@ -169,7 +175,9 @@ plt.tight_layout()
 ### 实验 4（python）：共轭先验演示
 
 ```python title="Beta 先验 + 二项数据 → Beta 后验"
-from scipy.stats import beta as beta_dist
+import numpy as np  # 数值计算库
+import matplotlib.pyplot as plt  # matplotlib：画图库，plt 是常用简称
+from scipy.stats import beta as beta_dist  # beta：Beta 分布工具箱
 
 # 先验：Beta(2, 2)（轻微偏好 0.5 附近的 p）
 a_prior, b_prior = 2, 2
@@ -231,11 +239,11 @@ from scipy.stats import gamma, beta
 
 # Gamma(5, 2) 的均值
 alpha, beta_rate = 5, 2
-gamma_mean = alpha / beta_rate  # ← 检查公式是否正确
+gamma_mean = alpha / beta_rate ** 2  # ← 检查公式是否正确
 
 # Beta(2, 3) 的均值
 a, b = 2, 3
-beta_mean = a / (a + b)  # ← 检查公式是否正确
+beta_mean = a * b / (a + b) ** 2  # ← 检查公式是否正确
 
 print(f"Gamma mean: {gamma_mean}")
 print(f"Beta mean: {beta_mean}")

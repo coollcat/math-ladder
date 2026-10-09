@@ -201,9 +201,9 @@ print(round(phi2, 4))
 
 **CLT 的收官路线**：设 $X_1,\dots,X_n$ 独立同分布、均值 $\mu$、方差 $\sigma^2$。标准化和 $Z_n$ 的指纹按独立连乘展开：
 
-$$\varphi_{Z_n}(t)=\left[\varphi\!\left(\frac{t}{\sigma\sqrt{n}}\right)\right]^n$$
+$\varphi_{Z_n}(t)=\left[e^{-it\mu/(\sigma\sqrt{n})}\,\varphi\!\left(\frac{t}{\sigma\sqrt{n}}\right)\right]^n$
 
-对 $\log\varphi$ 在零点做泰勒展开：一阶项被 $E[X]=\mu$ 的中心化吃掉，二阶项恰好贡献 $-t^2/2\cdot\frac{1}{n}$，$n$ 次方后指数上只剩
+对 $\log\varphi$ 在零点做泰勒展开：指数上那一瓣 $e^{-it\mu/(\sigma\sqrt{n})}$ 先把一阶项抵掉（"中心化"三个字在指纹里的样子），剩下二阶项恰好贡献 $-t^2/2\cdot\frac{1}{n}$，$n$ 次方后指数上只剩
 
 $$\varphi_{Z_n}(t)\ \longrightarrow\ e^{-t^2/2}$$
 

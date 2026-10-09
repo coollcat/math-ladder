@@ -102,15 +102,17 @@ claims = [
 def classify_claim(item):             # 只根据给出的证据保守分类
     if item["certificate"] is not None:
         return "in NP if verifier is polynomial"
-    if item["time"].startswith("n") or item["time"] == "unknown-fast":  # startswith 检查字符串前缀
+    if item["time"] == "unknown-fast":           # 既没给时间界，也没给证书
         return "not enough evidence for class"
+    if item["time"].startswith("n"):             # "n log n" 这类多项式时间界（startswith 只查字符串前缀）
+        return "in P if bound is polynomial"
     return "decidable bound only"
 
 for c in claims:
     print(c["name"], classify_claim(c))
 ```
 
-程序强调证据不足时不硬贴标签。`2^n` 只是某个算法的成本，不代表问题不在 P。
+程序只按给出的证据贴条件标签：有证书才谈 NP，有多项式时间界才谈 P；`2^n` 只是某个算法的成本，不代表问题不在 P。
 
 ## 6. 常见误区
 

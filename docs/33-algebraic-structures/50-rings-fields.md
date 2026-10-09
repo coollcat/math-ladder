@@ -204,7 +204,7 @@ print("units=" + str(units))
 <details>
 <summary>选读 · 没有零因子的好处</summary>
 
-没有零因子的交换幺环叫整环。若 $p$ 是素数且 $p\mid ab$，则 $p\mid a$ 或 $p\mid b$；这正说明 $\mathbb Z_p$ 没有零因子。有限整环还会自动成为域，这是下一课的主角。
+没有零因子的交换幺环叫整环。若 $p$ 是素数且 $p\mid ab$，则 $p\mid a$ 或 $p\mid b$；这正说明 $\mathbb Z_p$ 没有零因子。有限整环还会自动成为域，模素数的系统能安全做除法，凭的就是这句话。
 
 </details>
 

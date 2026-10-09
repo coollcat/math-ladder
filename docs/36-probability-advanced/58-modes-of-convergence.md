@@ -42,8 +42,8 @@ difficulty: 4
 
 | 收敛方式 | 记号 | 定义 | 强度 |
 | --- | --- | --- | :---: |
-| 几乎处处收敛 | $X_n \xrightarrow{a.s.} X$ | $P\!\left(\lim_{n\to\infty} X_n = X\right) = 1$ | 最强 |
-| $L^p$ 收敛 | $X_n \xrightarrow{L^p} X$ | $E|X_n - X|^p \to 0$ | 强 |
+| 几乎处处收敛 | $X_n \xrightarrow{a.s.} X$ | $P\!\left(\lim_{n\to\infty} X_n = X\right) = 1$ | 最强① |
+| $L^p$ 收敛 | $X_n \xrightarrow{L^p} X$ | $E|X_n - X|^p \to 0$ | 强② |
 | 依概率收敛 | $X_n \xrightarrow{P} X$ | $\forall \varepsilon>0:\ P(|X_n - X| > \varepsilon) \to 0$ | 中 |
 | 依分布收敛 | $X_n \xrightarrow{d} X$ | $F_{X_n}(x) \to F_X(x)$ 在 $F_X$ 的连续点处 | 最弱 |
 
@@ -54,6 +54,8 @@ $$X_n \xrightarrow{a.s.} X \;\Longrightarrow\; X_n \xrightarrow{P} X \;\Longrigh
 $$X_n \xrightarrow{L^p} X \;\Longrightarrow\; X_n \xrightarrow{P} X$$
 
 **反向都不成立。** 也就是说，依概率收敛是最弱的"真的在靠近"，依分布收敛甚至连"靠近"都不要求。
+
+①② a.s. 与 $L^p$ **没有强弱关系**，谁也排不到谁前面：$L^p$ 收敛推不出 a.s.（滑动窗口那个序列在 $L^1$ 里就收敛到 0，路径照样不收敛），a.s. 收敛也推不出 $L^p$（练习 2 的 (a) 正是 a.s. 收敛而二阶矩恒等于 1）。表中的①②只在提醒：它俩都比依概率收敛强，但彼此之间分不出先后。
 
 | 符号 | 名字 | 说明 |
 | --- | --- | --- |

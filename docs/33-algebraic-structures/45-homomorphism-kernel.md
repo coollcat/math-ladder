@@ -27,7 +27,7 @@ exits:
 
 ## 1. 开场钩子
 
-把精确到分钟的时钟压缩成上午、下午两格：很多分钟会被混在一起，但“时间先后相加”的规律仍然部分保留。
+把 24 小时制的钟压成 12 小时制：上午 9 点和晚上 9 点被混成同一格，很多时刻会共用名字，但“先过几小时再折回 12 格”与“先折回 12 格再过几小时”仍落在同一格。
 
 这种允许压扁却守规则的映射叫同态。被压到单位元的部分叫核。
 
@@ -80,22 +80,22 @@ $$f(a*b)=f(a)\circ f(b),$$
 这张图故意不是单射：0 和 3 共享输出 0，1 和 4 共享输出 1。共享并不破坏同态，破坏的是“先加后取余”与“先取余后加”的一致性。
 
 ```python title="验证同态并列出核"
-m = 6
-target = 3
+m = 6        # 原群 Z_6 的元素个数
+target = 3   # 目标群 Z_3 的元素个数
 
-def f(x):
-    return x % target
+def f(x):   # 同态 f：把 Z_6 的元素送到 Z_3
+    return x % target   # % 是取余：把 6 折回 3
 
 ok = True
-kernel = []
-for a in range(m):
+kernel = []   # 收集所有被送到单位元 0 的元素
+for a in range(m):   # range(m) 依次给出 0 到 m-1
     if f(a) == 0:
-        kernel.append(a)
+        kernel.append(a)   # append：把元素接到列表末尾
     for b in range(m):
-        left = f((a + b) % m)
-        right = (f(a) + f(b)) % target
+        left = f((a + b) % m)        # 先在 Z_6 里相加，再映射
+        right = (f(a) + f(b)) % target   # 先分别映射，再在 Z_3 里相加
         if left != right:
-            ok = False
+            ok = False   # 只要有一组不一致，同态性质就被破坏
 
 print("homomorphism:", ok)
 print("kernel:", kernel)
@@ -151,7 +151,7 @@ $$\ker f=\lbrace0,4\rbrace.$$
 
 :::warning[常见误区]
 
-**误区一**：你以为多对一就不是好映射。同态允许压缩，只要运算顺序可以交换。
+**误区一**：你以为多对一就不是好映射。同态允许压缩，只要“先运算再映射”等于“先映射再运算”。
 
 **误区二**：你以为核只是 0 一个点。满射之外的压缩会让整个子群一起落到单位元。
 

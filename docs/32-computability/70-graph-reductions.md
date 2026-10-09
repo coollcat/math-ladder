@@ -39,7 +39,7 @@ exits:
 | --- | --- | --- |
 | k 着色 | 给每个点一种颜色，相邻点不同 | 冲突约束的空间化 |
 | 团 | 大小为 k 的两两相连点集 | 补图中的独立集 |
-| 独立集 | 大小为 k 的两两不相连点集 | 原图团的补图版本 |
+| 独立集 | 大小为 k 的两两不相连点集 | 补图中的团 |
 
 “补图”指保留原来的点，把有边改成无边、无边改成有边。原图中一群互不相邻的点，放到补图中就变成一群两两相连的点，反之亦然。
 
@@ -151,7 +151,7 @@ def is_independent(group):
             a, b = group[i], group[j]
             if (a, b) in edges or (b, a) in edges:
                 return True
-    return False
+    return True
 
 print(is_independent([0, 1]))
 print(is_independent([0, 2]))

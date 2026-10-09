@@ -53,7 +53,7 @@ Cook-Levin 定理给出第一块多米诺：布尔公式的 satisfiability 是 N
 1. $L\in NP$；
 2. 对所有 $A\in NP$，$A\le_p L$。
 
-**Cook-Levin 定理**：SAT 是 NP 完全的。
+**Cook-Levin 定理**：SAT（satisfiability，布尔公式的可满足性问题）是 NP 完全的。
 
 由此得到一条实用链：若某个已知的 NP 完全问题 $K$ 满足 $K\le_p L$，且 $L\in NP$，则 $L$ 也是 NP 完全。理由是所有 NP 问题先到 $K$，再到 $L$；复合仍是多项式。
 

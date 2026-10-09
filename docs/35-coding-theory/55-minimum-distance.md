@@ -57,7 +57,7 @@ $$|C|\sum_{i=0}^{t}\binom{n}{i}\le 2^n.$$
 
 ## 4. 分步例题
 
-取上一课前的线性码：
+取前面生成矩阵与校验矩阵一课的线性码：
 
 $$C=\lbrace00000,11100,00111,11011\rbrace.$$
 
@@ -149,11 +149,11 @@ $$d_{\min}=3.$$
 
 $$t=\left\lfloor\frac{3-1}{2}\right\rfloor=1.$$
 
-初始代码误用了最大观察距离，并且没有做减一再整除。
+初始代码把码长当成了最小距离，也没有做减一再整除。
 
 ```py
 d_min = len(code[0])
-for i in range(1, len(code)):
+for i in range(len(code)):      # 从 0 开始，零码字也要参与比较
     for j in range(i + 1, len(code)):
         distance = sum(x != y for x, y in zip(code[i], code[j]))
         d_min = min(d_min, distance)

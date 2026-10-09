@@ -80,14 +80,14 @@ $$h(p)=-p\log_2p-(1-p)\log_2(1-p).$$
 
 曲线在 $p=0.5$ 处达到最高点 1。越靠近 0 或 1，结果越确定，可用更短的平均码长表达。
 
-### 实验 2：第一次正式使用 math.log2
+### 实验 2：用 math.log2 把熵算出来
 
-以前我们见过 `math.log`；换底公式 $\log_bx=\frac{\ln x}{\ln b}$ 能算任意底。为了频繁写二进制熵，这里引入直接工具 `math.log2`：
+以前我们见过 `math.log`；换底公式 $\log_bx=\frac{\ln x}{\ln b}$ 能算任意底。第 3 章的对数课还备了专门函数 `math.log2`，等价于 `math.log(x, 2)`。熵的标尺几乎总是以 2 为底，这里把它请回来：
 
 $$\texttt{math.log2}(x)=\log_2x.$$
 
 ```python title="计算四符号信源的熵"
-import math  # math 已在早期课程登场；本课首次使用它的 log2 方法
+import math  # math 与 math.log2 都在第 3 章登场，这是它第一次在本站用来算熵
 
 probabilities = [0.5, 0.25, 0.125, 0.125]
 entropy = 0                     # 熵是各项贡献之和

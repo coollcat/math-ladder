@@ -119,7 +119,7 @@ beta = 0.8
 previous_variance = 0.04
 shock = 0.02
 
-next_variance = omega + alpha * shock ** 2 + beta * previous_variance
+next_variance = omega + alpha * shock ** 2 + beta * shock ** 2  # ← 问题在这：beta 应乘上一期条件方差 previous_variance，不是冲击平方
 long_run_variance = omega / (1 - alpha - beta)
 print(round(next_variance, 3))
 print(round(long_run_variance, 1))

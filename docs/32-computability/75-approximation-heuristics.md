@@ -3,6 +3,7 @@ title: 近似与启发式出口
 lesson_id: computability/approximation-heuristics
 prereqs:
   - computability/graph-reductions
+  - computability/np-complete-classics
 volume: 3
 layer: L4
 track:
@@ -68,7 +69,7 @@ exits:
 4. 再选 CD，把 C、D 放入；
 5. 得到覆盖 A、B、C、D，大小 4。
 
-这个四边形的最优覆盖其实是 A 和 C：A 覆盖 AB、DA，C 覆盖 BC、CD，确实可行且大小为 2。二近似保证不差于 4，本例正好达到 4，说明保证可能保守。
+这个四边形的最优覆盖其实是 A 和 C：A 覆盖 AB、DA，C 覆盖 BC、CD，确实可行且大小为 2。二近似保证不差于 4，本例正好达到 4，说明这个上界紧（存在恰好用满倍数的实例）；保证只约束最坏情况，换个输入实际差距就可能小于两倍。
 
 ## 5. 动手实验
 

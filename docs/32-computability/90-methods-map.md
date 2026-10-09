@@ -94,7 +94,7 @@ exits:
 ### 实验 2：把清单变成摘要器
 
 ```python title="问题档案摘要"
-profile = {
+profile = {                            # 问题档案：字典用「键: 值」存四个布尔字段，各对应一栏清单
     "decidable": True,
     "short_certificate": True,
     "known_npc_reduces": True,
@@ -102,9 +102,9 @@ profile = {
 }
 
 def route(p):                          # p 是问题档案的关键字段集合
-    notes = []
-    if p["decidable"]:
-        notes.append("decidable")
+    notes = []                         # 空列表：用来逐个收纳命中的路线标签
+    if p["decidable"]:                 # 按键名取出布尔值：是否可判定
+        notes.append("decidable")      # append 把元素追加到列表末尾
     else:
         notes.append("look for undecidability proof")
     if p["short_certificate"]:

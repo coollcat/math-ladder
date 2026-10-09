@@ -1366,6 +1366,78 @@ a:hover .ml-chapter.is-done {
 .ml-lab__hint:empty {
   display: none;
 }
+/* ---------- 代数章分幕动画舞台（3Blue1Brown 式：播放 / 步骤点 / 字幕） ---------- */
+
+.ml-alg-stage {
+  padding-bottom: 0.2rem;
+}
+
+.ml-alg-stage__canvas {
+  margin: 0.35rem 0.5rem 0.1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--ml-viz-bg);
+}
+
+.ml-alg-stage__canvas canvas {
+  display: block;
+}
+
+.ml-alg-stage__caption {
+  min-height: 2.6em;
+  padding: 0.35rem 0.9rem 0.15rem;
+  font-size: 0.87rem;
+  line-height: 1.55;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.ml-alg-stage__caption.is-fade {
+  animation: ml-cap-in 0.45s ease both;
+}
+
+@keyframes ml-cap-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ml-alg-stage__dots {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.9rem 0.55rem;
+}
+
+.ml-alg-stage__dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.ml-alg-stage__dot.is-past {
+  background: var(--ifm-color-emphasis-400);
+}
+
+.ml-alg-stage__dot.is-on {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-alg-stage__caption.is-fade {
+    animation: none;
+  }
+}
 
 /* 电路 / 机构 / 时序图组件的图例区 */
 .ml-lab__legend {

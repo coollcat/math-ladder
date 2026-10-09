@@ -57,7 +57,7 @@ $$P(|X-\mu|\ge k\sigma)\le\frac{1}{k^2}$$
 
 其中 $\mu=E[X]$，$\sigma^2=\text{Var}(X)$。由 Markov 应用于 $(X-\mu)^2$ 推出。
 
-**Chernoff 界**：对独立随机变量之和 $S_n=\sum X_i$，
+**Chernoff 界**：对独立的 $[0,1]$ 值随机变量之和 $S_n=\sum X_i$，
 
 $$P(S_n\ge(1+\delta)\mu)\le\left(\frac{e^\delta}{(1+\delta)^{1+\delta}}\right)^\mu,\quad\delta>0$$
 
@@ -73,7 +73,7 @@ $$P\left(\bar{X}-E[\bar{X}]\ge t\right)\le\exp\left(-\frac{2n^2t^2}{\sum(b_i-a_i
 | --- | --- | --- |
 | Markov | 期望 | $O(1/a)$ |
 | Chebyshev | 期望 + 方差 | $O(1/k^2)$ |
-| Chernoff | 独立 + MGF | 指数衰减 |
+| Chernoff | 独立 + 有界（$[0,1]$ 值） | 指数衰减 |
 | Hoeffding | 独立 + 有界 | 指数衰减 |
 
 ## 4. 分步例题
@@ -95,7 +95,7 @@ $$P\left(\bar{X}-E[\bar{X}]\ge t\right)\le\exp\left(-\frac{2n^2t^2}{\sum(b_i-a_i
 ### 实验 1（python）：模拟验证不等式
 
 ```python title="Markov 与 Chebyshev 的实际表现"
-import numpy as np
+import numpy as np  # numpy 已在第 18 章登场；np 是约定短名
 
 np.random.seed(42)  # 固定随机种子，结果可复现
 n_samples = 100000
@@ -120,7 +120,7 @@ Markov 上界远大于实际概率——因为它是最松的界。
 ### 实验 2（python）：Chebyshev vs 实际
 
 ```python title="正态分布下的 Chebyshev 界"
-from scipy.stats import norm
+from scipy.stats import norm  # scipy.stats：统计分布工具箱
 
 mu, sigma = 100, 15
 k_values = [1, 2, 3, 4]
@@ -139,6 +139,7 @@ for k in k_values:
 ### 实验 3（python）：Hoeffding 界与实际模拟
 
 ```python title="Bernoulli 平均的集中性"
+import numpy as np
 from scipy.stats import bernoulli
 
 n = 100  # 样本量
@@ -153,7 +154,8 @@ n_trials = 50000
 exceeds = 0
 for _ in range(n_trials):
     samples = bernoulli.rvs(p, size=n)  # bernoulli.rvs：生成伯努利样本
-    if np.mean(samples) - p >= t:
+    # 按“正面向上的次数”比阈值：0.6-0.5 在浮点里小于 0.1，直接用 mean-p>=t 会漏掉正好 60 个正面的样本
+    if samples.sum() >= n * (p + t):
         exceeds += 1
 
 actual_prob = exceeds / n_trials
@@ -192,12 +194,12 @@ $1/x$ 曲线展示了 Markov 界的 $O(1/a)$ 衰减——缓慢而通用。Cheby
 
 ```exercise
 # @title: 练习：用 Chebyshev 不等式计算概率上界
-# @check: Chebyshev bound for k=2: 0.25
+# @check: Chebyshev bound for k=2: 0.2500
 # @check: Chebyshev bound for k=3: 0.1111
 # @hint: P(|X-mu|>=k*sigma) <= 1/k^2
 # 计算 Chebyshev 不等式的上界
 for k in [2, 3]:
-    bound = 1 / k ** 2  # ← 确认公式
+    bound = 1 / k      # ← 上界写成 1/k，漏了 k 的平方
     print(f"Chebyshev bound for k={k}: {bound:.4f}")
 ```
 

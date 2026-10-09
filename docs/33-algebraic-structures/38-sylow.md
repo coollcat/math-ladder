@@ -81,7 +81,7 @@ $$n_p=[G:N_G(P)],\qquad n_p\equiv 1\pmod p,\qquad n_p\mid |G| .$$
 4. **交集平凡**：$P_3\cap P_5$ 的阶同时整除 $3$ 与 $5$（Lagrange 定理），故只能是 $1$，即 $P_3\cap P_5=\lbrace e\rbrace$；
 5. **乘积铺满**：$P_3P_5$ 是子群，$|P_3P_5|=\dfrac{|P_3||P_5|}{|P_3\cap P_5|}=3\cdot5=15=|G|$，所以 $G=P_3P_5$；
 6. **拼成直积**：两个正规子群交为平凡、乘积为全体，于是 $G\cong P_3\times P_5\cong \mathbb{Z}_3\times\mathbb{Z}_5$；
-7. **收口**：由[模运算中的环和域](./60-modular-rings-fields.md)的结论（或直接用 $\mathbb{Z}_3\times\mathbb{Z}_5$ 中存在 $15$ 阶元素），$G\cong\mathbb{Z}_{15}$，是循环群。
+7. **收口**：元素 $(1,1)$ 的阶是 $3$ 与 $5$ 的最小公倍数 $15$，故 $\mathbb{Z}_3\times\mathbb{Z}_5\cong\mathbb{Z}_{15}$，进而 $G\cong\mathbb{Z}_{15}$，是循环群。
 
 **结论**：$15$ 阶群只有一种。计数夹子把"可能"直接压成了"唯一"。
 

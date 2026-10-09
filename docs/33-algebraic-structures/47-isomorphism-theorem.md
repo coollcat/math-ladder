@@ -26,7 +26,7 @@ exits:
 
 ## 1. 从一个场景开始
 
-上一课学到正规子群可以把群"压扁"成商群。上上一课学到同态也是一种压扁。这两种压扁是同一件事吗？
+上一课学到同态也是一种压扁，再往前的正规子群与商群一课学到商群可以把群"压扁"。这两种压扁是同一件事吗？
 
 群同态基本定理给出了响亮的回答：**是的，每一种同态压扁都精确对应一个商群。**
 
@@ -96,10 +96,9 @@ print(f"像 im f = {image}")
 # 构造商群 Z_12 / ker f
 cosets = {}
 for x in range(n):
-    rep = min(c for c in range(n) if c % len(kernel) == x % len(kernel))  # 选最小代表元
     coset_key = frozenset((x + k) % n for k in kernel)  # 陪集
     if coset_key not in cosets:
-        cosets[coset_key] = f(rep)
+        cosets[coset_key] = f(x)  # 同一陪集里 f 的取值相同，取哪个代表都行
 
 print(f"商群元素数: {len(cosets)}")
 print(f"像的元素数: {len(image)}")
@@ -215,7 +214,7 @@ print(f"quotient_size={quotient_size}")
 
 **第三同构定理**：若 $N\trianglelefteq G$ 且 $N\le M\le G$，则 $(G/N)/(M/N)\cong G/M$。
 
-第三定理的直觉：先用 $N$ 压一次，再用 $M/N$ 压一次，等价于直接用 $M$ 压一次。三层压缩可以合并为两层。
+第三定理的直觉：先用 $N$ 压一次，再用 $M/N$ 压一次，等价于直接用 $M$ 压一次。分两次压，等于一次压到位。
 
 </details>
 

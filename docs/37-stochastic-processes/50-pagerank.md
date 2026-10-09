@@ -32,7 +32,7 @@ PageRank 在本站出现两次：本课是**马尔可夫链视角**（转移矩�
 
 ## 1. 从一个场景开始
 
-1998 年，两位博士生要给上百亿张网页排座次：谁该排在搜索结果第一位？数链接个数？太容易被刷——建一万个空壳页指向自己就行。布林与佩奇的答案堪称本章前四课的完美合奏：
+1998 年，两位博士生要给数亿张网页排座次：谁该排在搜索结果第一位？数链接个数？太容易被刷——建一万个空壳页指向自己就行。布林与佩奇的答案堪称本章前四课的完美合奏：
 
 > 想象一个随机冲浪者，每一步都从当前网页的链接里**均匀随机**挑一条点下去。他一生中停留在每个网页的时间占比，就是那个网页的 PageRank。
 
@@ -44,7 +44,7 @@ PageRank 在本站出现两次：本课是**马尔可夫链视角**（转移矩�
 
 两个现实障碍必须修补：
 
-- **死胡同**：某网页没有任何出链（冲浪者被困）；
+- **死胡同**：某网页没有任何出链（冲浪者被困；矩阵约定这一列整体换成均匀分布，即它只能瞬移）；
 - **蜘蛛网**：一小圈页面互相引用、拒绝外出。
 
 两者都会破坏"冲浪者自由漫步"的图景。Google 的修法简单粗暴又优雅：每一步都以小概率 $1-d$ **瞬移**到全网随机某页（想象冲浪者偶尔感到无聊）。这个"无聊因子"让整张图重新连通且无周期，遍历性定理重新生效——数学条件在这里变成了产品决策。
@@ -55,9 +55,9 @@ PageRank 在本站出现两次：本课是**马尔可夫链视角**（转移矩�
 
 $$G=\ d\,M+\frac{1-d}{N}\mathbf{1}\mathbf{1}^\top, \qquad M_{ij}=\begin{cases}\dfrac{1}{\text{outdeg}(j)} & j\to i\\[4pt] 0 & \text{否则}\end{cases}$$
 
-**PageRank 向量** $\pi$ 是 $G$ 的平稳分布：
+**PageRank 向量** $\pi$ 是 $G$ 的平稳分布（把 $\pi$ 看作列向量）：
 
-$$\pi = \pi G \qquad \Longleftrightarrow \qquad \pi_i=(1-d)\cdot\frac{1}{N}+d\sum_{j\to i}\frac{\pi_j}{\text{outdeg}(j)}$$
+$$G\pi=\pi \qquad \Longleftrightarrow \qquad \pi_i=(1-d)\cdot\frac{1}{N}+d\sum_{j\to i}\frac{\pi_j}{\text{outdeg}(j)}$$
 
 | 符号 | 名字 | 含义 |
 | --- | --- | --- |
@@ -70,7 +70,7 @@ $$\pi = \pi G \qquad \Longleftrightarrow \qquad \pi_i=(1-d)\cdot\frac{1}{N}+d\su
 
 ## 4. 分步例题
 
-**例**：三页小网：X 只链接 Y；Y 链接 X 和 Z；Z 只链接 Y。取 $d=0$（先看纯投票版），求 PageRank。
+**例**：三页小网：X 只链接 Y；Y 链接 X 和 Z；Z 只链接 Y。取 $d=1$（先看纯投票版，即不瞬移），求 PageRank。
 
 1. 写流量守恒（流出=流入，30 课的老配方）：$\pi_X=\frac{1}{2}\pi_Y$，$\pi_Z=\frac{1}{2}\pi_Y$，$\pi_Y=\pi_X+\pi_Z$；
 2. 前两式代入第三式：$\pi_Y=\frac{1}{2}\pi_Y+\frac{1}{2}\pi_Y$ ✓ 恒成立——自由度剩一个；
@@ -112,14 +112,14 @@ for it in range(60):                 # 幂迭代 60 轮，足够收敛
 
 order = sorted(pages, key=lambda pg: rank[pg], reverse=True)   # 按分数从高到低排队
 for pg in order:
-    bar = "#" * int(rank[pg] * 200)
+    bar = "#" * int(rank[pg] * 200)          # 分数放大 200 倍当条形长度：int 截断成整数个 #
     print(f"{pg}: {round(rank[pg], 4)} {bar}")
 
 plt.bar(order, [rank[pg] for pg in order], color="steelblue")
 plt.ylabel("PageRank")
 ```
 
-跑完看排名再对照链接表：得分王未必是入链最多的——C 收下 B 的全票以及 A、D 各一半票，所以登顶。再看 A 和 B：A 拿到 C 的全票和 E 的一半票，稳居第二；B 只有 A 的一半票，落到第三。"谁投你、投了多少票"永远比单纯数入链更重要。
+跑完看排名再对照链接表：入链数并不是排名的全部理由——同样只有一条入链，B 的分数是 D、E 的三倍半，因为给 B 投票的是高分行 A。C 收下 B 的全票以及 A、D 各一半票，所以登顶；A 拿到 C 的全票和 E 的一半票，与 C 只差 0.0015 屈居第二；B 只有 A 的一半票，落到第三。"谁投你、投了多少票"永远比单纯数入链更重要。
 
 ### 实验 2（python）：阻尼系数 d 是怎么救场的
 
@@ -128,7 +128,7 @@ links = {"A": ["B"], "B": ["C"], "C": ["A"]}        # 三页死环：每页只�
 pages = list(links.keys())
 N = len(pages)
 
-def power_iter(d, rounds):
+def power_iter(d, rounds):                  # 自定义函数：给定阻尼系数 d 与迭代轮数，返回每轮变化量
     rank = {"A": 1.0, "B": 0.0, "C": 0.0}           # 初始全押 A：让演化过程看得见
     errors = []                                      # 记录相邻两轮分布的总变化量
     for it in range(rounds):

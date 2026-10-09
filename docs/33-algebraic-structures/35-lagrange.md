@@ -130,7 +130,7 @@ print("product:", len(subgroup) * len(cosets))
 # @check: number_of_cosets=7
 # @hint: 取平凡子群 {0}。每间房只有一个人，房间数就是群阶。
 n = 7
-subgroup = [1]
+subgroup = [1, 3]
 
 group_order = n
 subgroup_order = len(subgroup)
