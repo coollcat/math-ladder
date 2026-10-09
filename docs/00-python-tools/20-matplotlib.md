@@ -53,7 +53,7 @@ for n in ns:
     total = total + n
     sums.append(total)   # append：往列表末尾追加一个元素——每算出一个新和就记一笔
 
-print(f"n=10 时累加和 = {sums[-1]}")
+print(f"n=10 时累加和 = {sums[-1]}")   # sums[-1]：取列表最后一个元素——也就是刚算出的那个最大累加和
 
 plt.plot(ns, sums, marker="o")   # marker="o"：每个数据点画成圆点，看得更清
 plt.title("triangular numbers")
@@ -118,7 +118,7 @@ for trial in range(n):   # n 由滑块注入：拖一下，重新掷 n 次
 print(f"一共记录了 {len(sums)} 个和")   # len：数一数列表里装了几个元素
 
 # hist：直方图——把数据按区间分箱、数每箱有几个；bins 指定分箱边界，rwidth 是柱宽比例
-plt.hist(sums, bins=range(2, 14), align="left", rwidth=0.8, color="mediumseagreen")  # align="left"：柱子对齐在区间左端（和 bins 配合才居中）
+plt.hist(sums, bins=range(2, 14), align="left", rwidth=0.8, color="mediumseagreen")  # align="left"：柱子对齐在区间左端（和 bins 配合才居中）；rwidth=0.8：柱宽是格距的 0.8
 plt.xticks(range(2, 13))             # xticks：强制横轴只在这些整数处标刻度
 plt.xlabel("sum of two dice")
 plt.ylabel("count")
