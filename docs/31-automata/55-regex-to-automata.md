@@ -30,15 +30,16 @@ exits:
 
 ## 2. 直觉解释
 
-正则表达式只用三种积木：
+正则表达式只有三种运算（连接、选择、星号），外加三个不能再拆的零件：字符、空串、空语言。
 
 | 写法 | 名字 | 语言含义 |
 | --- | --- | --- |
 | $a$ | 字符 | 只含字符串 $a$ |
+| $\varepsilon$ | 空串 | 不消耗字符，语言 $\lbrace\varepsilon\rbrace$ |
+| $\varnothing$ | 空语言 | 什么都不匹配 |
 | $RS$ | 连接 | 先匹配 $R$ 再匹配 $S$ |
 | $R\mid S$ | 选择 | 匹配 $R$ 或匹配 $S$ |
 | $R^*$ | 星号 | 把 $R$ 重复零次或多次 |
-| $\varepsilon$ | 空串 | 不消耗字符 |
 
 优先级通常是：星号最高，连接其次，选择最低。所以 $ab^*$ 表示一个 $a$ 后面跟零个或多个 $b$，而不是整串 $ab$ 重复。
 
@@ -56,12 +57,26 @@ $$L\text{ 正则}\iff L\text{ 可由某个正则表达式表示}\iff L\text{ 被
 
 ## 4. 分步例题：翻译 $a(b\mid c)^*d$
 
-1. $a$ 是一条只读 $a$ 的边；
-2. $(b\mid c)^*$ 是一个小回路：可跳过，也可反复沿 $b$ 或 $c$ 回到原地；
-3. $d$ 是最后一条边；
-4. 因此接受形如 $ad$、$abd$、$acd$、$abcbd$ 的串；
-5. $abc$ 缺少最后的 $d$，拒绝；
-6. $adb$ 在 $d$ 后多出字符，也拒绝。
+Thompson 构造把「按结构拼装」落成四条机械规则，每条只管一小片：
+
+| 表达式零件 | 拼法 | 新增状态 |
+| --- | --- | --- |
+| 字符 $a$ | 画一条带字符的边 $s\xrightarrow{a}f$ | 2 |
+| 连接 $RS$ | R 的终点直接当 S 的起点，接上即合并 | 0 |
+| 选择 $R\mid S$ | 新起点 $s$、新终点 $f$：$s\xrightarrow{\varepsilon}R_{\text{起}}$、$s\xrightarrow{\varepsilon}S_{\text{起}}$、$R_{\text{终}}\xrightarrow{\varepsilon}f$、$S_{\text{终}}\xrightarrow{\varepsilon}f$ | 2 |
+| 星号 $R^*$ | 新起点 $s$、新终点 $f$：$s\xrightarrow{\varepsilon}R_{\text{起}}$、$s\xrightarrow{\varepsilon}f$（零次，直接出去）、$R_{\text{终}}\xrightarrow{\varepsilon}R_{\text{起}}$（绕回）、$R_{\text{终}}\xrightarrow{\varepsilon}f$（出去） | 2 |
+
+逐件拼这一次：
+
+1. $a$ 是一条只读 $a$ 的边：$S\xrightarrow{a}A$；
+2. $(b\mid c)^*$ 先在 $b$ 与 $c$ 之间并联，再套星号：入口 $L$ 可空步选 $b$ 支或 $c$ 支，两支走完都汇到 $E$；$E$ 要么空步绕回 $L$，要么空步出去到 $T$；
+3. 走进星号时，$A$ 还能直接空步跳到 $T$——这就是「零次」，空串也是合法长度；
+4. $T\xrightarrow{d}F$ 是最后一条边，$F$ 是唯一接受态；
+5. 因此接受形如 $ad$、$abd$、$acd$、$abcbd$ 的串；
+6. $abc$ 缺少最后的 $d$，拒绝（读完停在回路附近，不在 $F$）；
+7. $adb$ 在 $d$ 后多出字符，也拒绝（$F$ 没有出边，多出的 $b$ 无处可走）。
+
+拼出来的 ε-NFA 一共 10 个状态、12 条边，全部由零件机械拼出，没有一处是为这道题手画的捷径。下一节就让它跑起来。
 
 ## 5. 动手实验
 
@@ -86,17 +101,61 @@ for word in ["ad", "abcd", "acbd", "abc"]:
 
 这段代码把表达式结构直接展开：首字符、可循环中段、尾字符。改一个条件，就相当于改一张自动机箭头。
 
-### 实验 2（viz）：选择与交集的布尔预览
+### 实验 2（python）：让拼出来的 ε-NFA 跑起来
+
+```python title="平行状态集合模拟 ε-NFA"
+nfa = {                          # 每个 (状态, 符号) 对应可能落点列表；"ε" 表示空步
+    ("S", "a"): ["A"],
+    ("A", "ε"): ["L", "T"],
+    ("L", "ε"): ["B", "C"],
+    ("B", "b"): ["B2"],
+    ("C", "c"): ["C2"],
+    ("B2", "ε"): ["E"],
+    ("C2", "ε"): ["E"],
+    ("E", "ε"): ["L", "T"],
+    ("T", "d"): ["F"],
+}
+start, finish = "S", "F"         # 起点与唯一接受态
+
+def closure(states):             # closure：把所有靠空步可达的状态也收进名单
+    stack = list(states)         # list(...) 复制一份，免得把传进来的名单改坏
+    reached = list(states)
+    while stack:
+        s = stack.pop()          # pop() 取出并移除名单最后一项
+        for nxt in nfa.get((s, "ε"), []):   # get：没有空步出边时返回空列表
+            if nxt not in reached:            # not in 检查名单里还没有它
+                reached.append(nxt)           # append：往名单尾部加一项
+                stack.append(nxt)
+    return reached
+
+def accepts(text):
+    current = closure([start])   # 读之前先走完所有空步
+    for ch in text:              # 每读一个字符，所有平行状态同时前进一步
+        moved = []
+        for s in current:
+            moved = moved + nfa.get((s, ch), [])
+        current = closure(moved)
+        if not current:          # 平行世界全灭：任何一条路都读不下去了
+            return False
+    return finish in current
+
+for word in ["ad", "abd", "acd", "abcbd", "abc", "adb"]:
+    print(f"{word}: {accepts(word)}")
+```
+
+六行输出依次是 `True`、`True`、`True`、`True`、`False`、`False`，与上一节的逐条判断一一对应。`adb` 的故事值得单独讲：读完 `ad` 时平行集合里已经有 $F$，但输入还没结束，而 $F$ 一条出边也没有，于是所有路同时断掉。
+
+### 实验 3（viz）：选择与交集的布尔预览
 
 ```viz
 {
   "type": "truth-table",
   "formula": "p or q",
-  "showColumns": ["p", "q", "p or q", "not p", "not q"]
+  "showColumns": ["p", "q", "p or q", "p and q", "not p", "not q"]
 }
 ```
 
-若 $p$ 代表“匹配了 $R$”，$q$ 代表“匹配了 $S$”，那么 $R\mid S$ 在单根字符串上的核心判断就是 `p or q`。完整匹配器还要处理长度切分，但选择语义已经在这里显形。
+若 $p$ 代表“匹配了 $R$”，$q$ 代表“匹配了 $S$”，那么 $R\mid S$ 在一根固定字符串上的核心判断就是 `p or q`；上一课 $L(R)\cap L(S)$ 的核心则是 `p and q`。整类语言的封闭性还要靠机器构造，但选择和交集的语义差异已经在这里显形。
 
 :::warning[常见误区]
 

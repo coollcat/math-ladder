@@ -118,13 +118,13 @@ for i in [0, 1, 2]:
 
 ```exercise
 # @title: 练习：检查一次泵动是否符合形状
-# @check: aaaabb
-# @check: aaabb
+# @check: aaaabbb
+# @check: aaabbb
 # @check: False
 # @hint: 泵动两次就是把 y 写成 y * 2；再用计数器比较 i2 串里 a 与 b 的数量是否相等——不相等说明它已离开语言。
 x = "aa"
 y = "a"
-z = "bb"
+z = "bbb"
 
 i2 = x + y + z           # ← 想泵动两次，这里 y 该重复几份？
 i1 = x + y + z           # i=1 就是原串本身
@@ -142,7 +142,7 @@ print(i1)
 print(count_a == count_b)
 ```
 
-期望输出是 `aaaabb`、`aaabb`、`False`：泵动两次后 a 多出一个，数量不再相等。初始代码把 `i2` 也写成了原串，先把它改成真正的两次泵动。
+期望输出是 `aaaabbb`、`aaabbb`、`False`：泵动两次后 a 多出一个，数量不再相等。初始代码把 `i2` 也写成了原串，先把它改成真正的两次泵动。
 
 ```quiz
 用泵引理证明语言非正则时，应该怎样选串？

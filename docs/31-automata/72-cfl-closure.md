@@ -53,9 +53,9 @@ CFL 由 CFG（上下文无关文法）或 PDA（下推自动机）识别。CFG �
 
 $$L_1\cap L_2=\lbrace a^nb^nc^n:n\ge0\rbrace$$
 
-由上一课已知这不是 CFL。因此 CFL 对交不封闭。
+由 CFL 泵引理已知这不是 CFL。因此 CFL 对交不封闭。
 
-由德摩根律 $\overline{L_1\cap L_2}=\overline{L_1}\cup\overline{L_2}$，若 CFL 对补封闭，则对交也封闭（因为正则语言的补仍是正则语言，交可用补和并表达）。既然对交不封闭，对补也不封闭。
+由德摩根律 $\overline{L_1\cap L_2}=\overline{L_1}\cup\overline{L_2}$，若 CFL 对补封闭，则对交也封闭（因为交可以用补和并表达：两次取补、一次取并就能拼出交）。既然对交不封闭，对补也不封闭。
 
 ## 4. 分步例题
 
@@ -164,29 +164,38 @@ $a^nb^nc^n$ 的成员可以枚举验证，但关键事实是：没有任何 CFG 
 
 ```exercise
 # @title: 练习：构造并运算的 CFG
-# @check: L1 samples: 3
-# @check: L2 samples: 3
-# @hint: 用新起始符 S -> S1 | S2，S1 和 S2 分别指向两个原文法。
+# @check: ab: True
+# @check: aabb: True
+# @check: aaabbb: True
+# @check: abb: True
+# @check: aabbbb: True
+# @check: aab: False
+# @hint: S -> S1 | S2 的含义是「属于 L1 或属于 L2 都算数」；让 in_union 把 in_L1 和 in_L2 都试一遍。
 # L1 = {a^n b^n}, L2 = {a^n b^2n}
-# 分别生成样本，再验证并集包含两者
+# 并集 L1 ∪ L2：一个串只要属于 L1 或 L2 就算数，
+# 这正是 CFG 新起始符 S -> S1 | S2 的含义。
 
-def gen_anbn(n):
-    return "a" * n + "b" * n
+def in_L1(s):
+    # s = a^n b^n：长度是 2n，前 n 个 a、后 n 个 b
+    if len(s) % 2 != 0 or not s:      # 长度不是偶数直接排除
+        return False
+    n = len(s) // 2                   # // 是整除（向下取整）
+    return s == "a" * n + "b" * n
 
-def gen_anb2n(n):
-    return "a" * n + "b" * (2 * n)
+def in_L2(s):
+    # s = a^n b^2n：长度是 3n，前 n 个 a、后 2n 个 b
+    if len(s) % 3 != 0 or not s:
+        return False
+    n = len(s) // 3
+    return s == "a" * n + "b" * (2 * n)
 
-l1_count = 0
-l2_count = 0
-for n in range(1, 4):
-    s1 = gen_anbn(n)
-    s2 = gen_anb2n(n)
-    l1_count += 1
-    l2_count += 1
-    print(f"n={n}: L1='{s1}', L2='{s2}'")
+# 并运算：S -> S1 | S2
+def in_union(s):
+    return in_L1(s)          # ← 只走了 S1，漏掉了 S -> S1 | S2 的另一半
 
-print(f"L1 samples: {l1_count}")
-print(f"L2 samples: {l2_count}")
+tests = ["ab", "aabb", "aaabbb", "abb", "aabbbb", "aab"]
+for t in tests:
+    print(f"{t}: {in_union(t)}")
 ```
 
 ```quiz
@@ -219,6 +228,6 @@ CFL 对以下哪种运算不封闭？
 
 ## 8. 下一站
 
-CFL 的工具箱已经齐备：泵引理划边界，封闭性做组合。接下来进入代数结构的领域，看看群论如何用"正规子群"把一个群切成整齐的碎片。
+CFL 的工具箱已经齐备：泵引理划边界，封闭性做组合。还差一件称手的生成工具——下一课用上下文无关文法把「主语、谓语、宾语」这样的层次一句话讲清楚。
 
-→ [正规子群与商群](../33-algebraic-structures/37-normal-subgroup-quotient.md)
+→ [上下文无关文法](./75-context-free-grammar.md)
