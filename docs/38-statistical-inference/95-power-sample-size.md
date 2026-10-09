@@ -361,4 +361,4 @@ print(round(delta, 4))
 
 下一章换一套哲学：把不确定性直接写成分布，让证据不断更新它。
 
-→ [第 39 章 · 先验与后验](../39-bayesian-stats/index.md)
+→ [第 39 章 · 贝叶斯统计](../39-bayesian-stats/index.md)

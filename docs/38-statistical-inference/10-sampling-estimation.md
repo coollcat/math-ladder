@@ -203,4 +203,4 @@ $$\operatorname{Var}(\bar{e})=\frac{\sigma^2+\cdots+\sigma^2}{n^2}=\frac{n\sigma
 
 点估计诚实地说出了"猜是多少"，但还没说出"有多大把握"。下一课给估计值配上一条误差带——置信区间，并纠正几乎所有教科书读者都会犯的那个解释错误。
 
-→ [置信区间](./20-confidence-interval.md)
+→ [置信区间：给猜测配一条误差带](./20-confidence-interval.md)

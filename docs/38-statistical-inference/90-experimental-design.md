@@ -299,7 +299,7 @@ print("真实处理效应 =", TRUE_EFFECT)
 
 </details>
 
-**练习 2**（判题）：下面这段代码想算**混杂偏差**，但它把"观察到的组间差"当成了偏差本身——真正的偏差要减掉真实效应：
+**练习 2**（判题）：下面这段代码想算**混杂偏差**，但它把"注重健康者的风险"当成了要减掉的东西——真正的偏差 = 观察差 - 真实效应：
 
 ```exercise
 # @title: 练习：拆分观察到的组间差
@@ -315,13 +315,13 @@ rate_treated = treat_rate_healthy * healthy_risk + (1 - treat_rate_healthy) * un
 rate_control = (1 - treat_rate_healthy) * healthy_risk + treat_rate_healthy * unhealthy_risk
 
 observed_diff = rate_treated - rate_control     # 观察到的组间差
-bias = observed_diff                            # ← 问题在这：忘了减掉真实效应
+bias = observed_diff - healthy_risk             # ← 问题在这：把健康风险当成了要减掉的东西
 
 print(round(bias, 4))
 print(round(observed_diff - bias, 4))           # ← 这一行修好之后应当输出真实效应
 ```
 
-第一行要求输出掺杂在观察差里的**混杂偏差** $-3.6$（因为真实效应为 $0$，数值上恰好与观察差相等，但概念上必须写成 `observed_diff - true_effect`）；第二行修好后输出真实效应 `0.0`。**这道题的重点不在算术，而在把"看到的"和"真实的"分开记账这个习惯。**
+第一行要求输出掺杂在观察差里的**混杂偏差** $-3.6$（真实效应为 $0$，所以它等于观察差，但概念上必须写成 `observed_diff - true_effect`）；第二行修好后输出真实效应 `0.0`。**这道题的重点不在算术，而在把"看到的"和"真实的"分开记账这个习惯。**
 
 ## 7. 选读：从实验设计到因果推断
 
@@ -344,4 +344,4 @@ print(round(observed_diff - bias, 4))           # ← 这一行修好之后应�
 
 这两件事——功效的计算与样本量的确定——是实验设计最后的、也是最实用的一块。
 
-→ [功效分析与样本量](./95-power-sample-size.md)
+→ [功效分析与样本量：实验要做多大](./95-power-sample-size.md)
