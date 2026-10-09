@@ -96,8 +96,8 @@ AES 能把 128 位明文锁成 128 位密文——但磁盘加密、网络传输
 ### 实验 2（python）：四种模式的安全性对比
 
 ```python title="ECB vs CBC vs CTR：相同明文的密文差异"
-import random
-random.seed(42)
+import random          # 随机数库：造随机 IV 用（本课第一次出现）
+random.seed(42)        # 固定随机种子：让"随机"IV 每次运行都一样，方便复现对比
 
 def simple_encrypt(block, key):
     # 简化分组加密：每个字节加 key 并取模 256
@@ -112,7 +112,7 @@ def xor_blocks(a, b):
     return [x ^ y for x, y in zip(a, b)]
 
 key = 7
-iv = [random.randint(0, 255) for _ in range(4)]  # 随机 IV
+iv = [random.randint(0, 255) for _ in range(4)]  # randint(a, b)：取 a~b 之间的随机整数（含两端）；这里造 4 字节的随机 IV
 
 # 两个相同的明文块
 plain = [72, 73, 73, 33]  # "HII!"
@@ -239,7 +239,7 @@ print(plaintext)  # [5, 6]
 <details>
 <summary>选读 · 从 MAC-then-Encrypt 到 AEAD</summary>
 
-早期做法是先算 MAC（消息认证码）再加密（MAC-then-Encrypt），但 TLS 的实现顺序错误导致了 BEAST、Lucky Thirteen 等攻击。安全界总结出教训：认证和加密必须**不可分割**地绑定在一起。
+早期做法是先算 MAC（消息认证码）再加密（MAC-then-Encrypt），但 TLS 接连被打穿：Lucky Thirteen（2013）用填充预言机与计时侧信道攻破了"先 MAC 再加密"的组合，BEAST（2011）则利用 TLS 1.0 里 CBC 的 IV 直接取上一块密文（因而可预测）取得了选择明文的能力。安全界总结出教训：认证和加密必须**不可分割**地绑定在一起。
 
 演化路径：Encrypt-and-MAC（并行，各自独立，安全性最弱）→ MAC-then-Encrypt（先认证再加密，填充攻击可利用）→ Encrypt-then-MAC（先加密再对密文算 MAC，理论安全但实现复杂）→ AEAD（一体化设计，如 GCM、ChaCha20-Poly1305）。
 
@@ -249,6 +249,6 @@ GCM 用 CTR 做加密、用 GHASH（基于伽罗瓦域乘法的通用哈希）�
 
 ## 8. 下一站
 
-分组模式解决了"怎么锁一大块"，但纠错码解决的是"怎么让数据在噪声中存活"。当信道不只是噪声而是**恶意篡改**时——下一课把舞台搬进有限域，看 Reed-Solomon 码如何用多项式拯救 CD 刮痕和太空信号。
+分组模式解决了「怎么锁一大块」，可锁得住数据，锁不住「我知道」这件事：怎么证明你掌握了一个秘密，却一个字都不泄露？下一课看挑战-应答三轮交互如何把「知道」变成可验证的承诺。
 
-→ [Reed-Solomon 码](../35-coding-theory/72-reed-solomon.md)
+→ [零知识证明：不说出秘密，却让你确信](./78-zero-knowledge.md)

@@ -75,7 +75,7 @@ difficulty: 4
 4. 应答 $s = r + cx = 4 + 18 = 22$；
 5. 验证：$g^s = 5^{22} \bmod 23$，$t\cdot y^c = 4\times 8^3 \bmod 23 = 4\times 512 \bmod 23 = 2048 \bmod 23$。
 
-两边都等于 $2$——**通过**。
+两边都等于 $1$——**通过**。
 
 **例 2（没秘密的人为什么过不了）**：假设攻击者不知道 $x$，他能怎么作弊？
 
@@ -91,8 +91,6 @@ difficulty: 4
 先跑一遍完整协议，看它如何通过：
 
 ```python title="Schnorr 协议：一轮完整交互"
-import math                       # math.gcd：最大公约数，这里用来检查随机数合法性
-
 p, g = 23, 5                      # 极小的教学参数：真实场景 p 有几百位
 x = 6                             # 证明者的秘密
 y = pow(g, x, p)                  # 公开值 y = g^x mod p（pow 的三参数形式直接做模幂）
@@ -110,18 +108,16 @@ print("g^s mod p =", left, " t·y^c mod p =", right)
 print("验证通过" if left == right else "验证失败")
 ```
 
-输出两边都是 `2`，`验证通过`。
+输出两边都是 `1`，`验证通过`。
 
 现在看关键的一点：**作弊者只能猜中约一半的挑战**。我们来数一数：
 
-```python title="作弊者的通过率：20 轮能骗过几次"
-import math
-
+```python title="作弊者的通过率：在小挑战空间里数一数"
 p, g = 23, 5
 y = pow(g, 6, p)
 
 # 作弊者不知道 x，只能先随便编一个 s，再看挑战 c 能不能蒙对
-# 这里直接统计：在 p-1 个可能的挑战里，他能碰巧对上的比例
+# 这里直接统计：10 个可能挑战 × 5 个备选应答里，能碰巧对上的比例
 hit = 0
 total = 0
 for c in range(1, 11):            # 取 10 个可能的挑战值
@@ -194,7 +190,7 @@ c = 3
 s = r + c * x
 
 left = pow(g, s, p)
-right = (t * pow(y, c, p)) % p
+right = (t * pow(y, s, p)) % p   # ← 这里写错了：验证等式右边是 y^c，指数应为挑战 c
 print("验证通过" if left == right else "验证失败")
 ```
 
