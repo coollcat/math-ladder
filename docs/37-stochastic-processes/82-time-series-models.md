@@ -246,6 +246,6 @@ $$\nabla X_t = X_t - X_{t-1}, \qquad \nabla^2 X_t = \nabla(\nabla X_t)$$
 
 ## 8. 下一站
 
-ARMA 假设方差恒定，但金融市场里"波动率会聚集"——大涨大跌扎堆出现。下一课我们用 GARCH 模型来捕捉这种时变波动率。
+ARMA 把"未来=过去的加权+白噪声"做成了生产线，时间序列的主线至此走完。下一课回归随机过程最本源的承诺：一步之后的期望恰好等于今天的位置。
 
-→ [GARCH 波动率模型](./95-garch-volatility.md)
+→ [鞅直觉：公平游戏的账本](./90-martingale-intuition.md)

@@ -239,11 +239,11 @@ from scipy.stats import gamma, beta
 
 # Gamma(5, 2) 的均值
 alpha, beta_rate = 5, 2
-gamma_mean = alpha / beta_rate ** 2  # ← 检查公式是否正确
+gamma_mean = alpha / beta_rate  # ← 检查公式是否正确
 
 # Beta(2, 3) 的均值
 a, b = 2, 3
-beta_mean = a * b / (a + b) ** 2  # ← 检查公式是否正确
+beta_mean = a / (a + b)  # ← 检查公式是否正确
 
 print(f"Gamma mean: {gamma_mean}")
 print(f"Beta mean: {beta_mean}")
@@ -278,6 +278,6 @@ $\Gamma(n)=(n-1)!$ 把阶乘从正整数延拓到了所有正实数甚至复数�
 
 ## 8. 下一站
 
-有了具体的分布族，下一步需要一套通用工具来衡量"尾部有多薄"。下一课学习概率不等式：Markov、Chebyshev、Chernoff、Hoeffding，它们是集中不等式的核心。
+单个分布的画像已经齐了，下一步看两个变量如何"一起动"。下一课给这种联动配一把尺子——协方差与相关系数，它能量化"同向"还是"对着干"。
 
-→ [概率不等式](./68-inequalities.md)
+→ [协方差与相关性：度量“一起动”](./55-covariance-correlation.md)
