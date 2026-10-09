@@ -128,7 +128,7 @@ print("right=" + str(right))
 <details>
 <summary>点开查看逐步解答</summary>
 
-$A^*$ 已经是转置。$Ax=(5,3)$，$\langle Ax,y\rangle=10+3=13$；同时 $A^*y=(4,3)$，$\langle x,A^*y\rangle=4+9=13$。初始代码直接把 $y$ 当成 $A^*y$ 使用，第二行得到 1；应先做转置再算内积。
+$A^*$ 已经是转置。$Ax=(5,3)$，$\langle Ax,y\rangle=10+3=13$；同时 $A^*y=(4,3)$，$\langle x,A^*y\rangle=4+9=13$。初始代码直接把 $y$ 当成 $A^*y$ 使用，第二行得到 5；应先做转置再算内积。
 
 ```python
 A = [[2.0, 1.0], [0.0, 1.0]]

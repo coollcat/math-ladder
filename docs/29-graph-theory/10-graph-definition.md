@@ -117,8 +117,8 @@ for vertex in graph:
 
 ```exercise
 # @title: 补全邻接表
-# @check: A -> ['B', 'D']
-# @check: D -> ['A', 'C']
+# @check: A -> ['B']
+# @check: D -> ['C']
 # @hint: 无向边要同时登记到两个端点。
 graph={"A":["B"],"B":["A","C"],"C":["B","D"],"D":[]}
 print("A ->",graph["A"])

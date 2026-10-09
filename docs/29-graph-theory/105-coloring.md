@@ -46,7 +46,7 @@ exits:
 ## 5. 动手实验
 
 ```python title="贪心着色一个小图"
-graph={"A":["B","C"],"B":["A","C"],"C":["A","B"],"D":["A"]}
+graph={"A":["B","C","D"],"B":["A","C"],"C":["A","B"],"D":["A"]}
 order=["A","B","C","D"]
 color={}
 for vertex in order:
