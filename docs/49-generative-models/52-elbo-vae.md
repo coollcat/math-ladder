@@ -98,12 +98,12 @@ import math
 
 def score(z, weight):
     # 总分 = 重构的好感减去 KL 罚金（都是负号下的平方）
-    return -((z - 2) ** 2) - weight * z * z
+    return -((z - 2) ** 2) - weight * z * z   # ** 是幂运算：(z-2) 的平方
 
-for weight in [0.2, 1.0, 5.0]:
-    best_z, best_s = 0.0, -1e9
+for weight in [0.2, 1.0, 5.0]:               # 三个砝码档位依次扫描
+    best_z, best_s = 0.0, -1e9               # -1e9 是科学计数法，表示一个极小的初始分数
     k = -400
-    while k <= 400:
+    while k <= 400:                          # while 循环：条件为真就一直转
         z = k / 100                  # 候选旋钮从 -4 扫到 4
         s = score(z, weight)
         if s > best_s:
@@ -111,7 +111,7 @@ for weight in [0.2, 1.0, 5.0]:
         k += 1
     rec = -((best_z - 2) ** 2)       # 该读数下的重构分
     reg = weight * best_z * best_z   # 该读数下的 KL 税
-    print(f"砝码 {weight}: 最优 z={round(best_z, 2)}, "
+    print(f"砝码 {weight}: 最优 z={round(best_z, 2)}, "   # f-string：把变量值嵌进字符串；round(x, 2) 四舍五入到两位小数
           f"重构分 {round(rec, 2)}, 罚金 {round(reg, 2)}")
 ```
 
@@ -122,13 +122,13 @@ for weight in [0.2, 1.0, 5.0]:
 估计 $\mathbb{E}_{z \sim N(m,1)}[z^2]$ 随 $m$ 的变化时，朴素做法每个 $m$ 都重新掷一次骰子，估计线抖得厉害；重参数化写 $z = m + \varepsilon$、固定一整套 $\varepsilon$，扰动只从旁边输入，曲线立刻平滑——这正是"梯度能顺着 m 流回去"的手写版证明。
 
 ```python title="同一批 ε：重参数化前的抖动对比"
-import random
-import matplotlib.pyplot as plt
+import random                           # 导入随机数模块，下面用它掷骰子
+import matplotlib.pyplot as plt         # 导入画图模块，plt 是它的常用简称
 
-random.seed(5)
+random.seed(5)                          # 固定随机种子：同样的种子掷出同样的骰子序列，结果可复现
 eps_pool = []                    # 固定的整组标准正态噪声
-for i in range(60):
-    eps_pool.append(random.gauss(0, 1))
+for i in range(60):                     # range(60) 生成 0 到 59 的整数序列，共循环 60 次
+    eps_pool.append(random.gauss(0, 1)) # random.gauss(0, 1) 抽一个均值为 0、标准差为 1 的正态随机数；.append 把它追加到列表末尾
 
 def estimate(m, reuse):
     acc = 0.0
@@ -149,9 +149,9 @@ while k < 24:
     jumpy.append(estimate(m, False))
     k += 1
 
-plt.plot(xs, smooth, linewidth=3, label="fixed eps")
+plt.plot(xs, smooth, linewidth=3, label="fixed eps")   # plt.plot 画折线：横轴 xs、纵轴 smooth，linewidth 是线宽
 plt.plot(xs, jumpy, label="fresh dice every step")
-plt.legend()
+plt.legend()                                            # plt.legend 显示图例，把两条线区分开
 ```
 
 橙线毛刺丛生（不同步的抽样噪声），蓝线安顺流畅。真实 VAE 里这条蓝线的斜率就是流向编码器的梯度，抖动的估计等于让训练对着雪花屏调旋钮。
@@ -159,7 +159,7 @@ plt.legend()
 ### 快问快答
 
 ```quiz
-为什么说 ELBO 是“够得着的天花板下沿”？
+为什么说 ELBO 是"够得着的天花板下沿"？
 - 它总是恰好等于 ln p(x)，只是写法不同
 - 它永远不超过 ln p(x)，且不用算出难以求解的分母就能求值 [*]
 - 它是一个可以人工随意设定的超参数

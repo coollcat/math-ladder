@@ -101,7 +101,7 @@ def search(vals, exprs):
     # 递归：函数调用自己——每层少一个数，直到只剩 1 个
     stats[0] += 1
     if len(vals) == 1:
-        if abs(vals[0] - target) < tolerance:
+        if abs(vals[0] - target) < tolerance:      # abs() 取绝对值：衡量与目标的距离
             print(f"解法: {exprs[0]}")
             return True
         return False
