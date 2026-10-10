@@ -37,13 +37,17 @@ export default function render(host, spec) {
     '> 0 的解集': '—',
   });
 
-  const G = { cx: 0, cy: 0, s: 1, x0: -5, x1: 7 };
+  const G = { cx: 0, cy: 0, s: 1, x0: -5, x1: 7, panelX: 0 };
   let scanX = null;                 /* 用户拖动的光标位置（null = 跟随播放进度） */
 
+  /* 抛物线必须等比（碗形不能骗人）；右侧留 150px 图例面板，
+     色例 + 口诀 + Δ 状态都长在那里，空白处长内容。 */
   function fit(W, H) {
-    G.s = Math.min((W - 80) / (G.x1 - G.x0), (H - 108) / 14);
-    G.cx = 60;
-    G.cy = H - 96;
+    const panelW = Math.min(152, W * 0.27);
+    G.panelX = W - panelW - 8;
+    G.s = Math.min((G.panelX - 62) / (G.x1 - G.x0), (H - 104) / 14);
+    G.cx = 48;
+    G.cy = H - 94;
   }
   const X = (v) => G.cx + (v - G.x0) * G.s;
   const Y = (v) => G.cy - v * G.s;
@@ -90,7 +94,7 @@ export default function render(host, spec) {
 
   const st = makeStage(host, {
     height: 320,
-    aspect: 16 / 9,
+    aspect: 9 / 16,
     onScene: () => { scanX = null; },
     scenes: [
       { caption: '第 1 幕：二次不等式 x² + bx + c > 0。先看它对应的抛物线——一只开口向上的碗。', dur: 3 },
@@ -208,6 +212,36 @@ export default function render(host, spec) {
         label(ctx, txt, X(G.x0) + 10, Y(9) + 32, C.fg, { size: 12.5, weight: 700 });
         ctx.restore();
         ro.set('> 0 的解集', r ? 'x < ' + fmt(r[0], 1) + ' 或 x > ' + fmt(r[1], 1) : (delta < 0 ? '全体实数' : '除切点外全部'));
+      }
+
+      /* 右侧图例 / 口诀面板 */
+      {
+        const px0 = G.panelX;
+        const pw = W - px0 - 8;
+        ctx.save();
+        ctx.fillStyle = C.soft;
+        ctx.fillRect(px0, 22, pw, H - 88);
+        ctx.strokeStyle = C.grid;
+        ctx.strokeRect(px0, 22, pw, H - 88);
+        const line = (txt, yy, col, size, weight) => label(ctx, txt, px0 + 10, yy, col || C.fg, { size: size || 11.5, weight: weight || 400 });
+        line('色例', 40, C.axis, 11);
+        line('■ 海平面以上（正）', 60, C.named('orange'), 11.5);
+        line('■ 海平面以下（负）', 78, C.named('blue'), 11.5);
+        line('■ 恰在根上（零）', 96, C.named('gray'), 11.5);
+        line('——', 114, C.grid, 11.5);
+        line('开口向上（a > 0）', 134, C.axis, 11);
+        line('> 0 取两根之外', 154, C.fg, 12, 600);
+        line('< 0 取两根之间', 174, C.fg, 12, 600);
+        line('——', 192, C.grid, 11.5);
+        if (r) {
+          line('两根：' + fmt(r[0], 1) + ' 与 ' + fmt(r[1], 1), 212, C.ok, 11.5, 600);
+        } else if (delta < 0) {
+          line('Δ < 0：不穿轴', 212, C.named('purple'), 11.5, 600);
+          line('> 0 恒成立', 232, C.named('purple'), 11.5, 600);
+        } else {
+          line('Δ = 0：骑在轴上', 212, C.named('purple'), 11.5, 600);
+        }
+        ctx.restore();
       }
 
       /* 拖拽提示 */

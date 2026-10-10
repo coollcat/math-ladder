@@ -52,7 +52,7 @@ export default function render(host, spec) {
 
   const st = makeStage(host, {
     height: 320,
-    aspect: 16 / 9,
+    aspect: 9 / 16,
     scenes: [
       { caption: '第 1 幕：护士的体温单——四组读数钉成四颗钉子：(8点,36.7) (12点,37.4) (16点,38.2) (20点,37.0)。', dur: 3.6 },
       { caption: '第 2 幕：相邻的钉子用线段串起来——折线是表格与图像之间的「助读桥」。', dur: 3.2 },
@@ -91,6 +91,30 @@ export default function render(host, spec) {
       }
       label(ctx, '时刻 →', X(T1) + 2, Y(36.4) + 16, C.axis, { size: 10.5 });
       label(ctx, '体温', X(T0) - 4, Y(38.8) - 8, C.axis, { size: 10.5 });
+
+      /* 顶部读数板：曲线还没画出来时，顶部不许白着——
+         把当前这批读数摊在这里，图与数的对应一眼可见。 */
+      {
+        const nNow = i >= 2 ? Math.max(4, Math.round(4 + 17 * Math.min(t * 1.05, 1))) : 4;
+        const vals = [];
+        for (let k = 0; k < nNow; k += 1) {
+          const tt = T0 + ((T1 - T0) * k) / Math.max(nNow - 1, 1);
+          vals.push(tt + '点 ' + f(hour(tt)).toFixed(1));
+        }
+        const bx = X(T0) - 40;
+        const bw = Math.min(400, W - 60);
+        const bh = 62;
+        ctx.save();
+        ctx.fillStyle = C.soft;
+        ctx.fillRect(bx, 18, bw, bh);
+        ctx.strokeStyle = C.grid;
+        ctx.strokeRect(bx, 18, bw, bh);
+        ctx.restore();
+        label(ctx, '读数板 · 共 ' + nNow + ' 次测量' + (nNow >= 21 ? '（折线已贴住曲线）' : ''), bx + 10, 36, C.fg, { size: 11.5, weight: 700 });
+        const show = vals.slice(0, 5);
+        label(ctx, show.join('   '), bx + 10, 56, C.fg, { size: 11, weight: 500 });
+        if (vals.length > 5) label(ctx, '…另有 ' + (vals.length - 5) + ' 组（加密后的测量同理）', bx + 10, 72, C.axis, { size: 10.5 });
+      }
 
       const appear = (n) => (i > n ? 1 : (i < n ? 0 : t));
 
@@ -182,7 +206,7 @@ export default function render(host, spec) {
       ctx.arc(p4[0], p4[1], 10, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
-      label(ctx, '拖我改数据', p4[0] - 96, p4[1] - 14, C.named('red'), { size: 11, weight: 600 });
+      label(ctx, '拖我改数据', p4[0] - 20, p4[1] + 24, C.named('red'), { size: 11, weight: 600 });
       if (i >= 4) {
         label(ctx, '钉子无穷密 → 折线就是这条曲线', X(T0) + 8, 20, C.fg, { size: 12, weight: 700 });
       }

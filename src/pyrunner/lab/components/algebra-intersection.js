@@ -94,7 +94,7 @@ export default function render(host, spec) {
 
   const st = makeStage(host, {
     height: 320,
-    aspect: 16 / 9,
+    aspect: 9 / 16,
     scenes: [
       { caption: '第 1 幕：第一张小票「3 支笔 2 本子 19 元」——满足它的价格组合铺成一条蓝线。', dur: 3 },
       { caption: '第 2 幕：第二张小票「1 支笔 1 本子 7 元」——铺成一条橙线。单看一条，答案有无数种。', dur: 3 },

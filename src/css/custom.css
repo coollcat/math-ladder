@@ -1373,7 +1373,7 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-alg-stage__canvas {
-  margin: 0.35rem 0.5rem 0.1rem;
+  margin: 0.15rem 0.4rem 0.05rem;
   border-radius: 8px;
   overflow: hidden;
   background: var(--ml-viz-bg);
@@ -1384,8 +1384,8 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-alg-stage__caption {
-  min-height: 2.6em;
-  padding: 0.35rem 0.9rem 0.15rem;
+  min-height: 2.3em;
+  padding: 0.25rem 0.85rem 0.1rem;
   font-size: 0.87rem;
   line-height: 1.55;
   color: var(--ifm-color-emphasis-800);
@@ -1406,11 +1406,16 @@ a:hover .ml-chapter.is-done {
   }
 }
 
+.ml-alg-stage .ml-viz__controls {
+  padding: 0.3rem 0.85rem;
+  gap: 0.3rem 0.8rem;
+}
+
 .ml-alg-stage__dots {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.1rem 0.9rem 0.55rem;
+  padding: 0.05rem 0.9rem 0.4rem;
 }
 
 .ml-alg-stage__dot {

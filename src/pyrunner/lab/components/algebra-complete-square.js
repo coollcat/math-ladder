@@ -65,7 +65,7 @@ export default function render(host, spec) {
 
   const st = makeStage(host, {
     height: 320,
-    aspect: 16 / 9,
+    aspect: 9 / 16,
     scenes: [
       { caption: '第 1 幕：解方程 x² + bx = c。先在纸上画一块边长 x 的正方形——它的面积是 x²。', dur: 3 },
       { caption: '第 2 幕：bx 这条「臂」分成两半：一半竖贴在右边，一半横贴在下边，各宽 b/2。', dur: 3.4 },
@@ -112,6 +112,14 @@ export default function render(host, spec) {
         label(ctx, ln.txt, ax, ay, C0.fg, { size: 12.5, weight: i === ln.e ? 600 : 400 });
         ay += 21;
       });
+
+      /* 账本下方补「配方法三步」卡：右上那块空白长内容，不长白 */
+      if (i >= 1) {
+        label(ctx, '配方法三步', ax, ay + 12, C0.axis, { size: 11, weight: 600 });
+        label(ctx, '① 移项：常数挪到等号右边', ax, ay + 32, C0.fg, { size: 11.5 });
+        label(ctx, '② 补角：两边同加 (b/2)²', ax, ay + 52, C0.fg, { size: 11.5 });
+        label(ctx, '③ 收方开方：一个式子出两根', ax, ay + 72, C0.fg, { size: 11.5 });
+      }
 
       /* ---- 几何主体 ---- */
       const appear = (n) => (i > n ? 1 : (i < n ? 0 : t));

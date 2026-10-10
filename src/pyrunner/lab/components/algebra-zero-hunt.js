@@ -52,7 +52,7 @@ export default function render(host, spec) {
 
   const st = makeStage(host, {
     height: 320,
-    aspect: 16 / 9,
+    aspect: 9 / 16,
     scenes: [
       { caption: '第 1 幕：把方程左边当成一台「高度记录仪」——喂一个 x 进去，直线 y = 2x + b 就吐出一个高度。', dur: 3.4 },
       { caption: '第 2 幕：一个光点沿直线滑行，高度一路变化。它要找的，是高度恰为 0 的那个 x。', dur: 4.2 },
