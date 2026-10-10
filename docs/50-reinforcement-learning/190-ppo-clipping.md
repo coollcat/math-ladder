@@ -120,4 +120,4 @@ KL 正则版 PPO 用惩罚项约束新旧策略距离；TRPO 在信赖域内做�
 
 算法会优化你给的目标。若奖励设计错了，它会忠实地 hack 你的目标。
 
-→ [200 · 奖励设计与奖励 hacking](./200-reward-hacking.md)
+→ [奖励设计与奖励 hacking](./200-reward-hacking.md)

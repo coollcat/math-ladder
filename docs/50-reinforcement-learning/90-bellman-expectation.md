@@ -125,4 +125,4 @@ $2+0.9\times6=2+5.4=7.4$。这个数是把下一状态价值折回当前状态�
 
 固定策略会有一套 Bellman 方程。若把“按策略平均”换成“选最好的动作”，就得到 Bellman 最优方程。
 
-→ [100 · Bellman 最优方程](./100-bellman-optimality.md)
+→ [Bellman 最优方程](./100-bellman-optimality.md)

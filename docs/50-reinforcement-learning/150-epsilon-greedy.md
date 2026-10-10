@@ -136,4 +136,4 @@ UCB 用置信上界显式奖励“少被尝试”的动作；Thompson sampling �
 
 把探索成本单独记账，就进入多臂老虎机和 regret。
 
-→ [160 · 多臂老虎机与 regret 预告](./160-bandit-regret.md)
+→ [多臂老虎机与 regret 预告](./160-bandit-regret.md)

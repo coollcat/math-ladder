@@ -136,4 +136,4 @@ print(verdict)
 
 策略迭代先完整评估再改进。价值迭代把两者压得更紧：每扫一遍就直接朝最优价值收缩。
 
-→ [120 · 价值迭代](./120-value-iteration.md)
+→ [价值迭代](./120-value-iteration.md)

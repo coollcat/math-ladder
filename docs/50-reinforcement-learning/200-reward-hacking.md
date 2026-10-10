@@ -131,4 +131,4 @@ print(hacking)
 
 当人类判断本身成为训练信号，就进入 RLHF。
 
-→ [210 · RLHF 概览](./210-rlhf-overview.md)
+→ [RLHF 概览](./210-rlhf-overview.md)

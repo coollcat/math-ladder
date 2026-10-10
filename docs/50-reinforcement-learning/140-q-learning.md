@@ -137,4 +137,4 @@ print(q_new)
 
 max 会利用已知信息，但早期还需要主动试错。下一课讲 epsilon-greedy。
 
-→ [150 · epsilon-greedy 探索](./150-epsilon-greedy.md)
+→ [epsilon-greedy 探索](./150-epsilon-greedy.md)

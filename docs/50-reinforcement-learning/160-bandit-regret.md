@@ -134,4 +134,4 @@ UCB1 选择 $\hat\mu_a+c\sqrt{\ln T/N_a}$ 最大的臂；Thompson sampling 为�
 
 接下来从逐格 Q 表转向直接优化策略本身：REINFORCE。
 
-→ [170 · REINFORCE 策略梯度](./170-reinforce.md)
+→ [REINFORCE 策略梯度](./170-reinforce.md)

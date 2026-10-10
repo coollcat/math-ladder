@@ -144,4 +144,4 @@ print(v_new)
 
 TD 可以评估状态价值。把它搬到动作价值表上，并加入最优 backup，就是 Q-learning。
 
-→ [140 · Q-learning 更新](./140-q-learning.md)
+→ [Q-learning 更新](./140-q-learning.md)

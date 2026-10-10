@@ -128,4 +128,4 @@ print(best)
 
 知道最优方程还不够，要有能算出它的算法。第一站是策略迭代。
 
-→ [110 · 策略迭代](./110-policy-iteration.md)
+→ [策略迭代](./110-policy-iteration.md)
