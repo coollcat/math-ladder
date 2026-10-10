@@ -64,7 +64,7 @@ $$s_0,a_0,r_1,s_1,a_1,r_2,\ldots,s_{T-1},a_{T-1},r_T,s_T.$$
 
 ## 5. 动手实验
 
-本课让 `min` 和 `max` 第一次登场：`min(a,b)` 返回较小数，`max(a,b)` 返回较大数。两者合用可以把位置“夹”在合法区间里。
+这里用到两个老朋友 `min` 和 `max`：`min(a,b)` 返回较小数，`max(a,b)` 返回较大数。两者合用可以把位置“夹”在合法区间里。
 
 下面的模拟只允许最多 8 步，并用固定随机种子保证课堂结果可复现。它把每一步的选择和延迟奖励排成一张表。
 
@@ -78,9 +78,10 @@ s = 0                     # 当前格子的下标，0 表示 A
 total = 0                 # total 是累计奖励
 
 for t in range(MAX_STEPS):          # range(8) 产生 0 到 7 的有界循环
-    a = random.choice([-1, 1])      # random.choice 从列表中等概率取一个动作
-    s = min(max(s + a, 0), 2)       # min/max 把位置限制在 0..2
-    r = 10 if s == 2 else (-1 if a == 0 else 0)  # 条件表达式按情况给奖励
+    a = random.choice([-1, 0, 1])   # random.choice 从列表中等概率取一个动作：左/原地停留/右
+    s_old = s                        # 先存旧位置，用于判断是否原地停留
+    s = min(max(s + a, 0), 2)       # min/max 先把新位置夹在 0..2 之间
+    r = 10 if s == 2 else (-1 if s_old == s else 0)  # 条件表达式按情况给奖励：到达终点 +10，原地停留 -1，其余 0
     total += r                      # 复合赋值：total = total + r
     print(f"t={t}, 动作={a:+d}, 新格子={cells[s]}, 奖励={r:+d}")
     if s == 2:                      # 到达终点就停止本条轨迹

@@ -77,29 +77,29 @@ MAX_STEPS = 10               # 每回合最大步数
 
 def transition(stock, order):      # stock 是当前库存，order 是补货量
     stock = min(2, stock + order)   # min 限制库存上限
-    demand = random.choice([0, 1])  # 教学规模的需求只有 0 或 1
-    next_stock = max(0, stock - demand)
-    reward = -order - (2 if next_stock == 0 else 0)
-    return next_stock, reward
+    demand = random.choice([0, 1, 2])  # 教学规模的需求为 0、1 或 2，满仓不补货也可能缺货
+    next_stock = max(0, stock - demand)     # max 取较大数，防止库存变负
+    reward = -order - (2 if next_stock == 0 else 0)   # 缺货再罚 2：即时奖励 = 补货花费 + 缺货罚分
+    return next_stock, reward               # 一次返回下一库存与即时奖励
 
-for ep in range(MAX_EPISODES):
+for ep in range(MAX_EPISODES):          # range 逐个产生回合序号 0、1、2
     stock = ep                 # 三个回合分别从 0、1、2 开始
-    total = 0
-    print("episode", ep + 1)
+    total = 0                  # total 是本回合累计奖励
+    print("episode", ep + 1)          # 回合编号从 1 开始显示
     for t in range(MAX_STEPS):
         action = 0 if stock == 2 else 1   # 一个简单固定规则
-        stock, r = transition(stock, action)
-        total += r
-        print(t + 1, "stock", stock, "reward", r)
+        stock, r = transition(stock, action)   # 执行一步转移，拿回新库存与奖励
+        total += r                        # 累计奖励逐步累加
+        print(t + 1, "stock", stock, "reward", r)   # 步数从 1 起打印，便于阅读
         if total < -12:        # 小型止损条件，额外保证回合尽早结束
-            break
+            break                       # 跳出当前回合的内层循环
 ```
 
 :::warning[常见误区]
 
-- 你以为 MDP 必须状态很少，表格法用小例子，真实问题可用函数近似表示大状态。
-- 你以为策略是一个分数，策略是从状态到动作分布的规则。
-- 你以为奖励函数可以随便设，它会悄悄定义你真正优化的目标。
+- 你以为 MDP 必须状态很少，其实表格法用小例子，真实问题可用函数近似表示大状态。
+- 你以为策略是一个分数，其实策略是从状态到动作分布的规则。
+- 你以为奖励函数可以随便设，其实它会悄悄定义你真正优化的目标。
 
 :::
 
