@@ -73,7 +73,7 @@ $$x_t = \alpha_t\, x_0 + \sigma_t\, x_1$$
 | 路径 | $\alpha_t$ | $\sigma_t$ | 形状 |
 | --- | --- | --- | --- |
 | 线性（条件最优传输） | $1-t$ | $t$ | 直线，速度恒定 |
-| 方差保持（VP，即扩散路线） | $\cos\frac{\pi t}{2}$ | $\sin\frac{\pi t}{2}$ | 弧线，两端速度慢 |
+| 方差保持（VP，即扩散路线） | $\cos\frac{\pi t}{2}$ | $\sin\frac{\pi t}{2}$ | 弧线，两端系数一个已经归零、一个刚起步 |
 
 $$\text{目标速度：}\quad \frac{dx_t}{dt} = \dot\alpha_t\, x_0 + \dot\sigma_t\, x_1 \qquad \text{条件流匹配损失：}\quad L_{\text{CFM}} = \mathbb{E}\big[\lVert v_\theta(x_t,t) - (\dot\alpha_t x_0 + \dot\sigma_t x_1)\rVert^2\big]$$
 
@@ -217,13 +217,14 @@ Flow Matching 与扩散模型最本质的分岔在哪一步？
 
 </details>
 
-**练习 2**（判题）：目标速度这一半写错了——它把 $\dot\alpha_t$ 与 $\dot\sigma_t$ 弄反了，等于把"信号在退场"和"数据在登场"的速率配错了：
+**练习 2**（判题）：目标速度这一半写坏了——它把 $\dot\alpha_t$ 与 $\dot\sigma_t$ 配到了错误的对象上，等于把"噪声在退场"和"数据在登场"的速率接反了。后面两行还各藏了一个坑：一个把 $x_1$ 错写成常数，一个干脆没求导。三处都在"系数"上，要修的地方不同，对照着改：
 
 ```exercise
 # @title: 练习：修对目标速度
 # @check: 4.0
 # @check: 1.4142
-# @hint: 线性路径 α=(1-t)、σ=t，于是 α'=-1、σ'=1：噪声项的系数是负的，数据项的系数是正的。
+# @check: 2.8284
+# @hint: 线性路径 α=(1-t)、σ=t，于是 α'=-1、σ'=1：噪声项的系数是负的，数据项的系数是正的。目标速度的通式是 α'·x0 + σ'·x1——α'、σ' 都要先对 t 求导，再分别乘 x0、x1。
 import math
 
 x0 = -1.0     # 噪声样本
@@ -233,10 +234,17 @@ def target_vel(x0, x1, da, ds):
     return da * x1 + ds * x0     # ← 问题在这：两个系数配错了对象
 
 print(round(target_vel(x0, x1, -1.0, 1.0), 4))
-print(round(math.cos(math.pi / 4) * (-1.0) + math.sin(math.pi / 4) * 1.0, 4))
+print(round(math.cos(math.pi / 4) * x0 + math.sin(math.pi / 4) * 1.0, 4))
+print(round(math.cos(math.pi / 4) * x0 + math.sin(math.pi / 4) * 1.0, 4))
 ```
 
-第一行查线性路径的目标速度：应为 $(-1)\times(-1) + 1\times 3 = 4$。第二行换方差保持路径的中点做交叉检查：$-\cos\frac{\pi}{4} + \sin\frac{\pi}{4} = 0$——但输出要求的是 $1.4142$，提示你先算 $-\cos\frac{\pi}{4}\times(-1) + \sin\frac{\pi}{4}\times 1$，也就是 $\cos\frac{\pi}{4} + \sin\frac{\pi}{4} = 1.4142$。**两行分别卡住"系数要配对的正确对象"和"系数本身要算对"。**
+第一行查线性路径的目标速度：正确写法是 $(-1)\times(-1) + 1\times 3 = 4$，把 `target_vel` 里两个系数各自该配的对象换过来即可。
+
+第二行查方差保持路径在 $t=0.5$ 处的**位置**：$\cos\frac{\pi}{4}\times x_0 + \sin\frac{\pi}{4}\times x_1$。眼下的代码把 $x_1$ 那一项错写成了常数 $1$，于是 $\frac{\sqrt2}{2}\times(-1) + \frac{\sqrt2}{2}\times 1 = 0$——两个系数一样大、符号相反，正好抵消，这就是它现在的输出。把那个 $1$ 换回 $x_1$，就得到 $\cos\frac{\pi}{4}\times(-1) + \sin\frac{\pi}{4}\times 3 = 1.4142$。
+
+第三行把同一个位置的**速度**算出来，写法与第二行一字不差——这正是要抓的第二个错误。路径的速度不能只把端点代进插值式，得先对 $t$ 求导：$\alpha_t=\cos\frac{\pi t}{2}$、$\sigma_t=\sin\frac{\pi t}{2}$，求导得 $\dot\alpha_t=-\sin\frac{\pi t}{2}$、$\dot\sigma_t=\cos\frac{\pi t}{2}$。代进 $t=0.5$ 与 $x_0=-1,\ x_1=3$：$\dot\alpha_t x_0 + \dot\sigma_t x_1 = -\frac{\sqrt2}{2}\times(-1) + \frac{\sqrt2}{2}\times 3 = 2\sqrt2 \approx 2.8284$。
+
+**三行分别卡住"系数要配对的正确对象""插值系数要乘对样本""速度要先求导、再代入"。**
 
 ## 7. 选读：从条件流到边缘流，再到 SDE
 
