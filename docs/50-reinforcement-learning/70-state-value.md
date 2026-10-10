@@ -55,7 +55,7 @@ $$V^\pi(s)=\mathbb E_\pi\left[G_t\mid s_t=s\right].$$
 
 ## 5. 动手实验
 
-下面的模拟用穷举小树计算期望，而不是训练。最大深度固定，随机种子固定。
+下面的模拟用大量随机样本的平均来估计期望（蒙特卡洛方法），而不是训练。最大深度固定，随机种子固定。
 
 ```viz
 {
@@ -142,7 +142,7 @@ $V(s)=1+0.8\times2=1+1.6=2.6$。这一步把“未来的价值”折算回当前
 
 <details><summary>选读：从展开式到 Bellman 直觉</summary>
 
-把 $G_t=R_{t+1}+\gamma G_{t+1}$ 代入定义并对策略与环境取期望，得到 $V^\pi(s)=\mathbb E[R_{t+1}+\gamma V^\pi(S_{t+1})\mid s]$。这就是下一课 Bellman 期望方程的直接来源。
+把 $G_t=R_{t+1}+\gamma G_{t+1}$ 代入定义并对策略与环境取期望，得到 $V^\pi(s)=\mathbb E[R_{t+1}+\gamma V^\pi(S_{t+1})\mid s]$。这就是再下一课 Bellman 期望方程的直接来源。
 
 </details>
 

@@ -81,11 +81,14 @@ def environment_step(action):   # environment_step 封装环境规则
 
 state = "待选择"
 score = 0
-for t in range(MAX_STEPS):      # 有界循环
+# 循环步序号，从 1 开始到 20
+for t in range(MAX_STEPS):
     action = choose(ACTIONS)
     state, reward = environment_step(action)
-    score += reward
+    score += reward                         # score = score + reward，累加每一步的奖励
     print(t + 1, action, reward, score)
+
+print("累计奖励", score)                    # 20 步结束后打印回合总奖励
 ```
 
 :::warning[常见误区]

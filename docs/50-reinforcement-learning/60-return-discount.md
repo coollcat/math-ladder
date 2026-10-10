@@ -79,25 +79,25 @@ $$G_t\le\frac{M}{1-\gamma}.$$
 ```python title="两个奖励序列的折扣回报"
 MAX_HORIZON = 20          # 最大求和时间步
 
-def discounted_return(rewards, gamma):     # rewards 是奖励列表
-    total = 0.0
-    for k, r in enumerate(rewards[:MAX_HORIZON]):  # enumerate 同时给出下标和值
-        total += (gamma ** k) * r          # ** 是乘方运算符
+def discounted_return(rewards, gamma):     # rewards 是奖励列表，gamma 是折扣因子
+    total = 0.0                            # total 是折扣回报的累加器，先设为 0
+    for k, r in enumerate(rewards[:MAX_HORIZON]):  # enumerate 同时给出下标和值；切片只取前 MAX_HORIZON 项
+        total += (gamma ** k) * r          # ** 是乘方运算符，第 k 步奖励的权重是 gamma 的 k 次方
     return total
 
 a_rewards = [0, 0, 10] + [0] * 17           # 列表重复拼接
 b_rewards = [3] * 20                        # 每一步稳定得 3
-for gamma in [0.2, 0.7, 0.99]:
+for gamma in [0.2, 0.7, 0.99]:  # gamma 遍历三个折扣因子：0.2 贪眼前、0.7 中间、0.99 重长远
     print("gamma", gamma,
-          "late", round(discounted_return(a_rewards, gamma), 3),
+          "late", round(discounted_return(a_rewards, gamma), 3),   # round 保留 3 位小数
           "steady", round(discounted_return(b_rewards, gamma), 3))
 ```
 
 :::warning[常见误区]
 
 - 你以为折扣因子是学习率，它其实属于目标函数，不控制更新步长。
-- 你以为 gamma 越接近 1 总是越好，会放大延迟信号，也可能让数值和学习更难。
-- 你以为没有奖励就一定没有价值，后续状态可能通向大奖励。
+- 你以为 gamma 越接近 1 总是越好，其实会放大延迟信号，也可能让数值和学习更难。
+- 你以为没有奖励就一定没有价值，其实后续状态可能通向大奖励。
 
 :::
 
@@ -121,7 +121,7 @@ $G=4+0.5\times2+0.5^2\times6=4+1+1.5=6.5$。代码应写成 `rewards[0]+gamma*re
 
 ## 7. 选读边界
 
-平均奖励 formulation 用长期平均而非折扣和，适合持续任务。工程中也常用有限 horizon；此时不需要几何级数上界，但要明确截断带来的偏差。
+平均奖励（average-reward）口径用长期平均而非折扣和，适合持续任务。工程中也常用有限视野（finite horizon）；此时不需要几何级数上界，但要明确截断带来的偏差。
 
 ## 8. 下一站
 
