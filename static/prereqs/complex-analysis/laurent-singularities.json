@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"complex-analysis/cauchy-goursat","to":"/docs/complex-analysis/cauchy-theorem","title":"Cauchy-Goursat 定理"},{"id":"complex-analysis/cauchy-integral-formula","to":"/docs/complex-analysis/cauchy-integral-formula","title":"Cauchy 积分公式"},{"id":"series/power","to":"/docs/series-taylor/power-series","title":"幂级数：把变量装进无穷求和"}]}

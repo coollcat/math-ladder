@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"geometry/pythagoras","to":"/docs/geometry/area-pythagoras","title":"面积与勾股定理"},{"id":"linalg/vectors","to":"/docs/linear-algebra/vectors","title":"向量：既有大小又有方向的量"}]}

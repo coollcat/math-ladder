@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"control/pid-control","to":"/docs/control/pid-control","title":"PID 控制：三股力量的分工"},{"id":"mechatronics/motor-model","to":"/docs/mechatronics/motor-model","title":"电机的传递函数模型"}]}

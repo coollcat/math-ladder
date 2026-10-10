@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"relativity/minkowski-interval","to":"/docs/relativity/minkowski-interval","title":"闵可夫斯基时空：把时间装进度量"},{"id":"linalg-advanced/tensors-einsum","to":"/docs/linear-algebra-advanced/tensors-einsum","title":"张量与 einsum"}]}

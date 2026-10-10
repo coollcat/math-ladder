@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graphics/homogeneous-affine","to":"/docs/computer-graphics/homogeneous-affine","title":"齐次坐标与仿射变换"},{"id":"linalg/dot-product","to":"/docs/linear-algebra/dot-product","title":"点积：两个向量合不合拍"}]}

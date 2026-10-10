@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"optimization/convexity","to":"/docs/optimization/convexity","title":"凸集、凸函数与局部即全局"},{"id":"optimization/lagrange-multipliers","to":"/docs/optimization/lagrange-multipliers","title":"拉格朗日乘数法"}]}

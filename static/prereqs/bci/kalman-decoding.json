@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"bci/bayesian-decoding","to":"/docs/brain-computer-interface/bayesian-decoding","title":"神经解码 I：贝叶斯解码与群体向量"},{"id":"control/kalman-filter","to":"/docs/control/kalman-filter","title":"卡尔曼滤波"}]}

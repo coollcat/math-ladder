@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"digital/isa-decode","to":"/docs/digital-systems/isa-decode","title":"指令集与译码"},{"id":"digital/pipeline-hazard","to":"/docs/digital-systems/pipeline-hazard","title":"流水线与冒险"},{"id":"digital/cache-lab","to":"/docs/digital-systems/cache-lab","title":"存储层次与缓存"},{"id":"digital/bus-interrupt","to":"/docs/digital-systems/bus-interrupt","title":"总线、中断与 I/O"}]}

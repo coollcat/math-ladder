@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"electronics/pcb-flow","to":"/docs/electronics/pcb-flow","title":"从原理图到 PCB"},{"id":"electronics/power-regulator","to":"/docs/electronics/power-regulator","title":"电源、稳压与纹波"},{"id":"engineering-cybernetics/frequency-response-bode","to":"/docs/engineering-cybernetics/frequency-response-bode","title":"频率响应与 Bode 图直觉"}]}

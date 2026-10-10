@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"speech/asr-overview","to":"/docs/speech-audio/asr-overview","title":"语音识别概貌：从 HMM 到端到端"},{"id":"speech/vocoder-lab","to":"/docs/speech-audio/vocoder-lab","title":"声码器：把语音压缩成参数"},{"id":"generative/autoregressive-models","to":"/docs/generative-models/autoregressive-models","title":"自回归模型与条件分解"}]}

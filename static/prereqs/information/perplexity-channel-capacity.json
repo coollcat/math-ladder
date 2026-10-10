@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"information/channel-noise","to":"/docs/information-theory/channel-noise","title":"信道与噪声：在有干扰的世界里通信"},{"id":"information/kl-divergence","to":"/docs/information-theory/kl-divergence","title":"KL 散度：不对称的信息距离"}]}

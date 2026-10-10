@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"speech/source-filter","to":"/docs/speech-audio/source-filter","title":"源-滤波器模型：人是怎样发声的"},{"id":"speech/lpc-lab","to":"/docs/speech-audio/lpc-lab","title":"线性预测：用前几个样点猜下一个"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"numtheory/mod","to":"/docs/numbertheory/divisibility-mod","title":"整除、余数与模运算"},{"id":"numtheory/primes","to":"/docs/numbertheory/primes-sieve","title":"素数与筛法"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"ai-math/search-guided-proving","to":"/docs/ai-for-math/search-guided-proving","title":"搜索制导的证明：从穷举到神经引导"},{"id":"rl/bandit-regret","to":"/docs/reinforcement-learning/bandit-regret","title":"多臂老虎机与 regret 预告"}]}

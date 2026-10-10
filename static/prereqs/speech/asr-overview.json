@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"speech/wake-word-lab","to":"/docs/speech-audio/wake-word-lab","title":"关键词唤醒与端点检测"},{"id":"stochastic-processes/hmm-viterbi","to":"/docs/stochastic-processes/hmm-viterbi","title":"隐马尔可夫模型与 Viterbi 解码"},{"id":"transformer/self-attention","to":"/docs/transformer/self-attention","title":"自注意力手算"}]}

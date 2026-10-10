@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"transformer/kv-cache-inference-cost","to":"/docs/transformer/kv-cache-inference-cost","title":"KV cache 与推理成本"},{"id":"transformer/softmax-temperature","to":"/docs/transformer/softmax-temperature","title":"Softmax 与温度"}]}

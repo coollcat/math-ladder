@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"transformer/softmax-temperature","to":"/docs/transformer/softmax-temperature","title":"Softmax 与温度"},{"id":"transformer/multihead-attention","to":"/docs/transformer/multihead-attention","title":"多头注意力的子空间分工"}]}

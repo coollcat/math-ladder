@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"linalg-advanced/matrix-powers","to":"/docs/linear-algebra-advanced/matrix-powers","title":"矩阵幂与图传播"},{"id":"linalg-advanced/eigenvalues","to":"/docs/linear-algebra-advanced/eigenvalues","title":"特征值与不变方向"},{"id":"prob/law","to":"/docs/probability/law-of-large-numbers","title":"概率与大数定律"}]}

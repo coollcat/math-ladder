@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"deep-learning/convolution-sharing","to":"/docs/deep-learning/convolution-sharing","title":"卷积与权值共享"},{"id":"deep-learning/pooling-stride-padding","to":"/docs/deep-learning/pooling-stride-padding","title":"池化、步长与填充"},{"id":"deep-learning/overfitting","to":"/docs/deep-learning/overfitting","title":"过拟合初见"}]}

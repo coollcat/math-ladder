@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"sequences/fibonacci","to":"/docs/sequences/fibonacci","title":"斐波那契与递归"},{"id":"algorithms/asymptotic-growth","to":"/docs/algorithms/asymptotic-growth","title":"渐近记号与增长率"},{"id":"algorithms/divide-and-conquer","to":"/docs/algorithms/divide-and-conquer","title":"分治与主定理直觉"}]}

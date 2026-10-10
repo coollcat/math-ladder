@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/computed-torque-tracking","to":"/docs/robotics-motion/computed-torque-tracking","title":"计算力矩控制与轨迹跟踪"},{"id":"control/lqr-optimal-control","to":"/docs/control/lqr-optimal-control","title":"LQR 与最优控制"}]}

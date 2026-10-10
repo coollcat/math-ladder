@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"quantum-information/measurement-born","to":"/docs/quantum-information/measurement-born","title":"测量与玻恩规则"},{"id":"linalg-advanced/svd-low-rank","to":"/docs/linear-algebra-advanced/svd-low-rank","title":"SVD 与低秩近似"}]}

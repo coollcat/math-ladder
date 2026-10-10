@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"complex/plane","to":"/docs/complex/plane","title":"复平面与共轭"},{"id":"functional-analysis/inner-product-hilbert","to":"/docs/functional-analysis/inner-product-hilbert","title":"内积与 Hilbert 空间"},{"id":"quantum-information/single-qubit-gates","to":"/docs/quantum-information/single-qubit-gates","title":"单比特门与矩阵表示"}]}

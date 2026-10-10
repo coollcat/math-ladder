@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"stochastic-analysis/ito-lemma-gbm","to":"/docs/stochastic-analysis/ito-lemma-gbm","title":"Itō 引理与几何布朗运动"},{"id":"stochastic-analysis/girsanov-martingale","to":"/docs/stochastic-analysis/girsanov-martingale","title":"测度变换与鞅表示：换个世界观算期望"}]}

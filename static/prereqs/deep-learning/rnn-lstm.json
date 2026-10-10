@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"deep-learning/backprop","to":"/docs/deep-learning/backprop","title":"反向传播：梯度的回传流水线"},{"id":"deep-learning/neuron-activation","to":"/docs/deep-learning/neuron-layer","title":"神经元、线性层与激活函数"}]}

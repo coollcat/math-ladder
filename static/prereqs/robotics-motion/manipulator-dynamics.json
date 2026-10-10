@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/generalized-lagrangian","to":"/docs/robotics-motion/generalized-lagrangian","title":"广义坐标与拉格朗日方程：动力学的系统化写法"},{"id":"robotics-motion/jacobian-singularities","to":"/docs/robotics-motion/jacobian-singularities","title":"速度雅可比与奇异位形"}]}

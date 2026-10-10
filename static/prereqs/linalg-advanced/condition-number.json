@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"linalg-advanced/diagonalization","to":"/docs/linear-algebra-advanced/diagonalization","title":"相似与对角化"},{"id":"linalg-advanced/svd-low-rank","to":"/docs/linear-algebra-advanced/svd-low-rank","title":"SVD 与低秩近似"}]}

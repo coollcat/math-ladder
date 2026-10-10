@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graphics/ray-intersection-pathtrace","to":"/docs/computer-graphics/ray-intersection-pathtrace","title":"光线求交与路径追踪入门"},{"id":"graphics/phong-lighting","to":"/docs/computer-graphics/phong-lighting","title":"Phong 光照直觉"},{"id":"graphics/texture-depth-blend","to":"/docs/computer-graphics/texture-depth-blend","title":"纹理采样、深度测试与混合"}]}

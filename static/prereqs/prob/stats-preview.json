@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"prob/stats","to":"/docs/probability/mean-variance","title":"平均数、方差与标准差"},{"id":"prob/distribution-preview","to":"/docs/probability/distribution-preview","title":"离散型随机变量与分布列"},{"id":"prob/conditional-probability","to":"/docs/probability/conditional-probability","title":"条件概率与独立性"},{"id":"functions/linear","to":"/docs/functions/linear","title":"一次函数与斜率"}]}

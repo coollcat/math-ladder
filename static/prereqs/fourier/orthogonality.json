@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"fourier/signals","to":"/docs/fourier/periodic-signals","title":"周期信号与正弦基"},{"id":"linalg/dot-product","to":"/docs/linear-algebra/dot-product","title":"点积：两个向量合不合拍"},{"id":"trig/radian","to":"/docs/trigonometry/radian","title":"弧度制"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"digital-signal-processing/sampling-aliasing","to":"/docs/digital-signal-processing/sampling-aliasing","title":"采样与混叠：连续世界的数字快照"},{"id":"linalg/dot-product","to":"/docs/linear-algebra/dot-product","title":"点积：两个向量合不合拍"},{"id":"python-tools/matplotlib","to":"/docs/python-tools/matplotlib","title":"matplotlib 入门"}]}

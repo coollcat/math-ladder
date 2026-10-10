@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"cryptography/threat-model","to":"/docs/cryptography/kerckhoffs-threat-model","title":"Kerckhoffs 原则与威胁模型"},{"id":"numtheory/mod","to":"/docs/numbertheory/divisibility-mod","title":"整除、余数与模运算"},{"id":"numtheory/congruence","to":"/docs/numbertheory/congruence-apps","title":"同余与应用"}]}

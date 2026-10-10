@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"calculus/chain","to":"/docs/derivatives/chain-rule","title":"链式法则：剥洋葱"},{"id":"linalg/matrix","to":"/docs/linear-algebra/matrix","title":"矩阵：让整个平面动起来"}]}

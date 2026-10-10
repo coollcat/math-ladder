@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"cryptography/classical-ciphers","to":"/docs/cryptography/classical-ciphers","title":"古典密码与频率攻击"},{"id":"cryptography/perfect-secrecy","to":"/docs/cryptography/perfect-secrecy","title":"完美保密与一次一密"}]}

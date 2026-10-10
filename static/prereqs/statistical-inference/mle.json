@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"statistical-inference/estimation","to":"/docs/statistical-inference/sampling-estimation","title":"从样本猜总体：点估计与标准误"},{"id":"probability-advanced/clt","to":"/docs/probability-advanced/clt","title":"大数定律与中心极限定理"}]}

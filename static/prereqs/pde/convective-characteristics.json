@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"pde/cfl-stability","to":"/docs/pde-intro/cfl-stability","title":"CFL 与显式格式稳定性"},{"id":"pde/heat-equation-1d","to":"/docs/pde-intro/heat-equation-1d","title":"一维热方程"}]}

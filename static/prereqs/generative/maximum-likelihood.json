@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"generative/sampling","to":"/docs/generative-models/sampling","title":"从分布采样"},{"id":"information/channel-noise","to":"/docs/information-theory/channel-noise","title":"信道与噪声：在有干扰的世界里通信"}]}

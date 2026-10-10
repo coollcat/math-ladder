@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"algorithms/asymptotic-growth","to":"/docs/algorithms/asymptotic-growth","title":"渐近记号与增长率"},{"id":"algorithms/loop-invariants","to":"/docs/algorithms/loop-invariants","title":"循环不变式与正确性"},{"id":"exponents/log","to":"/docs/exponents/log","title":"对数：指数的反问句"}]}

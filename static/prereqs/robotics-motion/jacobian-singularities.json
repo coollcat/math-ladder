@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/inverse-kinematics","to":"/docs/robotics-motion/inverse-kinematics","title":"逆运动学与数值求根"},{"id":"multivariable/jacobian-chain","to":"/docs/multivariable-calc/jacobian-chain","title":"Jacobian 与多元链式法则"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"stochastic-processes/markov-chain","to":"/docs/stochastic-processes/markov-chain","title":"马尔可夫链：状态与转移"},{"id":"probability-advanced/expectation","to":"/docs/probability-advanced/expectation-variance","title":"期望、方差与矩"}]}

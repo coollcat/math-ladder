@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"bayesian/continuous-updating","to":"/docs/bayesian-stats/continuous-updating","title":"连续先验的更新：从数格子到算积分"},{"id":"stochastic-processes/markov-chain","to":"/docs/stochastic-processes/markov-chain","title":"马尔可夫链：状态与转移"}]}

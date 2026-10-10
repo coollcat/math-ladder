@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"prob/law","to":"/docs/probability/law-of-large-numbers","title":"概率与大数定律"},{"id":"prob/expectation","to":"/docs/probability/expectation","title":"期望：加权平均的随机版"},{"id":"exponents/power","to":"/docs/exponents/power","title":"乘方：连乘的记号"}]}

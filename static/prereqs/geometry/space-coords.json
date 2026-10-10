@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"geometry/space-elements","to":"/docs/geometry/space-elements","title":"空间中的点、直线与平面"},{"id":"geometry/coordinate-plane","to":"/docs/geometry/coordinate-plane","title":"平面直角坐标系"},{"id":"geometry/pythagoras","to":"/docs/geometry/area-pythagoras","title":"面积与勾股定理"},{"id":"exponents/sqrt","to":"/docs/exponents/sqrt","title":"平方根：已知面积求边长"}]}

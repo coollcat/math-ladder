@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"linalg/matrix","to":"/docs/linear-algebra/matrix","title":"矩阵：让整个平面动起来"},{"id":"linalg/vectors","to":"/docs/linear-algebra/vectors","title":"向量：既有大小又有方向的量"}]}

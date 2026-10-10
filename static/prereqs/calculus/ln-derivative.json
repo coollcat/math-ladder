@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"calculus/transcendental","to":"/docs/derivatives/sin-cos-exp","title":"sin、cos 与 e^x 的导数"},{"id":"calculus/rules","to":"/docs/derivatives/diff-rules","title":"求导法则：告别硬算"},{"id":"calculus/chain","to":"/docs/derivatives/chain-rule","title":"链式法则：剥洋葱"},{"id":"exponents/log","to":"/docs/exponents/log","title":"对数：指数的反问句"}]}

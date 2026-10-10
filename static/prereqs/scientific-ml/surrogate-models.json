@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"scientific-ml/inverse-problems","to":"/docs/scientific-ml/inverse-problem-regularization","title":"逆问题与正则化"},{"id":"linalg-advanced/svd-low-rank","to":"/docs/linear-algebra-advanced/svd-low-rank","title":"SVD 与低秩近似"},{"id":"fourier/coefficients","to":"/docs/fourier/coefficients","title":"傅里叶系数公式"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"control/open-loop-closed-loop","to":"/docs/control/open-loop-closed-loop","title":"开环与闭环：反馈让误差变成燃料"},{"id":"control/stability-eigenvalues","to":"/docs/control/stability-eigenvalues","title":"特征值判决书：稳定性与相图"}]}

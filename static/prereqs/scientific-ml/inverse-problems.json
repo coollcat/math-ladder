@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"scientific-ml/pinn","to":"/docs/scientific-ml/pinn-physics-loss","title":"PINN：把物理方程写进损失函数"},{"id":"linalg-advanced/least-squares","to":"/docs/linear-algebra-advanced/least-squares","title":"最小二乘与正规方程"},{"id":"bayesian/prior-posterior","to":"/docs/bayesian-stats/prior-posterior","title":"先验与后验：让观点可以被数据更新"}]}

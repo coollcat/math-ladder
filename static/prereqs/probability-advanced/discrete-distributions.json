@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"probability-advanced/expectation","to":"/docs/probability-advanced/expectation-variance","title":"期望、方差与矩"},{"id":"prob/counting","to":"/docs/probability/counting","title":"排列与组合：数清楚每一种可能"},{"id":"combinatorics/count-principles","to":"/docs/combinatorics/count-principles","title":"加法原理与乘法原理进阶"}]}

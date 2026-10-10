@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"embeddings/contrastive-triplet","to":"/docs/embeddings-geometry/contrastive-triplet","title":"对比学习与 triplet 损失"},{"id":"transformer/self-attention","to":"/docs/transformer/self-attention","title":"自注意力手算"}]}

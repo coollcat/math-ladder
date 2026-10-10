@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"probability-advanced/continuous-distributions","to":"/docs/probability-advanced/continuous-normal","title":"连续分布：均匀、指数与正态"},{"id":"stochastic-processes/markov-chain","to":"/docs/stochastic-processes/markov-chain","title":"马尔可夫链：状态与转移"}]}

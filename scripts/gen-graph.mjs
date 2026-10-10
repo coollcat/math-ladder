@@ -352,43 +352,62 @@ ${chapterJson},
 fs.writeFileSync(outFile, output.replace(/\}\],/g, '}],\n').replace(/\n/g, '\n'), 'utf8');
 console.log(`✔ 已生成 ${path.relative(process.cwd(), outFile)}（${lessons.length} 门课 / ${edges.length} 条先修线 / ${chapterInfo.length} 章）`);
 
-/* ---------- 前置知识精简索引 ----------
+/* ---------- 首屏挂件数据：按课拆分的静态 JSON + 总课数 ----------
    右栏挂件（TOCItems 的进度条 + PrereqPanel 的前置知识面板）是 theme 级组件，
    每个文档页都会打进首屏。它们只需要两样东西：总课数、以及
-   「被某课 prereqs 引用到的课」的 id → {to, title}。
+   「本课自己的 prereqs 指向的课」的 id -> {to, title}。
 
    直接让它们 import full-graph-data.js 的话，全量 NODES/EDGES/USE_AGG（约 317 KB）
-   会跟着进 main.js —— 实测占首屏 JS 的 31%。所以另出一份只含被引用节点的索引，
-   让全量图谱退回路由级（首页/知识树/图谱页才拉）。
+   会跟着进 main.js，实测占首屏 JS 的 31%。早期（2026-09-29）的解法是另出一份
+   prereq-index.js，把 83 KB 的精简索引打进每个文档页的 bundle；对「一页只用
+   其中 1 到 5 条」的访问模式仍是净浪费（传输、parse、eval 三遍都省不掉）。
 
-   被引用的节点在生成期从 lessons[].prereqs 收集，与全量图谱同源，不会有第二份口径。 */
+   现在改成按课拆分的静态 JSON（static/prereqs/<课id>.json，每份 0.1 到 0.4 KB），
+   PrereqPanel 挂载后按当前课 id fetch 自己那一份；总课数进一个只有常量的
+   lesson-count.js（约 40 字节，tree-shake 成字面量，SSR 首屏就能显示）。
+
+   与旧 prereq-index.js 同源同口径（都从 lessons[].prereqs 解析），仍是
+   npm run gen:graph 的手动生成物，别手改。 */
 const byId = new Map(lessons.map((l) => [l.id, l]));
-const prereqWanted = new Set();
-for (const lesson of lessons) {
-  for (const ref of lesson.prereqs) prereqWanted.add(String(ref).replace(/\.md$/, ''));
-}
-const prereqIndex = {};
+const resolveRef = (ref) => {
+  const id = String(ref).replace(/\.md$/, '');
+  return byId.get(id) || lessons.find((l) => l.id.endsWith('/' + id)) || null;
+};
 const prereqMiss = [];
-for (const id of prereqWanted) {
-  const hit = byId.get(id) || lessons.find((l) => l.id.endsWith('/' + id));
-  if (hit) prereqIndex[id] = { to: hit.to, title: hit.title };
-  else prereqMiss.push(id);
+const prereqOutDir = path.join(scriptDir, '..', 'static', 'prereqs');
+fs.rmSync(prereqOutDir, { recursive: true, force: true });
+fs.mkdirSync(prereqOutDir, { recursive: true });
+
+let prereqRefs = 0;
+for (const lesson of lessons) {
+  const items = [];
+  for (const ref of lesson.prereqs) {
+    prereqRefs += 1;
+    const hit = resolveRef(ref);
+    if (hit) items.push({ id: hit.id, to: hit.to, title: hit.title });
+    else prereqMiss.push(`${lesson.id} -> ${ref}`);
+  }
+  const outFile = path.join(prereqOutDir, `${lesson.id}.json`);
+  fs.mkdirSync(path.dirname(outFile), { recursive: true });
+  fs.writeFileSync(outFile, JSON.stringify({ prereqs: items }), 'utf8');
 }
-const prereqOutFile = path.join(scriptDir, '..', 'src', 'components', 'ml-home', 'prereq-index.js');
+console.log(
+  `✔ 已生成 static/prereqs/（${lessons.length} 份按课索引 / ${prereqRefs} 条先修引用）`,
+);
+if (prereqMiss.length) console.log(`  ⚠ prereqs 指向了图谱里不存在的课：${prereqMiss.join(', ')}`);
+
+/* 总课数单独一个常量文件：TOCItems 的进度条要 SSR 首屏显示「已学 x / N 节」，
+   不能走异步 fetch（水合前会闪一下 0/N）。文件只导出一个数字。 */
+const countOutFile = path.join(scriptDir, '..', 'src', 'components', 'ml-home', 'lesson-count.js');
 fs.writeFileSync(
-  prereqOutFile,
+  countOutFile,
   `/* 自动生成：node scripts/gen-graph.mjs。请勿手改。
-   首屏挂件专用的前置知识索引（id → to/title + 总课数）。
-   全量图谱在 full-graph-data.js，只有首页/知识树/图谱页才该引它。 */
+   全站正式课总数（TOCItems 进度条用，SSR 首屏就要有，所以是编译期常量而非 fetch）。 */
 export const LESSON_COUNT = ${lessons.length};
-export const PREREQ_INDEX = ${JSON.stringify(prereqIndex)};
 `,
   'utf8',
 );
-console.log(
-  `✔ 已生成 ${path.relative(process.cwd(), prereqOutFile)}（被引用 ${Object.keys(prereqIndex).length} 门 / 缺失 ${prereqMiss.length}）`,
-);
-if (prereqMiss.length) console.log(`  ⚠ prereqs 指向了图谱里不存在的课：${prereqMiss.join(', ')}`);
+console.log(`✔ 已生成 ${path.relative(process.cwd(), countOutFile)}（LESSON_COUNT = ${lessons.length}）`);
 
 if (chapterWarn.length) {
   console.log(`⚠ 章节元数据 ${chapterWarn.length} 条提示：`);

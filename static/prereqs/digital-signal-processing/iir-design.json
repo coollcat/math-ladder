@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"digital-signal-processing/fir-iir","to":"/docs/digital-signal-processing/fir-iir","title":"FIR 滤波器：加权滑动平均"},{"id":"digital-signal-processing/z-plane-stability","to":"/docs/digital-signal-processing/z-plane-stability","title":"Z 变换与零极点图入门"}]}

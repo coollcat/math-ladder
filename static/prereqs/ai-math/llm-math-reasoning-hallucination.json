@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"generative/autoregressive-models","to":"/docs/generative-models/autoregressive-models","title":"自回归模型与条件分解"},{"id":"transformer/softmax-temperature","to":"/docs/transformer/softmax-temperature","title":"Softmax 与温度"},{"id":"ai-math/conjecture-proof","to":"/docs/ai-for-math/conjecture-proof-checkable","title":"猜想、证明与可检验性"}]}

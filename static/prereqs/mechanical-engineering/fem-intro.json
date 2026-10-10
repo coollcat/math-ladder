@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"numerical-analysis/lu-cholesky","to":"/docs/numerical-analysis/lu-cholesky","title":"直接法：LU 分解与 Cholesky"},{"id":"scientific-ml/pinn","to":"/docs/scientific-ml/pinn-physics-loss","title":"PINN：把物理方程写进损失函数"}]}

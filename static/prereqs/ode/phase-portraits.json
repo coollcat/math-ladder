@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"ode/equilibrium-stability","to":"/docs/ode-dynamics/equilibrium-stability","title":"平衡点与稳定性"},{"id":"linalg-advanced/eigenvalues","to":"/docs/linear-algebra-advanced/eigenvalues","title":"特征值与不变方向"}]}

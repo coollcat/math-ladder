@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"generative/maximum-likelihood","to":"/docs/generative-models/maximum-likelihood","title":"极大似然直觉"},{"id":"stochastic-processes/markov-chain","to":"/docs/stochastic-processes/markov-chain","title":"马尔可夫链：状态与转移"}]}

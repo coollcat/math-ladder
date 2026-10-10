@@ -600,7 +600,15 @@ if (!listMode) {
         [path.join(scriptDir, 'gen-references.mjs'), '--check'],
         { stdio: 'pipe' },
       );
-      if (gen.status !== 0) {
+      /* status === null 且 error 是 EPERM/EACCES：环境禁止 spawn（例如 CI 沙箱），
+         不是产物过期。降级为预警；真实过期仍是 status=1 硬错误。 */
+      const genSpawnBlocked =
+        gen.status === null &&
+        gen.error &&
+        (gen.error.code === 'EPERM' || gen.error.code === 'EACCES');
+      if (genSpawnBlocked) {
+        warns.push('无法启动子进程（' + gen.error.code + '），跳过 999-references 一致性检查');
+      } else if (gen.status !== 0) {
         errors.push(
           '999-references.md 落后于 references-data.json——请运行 node scripts/gen-references.mjs 重新生成',
         );
@@ -609,9 +617,15 @@ if (!listMode) {
       const papers = spawnSync(
         process.execPath,
         [path.join(scriptDir, 'fetch-papers.mjs'), '--check'],
-        { stdio: 'pipe' },
+        { stdio: 'ignore' },
       );
-      if (papers.status !== 0 && papers.stdout) {
+      const papersSpawnBlocked =
+        papers.status === null &&
+        papers.error &&
+        (papers.error.code === 'EPERM' || papers.error.code === 'EACCES');
+      if (papersSpawnBlocked) {
+        warns.push('无法启动子进程（' + papers.error.code + '），跳过论文归档副本体检');
+      } else if (papers.status !== 0) {
         warns.push('论文归档副本有缺失——运行 node scripts/fetch-papers.mjs 补齐');
       }
     } catch {

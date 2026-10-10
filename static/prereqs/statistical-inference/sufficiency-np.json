@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"statistical-inference/mle","to":"/docs/statistical-inference/mle","title":"最大似然估计：让数据为自己说话"},{"id":"statistical-inference/hypothesis-testing","to":"/docs/statistical-inference/hypothesis-testing","title":"假设检验与 p 值：统计裁决程序"}]}

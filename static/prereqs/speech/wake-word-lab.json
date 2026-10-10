@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"speech/audio-codec-lab","to":"/docs/speech-audio/audio-codec-lab","title":"音频编码：MP3/AAC 的取舍"},{"id":"speech/mfcc-lab","to":"/docs/speech-audio/mfcc-lab","title":"MFCC：语音识别的老饭碗"},{"id":"deep-learning/rnn-lstm","to":"/docs/deep-learning/rnn-lstm","title":"RNN 与 LSTM：把时间卷进网络"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"speech/pitch-detect","to":"/docs/speech-audio/pitch-detect","title":"基频与音高检测"},{"id":"speech/mfcc-lab","to":"/docs/speech-audio/mfcc-lab","title":"MFCC：语音识别的老饭碗"}]}

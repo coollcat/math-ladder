@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"pde/fourier-pde-synthesis","to":"/docs/pde-intro/fourier-pde-synthesis","title":"Fourier 合成：把任意初值拆成模态"},{"id":"pde/flux-conservation","to":"/docs/pde-intro/flux-conservation","title":"通量与守恒律"}]}

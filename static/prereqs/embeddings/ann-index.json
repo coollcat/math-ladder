@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"embeddings/nearest-neighbor","to":"/docs/embeddings-geometry/nearest-neighbor","title":"最近邻检索"},{"id":"embeddings/cosine-similarity","to":"/docs/embeddings-geometry/cosine-similarity","title":"余弦相似度"}]}

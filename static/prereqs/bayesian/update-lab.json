@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"bayesian/beta-binomial","to":"/docs/bayesian-stats/beta-binomial","title":"共轭先验：Beta 与二项的天作之合"},{"id":"statistical-inference/estimation","to":"/docs/statistical-inference/sampling-estimation","title":"从样本猜总体：点估计与标准误"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"generative/maximum-likelihood","to":"/docs/generative-models/maximum-likelihood","title":"极大似然直觉"},{"id":"generative/sampling","to":"/docs/generative-models/sampling","title":"从分布采样"}]}

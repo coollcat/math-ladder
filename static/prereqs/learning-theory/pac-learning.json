@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"learning-theory/vc-dimension","to":"/docs/learning-theory/vc-dimension","title":"VC 维与 shattering：给模型复杂度定量"},{"id":"learning-theory/capacity-consistency","to":"/docs/learning-theory/capacity-consistency","title":"假设类容量与一致性：多大的模型学得会"}]}

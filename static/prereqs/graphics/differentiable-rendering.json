@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graphics/ray-intersection-pathtrace","to":"/docs/computer-graphics/ray-intersection-pathtrace","title":"光线求交与路径追踪入门"},{"id":"deep-learning/backprop","to":"/docs/deep-learning/backprop","title":"反向传播：梯度的回传流水线"}]}

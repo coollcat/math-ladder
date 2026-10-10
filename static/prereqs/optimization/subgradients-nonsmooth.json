@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"optimization/convexity","to":"/docs/optimization/convexity","title":"凸集、凸函数与局部即全局"},{"id":"optimization/gradient-descent","to":"/docs/optimization/gradient-descent","title":"梯度下降、学习率与收敛"}]}

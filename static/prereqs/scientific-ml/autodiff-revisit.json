@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"scientific-ml/surrogate-models","to":"/docs/scientific-ml/surrogate-reduced-order","title":"替代模型与降阶"},{"id":"deep-learning/backprop","to":"/docs/deep-learning/backprop","title":"反向传播：梯度的回传流水线"},{"id":"multivariable/jacobian-chain","to":"/docs/multivariable-calc/jacobian-chain","title":"Jacobian 与多元链式法则"}]}

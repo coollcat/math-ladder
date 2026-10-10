@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"transformer/softmax-temperature","to":"/docs/transformer/softmax-temperature","title":"Softmax 与温度"},{"id":"transformer/attention-qkv","to":"/docs/transformer/attention-qkv","title":"注意力：查询、键、值"}]}

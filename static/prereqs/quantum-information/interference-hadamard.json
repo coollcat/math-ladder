@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"quantum-information/bloch-sphere","to":"/docs/quantum-information/bloch-sphere","title":"Bloch 球：单量子比特的几何地图"},{"id":"complex/euler","to":"/docs/complex/euler","title":"欧拉公式"},{"id":"quantum-information/measurement-born","to":"/docs/quantum-information/measurement-born","title":"测量与玻恩规则"}]}

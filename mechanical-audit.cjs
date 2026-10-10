@@ -33,6 +33,68 @@ const problems = [];
 const warnings = []; // 预警级：打印但不作为失败依据
 let warnedNoPython = false;
 
+/* ---------- Python compile 体检（批量，2026-10-10 改）----------
+ * 原来是**每个块 spawnSync 一次 python**：2686 个块 = 2686 个进程，
+ * 在装了 python 的机器上实测约 5 分钟（占整条 build 的大头）。
+ * 改成全部收拢后 **一次** python 进程批量 compile：驱动脚本从 stdin 读
+ * JSON 数组，逐块 compile，每块输出一行 OK/FAIL。判据完全不变
+ * （compile 失败仍是 problems 级），起不了进程仍降级预警。 */
+const pyBlocksToCheck = [];
+
+/* 批量 compile 驱动：stdin 收 [{file,line,code}]，逐块 compile 并逐行报告。
+   用 -I -X utf8 与原逐块调用保持同样的隔离与编码口径。 */
+const PY_BATCH_DRIVER = `
+import sys, json
+try:
+    data = json.load(sys.stdin)
+except Exception as exc:
+    print('BADINPUT ' + str(exc).replace(chr(10), ' '))
+    sys.exit(2)
+for i, item in enumerate(data):
+    try:
+        compile(item['code'], '<lesson>', 'exec')
+    except BaseException as exc:
+        print('FAIL %d %s: %s' % (i, type(exc).__name__, str(exc).replace(chr(10), ' ')))
+print('CHECKED %d' % len(data))
+`;
+
+function runPythonCompileBatch(blocks) {
+  if (!blocks.length) return;
+  const res = spawnSync('python', ['-I', '-X', 'utf8', '-c', PY_BATCH_DRIVER], {
+    input: JSON.stringify(blocks),
+    encoding: 'utf8',
+  });
+  /* 起不了进程：ENOENT = 本机没装 python；EPERM/EACCES = 环境禁止 spawn
+     （例如 CI 沙箱）。降级为预警，别把「体检跑不了」当成「代码有错」。 */
+  const spawnBlocked =
+    res.error &&
+    (res.error.code === 'ENOENT' ||
+      res.error.code === 'EPERM' ||
+      res.error.code === 'EACCES');
+  if (spawnBlocked) {
+    if (!warnedNoPython) {
+      warnings.push(`起不了 python 进程（${res.error.code}），跳过全部 Python compile 体检`);
+      warnedNoPython = true;
+    }
+    return;
+  }
+  if (res.status !== 0) {
+    const detail = (res.stderr || res.stdout || res.error?.message || `status=${res.status}`).trim();
+    problems.push(`Python compile 批量体检异常：${detail.split('\n')[0]}`);
+    return;
+  }
+  const checked = /CHECKED (\d+)/.exec(res.stdout || '');
+  for (const line of (res.stdout || '').split('\n')) {
+    const m = /^FAIL (\d+) (.+)$/.exec(line.trim());
+    if (!m) continue;
+    const block = blocks[Number(m[1])];
+    if (block) problems.push(`${block.file}:${block.line}: Python compile failed: ${m[2]}`);
+  }
+  if (checked && Number(checked[1]) !== blocks.length) {
+    warnings.push(`Python compile 批量体检只报告了 ${checked[1]}/${blocks.length} 块`);
+  }
+}
+
 /* ---------- viz type 白名单（RENDERERS 键集合） ----------
    从 src/pyrunner/viz.js 尾部 type→renderer 映射表用正则抠取全部键，
    同时覆盖带引号（'eigen-direction'）与不带引号（elimination）两种形式；
@@ -151,23 +213,13 @@ for (const file of markdown) {
       pythonBlocks += 1;
       if (/^\s*input\s*\(/m.test(block.code)) problems.push(`${relative}:${block.line}: input()`);
       if (/^\s*while\s+True\s*:/m.test(block.code)) problems.push(`${relative}:${block.line}: while True`);
-      const compiled = spawnSync('python', ['-I', '-X', 'utf8', '-c', "import sys; compile(sys.stdin.read(), '<lesson>', 'exec')"], {
-        input: Buffer.from(block.code, 'utf8'),
-        encoding: 'utf8',
-      });
-      if (compiled.error && compiled.error.code === 'ENOENT') {
-        /* 本机没有 python：compile 体检降级为预警，别把整条构建闸门顶死 */
-        if (!warnedNoPython) {
-          warnings.push('PATH 里找不到 python，跳过全部 Python compile 体检');
-          warnedNoPython = true;
-        }
-      } else if (compiled.status !== 0) {
-        const detail = [compiled.stderr, compiled.stdout].find(Boolean)?.trim() || compiled.error?.message || `status=${compiled.status}`;
-        problems.push(`${relative}:${block.line}: Python compile failed: ${detail}`);
-      }
+      pyBlocksToCheck.push({ file: relative, line: block.line, code: block.code });
     }
   }
 }
+
+/* 全部块收拢完，一次 python 进程批量 compile（见 runPythonCompileBatch 注释） */
+runPythonCompileBatch(pyBlocksToCheck);
 
 console.log(`markdown=${markdown.length} sourceH2=${sourceH2} builtH2=${builtH2} pythonBlocks=${pythonBlocks} vizBlocks=${vizBlocks} vizTypes=${VIZ_TYPES ? VIZ_TYPES.size : 0} problems=${problems.length} warnings=${warnings.length}`);
 for (const problem of problems) console.log(problem);

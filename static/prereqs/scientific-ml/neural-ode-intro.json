@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"scientific-ml/autodiff-revisit","to":"/docs/scientific-ml/autodiff-revisit","title":"自动微分与计算图重访"},{"id":"deep-learning/residual-path","to":"/docs/deep-learning/residual-path","title":"残差连接与深路梯度流"},{"id":"ode/euler-runge-kutta","to":"/docs/ode-dynamics/euler-runge-kutta","title":"Euler 法与 Runge-Kutta"}]}

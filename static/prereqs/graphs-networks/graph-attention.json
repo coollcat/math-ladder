@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graphs-networks/graph-convolution","to":"/docs/graphs-networks/graph-convolution","title":"图卷积一层聚合"},{"id":"transformer/attention-qkv","to":"/docs/transformer/attention-qkv","title":"注意力：查询、键、值"}]}

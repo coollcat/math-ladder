@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"bci/spd-manifold","to":"/docs/brain-computer-interface/spd-manifold","title":"协方差的几何：SPD 流形上的脑电分类"},{"id":"information/mutual-information","to":"/docs/information-theory/mutual-information","title":"互信息：两个变量共享多少信息"}]}

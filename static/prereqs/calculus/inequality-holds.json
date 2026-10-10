@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"calculus/monotonic-intervals","to":"/docs/derivatives/monotonic-intervals","title":"用导数求单调区间"},{"id":"calculus/extrema-curves","to":"/docs/derivatives/extrema-curves","title":"极值、凹凸与曲线描绘"},{"id":"calculus/transcendental","to":"/docs/derivatives/sin-cos-exp","title":"sin、cos 与 e^x 的导数"},{"id":"exponents/log","to":"/docs/exponents/log","title":"对数：指数的反问句"}]}

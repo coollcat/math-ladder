@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graphics/nerf-volume-rendering","to":"/docs/computer-graphics/nerf-volume-rendering","title":"NeRF 与体渲染：把场景装进一枚 MLP"},{"id":"linalg-advanced/eigenvalues","to":"/docs/linear-algebra-advanced/eigenvalues","title":"特征值与不变方向"},{"id":"graphics/rasterization-barycentric","to":"/docs/computer-graphics/rasterization-barycentric","title":"三角形光栅化与重心坐标"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"probability-advanced/bayes","to":"/docs/probability-advanced/bayes","title":"条件概率、独立性与贝叶斯"},{"id":"statistical-inference/estimation","to":"/docs/statistical-inference/sampling-estimation","title":"从样本猜总体：点估计与标准误"}]}

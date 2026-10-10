@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"ml-math/linear-regression","to":"/docs/ml-math/linear-regression","title":"线性回归：从数据到预测线"},{"id":"learning-theory/generalization-gap","to":"/docs/learning-theory/generalization-gap","title":"训练误差与泛化鸿沟"}]}

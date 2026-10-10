@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"pde/laplace-poisson","to":"/docs/pde-intro/laplace-poisson","title":"Laplace 与 Poisson：直接问稳态长什么样"},{"id":"pde/cfl-stability","to":"/docs/pde-intro/cfl-stability","title":"CFL 与显式格式稳定性"}]}

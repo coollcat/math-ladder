@@ -841,9 +841,141 @@ function bindDocListener(type, handler) {
   document.addEventListener(type, handler);
 }
 
+/* ---------- FAB：两个圆钮（Py 浮窗 / 数学笔记本）----------
+ * 从 ensureConsole 里拆出来（2026-10-10 性能优化）：首屏只需要这两个圆钮，
+ * 而浮窗面板是一大坨 DOM（三十来个节点 + 二十多个监听 + applySlot 的
+ * localStorage 读+写）。原来每进一个页面都整份建一遍，还顺手把 ml-console
+ * 草稿 JSON.parse 再 stringify 写回一次——绝大多数访问根本不会开浮窗。
+ * 现在首屏只建圆钮；面板（含 toolApi）等第一次真正要打开时由
+ * ensureConsole() 补齐（openInConsole / 点圆钮 / 快捷键都会先走它）。 */
+function ensureFab() {
+  const st = consoleState;
+  if (
+    st.fab &&
+    st.fabNote &&
+    document.contains(st.fab) &&
+    document.contains(st.fabNote) &&
+    st.fab.__mlGen === GEN
+  ) {
+    return;
+  }
+  /* 残缺或跨代残骸：旧圆钮上绑的闭包属于旧代码，连同可能开着的子面板一并拆。
+     笔记本 / 公式 / 仓库 / 数据面板都是按需动态 import 的，下次打开会自建，
+     所以这里只管拆（见 dropNotebookShell）。 */
+  document.getElementById('ml-fab')?.remove();
+  document.getElementById('ml-nb-fab')?.remove();
+  dropNotebookShell();
+  st.fab = null;
+  st.fabNote = null;
+
+  const fab = document.createElement('button');
+  fab.id = 'ml-fab';
+  fab.className = 'ml-fab';
+  fab.type = 'button';
+  fab.title = 'Python 控制台（Alt+P）';
+  fab.setAttribute('aria-label', '打开 Python 控制台');
+  fab.textContent = 'Py';
+  fab.__mlGen = GEN;
+
+  /* 笔记本入口：叠在 Py 按钮正上方（右下角第二个圆钮，位置见 custom.css）。
+     笔记本与浮窗共用同一个 Python 命名空间，变量互相可见。
+     圆钮上放图标不放文字：两个圆钮挨着，文字会糊成一团，图标一眼能分。 */
+  const fabNote = document.createElement('button');
+  fabNote.id = 'ml-nb-fab';
+  fabNote.className = 'ml-fab ml-fab--note';
+  fabNote.type = 'button';
+  fabNote.title = '数学笔记本（Alt+N）';
+  fabNote.setAttribute('aria-label', '打开数学笔记本');
+  fabNote.innerHTML = iconSvg('notebook', 24);
+  fabNote.__mlGen = GEN;
+
+  st.fab = fab;
+  st.fabNote = fabNote;
+  document.body.append(fabNote, fab);
+
+  fabNote.addEventListener('click', async () => {
+    /* 面板（连同 toolApi）按需建：没建过就先建，再走原来的开关逻辑 */
+    ensureConsole();
+    const api = st._toolApi;
+    try {
+      const mod = await import('./notebook');
+      /* 与 Py 圆钮一致：开着就收起来。原先只开不关——用户点第二次是想收起，
+         结果又把整块面板重建了一遍（输出清空、滚动位置丢失）。 */
+      if (typeof mod.isNotebookOpen === 'function' && mod.isNotebookOpen()) {
+        mod.closeNotebook();
+        return;
+      }
+      api.status('正在打开笔记本…');
+      await mod.openNotebook(api);
+      api.status('');
+    } catch (e) {
+      api.status('笔记本打不开：' + ((e && e.message) || e));
+    }
+  });
+
+  /* 数据面板的入口搬到了**页面右上角**（顶栏那颗「数据」钮，见 Navbar/DataMenu.js）。
+     Alt+D 这个快捷键留着——老用户肌肉记忆还在。
+     它只做一件事：请求顶栏把面板打开（窗口事件 ml-open-data）。
+     刻意不在这里就地开浮窗、也不在登录页另开一份：同一套 UI 两个落点，
+     改一处忘一处是迟早的事。 */
+  const gotoDataPanel = () => {
+    window.dispatchEvent(new Event('ml-open-data'));
+  };
+
+  fab.addEventListener('click', () => {
+    ensureConsole();
+    if (!st._isOpen()) {
+      st._setOpen(true);
+      if (st.running) st.status.textContent = '正在运行，已保持当前槽位';
+      else applySlot('scratch', {});
+      return;
+    }
+    st._setOpen(false);
+  });
+
+  bindDocListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      /* 分层关闭：几个浮窗叠着开时（比如从浮窗按钮栏进了仓库/公式面板），
+         Esc 只关最上面那一层。本监听注册得比子面板早，所以必须先问一句
+         「我是不是栈顶」——不问的话会抢先把底下的浮窗关掉。 */
+      if (st.closeLightbox && st.closeLightbox()) return;
+      ensureConsole();
+      if (st._isOpen() && isTopmost(st.panel)) st._setOpen(false);
+    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'p' || ev.key === 'P')) {
+      if (ev.repeat) return;
+      ev.preventDefault();
+      ensureConsole();
+      if (!st._isOpen()) {
+        st._setOpen(true);
+        if (st.running) st.status.textContent = '正在运行，已保持当前槽位';
+      } else {
+        st._setOpen(false);
+      }
+    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'n' || ev.key === 'N')) {
+      /* 在输入框里打字时不抢：Alt+N 会把笔记本整个重建，光标与滚动位置全丢 */
+      if (ev.repeat || isTypingTarget(ev.target)) return;
+      ev.preventDefault();
+      st.fabNote.click();
+    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'd' || ev.key === 'D')) {
+      /* 注意：Alt+D 在 Chrome/Edge/Firefox 上是浏览器保留的「聚焦地址栏」，
+         大概率收不到；所以数据面板的主入口是顶栏右上角那颗「数据」钮，
+         这里只是给收得到的环境留一条近路（另有 Alt+Shift+D，见下）。 */
+      if (ev.repeat) return;
+      ev.preventDefault();
+      gotoDataPanel();
+    } else if (ev.altKey && ev.shiftKey && (ev.key === 'd' || ev.key === 'D')) {
+      /* 浏览器吞掉 Alt+D 时的备用组合，文案写在按钮 title 里 */
+      ev.preventDefault();
+      gotoDataPanel();
+    }
+  });
+}
+
 function ensureConsole() {
   const st = consoleState;
-  if (st.fab && st.panel && document.contains(st.fab) && document.contains(st.panel)) {
+  /* 圆钮先就位（幂等；跨代残骸在这里重建，面板的跨代逻辑见下面） */
+  ensureFab();
+  if (st.panel && document.contains(st.panel)) {
     if (st.panel.__mlGen === GEN) return;
     /* 壳健在但是上一代模块建的：壳上按钮绑的闭包全是旧代码，旧 bug 也跟着活着。
        拆掉重建让新代码接管（编辑区内容和开合状态先保后还）。
@@ -868,17 +1000,16 @@ function ensureConsole() {
       /* 保内容失败不阻断重建 */
     }
     st.panel.remove();
-    st.fab.remove();
     document.querySelector('.ml-lightbox')?.remove();
     dropNotebookShell();
-    st.fab = null;
     st.panel = null;
     st._restoreAfterBuild = restore;
+  } else {
+    st.panel = null;
   }
 
-  const fabEl = document.getElementById('ml-fab');
   const panelEl = document.getElementById('ml-console');
-  if (fabEl && panelEl && panelEl.__mlRefs && document.contains(panelEl)) {
+  if (panelEl && panelEl.__mlRefs && document.contains(panelEl)) {
     if (panelEl.__mlGen === GEN) {
       /* 壳健在但引用失效（异常兜底）：领养现有节点，绝不拆除——
          拆了正在使用的浮窗，用户手里的按钮就全变成「点了没反应」。 */
@@ -905,39 +1036,18 @@ function ensureConsole() {
       },
     };
     panelEl.remove();
-    fabEl.remove();
     document.querySelector('.ml-lightbox')?.remove();
     dropNotebookShell();
-    st.fab = null;
     st.panel = null;
     st._restoreAfterBuild = restore;
   }
 
-  /* 真没有壳（或壳残缺）才全新构建。浮窗节点都是我们自己 append 到
-     body 的普通节点（不归 React 管），可以安全移除残骸。 */
-  fabEl?.remove();
+  /* 真没有面板（或面板残缺）才全新构建。浮窗节点都是我们自己 append 到
+     body 的普通节点（不归 React 管），可以安全移除残骸。
+     FAB 不在这里建——见 ensureFab（首屏就建好，跨代在这里也会被重建）。 */
   panelEl?.remove();
   document.querySelector('.ml-lightbox')?.remove();
   dropNotebookShell();
-
-  const fab = document.createElement('button');
-  fab.id = 'ml-fab';
-  fab.className = 'ml-fab';
-  fab.type = 'button';
-  fab.title = 'Python 控制台（Alt+P）';
-  fab.setAttribute('aria-label', '打开 Python 控制台');
-  fab.textContent = 'Py';
-
-  /* 笔记本入口：叠在 Py 按钮正上方（右下角第二个圆钮，位置见 custom.css）。
-     笔记本与浮窗共用同一个 Python 命名空间，变量互相可见。
-     圆钮上放图标不放文字：两个圆钮挨着，文字会糊成一团，图标一眼能分。 */
-  const fabNote = document.createElement('button');
-  fabNote.id = 'ml-nb-fab';
-  fabNote.className = 'ml-fab ml-fab--note';
-  fabNote.type = 'button';
-  fabNote.title = '数学笔记本（Alt+N）';
-  fabNote.setAttribute('aria-label', '打开数学笔记本');
-  fabNote.innerHTML = iconSvg('notebook', 24);
 
   /* 数据面板（备份 / 还原 / 空间搬家）**不再**放右下角第三个圆钮了。
      2026-09-28 搬迁：圆钮藏得太深，而「登录后进度看着像没了」恰恰是最需要它的时刻。
@@ -1027,10 +1137,10 @@ function ensureConsole() {
   out.setAttribute('aria-live', 'polite');
 
   panel.append(head, banner, slidersBox, editor, bar, out);
-  document.body.append(fabNote, fab, panel);
+  document.body.append(panel);
 
   const refs = {
-    fab, fabNote, panel, editor, status, out, btnRun, btnHint,
+    fab: st.fab, fabNote: st.fabNote, panel, editor, status, out, btnRun, btnHint,
     btnResetCode, btnResetNs, btnBack, headTitle, banner, slidersBox, btnMode, btnRepo, btnFx,
   };
   /* 引用登记在壳上：热更新后新一代模块靠它领养或识别跨代重建 */
@@ -1115,6 +1225,9 @@ function ensureConsole() {
     }
     return false;
   };
+  /* Esc 分层关闭由 ensureFab 的全局监听统一调度：灯箱状态挂到 st 上，
+     面板没建过时它就是 undefined，Esc 分支自然跳过。 */
+  st.closeLightbox = closeLb;
   bindDocListener('click', (ev) => {
     const img = ev.target.closest && ev.target.closest('.py-runner__img img');
     if (!img) return;
@@ -1132,7 +1245,8 @@ function ensureConsole() {
 
   const setOpen = (v) => {
     panel.classList.toggle('is-open', v);
-    fab.classList.toggle('is-active', v);
+    /* FAB 由 ensureFab 建（可能早于面板存在），开合状态同步到 st.fab 上 */
+    st.fab.classList.toggle('is-active', v);
     if (v) {
       applyMode();
       bringToFront(panel);
@@ -1140,10 +1254,14 @@ function ensureConsole() {
     }
   };
   const isOpen = () => panel.classList.contains('is-open');
+  /* 供 ensureFab 的圆钮/快捷键处理器调用（它们可能早于本面板存在） */
+  st._setOpen = setOpen;
+  st._isOpen = isOpen;
 
   /* ---------- 笔记本 / 代码仓库的公共接口 ----------
    * 两个面板与浮窗共用同一个 Pyodide 实例、同一个命名空间（execInConsole），
-   * 所以「送到浮窗 / 取回浮窗」只是搬代码，变量本来就通着。 */
+   * 所以「送到浮窗 / 取回浮窗」只是搬代码，变量本来就通着。
+   * 挂到 st 上：ensureFab 的笔记本圆钮处理器要先 ensureConsole() 再取它。 */
   const toolApi = {
     exec: execInConsole,
     prettify: prettifyError,
@@ -1200,44 +1318,9 @@ function ensureConsole() {
     }
   });
 
-  fabNote.addEventListener('click', async () => {
-    try {
-      const mod = await import('./notebook');
-      /* 与 Py 圆钮一致：开着就收起来。原先只开不关——用户点第二次是想收起，
-         结果又把整块面板重建了一遍（输出清空、滚动位置丢失）。 */
-      if (typeof mod.isNotebookOpen === 'function' && mod.isNotebookOpen()) {
-        mod.closeNotebook();
-        return;
-      }
-      st.status.textContent = '正在打开笔记本…';
-      await mod.openNotebook(toolApi);
-      st.status.textContent = '';
-    } catch (e) {
-      st.status.textContent = '笔记本打不开：' + ((e && e.message) || e);
-    }
-  });
-
-  /* 数据面板的入口搬到了**页面右上角**（顶栏那颗「数据」钮，见 Navbar/DataMenu.js）。
-     Alt+D 这个快捷键留着——老用户肌肉记忆还在。
-     它只做一件事：请求顶栏把面板打开（窗口事件 ml-open-data）。
-     刻意不在这里就地开浮窗、也不在登录页另开一份：同一套 UI 两个落点，
-     改一处忘一处是迟早的事。 */
-  const gotoDataPanel = () => {
-    window.dispatchEvent(new Event('ml-open-data'));
-  };
-
-  fab.addEventListener('click', () => {
-    if (!isOpen()) {
-      setOpen(true);
-      if (st.running) {
-        status.textContent = '正在运行，已保持当前槽位';
-        return;
-      }
-      applySlot('scratch', {});
-      return;
-    }
-    setOpen(false);
-  });
+  /* 笔记本圆钮、Py 圆钮的点击与全局快捷键（Alt+P/N/D、Esc）都搬到 ensureFab：
+     首屏只建圆钮时它们就必须能用，处理器里先 ensureConsole() 补齐面板。
+     笔记本 / 仓库 / 公式面板的动态 import 入口保留在下面。 */
   btnClose.addEventListener('click', () => setOpen(false));
   btnBack.addEventListener('click', () => {
     if (st.running) {
@@ -1248,40 +1331,7 @@ function ensureConsole() {
     applySlot('scratch', {});
   });
 
-  bindDocListener('keydown', (ev) => {
-    if (ev.key === 'Escape') {
-      if (closeLb()) return;
-      /* 分层关闭：几个浮窗叠着开时（比如从浮窗按钮栏进了仓库/公式面板），
-         Esc 只关最上面那一层。本监听注册得比子面板早，所以必须先问一句
-         「我是不是栈顶」——不问的话会抢先把底下的浮窗关掉。 */
-      if (isOpen() && isTopmost(panel)) setOpen(false);
-    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'p' || ev.key === 'P')) {
-      if (ev.repeat) return;
-      ev.preventDefault();
-      if (!isOpen()) {
-        setOpen(true);
-        if (st.running) status.textContent = '正在运行，已保持当前槽位';
-      } else {
-        setOpen(false);
-      }
-    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'n' || ev.key === 'N')) {
-      /* 在输入框里打字时不抢：Alt+N 会把笔记本整个重建，光标与滚动位置全丢 */
-      if (ev.repeat || isTypingTarget(ev.target)) return;
-      ev.preventDefault();
-      fabNote.click();
-    } else if (ev.altKey && !ev.ctrlKey && !ev.metaKey && (ev.key === 'd' || ev.key === 'D')) {
-      /* 注意：Alt+D 在 Chrome/Edge/Firefox 上是浏览器保留的「聚焦地址栏」，
-         大概率收不到；所以数据面板的主入口是顶栏右上角那颗「数据」钮，
-         这里只是给收得到的环境留一条近路（另有 Alt+Shift+D，见下）。 */
-      if (ev.repeat) return;
-      ev.preventDefault();
-      gotoDataPanel();
-    } else if (ev.altKey && ev.shiftKey && (ev.key === 'd' || ev.key === 'D')) {
-      /* 浏览器吞掉 Alt+D 时的备用组合，文案写在按钮 title 里 */
-      ev.preventDefault();
-      gotoDataPanel();
-    }
-  });
+  /* 全局快捷键已搬到 ensureFab（首屏只建圆钮时也要能响应） */
 
   /* 输出里写 $$…$$ / $…$ 会渲染成公式（见 mathout.js）。
      判题比较走的是 normalizeOut(textOut) 的字符串，不读 DOM，
@@ -1469,6 +1519,8 @@ function ensureConsole() {
   };
   /* 供外部（如 renderSliders 的同步按钮）触发一次运行 */
   st._run = run;
+  /* 笔记本圆钮的处理器在 ensureFab 里，要通过 st 取这套公共接口 */
+  st._toolApi = toolApi;
   /* 供 openInConsole 用：正文里的「▶ 浮窗运行 / 在浮窗作答 / 用 Python 解题」
      只是给面板加 is-open，走不到 setOpen()，于是**窄屏默认整页**这条规则
      （applyMode）从来不生效——浮窗会以 92vh 的居中卡片压住整个手机屏。 */
@@ -2199,7 +2251,9 @@ function maybeEnhanceLab() {
 
 export function enhanceAll() {
   /* 任一阶段出错都不拖垮其余阶段，更不冒泡打断 React 提交 */
-  try { ensureConsole(); } catch (e) { console.error('[ml] console:', e); }
+  /* 首屏只建两个圆钮（ensureFab）：浮窗面板是三十来个节点 + 二十多个监听 +
+     localStorage 读写，等用户真要打开时由 ensureConsole() 补齐（2026-10-10）。 */
+  try { ensureFab(); } catch (e) { console.error('[ml] console fab:', e); }
   /* 首页 / /tree / /graph / /function / /login 这些页面连一个代码围栏都没有：
      一次 body 级预判跳过 viz/lab/papers/代码块四个逐语言全文档扫描
      （每次路由切换的 MutationObserver 触发都吃这个收益）。 */

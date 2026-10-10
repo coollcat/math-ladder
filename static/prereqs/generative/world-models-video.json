@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"generative/diffusion-math","to":"/docs/generative-models/diffusion-math","title":"扩散模型的完整推导：加噪与去噪的账本"},{"id":"generative/autoregressive-models","to":"/docs/generative-models/autoregressive-models","title":"自回归模型与条件分解"}]}

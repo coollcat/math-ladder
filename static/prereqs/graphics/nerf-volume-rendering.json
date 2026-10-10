@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graphics/differentiable-rendering","to":"/docs/computer-graphics/differentiable-rendering","title":"可微分渲染：让画面倒过来教参数"},{"id":"deep-learning/forward-pass","to":"/docs/deep-learning/forward-pass","title":"前向传播：数据流过网络"}]}

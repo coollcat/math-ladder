@@ -98,11 +98,11 @@ src/css/nav.css                # 顶栏样式（.ml-nav 作用域，由 Navbar/i
 src/components/icons.js        # 图标集：ICONS 路径表 + <Icon/>（React）+ iconSvg()（原生 DOM）
 src/theme/TOCItems/index.js    # 右栏挂件 swizzle：目录上方渲染前置知识 + 学习进度条
 src/theme/DocItem/Layout/index.js  # 文档页布局 swizzle：正文横条前置知识 + RailControls 折叠把手
-src/components/doc-widgets/    # PrereqPanel 前置知识面板、RailControls 右侧栏折叠控件
+src/components/doc-widgets/    # PrereqPanel 前置知识面板（按课 fetch static/prereqs/<id>.json，不引整表）、RailControls 右侧栏折叠控件
 src/pages/index.js             # 首页（演算纸视觉体系，样式全在 home.css 的 .ml-home 作用域内）
 src/pages/tree.js              # /tree 知识树页（章节/单元双模式 + 搜索 + 巨大画布，KnowledgeGraphTree v2）
-src/pages/graph.js             # /graph 知识图谱页（同心环，KnowledgeGraphRadial，点击章钻取到课）
-src/components/ml-home/        # 首页数据与组件：data.js(章节/卷册聚合，章节名与卷号来自生成数据，只留首页文案)、full-graph-data.js(生成器产物勿手改，含 CHAPTER_INFO)、HomeTree(章级树)、KnowledgeGraphTree(知识树v2)、KnowledgeGraphRadial(/graph 同心环+课级钻取)、ringLayout.js(/graph 纯布局引擎：难度分位分环 + 强先修单调上修)、treeLayout.js(纯布局引擎：排除第0章/章节聚合/重心交叉消减/祖先后代位图)、LearningEntry.js(继续学习/进度条，引图谱数据，只在首页用)
+src/pages/graph.js             # /graph 知识图谱页（同心环，KnowledgeGraphRadial，点击章钻取课）
+src/components/ml-home/        # 首页数据与组件：data.js(章节/卷册聚合，章节名与卷号来自生成数据，只留首页文案)、full-graph-data.js(生成器产物勿手改，含 CHAPTER_INFO)、lesson-count.js(生成器产物：只有 LESSON_COUNT 一个常量)、HomeTree(章级树)、KnowledgeGraphTree(知识树v2)、KnowledgeGraphRadial(/graph 同心环+课级钻取)、ringLayout.js(/graph 纯布局引擎：难度分位分环 + 强先修单调上修)、treeLayout.js(纯布局引擎：排除第0章/章节聚合/重心交叉消减/祖先后代位图)、LearningEntry.js(继续学习/进度条，引图谱数据，只在首页用)
 scripts/validate.mjs           # 方法准入 + 依赖顺序校验（构建闸门）
 scripts/check-chapter-sync.mjs # 章节信息同步闸门：各章 index.md 的 title/short/volume ↔ 生成物 CHAPTER_INFO（构建闸门）
 scripts/gen-chapters-data.mjs  # 把 full-graph-data.js 按章拆成 static/graph-chapters/NN.json（/graph 钻取按需 fetch，首屏不再带全量课数据）
@@ -141,7 +141,7 @@ LESSON_TEMPLATE.md             # 写课模板·单一事实来源（卷一到卷
 BACKFILL_LOG.md                # 未完成缺口台账（含回填铁律）
 ROADMAP.md                     # 课程路线图 + 未完成进度 checkbox（读者侧入口是站内 /graph 知识图谱页）
 CONTENT_AUDIT.md               # 现行内容口径 + 发布自检纪律
-mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz 块扫描
+mechanical-audit.cjs           # 机械体检：h2 源/产物比对 + Python/viz 块扫描（Python compile 一次进程批量跑，见文件内注释）
 ```
 
 ### 云同步后端（2026-09-04 新增 · `server/` + `src/sync/`，**可选增强**）
@@ -424,6 +424,11 @@ python scripts/audit-py-checks.py docs          # 扫 exercise 的 @check，列�
 - quiz/viz 隐藏原生容器并把组件插在其后（绝不 remove，防 React removeChild 崩溃）；python/exercise 只往 buttonGroup 加按钮（复制按钮保留）。
 - run() 类异步函数必须有 running 重入守卫；练习判题走 _ml_run（全新沙盒），随手算/普通块走 _ml_console_run（持久命名空间）。
 - Pyodide 单例 + PREAMBLE 只注入一次；新增 Python 侧能力往 PREAMBLE 里加 _ml_ 前缀函数。
+- **FAB 与面板是两段构建（2026-10-10 拆）**：`enhanceAll()` 每页只调 `ensureFab()`（两个圆钮 +
+  全局快捷键，廉价）；浮窗面板的大坨 DOM/监听/`applySlot`（含 ml-console 的 localStorage 读+写）
+  等用户真要打开时由 `ensureConsole()` 补齐——圆钮点击、快捷键、`openInConsole()` 都会先走它。
+  跨代（HMR）逻辑：FAB 与面板各自 `__mlGen` 盖章、各自重建；面板上的开关函数挂在
+  `st._setOpen/_isOpen/_toolApi/closeLightbox` 上供 FAB 处理器取用。改这段前读函数头注释。
 - localStorage key 清单：ml-progress（学完标记）/ ml-exercises（判题通过）/ ml-exercise-drafts（旧版遗留，只读兼容）/ ml-console（drafts 多槽位草稿 + pos）。
 
 ## 浮窗控制台与滑块系统（2026-09-01 定稿，踩坑实证）

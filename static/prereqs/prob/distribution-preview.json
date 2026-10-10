@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"prob/expectation","to":"/docs/probability/expectation","title":"期望：加权平均的随机版"},{"id":"prob/stats","to":"/docs/probability/mean-variance","title":"平均数、方差与标准差"},{"id":"prob/counting","to":"/docs/probability/counting","title":"排列与组合：数清楚每一种可能"},{"id":"sequences/binomial-theorem","to":"/docs/sequences/binomial-theorem","title":"二项式定理与杨辉三角"}]}

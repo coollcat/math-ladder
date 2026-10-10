@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"ml-math/logistic-regression","to":"/docs/ml-math/logistic-regression","title":"逻辑回归与交叉熵"},{"id":"optimization/convexity","to":"/docs/optimization/convexity","title":"凸集、凸函数与局部即全局"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"numtheory/gcd","to":"/docs/numbertheory/gcd-euclid","title":"最大公约数与欧几里得算法"},{"id":"numtheory/primes","to":"/docs/numbertheory/primes-sieve","title":"素数与筛法"}]}

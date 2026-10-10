@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"deep-learning/forward-pass","to":"/docs/deep-learning/forward-pass","title":"前向传播：数据流过网络"},{"id":"optimization/gradient-descent","to":"/docs/optimization/gradient-descent","title":"梯度下降、学习率与收敛"}]}

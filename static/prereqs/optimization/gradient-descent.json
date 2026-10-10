@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"optimization/convexity","to":"/docs/optimization/convexity","title":"凸集、凸函数与局部即全局"},{"id":"multivariable/partial-gradient","to":"/docs/multivariable-calc/partial-gradient","title":"偏导数与梯度"}]}

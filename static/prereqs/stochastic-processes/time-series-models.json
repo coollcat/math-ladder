@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"stochastic-processes/stationary-distribution","to":"/docs/stochastic-processes/stationary-distribution","title":"平稳分布与遍历性"},{"id":"stochastic-processes/sample-paths","to":"/docs/stochastic-processes/sample-paths","title":"样本路径与有限维分布"},{"id":"probability-advanced/expectation","to":"/docs/probability-advanced/expectation-variance","title":"期望、方差与矩"}]}

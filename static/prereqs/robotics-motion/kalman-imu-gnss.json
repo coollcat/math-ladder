@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/lqr-mpc-trajectory","to":"/docs/robotics-motion/lqr-mpc-trajectory","title":"LQR 回望与 MPC 入门：会看路面的控制器"},{"id":"linalg-advanced/least-squares","to":"/docs/linear-algebra-advanced/least-squares","title":"最小二乘与正规方程"}]}

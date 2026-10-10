@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"transformer/attention-qkv","to":"/docs/transformer/attention-qkv","title":"注意力：查询、键、值"},{"id":"complex/euler","to":"/docs/complex/euler","title":"欧拉公式"},{"id":"information/entropy","to":"/docs/information-theory/entropy","title":"熵：不确定性的期望"}]}

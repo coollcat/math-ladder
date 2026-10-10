@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"control/stability-eigenvalues","to":"/docs/control/stability-eigenvalues","title":"特征值判决书：稳定性与相图"},{"id":"linalg-advanced/positive-definite","to":"/docs/linear-algebra-advanced/positive-definite","title":"正定二次型"},{"id":"multivariable/partial-gradient","to":"/docs/multivariable-calc/partial-gradient","title":"偏导数与梯度"}]}

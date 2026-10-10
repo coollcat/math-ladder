@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"differential-geometry/param-curve-arc-length","to":"/docs/differential-geometry/param-curve-arc-length","title":"参数曲线：速度与弧长"},{"id":"linalg/basis","to":"/docs/linear-algebra/basis","title":"基与坐标：换一套语言说同一个点"},{"id":"multivariable/partial-gradient","to":"/docs/multivariable-calc/partial-gradient","title":"偏导数与梯度"}]}

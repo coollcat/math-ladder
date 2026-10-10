@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"embeddings/cosine-similarity","to":"/docs/embeddings-geometry/cosine-similarity","title":"余弦相似度"},{"id":"algorithms/hashing","to":"/docs/algorithms/hashing-collisions","title":"哈希、冲突与期望分析"},{"id":"coding-theory/hamming-distance","to":"/docs/coding-theory/hamming-distance","title":"Hamming 距离"}]}

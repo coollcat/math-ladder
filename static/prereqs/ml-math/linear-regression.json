@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"ml-math/loss","to":"/docs/ml-math/loss-function","title":"损失函数与经验风险"},{"id":"linalg-advanced/least-squares","to":"/docs/linear-algebra-advanced/least-squares","title":"最小二乘与正规方程"},{"id":"optimization/gradient-descent","to":"/docs/optimization/gradient-descent","title":"梯度下降、学习率与收敛"}]}

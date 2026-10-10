@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/jacobian-singularities","to":"/docs/robotics-motion/jacobian-singularities","title":"速度雅可比与奇异位形"},{"id":"ode/newton-to-lagrange","to":"/docs/ode-dynamics/newton-to-lagrange","title":"从牛顿到拉格朗日"}]}

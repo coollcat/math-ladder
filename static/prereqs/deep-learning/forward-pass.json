@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"deep-learning/neuron-activation","to":"/docs/deep-learning/neuron-layer","title":"神经元、线性层与激活函数"},{"id":"linalg/matrix","to":"/docs/linear-algebra/matrix","title":"矩阵：让整个平面动起来"}]}

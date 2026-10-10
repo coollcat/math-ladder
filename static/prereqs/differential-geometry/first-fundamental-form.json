@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"differential-geometry/surface-tangent-space","to":"/docs/differential-geometry/surface-tangent-space","title":"曲面参数化与切空间"},{"id":"linalg/dot-product","to":"/docs/linear-algebra/dot-product","title":"点积：两个向量合不合拍"},{"id":"multivariable/jacobian-chain","to":"/docs/multivariable-calc/jacobian-chain","title":"Jacobian 与多元链式法则"}]}

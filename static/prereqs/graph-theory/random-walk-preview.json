@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graph-theory/adjacency-algebra","to":"/docs/graph-theory/adjacency-algebra","title":"邻接矩阵与图代数"},{"id":"prob/law","to":"/docs/probability/law-of-large-numbers","title":"概率与大数定律"},{"id":"linalg-advanced/matrix-powers","to":"/docs/linear-algebra-advanced/matrix-powers","title":"矩阵幂与图传播"}]}

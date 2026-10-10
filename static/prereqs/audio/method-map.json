@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"audio/panning-binaural","to":"/docs/audio-acoustics/panning-binaural","title":"立体声与双耳线索"},{"id":"audio/convolution-reverb","to":"/docs/audio-acoustics/convolution-reverb","title":"混响与卷积混响"},{"id":"digital-signal-processing/convolution-lti","to":"/docs/digital-signal-processing/convolution-lti","title":"卷积与线性时不变系统"}]}

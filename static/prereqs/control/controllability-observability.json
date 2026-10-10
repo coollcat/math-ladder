@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"control/state-space-model","to":"/docs/control/state-space-model","title":"状态空间：把动力学装进矩阵"},{"id":"linalg-advanced/rank-nullspace","to":"/docs/linear-algebra-advanced/rank-nullspace","title":"秩、零空间与维数"}]}

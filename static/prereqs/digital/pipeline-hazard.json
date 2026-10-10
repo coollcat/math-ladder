@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"digital/datapath-single","to":"/docs/digital-systems/datapath-single","title":"单周期数据通路"},{"id":"digital/isa-decode","to":"/docs/digital-systems/isa-decode","title":"指令集与译码"}]}

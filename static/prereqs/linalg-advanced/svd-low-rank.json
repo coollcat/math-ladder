@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"linalg-advanced/eigenvalues","to":"/docs/linear-algebra-advanced/eigenvalues","title":"特征值与不变方向"},{"id":"linalg-advanced/symmetric-spectral-theorem","to":"/docs/linear-algebra-advanced/symmetric-spectral-theorem","title":"对称矩阵与谱定理：正交的特征方向"}]}

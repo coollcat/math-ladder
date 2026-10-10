@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/manipulator-dynamics","to":"/docs/robotics-motion/manipulator-dynamics","title":"机械臂动力学方程：一本三栏的力账"},{"id":"control/pid-control","to":"/docs/control/pid-control","title":"PID 控制：三股力量的分工"}]}

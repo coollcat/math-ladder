@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"numtheory/gcd","to":"/docs/numbertheory/gcd-euclid","title":"最大公约数与欧几里得算法"},{"id":"numtheory/mod","to":"/docs/numbertheory/divisibility-mod","title":"整除、余数与模运算"}]}

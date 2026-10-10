@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"digital/pipeline-hazard","to":"/docs/digital-systems/pipeline-hazard","title":"流水线与冒险"},{"id":"stochastic-processes/markov-chain","to":"/docs/stochastic-processes/markov-chain","title":"马尔可夫链：状态与转移"}]}

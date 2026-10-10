@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"sequences/arith-geom","to":"/docs/sequences/arith-geom","title":"等差与等比"},{"id":"sequences/sigma","to":"/docs/sequences/sigma","title":"求和记号 Σ"},{"id":"sequences/telescoping-sum","to":"/docs/sequences/telescoping-sum","title":"裂项相消与倒序相加"}]}

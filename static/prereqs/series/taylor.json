@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"series/power","to":"/docs/series-taylor/power-series","title":"幂级数：把变量装进无穷求和"},{"id":"calculus/transcendental","to":"/docs/derivatives/sin-cos-exp","title":"sin、cos 与 e^x 的导数"},{"id":"prob/counting","to":"/docs/probability/counting","title":"排列与组合：数清楚每一种可能"}]}

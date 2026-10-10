@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"linalg-advanced/linear-maps","to":"/docs/linear-algebra-advanced/linear-maps","title":"向量空间与线性映射"},{"id":"linalg/dot-product","to":"/docs/linear-algebra/dot-product","title":"点积：两个向量合不合拍"}]}

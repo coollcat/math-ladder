@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"numerical-analysis/floating-point","to":"/docs/numerical-analysis/floating-point","title":"浮点表示与机器精度"},{"id":"sequences/arith-geom","to":"/docs/sequences/arith-geom","title":"等差与等比"},{"id":"calculus/derivative","to":"/docs/derivatives/derivative","title":"导数：瞬时变化率"}]}

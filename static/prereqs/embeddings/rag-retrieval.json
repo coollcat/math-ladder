@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"embeddings/nearest-neighbor","to":"/docs/embeddings-geometry/nearest-neighbor","title":"最近邻检索"},{"id":"transformer/self-attention","to":"/docs/transformer/self-attention","title":"自注意力手算"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/sfm-pose-estimation","to":"/docs/robotics-motion/sfm-pose-estimation","title":"相机位姿与 SfM：从照片堆里同时解出自己在哪"},{"id":"robotics-motion/kalman-imu-gnss","to":"/docs/robotics-motion/kalman-imu-gnss","title":"状态估计：卡尔曼滤波与 IMU/GNSS 融合直觉"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"pde/finite-difference-heat","to":"/docs/pde-intro/finite-difference-heat","title":"差分与稳定性"},{"id":"pde/separation-of-variables","to":"/docs/pde-intro/separation-of-variables","title":"分离变量：把时间和空间拆开算"}]}

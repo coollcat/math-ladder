@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"game-theory/incomplete-info-belief","to":"/docs/game-theory/incomplete-info-belief","title":"不完全信息与信念更新"},{"id":"rl/bandit-regret","to":"/docs/reinforcement-learning/bandit-regret","title":"多臂老虎机与 regret 预告"}]}

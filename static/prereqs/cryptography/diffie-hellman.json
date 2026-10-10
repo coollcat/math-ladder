@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"algebraic-structures/cyclic-groups","to":"/docs/algebraic-structures/cyclic-groups","title":"循环群与生成元"},{"id":"algebraic-structures/modular-rings-fields","to":"/docs/algebraic-structures/modular-rings-fields","title":"模运算中的环和域"},{"id":"numtheory/gcd","to":"/docs/numbertheory/gcd-euclid","title":"最大公约数与欧几里得算法"}]}

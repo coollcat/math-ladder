@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"bci/kalman-decoding","to":"/docs/brain-computer-interface/kalman-decoding","title":"神经解码 II：卡尔曼滤波与光标控制"},{"id":"digital-signal-processing/eeg-rhythms","to":"/docs/digital-signal-processing/eeg-rhythms","title":"脑电节律与伪迹地图"}]}

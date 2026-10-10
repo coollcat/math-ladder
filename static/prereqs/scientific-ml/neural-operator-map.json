@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"scientific-ml/surrogate-models","to":"/docs/scientific-ml/surrogate-reduced-order","title":"替代模型与降阶"},{"id":"fourier/dft","to":"/docs/fourier/dft","title":"采样与 DFT：计算机怎么做傅里叶"}]}

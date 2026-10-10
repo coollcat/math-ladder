@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"transformer/token-embedding","to":"/docs/transformer/token-embedding","title":"Token 与词向量"},{"id":"linalg/dot-product","to":"/docs/linear-algebra/dot-product","title":"点积：两个向量合不合拍"}]}

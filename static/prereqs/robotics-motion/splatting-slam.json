@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"robotics-motion/pose-graph-icp","to":"/docs/robotics-motion/pose-graph-icp","title":"SLAM 现代后端：位姿图优化与 ICP 点云配准"},{"id":"graphics/3d-gaussian-splatting","to":"/docs/computer-graphics/gaussian-splatting","title":"3D 高斯泼溅：一团椭球拼出照片级场景"}]}

@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"pde/heat-equation-1d","to":"/docs/pde-intro/heat-equation-1d","title":"一维热方程"},{"id":"ode/euler-runge-kutta","to":"/docs/ode-dynamics/euler-runge-kutta","title":"Euler 法与 Runge-Kutta"},{"id":"linalg-advanced/least-squares","to":"/docs/linear-algebra-advanced/least-squares","title":"最小二乘与正规方程"}]}

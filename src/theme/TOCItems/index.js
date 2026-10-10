@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import TOCItems from '@theme-original/TOCItems';
 import { useDoc } from '@docusaurus/plugin-content-docs/client';
 import PrereqPanel from '@site/src/components/doc-widgets/PrereqPanel';
-import { LESSON_COUNT } from '@site/src/components/ml-home/prereq-index';
+import { LESSON_COUNT } from '@site/src/components/ml-home/lesson-count';
 import { readProgress, doneCount, progressNS, onProgressChange } from '../../learning/progress';
 
 /* 右栏 TOC 顶部挂件（swizzle wrap）：前置知识面板 + 学习进度条，位于目录上方。
@@ -10,8 +10,9 @@ import { readProgress, doneCount, progressNS, onProgressChange } from '../../lea
  * 未登录读游客空间、登录后读账号空间，登录态一变这里也跟着换。
  * 挂件只在桌面右栏显示（≥997px），窄屏由正文内的横条版前置知识接管。
  *
- * 这里只用到「总课数」一个数字，所以引 prereq-index.js 而不是 full-graph-data.js：
- * 本文件是 theme 级、每个文档页都进首屏，引全量图谱会把约 317 KB 数据拖进 main.js。 */
+ * 这里只用到「总课数」一个数字，所以引 lesson-count.js（一个只有常量的生成文件）
+ * 而不是 full-graph-data.js：本文件是 theme 级、每个文档页都进首屏，引全量图谱
+ * 会把约 317 KB 数据拖进 main.js。前置知识面板的数据见 PrereqPanel 的按课 fetch。 */
 
 const TOTAL_LESSONS = LESSON_COUNT;
 

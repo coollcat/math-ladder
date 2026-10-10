@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"optimization/gradient-descent","to":"/docs/optimization/gradient-descent","title":"梯度下降、学习率与收敛"},{"id":"statistical-inference/mle","to":"/docs/statistical-inference/mle","title":"最大似然估计：让数据为自己说话"},{"id":"probability-advanced/bayes","to":"/docs/probability-advanced/bayes","title":"条件概率、独立性与贝叶斯"}]}

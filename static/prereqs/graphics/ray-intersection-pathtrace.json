@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"graphics/texture-depth-blend","to":"/docs/computer-graphics/texture-depth-blend","title":"纹理采样、深度测试与混合"},{"id":"linalg/dot-product","to":"/docs/linear-algebra/dot-product","title":"点积：两个向量合不合拍"},{"id":"numerical-analysis/monte-carlo-variance","to":"/docs/numerical-analysis/monte-carlo-variance","title":"蒙特卡洛方法与方差缩减"}]}

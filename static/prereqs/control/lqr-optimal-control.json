@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"control/state-space-model","to":"/docs/control/state-space-model","title":"状态空间：把动力学装进矩阵"},{"id":"control/stability-eigenvalues","to":"/docs/control/stability-eigenvalues","title":"特征值判决书：稳定性与相图"},{"id":"optimization/objective-feasible","to":"/docs/optimization/objective-feasible","title":"目标函数与可行域"}]}

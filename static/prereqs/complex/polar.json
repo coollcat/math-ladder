@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"complex/plane","to":"/docs/complex/plane","title":"复平面与共轭"},{"id":"trig/unit-circle","to":"/docs/trigonometry/unit-circle","title":"单位圆上的 sin 与 cos"},{"id":"trig/inverse-trig","to":"/docs/trigonometry/inverse-trig","title":"反三角函数：arcsin、arccos 与 atan2"},{"id":"trig/solving-triangles","to":"/docs/trigonometry/solving-triangles","title":"解三角形：正弦定理与余弦定理"}]}

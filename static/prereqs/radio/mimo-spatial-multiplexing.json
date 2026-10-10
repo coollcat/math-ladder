@@ -1,0 +1,1 @@
+{"prereqs":[{"id":"radio/antenna-gain","to":"/docs/radio-wireless/antenna-gain","title":"天线方向图与增益"},{"id":"radio/diversity-equalizer-ofdm","to":"/docs/radio-wireless/diversity-equalizer-ofdm","title":"分集、均衡与 OFDM 直觉"},{"id":"linalg-advanced/svd-low-rank","to":"/docs/linear-algebra-advanced/svd-low-rank","title":"SVD 与低秩近似"}]}
