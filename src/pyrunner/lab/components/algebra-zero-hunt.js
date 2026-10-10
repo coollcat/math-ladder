@@ -163,6 +163,20 @@ export default function render(host, spec) {
         ro.set('零点', '…还没穿过');
       }
 
+      /* 截距小手柄：(0, b) 画出来，pick 区才不是幽灵 */
+      {
+        ctx.save();
+        ctx.fillStyle = C.accent2;
+        ctx.strokeStyle = C.bg;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(X(0), Y(b), 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        label(ctx, '拖我改 b', X(0) + 12, Y(b) - 10, C.accent2, { size: 11, weight: 600 });
+      }
+
       /* 幕 4：代数收尾 */
       const a4 = appear(3);
       if (a4 > 0) {
@@ -186,15 +200,30 @@ export default function render(host, spec) {
     },
   });
 
-  /* 拖截距点 (0, b) → 改 b */
+  /* 拖截距点 (0, b) → 改 b。坐标经 st.toLogical 反演 trim；
+     避开幕 2 滑行光点的位置，免得光点路过时被误抓改 b。 */
+  st.cv.canvas.style.cursor = 'default';
   bindPointer(st.cv.canvas, {
     pick(x0, y0) {
-      if (Math.hypot(x0 - X(0), y0 - Y(B())) < 14) return 'pt';
-      return null;
+      const [lx, ly] = st.toLogical(x0, y0);
+      if (Math.hypot(lx - X(0), ly - Y(B())) > 14) return null;
+      /* 幕 2 光点正在滑行：与它保持 24px 距离，不抢 */
+      if (st.scene === 1) {
+        const zeroX = -B() / 2;
+        const dotX = G.x0 + (zeroX - G.x0) * Math.min(st.t * 1.15, 1);
+        if (Math.hypot(lx - X(dotX), ly - Y(2 * dotX + B())) < 24) return null;
+      }
+      return 'pt';
     },
+    hover(x0, y0) {
+      const [lx, ly] = st.toLogical(x0, y0);
+      st.cv.canvas.style.cursor = Math.hypot(lx - X(0), ly - Y(B())) < 14 ? 'ns-resize' : 'default';
+    },
+    leave() { st.cv.canvas.style.cursor = 'default'; },
     move(id, x0, y0) {
       if (id !== 'pt') return;
-      const nb = clamp(Math.round((G.cy - y0) / G.sy), -8, 8);
+      const [, ly] = st.toLogical(x0, y0);
+      const nb = clamp(Math.round((G.cy - ly) / G.sy), -8, 8);
       if (nb !== B()) {
         setSliderRow(sliders, 0, nb, 0, 'b');
         st.redraw();

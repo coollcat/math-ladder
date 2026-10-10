@@ -139,7 +139,7 @@ export default function render(host, spec) {
       ctx.strokeRect(px(0), py(0), x * L.s, x * L.s);
       ctx.restore();
       if (a1 > 0.3) {
-        label(ctx, 'x', gx, gy + 5, 'C0.bg', { size: 16, weight: 700, align: 'center' });
+        label(ctx, 'x', gx, gy + 5, C0.bg, { size: 16, weight: 700, align: 'center' });
         label(ctx, 'x² = ' + fmt(x * x, 1), gx, gy + 24, C0.bg, { size: 12, align: 'center' });
       }
       label(ctx, 'x', px(0) - 10, py(x / 2) + 4, C0.fg, { size: 12, align: 'right' });
@@ -225,17 +225,33 @@ export default function render(host, spec) {
     },
   });
 
-  /* 拖右臂右边缘 → 改 b（能拖的就要能拖） */
+  /* 拖右臂右边缘 → 改 b（能拖的就要能拖）。注意：
+     ① 坐标必须经 st.toLogical 反演 trim，否则「看得见抓不起」；
+     ② 臂在幕 1 还没画出来，st.scene < 1 时不接客；
+     ③ 光标给 affordance。 */
+  st.cv.canvas.style.cursor = 'default';
+  const onHover = (x0, y0) => {
+    if (st.scene < 1) { st.cv.canvas.style.cursor = 'default'; return; }
+    const [lx, ly] = st.toLogical(x0, y0);
+    const x = X();
+    const edge = px(x + Math.max(B() / 2, 0));
+    st.cv.canvas.style.cursor = (Math.abs(lx - edge) < 14 && ly > py(0) - 8 && ly < py(x) + 8) ? 'ew-resize' : 'default';
+  };
   bindPointer(st.cv.canvas, {
     pick(x0, y0) {
+      if (st.scene < 1) return null;
+      const [lx, ly] = st.toLogical(x0, y0);
       const x = X();
       const edge = px(x + Math.max(B() / 2, 0));
-      if (Math.abs(x0 - edge) < 14 && y0 > py(0) - 8 && y0 < py(x) + 8) return 'arm';
+      if (Math.abs(lx - edge) < 14 && ly > py(0) - 8 && ly < py(x) + 8) return 'arm';
       return null;
     },
+    hover(x0, y0) { onHover(x0, y0); },
+    leave() { st.cv.canvas.style.cursor = 'default'; },
     move(id, x0) {
       if (id !== 'arm') return;
-      const w = (x0 - L.ox) / L.s - X();
+      const [lx] = st.toLogical(x0, 0);
+      const w = (lx - L.ox) / L.s - X();
       const nb = clamp(Math.round(2 * w), 0, 8);
       if (nb !== B()) {
         setSliderRow(sliders, 0, nb, 0, 'b');

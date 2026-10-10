@@ -206,8 +206,9 @@ export default function render(host, spec) {
 
   /* 拖 T：整个画布都能抓（读数实时显示离两张票还差多少） */
   const pickAndMove = (x0, y0) => {
-    T.x = clamp(Math.round(((x0 - G.cx) / G.s) * 2) / 2, 0, 8);
-    T.y = clamp(Math.round(((G.cy - y0) / G.s) * 2) / 2, 0, 8);
+    const [lx, ly] = st.toLogical(x0, y0);
+    T.x = clamp(Math.round(((lx - G.cx) / G.s) * 2) / 2, 0, 8);
+    T.y = clamp(Math.round(((G.cy - ly) / G.s) * 2) / 2, 0, 8);
     st.redraw();
   };
   bindPointer(st.cv.canvas, {

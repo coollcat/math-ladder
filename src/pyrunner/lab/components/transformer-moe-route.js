@@ -254,20 +254,32 @@ export default function render(host, spec) {
   });
 
   /* 拖分数条改 logit */
+  st.cv.canvas.style.cursor = 'default';
   bindPointer(st.cv.canvas, {
     pick(x0, y0) {
+      const [lx, ly] = st.toLogical(x0, y0);
       const E = S().E;
       const slot = L.bw / E;
-      const j = Math.floor((x0 - L.x0) / slot);
+      const j = Math.floor((lx - L.x0) / slot);
       if (j < 0 || j >= E) return null;
-      if (y0 < 40 || y0 > L.base + 44) return null;
+      if (ly < 40 || ly > L.base + 44) return null;
       return 'e' + j;
     },
+    hover(x0, y0) {
+      const [lx, ly] = st.toLogical(x0, y0);
+      const E = S().E;
+      const slot = L.bw / E;
+      const j = Math.floor((lx - L.x0) / slot);
+      const hit = j >= 0 && j < E && ly >= 40 && ly <= L.base + 44;
+      st.cv.canvas.style.cursor = hit ? 'ns-resize' : 'default';
+    },
+    leave() { st.cv.canvas.style.cursor = 'default'; },
     move(id, x0, y0) {
       if (!/^e\d+$/.test(id)) return;
       const j = Number(id.slice(1));
+      const [, ly] = st.toLogical(x0, y0);
       const maxLogit = Math.max(...scores, 0.001);
-      const v = ((L.base - y0) / L.maxh) * maxLogit;
+      const v = ((L.base - ly) / L.maxh) * maxLogit;
       scores[j] = clamp(Math.round(v * 10) / 10, 0, maxLogit + 0.5);
       st.redraw();
     },

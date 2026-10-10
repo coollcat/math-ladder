@@ -40,14 +40,24 @@ export default function render(host, spec) {
   const G = { cx: 0, cy: 0, s: 1, x0: -5, x1: 7, panelX: 0 };
   let scanX = null;                 /* 用户拖动的光标位置（null = 跟随播放进度） */
 
-  /* 抛物线必须等比（碗形不能骗人）；右侧留 150px 图例面板，
-     色例 + 口诀 + Δ 状态都长在那里，空白处长内容。 */
+  /* 抛物线必须等比（碗形不能骗人）；右侧留图例面板，
+     色例 + 口诀 + Δ 状态都长在那里，空白处长内容。
+     纵向区间按当前 b/c 动态取：顶点必须入画（碗要看得见），
+     横向铺到 panelX——窄屏也不塌成一条线。 */
   function fit(W, H) {
     const panelW = Math.min(152, W * 0.27);
     G.panelX = W - panelW - 8;
-    G.s = Math.min((G.panelX - 62) / (G.x1 - G.x0), (H - 104) / 14);
+    const b = sliders.state.b;
+    const c = sliders.state.c;
+    const vx = -b / 2;
+    const vLow = Math.min(0, vx * vx + b * vx + c);   /* 含顶点的纵向下界 */
+    const vHigh = Math.max(2, vx * vx + b * vx + c);
+    const spanY = Math.max(vHigh - vLow + 2, 4);
+    const top = 30;                 /* 顶部状态行 */
+    const bot = H - 62;             /* 底部：解集带 + 根刻度 */
+    G.s = Math.min((G.panelX - 62) / (G.x1 - G.x0), (bot - top) / spanY);
     G.cx = 48;
-    G.cy = H - 94;
+    G.cy = top + vHigh * G.s;       /* 域的高端贴顶，低端（顶点）必入画 */
   }
   const X = (v) => G.cx + (v - G.x0) * G.s;
   const Y = (v) => G.cy - v * G.s;
@@ -63,7 +73,7 @@ export default function render(host, spec) {
 
   function band(ctx, W, H, C, upto) {
     /* 底部数轴带：已扫过的部分按符号染色（正 = 橙，负 = 蓝） */
-    const y0 = H - 30;
+    const y0 = H - 44;
     const h = 16;
     const r = roots();
     ctx.save();
@@ -86,10 +96,10 @@ export default function render(host, spec) {
     if (r) {
       [r[0], r[1]].forEach((rv) => {
         polyline(ctx, [[X(rv), y0 - 5], [X(rv), y0 + h + 5]], C.fg, 1.4);
-        label(ctx, fmt(rv, 1), X(rv), y0 + h + 15, C.fg, { size: 10.5, align: 'center' });
+        label(ctx, fmt(rv, 1), X(rv), y0 + h + 14, C.fg, { size: 10.5, align: 'center' });
       });
     }
-    label(ctx, '解集带', X(G.x0) - 6, y0 + h / 2 + 4, C.axis, { size: 10, align: 'right' });
+    label(ctx, '解集带', X(G.x0) - 6, y0 + h + 14, C.axis, { size: 10, align: 'right' });
   }
 
   const st = makeStage(host, {
@@ -252,18 +262,21 @@ export default function render(host, spec) {
   });
 
   /* 拖扫描光标 */
+  st.cv.canvas.style.cursor = 'default';
   bindPointer(st.cv.canvas, {
     pick(x0) {
       if (st.scene < 2) return null;
+      const [lx] = st.toLogical(x0, 0);
       const cxv = scanX === null
         ? G.x0 + (G.x1 - G.x0) * clamp(st.scene > 2 ? 1 : st.t, 0, 1)
         : scanX;
-      return Math.abs(x0 - X(cxv)) < 16 ? 'cursor' : null;
+      return Math.abs(lx - X(cxv)) < 16 ? 'cursor' : null;
     },
     move(id, x0) {
       if (id !== 'cursor') return;
       st.play(false);
-      scanX = clamp((x0 - G.cx) / G.s + G.x0, G.x0, G.x1);
+      const [lx] = st.toLogical(x0, 0);
+      scanX = clamp((lx - G.cx) / G.s + G.x0, G.x0, G.x1);
       st.redraw();
     },
   });

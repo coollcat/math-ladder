@@ -21,25 +21,29 @@ import { makeStage } from './algebra-stage.js';
 const P0 = 36.7;                    /* 8 点的基准体温 */
 const V12 = 37.4;                   /* 12 点与 16 点的读数（固定；拖 20 点只换末端） */
 const V16 = 38.2;
-let w = 37.0;                        /* 20 点的体温（可拖） */
 /* 真曲线口径：f(u) = P0 + A1·sin(πu) + A2·sin(2πu) + D·u，
    A1/A2/D 由四个读数实时解出——拖动 20 点后曲线仍严丝合缝过全部四个点：
    u=1/3 给 37.4、u=2/3 给 38.2、u=1 给 w。 sin(π/3) 在两处取值相同，
    于是 A1+A2、A1−A2 各自可解。 */
-const S3 = Math.sin(Math.PI / 3);
-function coeffs() {
-  const D = w - P0;
-  const p = (V12 - P0) - D / 3;
-  const q = (V16 - P0) - (2 * D) / 3;
-  return { A1: (p + q) / (2 * S3), A2: (p - q) / (2 * S3), D };
-}
-const f = (u) => {
-  const { A1, A2, D } = coeffs();
-  return P0 + A1 * Math.sin(Math.PI * u) + A2 * Math.sin(2 * Math.PI * u) + D * u;
-};
 const hour = (tt) => (tt - 8) / 12;  /* 时刻 → u */
 
 export default function render(host, spec) {
+  let w = 37.0;                      /* 20 点的体温（可拖，随组件实例存活，不跨挂载） */
+  /* 真曲线口径：f(u) = P0 + A1·sin(πu) + A2·sin(2πu) + D·u，
+     A1/A2/D 由四个读数实时解出——拖动 20 点后曲线仍严丝合缝过全部四个点
+     （u=1/3 给 37.4、u=2/3 给 38.2、u=1 给 w）。
+     sin(π/3) 在两处取值相同，于是 A1+A2、A1−A2 各自可解。 */
+  const S3 = Math.sin(Math.PI / 3);
+  const coeffs = () => {
+    const D = w - P0;
+    const pp = (V12 - P0) - D / 3;
+    const qq = (V16 - P0) - (2 * D) / 3;
+    return { A1: (pp + qq) / (2 * S3), A2: (pp - qq) / (2 * S3), D };
+  };
+  const f = (u) => {
+    const { A1, A2, D } = coeffs();
+    return P0 + A1 * Math.sin(Math.PI * u) + A2 * Math.sin(2 * Math.PI * u) + D * u;
+  };
   const G = { cx: 0, cy: 0, s: 1 };
   const T0 = 8, T1 = 20;
   function fit(W, H) {
@@ -56,7 +60,7 @@ export default function render(host, spec) {
     scenes: [
       { caption: '第 1 幕：护士的体温单——四组读数钉成四颗钉子：(8点,36.7) (12点,37.4) (16点,38.2) (20点,37.0)。', dur: 3.6 },
       { caption: '第 2 幕：相邻的钉子用线段串起来——折线是表格与图像之间的「助读桥」。', dur: 3.2 },
-      { caption: '第 3 幕：加密测量：两小时一次 → 一小时一次 → 一刻钟一次，钉子越来越密。', dur: 4.2 },
+      { caption: '第 3 幕：加密测量：两小时一次 → 一小时一次 → 越测越勤，钉子越来越密。', dur: 4.2 },
       { caption: '第 4 幕：棱角消失了——再密的折线也认得出同一条光滑曲线。', dur: 3.2 },
       { caption: '第 5 幕：加密到极限，助读桥变成了那条曲线：体温随时刻的连续变化。', dur: 3.4 },
     ],
@@ -65,6 +69,11 @@ export default function render(host, spec) {
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = C.bg;
       ctx.fillRect(0, 0, W, H);
+      /* 加密计数：4 → 8 → 21，折线顶点与读数板共用同一个 N */
+      const measCount = (tt) => {
+        const ph = clamp(tt * 1.05, 0, 1);
+        return ph < 0.5 ? Math.round(4 + 4 * (ph / 0.5)) : Math.round(8 + 13 * ((ph - 0.5) / 0.5));
+      };
 
       /* 坐标轴与网格 */
       ctx.save();
@@ -95,7 +104,7 @@ export default function render(host, spec) {
       /* 顶部读数板：曲线还没画出来时，顶部不许白着——
          把当前这批读数摊在这里，图与数的对应一眼可见。 */
       {
-        const nNow = i >= 2 ? Math.max(4, Math.round(4 + 17 * Math.min(t * 1.05, 1))) : 4;
+        const nNow = i >= 2 ? measCount(t) : 4;
         const vals = [];
         for (let k = 0; k < nNow; k += 1) {
           const tt = T0 + ((T1 - T0) * k) / Math.max(nNow - 1, 1);
@@ -115,6 +124,7 @@ export default function render(host, spec) {
         label(ctx, show.join('   '), bx + 10, 56, C.fg, { size: 11, weight: 500 });
         if (vals.length > 5) label(ctx, '…另有 ' + (vals.length - 5) + ' 组（加密后的测量同理）', bx + 10, 72, C.axis, { size: 10.5 });
       }
+
 
       const appear = (n) => (i > n ? 1 : (i < n ? 0 : t));
 
@@ -163,9 +173,7 @@ export default function render(host, spec) {
       const a3 = appear(2);
       let n = 4;
       if (a3 > 0) {
-        const phase = clamp(a3 * 1.05, 0, 1);
-        const nReal = phase < 0.5 ? Math.round(4 + (8 - 4) * (phase / 0.5)) : Math.round(8 + (13) * ((phase - 0.5) / 0.5));
-        n = nReal;
+        n = measCount(t);
         const seg = [];
         for (let k = 0; k < n; k += 1) {
           const tt = T0 + ((T1 - T0) * k) / (n - 1);
@@ -214,14 +222,23 @@ export default function render(host, spec) {
   });
 
   /* 拖第 4 个测量点（20 点的体温） */
+  st.cv.canvas.style.cursor = 'default';
   bindPointer(st.cv.canvas, {
     pick(x0, y0) {
+      const [lx, ly] = st.toLogical(x0, y0);
       const p4 = [X(20), Y(f(hour(20)))];
-      return Math.hypot(x0 - p4[0], y0 - p4[1]) < 18 ? 'p4' : null;
+      return Math.hypot(lx - p4[0], ly - p4[1]) < 20 ? 'p4' : null;
     },
+    hover(x0, y0) {
+      const [lx, ly] = st.toLogical(x0, y0);
+      const p4 = [X(20), Y(f(hour(20)))];
+      st.cv.canvas.style.cursor = Math.hypot(lx - p4[0], ly - p4[1]) < 20 ? 'ns-resize' : 'default';
+    },
+    leave() { st.cv.canvas.style.cursor = 'default'; },
     move(id, x0, y0) {
       if (id !== 'p4') return;
-      w = clamp(Math.round((36.4 + (G.cy - y0) / G.s) * 10) / 10, 36.5, 38.6);
+      const [, ly] = st.toLogical(x0, y0);
+      w = clamp(Math.round((36.4 + (G.cy - ly) / G.s) * 10) / 10, 36.5, 38.6);
       st.redraw();
     },
   });

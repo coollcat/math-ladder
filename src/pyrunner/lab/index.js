@@ -93,7 +93,9 @@ export function enhanceLab(root) {
     loading.textContent = '正在载入交互组件…';
     body.appendChild(loading);
     const slidersWrap = document.createElement('div');
-    slidersWrap.className = 'ml-viz__sliders';
+    /* 组件自己的 sliders.box 已带 .ml-viz__sliders 时外套不再加类，
+       免得嵌套出双 padding + 双虚线 */
+    slidersWrap.className = '';
     widget.append(body, slidersWrap);
     mountAfter(container, widget);
 
