@@ -58,3 +58,58 @@ difficulty: 5
 # @page: https://arxiv.org/abs/2010.11929
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIwMTAuMTE5Mjk=
 ```
+
+```paper
+# @title: Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer
+# @authors: Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc Le, Geoffrey Hinton, Jeff Dean
+# @year: 2017
+# @venue: arXiv:1701.06538 (ICLR 2017)
+# @tag: 论文
+# @desc: 稀疏门控 MoE 的出生证明：1370 亿参数的 LSTM 版混合专家，含噪声 TopK 门控与负载均衡损失。
+# @page: https://arxiv.org/abs/1701.06538
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzE3MDEuMDY1Mzg=
+```
+
+```paper
+# @title: GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding
+# @authors: Dmitry Lepikhin, HyoukJoong Lee, Yuanzhong Xu, Dehao Chen, Orhan Firat, Yanping Huang, Maxim Krikun, Noam Shazeer, Zhifeng Chen
+# @year: 2020
+# @venue: arXiv:2006.16668 (ICLR 2021)
+# @tag: 论文
+# @desc: 把 MoE 搬进 Transformer 并引入容量因子与专家并行：超额 token 走残差，超额不白扔。
+# @page: https://arxiv.org/abs/2006.16668
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIwMDYuMTY2Njg=
+```
+
+```paper
+# @title: Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity
+# @authors: William Fedus, Barret Zoph, Noam Shazeer
+# @year: 2021
+# @venue: arXiv:2101.03961 (JMLR 2022)
+# @tag: 论文
+# @desc: k = 1 就够用：路由减到只剩一位专家，训练更快、通信更省，MoE 从此定型。
+# @page: https://arxiv.org/abs/2101.03961
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIxMDEuMDM5NjE=
+```
+
+```paper
+# @title: DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models
+# @authors: Damai Dai, Chengqi Deng, Chenggang Zhao, R. X. Xu, Huazuo Gao, Deli Chen, Jiashi Li, Wangding Zeng, Xingkai Yu, Y. Wu, Zhenda Xie, Y. K. Li, Panpan Huang, Fuli Luo, Chong Ruan, Zhifang Sui, Wenfeng Liang
+# @year: 2024
+# @venue: arXiv:2401.06066
+# @tag: 论文
+# @desc: 细粒度专家切分 + 共享专家隔离：让「专」与「通」各就各位，DeepSeek 系列的 MoE 家底。
+# @page: https://arxiv.org/abs/2401.06066
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzI0MDEuMDYwNjY=
+```
+
+```paper
+# @title: DeepSeek-V3 Technical Report
+# @authors: DeepSeek-AI（Aixin Liu, Bei Feng, ... 等）
+# @year: 2024
+# @venue: arXiv:2412.19437
+# @tag: 论文
+# @desc: 6710 亿总参数、每 token 激活 370 亿：MLA、无辅助损失均衡、FP8 训练与 MTP 的完整账本。
+# @page: https://arxiv.org/abs/2412.19437
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzI0MTIuMTk0Mzc=
+```

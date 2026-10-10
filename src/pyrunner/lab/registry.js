@@ -10,6 +10,9 @@ import ch00 from './registries/ch00.js';
 
 /* ch04 是代数章（卷一）的分册：3Blue1Brown 式分幕动画演示组件 */
 import ch04 from './registries/ch04.js';
+
+/* ch47 是 Transformer 章（卷五）的分册：MoE 门控等组件 */
+import ch47 from './registries/ch47.js';
 import ch68 from './registries/ch68.js';
 import ch69 from './registries/ch69.js';
 import ch70 from './registries/ch70.js';
@@ -27,6 +30,7 @@ export const RENDERERS = Object.assign(
   {},
   ch00,
   ch04,
+  ch47,
   ch68,
   ch69,
   ch70,
