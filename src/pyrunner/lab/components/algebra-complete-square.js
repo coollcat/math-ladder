@@ -139,7 +139,7 @@ export default function render(host, spec) {
       ctx.strokeRect(px(0), py(0), x * L.s, x * L.s);
       ctx.restore();
       if (a1 > 0.3) {
-        label(ctx, 'x', gx, gy + 5, '#ffffff', { size: 16, weight: 700, align: 'center' });
+        label(ctx, 'x', gx, gy + 5, 'C0.bg', { size: 16, weight: 700, align: 'center' });
         label(ctx, 'x² = ' + fmt(x * x, 1), gx, gy + 24, C0.bg, { size: 12, align: 'center' });
       }
       label(ctx, 'x', px(0) - 10, py(x / 2) + 4, C0.fg, { size: 12, align: 'right' });

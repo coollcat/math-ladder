@@ -52,7 +52,8 @@ let _oh = 0;
 function ensureOff(w, h) {
   if (!_off) {
     _off = document.createElement('canvas');
-    _octx = _off.getContext('2d');
+    /* trim 每帧 getImageData，declared 读频繁让浏览器别走 GPU 回读慢路径 */
+    _octx = _off.getContext('2d', { willReadFrequently: true });
   }
   if (_ow !== w || _oh !== h) {
     _off.width = w;

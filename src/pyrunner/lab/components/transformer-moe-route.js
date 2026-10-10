@@ -240,8 +240,10 @@ export default function render(host, spec) {
         line('aux ∝ Σf·P = ' + fmt(aux, 3), 232, C.fg, 11, 600);
         line('均衡时最低 ' + fmt(uniform, 3), 250, C.axis, 10.5);
         line('——', 268, C.grid, 11.5);
-        line('拖分数条，把一号', 290, C.axis, 10.5);
-        line('拖成独大看罚款涨', 306, C.axis, 10.5);
+        line('拖分数条，把一号', 288, C.axis, 10.5);
+        line('拖成独大看罚款涨', 303, C.axis, 10.5);
+        line('（单 token 演示：f 用 P', 322, C.axis, 10);
+        line('   近似，训练按批统计）', 336, C.axis, 10);
 
         ro.set('专家数 E', String(E));
         ro.set('上岗 k', String(k));
