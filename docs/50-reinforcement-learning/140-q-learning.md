@@ -65,11 +65,11 @@ MAX_STEPS = 30                   # 每回合最大步数
 alpha = 0.20                     # 学习率
 gamma = 0.95                     # 折扣因子
 epsilon = 0.15                   # 探索概率
-q = [[0.0, 0.0] for _ in range(n_states)]   # q[s][a] 构造二维表
+q = [[0.0, 0.0] for _ in range(n_states)]   # for _ 的 _ 是占位名（用不到循环变量）；二维表：行是状态、列是动作
 
-def step(s, a):
-    ns = min(max(s + (-1 if a == 0 else 1), 0), n_states - 1)
-    return ns, (1 if ns == n_states - 1 else 0)
+def step(s, a):                # a=0 左移一格，a=1 右移一格
+    ns = min(max(s + (-1 if a == 0 else 1), 0), n_states - 1)  # min/max 把结果夹在 0..n_states-1 内（碰壁原地不动）
+    return ns, (1 if ns == n_states - 1 else 0)               # 到达最后一格得奖励 1，其余为 0
 
 for ep in range(MAX_EPISODES):
     s = 0
@@ -89,7 +89,7 @@ for ep in range(MAX_EPISODES):
 print("Q table:")
 for row in q:
     print([round(x, 4) for x in row])
-print("greedy actions", ["L" if row[0] >= row[1] else "R" for row in q[:-1]])
+print("greedy actions", ["L" if row[0] >= row[1] else "R" for row in q[:-1]])  # 列表里逐项写「若…否则…」即三元表达式；q[:-1] 排除终点行（终点的 Q 永远不更新）
 ```
 
 :::warning[常见误区]

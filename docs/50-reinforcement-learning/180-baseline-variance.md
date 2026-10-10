@@ -59,42 +59,59 @@ $$\mathbb E_{a\sim\pi}[\nabla_\theta\log\pi_\theta(a\mid s)b(s)]=b(s)\nabla_\the
 
 ## 5. 动手实验
 
-下面比较同一批回报的原始梯度和 baseline 校正后的梯度波动。
+下面比较同一批回报的原始梯度和 baseline 校正后的梯度波动。每条样本有两个信息：回报 $G$，以及这一条是好动作（score $=+1$）还是坏动作（score $=-1$）。梯度估计是 $\text{score}\times G$，原始版直接用 $G$，校正版用 $G-b(s)$。
 
 ```python title="baseline 如何降低梯度方差"
 import random  # 生成教学回报样本
 
 random.seed(180)                 # 固定随机种子
 N_SAMPLES = 1000                 # 最大样本数
-base_return = 10.0               # 状态的常见长期水平
-samples = []
+base_return = 10.0               # 状态的常见长期水平，也就是这里的 V(s)
+GOOD_GAIN = 2.0                  # 好动作比坏动作多拿的长期水平
+samples = []                     # 每条回报 G
+scores = []                      # 每条对应的 score：好动作 +1、坏动作 -1
 for i in range(N_SAMPLES):
     noise = random.gauss(0, 8)   # gauss(mean,sd) 生成正态样本
-    samples.append(base_return + noise + (12 if i % 50 == 0 else 0))
+    if i % 2 == 0:               # % 是取余：偶数下标当好动作，score 记 +1
+        scores.append(1.0)
+        samples.append(base_return + GOOD_GAIN + noise + (12 if i % 50 == 0 else 0))
+    else:                        # 奇数下标当坏动作，score 记 -1
+        scores.append(-1.0)
+        samples.append(base_return - GOOD_GAIN + noise + (12 if i % 50 == 0 else 0))
 
-baseline = sum(samples) / len(samples)   # 用样本均值当简单 baseline
-raw_gradients = []               # score 假设固定为 1
-centered_gradients = []
-for g in samples:
-    raw_gradients.append(g * 1.0)
-    centered_gradients.append((g - baseline) * 1.0)
+baseline = base_return           # baseline 只依赖状态：取 V(s)，即状态平均水平
+raw_gradients = []               # 每条的梯度估计 = score 乘 G
+centered_gradients = []          # baseline 校正后 = score 乘 (G 减 baseline)
+for s, g in zip(scores, samples):   # zip 把两个列表配成一对对
+    raw_gradients.append(s * g)
+    centered_gradients.append(s * (g - baseline))
 
 def mean(xs):                    # xs 是数值列表
     return sum(xs) / len(xs)
 
-def magnitude(xs):               # 用平均绝对值衡量更新信号大小
-    return mean([abs(x) for x in xs])
+def spread(xs):                  # 标准差：方差开根号，衡量波动大小
+    m = mean(xs)
+    return (sum((x - m) ** 2 for x in xs) / (len(xs) - 1)) ** 0.5
 
 print("mean raw", round(mean(raw_gradients), 4),
-      "magnitude", round(magnitude(raw_gradients), 4))
+      "spread", round(spread(raw_gradients), 4))
 print("mean centered", round(mean(centered_gradients), 4),
-      "magnitude", round(magnitude(centered_gradients), 4))
+      "spread", round(spread(centered_gradients), 4))
 ```
+
+实跑输出：
+
+```
+mean raw 2.1891 spread 13.3934
+mean centered 2.1891 spread 8.4438
+```
+
+两行的均值完全一样（`2.1891`），这正是无偏性：减 baseline 没动梯度的期望。但标准差从 `13.3934` 降到 `8.4438`，约降了 $37\%$——这就是方差降低。注意差别来自哪里：减掉的是**状态平均水平**，好坏动作的 $G$ 各自偏同一头，减去后好动作的优势仍为正、坏动作为负，方向没丢，波动却收窄了。
 
 :::warning[常见误区]
 
 - 你以为任何常数都能当 baseline，只有不依赖当前动作才保证无偏。
-- 你以为减 baseline 会把好动作变坏，符号由“相对参考线的高低”决定；它降低的是更新信号幅度，而不是把数据围绕自身均值重新居中后的离散度。
+- 你以为减 baseline 会把好动作变坏，符号由“相对参考线的高低”决定；它降的是梯度估计的波动（标准差），不改变梯度的期望。
 - 你以为方差降低等于更快收敛，还取决于 baseline 本身的估计误差和步长配合。
 
 :::

@@ -53,20 +53,20 @@ $$\pi(a\mid s)=1-\epsilon+\epsilon/|\mathcal A(s)|\ \text{若}\ a=\arg\max_bQ(s,
 
 ## 5. 动手实验
 
-先看现有 plot 组件中探索比例随 epsilon 变化，再运行一个两臂小模拟。
+先看现有 plot 组件中探索比例随 epsilon 变化（横轴是 epsilon，滑块换动作个数），再运行一个两臂小模拟。
 
 ```viz
 {
   "type": "plot",
   "title": "greedy 概率与探索概率",
-  "expr": "1-eps+eps/2",
-  "expr2": "eps/2",
+  "expr": "1-x+x/n",
+  "expr2": "x/n",
   "label": "greedy 动作概率",
   "label2": "单个动作的探索份额",
   "xmin": 0,
   "xmax": 1,
   "sliders": [
-    { "name": "eps", "min": 0, "max": 1, "step": 0.05, "value": 0.2 }
+    { "name": "n", "min": 2, "max": 5, "step": 1, "value": 2 }
   ]
 }
 ```
