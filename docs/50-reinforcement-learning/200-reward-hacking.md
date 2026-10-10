@@ -56,7 +56,7 @@ $$\max_\pi\mathbb E[R]\quad\not\Rightarrow\quad\max_\pi\mathbb E[U].$$
 
 ## 5. 动手实验
 
-下面用一个小评分器比较三种奖励设计的总分，观察代理分和真实效用的分歧。
+下面用一个小评分器比较四种候选策略的总分，观察代理分和真实效用的分歧。
 
 ```python title="代理奖励 vs 真实效用"
 MAX_CANDIDATES = 4             # 最大候选策略数

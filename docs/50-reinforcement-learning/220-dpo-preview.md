@@ -74,7 +74,7 @@ $$L=-\log\sigma\left(\beta[\rho_\theta(x,y_w)-\rho_\theta(x,y_l)]\right).$$
 ```
 
 ```python title="DPO 损失的一维直觉"
-import math    # math.log/math.exp 用于损失与概率
+import math    # 导入 math 库，调用 math.log / math.exp 等数学函数
 
 BETA = 0.10                     # KL 强度系数
 N_STEPS = 200                   # 最大更新步数
@@ -93,12 +93,12 @@ for step in range(N_STEPS):
     loss = dpo_loss(margin)
     p_pref = sigmoid(BETA * margin)
     grad_common = BETA * (1 - p_pref)
-    rho_better += LEARNING_RATE * grad_common      # 提高偏好回答
-    rho_worse -= LEARNING_RATE * grad_common       # 降低被拒回答
     if step in [0, N_STEPS // 2 - 1, N_STEPS - 1]:
         print("step", step + 1,
-              "margin", round(rho_better - rho_worse, 4),
+              "margin", round(margin, 4),
               "loss", round(loss, 4))
+    rho_better += LEARNING_RATE * grad_common      # 提高偏好回答
+    rho_worse -= LEARNING_RATE * grad_common       # 降低被拒回答
 ```
 
 :::warning[常见误区]
