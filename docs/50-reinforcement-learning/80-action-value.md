@@ -55,7 +55,7 @@ $$V^\pi(s)=\sum_a\pi(a\mid s)Q^\pi(s,a).$$
 
 ## 5. 动手实验
 
-下面维护一张 2 个状态、2 个动作的教学 Q 表，并用有界 rollout 平均估计其中一格。
+下面维护一张 2 个状态、2 个动作的教学 Q 表，并用有界 rollout 平均估计其中一格。环境完全确定，所以每次回报都一样，平均值就是这一格的 Q 值。
 
 ```python title="教学 Q 表与抽样估计"
 import random  # 抽样动作和环境响应
@@ -81,7 +81,7 @@ for ep in range(MAX_EPISODES):
     s, a, g = 0, 1, 0.0              # 强制第一步为 低档+加速
     for t in range(MAX_STEPS):
         s, r = environment(s, a)
-        g += (0.9 ** t) * r
+        g += (0.9 ** t) * r          # ** 是乘方：第 t 步奖励的权重是折扣因子的 t 次方
         if s == 1 and t > 0:
             a = 1                    # 到高档后继续加速，形成简单策略
         else:
@@ -90,8 +90,8 @@ for ep in range(MAX_EPISODES):
             break
     estimates.append(g)
 
-print("table", q_table)
-print("sampled Q(low, boost)", round(sum(estimates) / len(estimates), 3))
+print("table", q_table)                              # 打印表格自身
+print("sampled Q(low, boost)", round(sum(estimates) / len(estimates), 3))  # round 保留三位小数
 ```
 
 :::warning[常见误区]

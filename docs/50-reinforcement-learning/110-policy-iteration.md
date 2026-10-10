@@ -50,7 +50,7 @@ $$\pi'(s)\in\arg\max_a\sum_{s'}P(s'\mid s,a)\left[R(s,a,s')+\gamma V^\pi(s')\rig
 1. 初始策略全部向左；
 2. 评估后发现多数状态远离奖励；
 3. 用 $r+\gamma V$ 检查向右；
-4. 中间和左侧的向右 backup 更大，因此改进为向右；
+4. 中间格的向右 backup 更大，先改进为向右；再评估后，左侧的向右 backup 也更大，于是两个非终点状态都向右；
 5. 再评估新策略，若无动作可改进，算法结束。
 
 ## 5. 动手实验
@@ -72,7 +72,7 @@ def transition(s, action):           # action: 0 左，1 右
     return min(2, s + 1)
 
 policy = [0] * n_states              # 初始全向左
-v = [0.0] * n_states
+v = [0.0] * n_states            # 同样建一张全零价值表
 
 for outer in range(MAX_OUTER):
     for _ in range(MAX_EVAL):        # 下划线表示不用循环变量

@@ -90,7 +90,7 @@ def immediate_reward(next_s):
     return 1 if next_s == n_states - 1 else 0
 
 for it in range(MAX_ITERATIONS):
-    new_values = values[:]
+    new_values = values[:]              # 复制一份旧表：本轮只读 values、只写 new_values（同步更新）
     for s in range(n_states - 1):
         candidates = []
         for d in [-1, 1]:

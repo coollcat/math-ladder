@@ -73,14 +73,14 @@ def run(policy_name):             # policy_name 只用于标签
     total_reward = 0.0
     def empirical_best():         # 用均值而不是累计和比较老虎机
         values = [
-            sums[i] / counts[i] if counts[i] else -float("inf")
+            sums[i] / counts[i] if counts[i] else -float("inf")  # -float("inf") 是负无穷：没试过的臂先当最差
             for i in range(len(mus))
         ]
         return values.index(max(values))
 
     for t in range(HORIZON):
         if policy_name == "greedy":
-            a = empirical_best()          # 初期未试过的臂视为无穷大
+            a = empirical_best()          # 没试过的臂先当最差，纯贪心一轮选中后便不再换臂
         else:
             if t < 30 or random.random() < 0.08:
                 a = random.randrange(len(mus))

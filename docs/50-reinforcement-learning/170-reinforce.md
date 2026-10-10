@@ -45,7 +45,7 @@ $$\nabla J(\theta)=\mathbb E\left[\sum_t\nabla_\theta\log\pi_\theta(A_t\mid S_t)
 
 $$\pi_\theta(a)=\frac{e^{\theta_a}}{e^{\theta_0}+e^{\theta_1}}.$$
 
-若选择动作 $a$，得分向量是“one-hot 减去概率向量”。例如概率为 $(0.6,0.4)$ 且选中动作 1，则 $\nabla_{\theta}\log\pi=(-0.6,0.4)$。
+若选择动作 $a$，得分向量是“one-hot 减去概率向量”。例如概率为 $(0.6,0.4)$ 且选中动作 1，则 $\nabla_{\theta}\log\pi=(-0.6,0.6)$。
 
 ## 4. 分步例题
 
@@ -150,7 +150,8 @@ REINFORCE 中乘在 score function 后面的 Gt 是什么？
 ```exercise
 # @title: 计算 softmax 策略概率
 # @check: 0.7311
-# @hint: 分子是 exp(theta[0])；分母是 exp(theta[0]) + exp(theta[1])。
+# @hint: 分子是 exp(theta[0])；分母是 exp(theta[0]) + exp(theta[1])。先 import math，再保留四位小数。
+import math   # math.exp 是指数函数（第 3 章诞生）
 theta = [1.0, 0.0]
 p0 = round(0.5, 4)  # 学生应改成 softmax 概率并保留四位小数
 print(p0)
