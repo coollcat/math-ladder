@@ -1,1 +1,1 @@
-{"prereqs":[]}
+{"prereqs":[{"id":"python-tools/console-playground","to":"/docs/python-tools/console-playground","title":"浮窗实验台与交互组件","kind":"core","why":"本课的每段代码都要在浮窗里亲手跑一遍，先知道按钮在哪、怎么改代码，才能把\"约定\"练成手上的动作。","recall":"右下角 Py 圆球与 Alt + P 打开浮窗；Ctrl + Enter 运行；改坏了点「恢复代码」。"}]}

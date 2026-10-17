@@ -3,6 +3,11 @@ title: 分数是除法的另一种写法
 lesson_id: fractions/fraction-as-division
 prereqs:
   - arithmetic/division
+prereq_notes:
+  - id: arithmetic/division
+    kind: core
+    why: 分数正是"除不尽"那次除法留下的答案——商与余数分开记账写成分数，就是同一件事的两种写法。
+    recall: a = b×q + r 且 0 ≤ r < b；余数 r 就是 a/b 那个"分数的尾巴"。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

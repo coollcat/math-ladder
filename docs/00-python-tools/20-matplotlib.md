@@ -6,7 +6,12 @@ introduces_import:
   - matplotlib.pyplot
   - random
 prereqs:
-  - python-tools/conventions
+  - python-tools/modeling-loop
+prereq_notes:
+  - id: python-tools/modeling-loop
+    kind: core
+    why: 画图是建模五步里"求解"之后的翻译动作——先把"要回答什么"和"变量关系"立好，图才画得有的放矢。
+    recall: 提问 → 抽象变量 → 建立关系 → 求解 → 检验回代；最后一步回代是唯一能抓住错误的环节。
 ---
 
 # matplotlib 入门
@@ -169,7 +174,7 @@ plt.plot(ns, ys, marker="o")
 plt.grid(True)
 ```
 
-区别：$3n$ 的图像是**直线**（每次加固定的 3），而 $n^2$ 每次加的是 $3,5,7,9,\dots$ 越加越多，所以向上弯。"增量是否恒定"区分了直线与曲线——这是第 13 章导数思想的种子。
+区别：$3n$ 的图像是**直线**（每次加固定的 3），而 $n^2$ 每次加的是 $3,5,7,9,\dots$ 越加越多，所以向上弯。"增量是否恒定"区分了直线与曲线——这是第 14 章《导数：瞬时变化率》的种子。
 </details>
 
 **练习 2**：把上面“累加和”演示的 `marker="o"` 去掉、换成 `linestyle="--"` 再跑一次，观察变化。（开放题，无标准答案）

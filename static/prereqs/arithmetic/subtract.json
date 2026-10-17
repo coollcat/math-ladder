@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"arithmetic/addition","to":"/docs/arithmetic/addition","title":"加法与交换律"}]}
+{"prereqs":[{"id":"arithmetic/addition","to":"/docs/arithmetic/addition","title":"加法与交换律","kind":"core","why":"本课把减法改写成\"加上相反数\"，用的正是加法的单位元与结合律——加法没立稳，符号法则就推不出来。","recall":"a + 0 = a；加法交换律让\"先跳 3 再跳 5\"与反过来落点相同。"}]}

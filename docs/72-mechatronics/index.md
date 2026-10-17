@@ -62,12 +62,12 @@ difficulty: 3
 
 > 场景说明：直流电机 + 编码器 + H 桥驱动器，目标转速 1000 rpm，控制器为比例控制（P 控制）。
 
-直流电机参数：$K_e = 0.05$ V·s/rad、$R = 2\,\Omega$、$J = 1\times10^{-5}$ kg·m²。H 桥母线 24 V，占空比 $D$ 由控制器输出。编码器反馈当前转速 $\omega$。比例控制律 $D = K_p \cdot (\omega_\text{target} - \omega)$，初始 $K_p = 0$（开环）。修正 $K_p$ 使转速稳态误差小于 5%：
+直流电机参数：$K_e = 0.05$ V·s/rad、$R = 2\,\Omega$、$J = 1\times10^{-5}$ kg·m²。H 桥母线 24 V，占空比 $D$ 由控制器输出。编码器反馈当前转速 $\omega$。比例控制律 $D = K_p \cdot (\omega_\text{target} - \omega)$，初始 $K_p = 0$（开环）。下面的代码把放大系数乘反了方向，跑出来 `0`——等于完全没调。修正 $K_p$ 使转速稳态误差小于 5%，输出 `268`：
 
 ```exercise
 # @title: 实战挑战：整定比例增益让电机停在 1000 rpm
-# @check: 1023
-# @hint: 稳态时 D*Vbus = Ke*omega + R*Tl/Ke；P 控制下有稳态误差，Kp 越大误差越小
+# @check: 268
+# @hint: 稳态时 D*Vbus = Ke*omega + R*Tl/Ke，先算出所需占空比 D；P 控制下有稳态误差，Kp 越大误差越小——本练习按 Kp = D/0.001 的归一化口径把它放大到能压住 5% 的量级
 import math
 Vbus = 24       # 母线电压（V）
 Ke = 0.05       # 反电动势常数
@@ -79,8 +79,8 @@ E_target = Ke * omega_target  # 目标反电动势（V）
 I_load = 0.6
 D_needed = (E_target + R * I_load) / Vbus
 # P 控制有稳态误差：omega_ss = omega_target * Kp / (Kp + Ke*Vbus/omega_target)
-# 要让误差 < 5%，Kp 需够大。这里用简化：Kp = D_required / 0.001
-Kp = D_required / 0.001
+# 要让误差 < 5%，Kp 需够大。这里用简化：Kp = D_needed / 0.001
+Kp = D_needed * 0.001      # ← 错了：乘反了方向，Kp 退化到近乎开环（打印 0）
 print(int(Kp))
 ```
 
@@ -92,7 +92,7 @@ print(int(Kp))
 3. 稳态电压 $V = E + RI = 5.24 + 2 \times 0.6 = 6.44$ V；
 4. 占空比 $D = V/V_\text{bus} = 6.44/24 = 0.268$（26.8%）；
 5. P 控制稳态误差 $\Delta\omega = D \cdot V_\text{bus} / K_p$，要 $|\Delta\omega| < 5\% \times 104.7 = 5.2$ rad/s；
-6. $K_p > 0.268 \times 24 / 5.2 = 1.24$ → 取 $K_p \approx 1000$ 量级（控制量纲归一化后）。
+6. $K_p > 0.268 \times 24 / 5.2 = 1.24$；本练习按 $K_p = D/0.001$ 的归一化口径放大到 $268$ 量级，稳态误差被压进 5% 以内。
 
 关键洞察：纯 P 控制永远有稳态误差——要消除它得加积分（I），这就是 PID 中 I 的作用。下一课 [PID 的数字实现](./90-pid-discrete.md) 讲的就是这件事。
 

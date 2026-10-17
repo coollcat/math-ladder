@@ -14,7 +14,7 @@ introduces_import: []
 
 # 强化学习专属组件规格
 
-本文是第 50 章后续组件的实现前规格，不是当前页面可用的运行组件声明。所有组件实现时必须注册进 `src/pyrunner/viz.js` 的 `RENDERERS`，并遵守 MutationObserver 的 dataset 守卫、隐藏原生容器但不删除 React 节点、移动端触控和暗色主题约定。
+本文是第 50 章组件的规格。`gridworld-value-lab` 已实现并注册在 `src/pyrunner/lab/registries/ch50.js`；后续组件也一律走 `src/pyrunner/lab/` 与分册注册表，不再扩写冻结的 `viz.js`。所有组件仍需遵守水合安全、移动端触控和暗色主题约定。
 
 ## 统一约束
 

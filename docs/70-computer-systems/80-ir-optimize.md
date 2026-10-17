@@ -154,6 +154,11 @@ ir = [
 env = {"a": 5, "b": 20}       # 环境：变量名 → 当前值
 seen = {}                     # 表达式 (op, x, z) → 上次算出的临时变量
 vals = {}                     # 临时变量 → 它的值
+
+def lookup(name):
+    """取操作数的值：名字可能指向环境里的变量，也可能是前面算出的临时变量"""
+    return env[name] if name in env else vals[name]
+
 for dst, op, x, z in ir:
     if op == "=":
         env[dst] = int(x)
@@ -162,7 +167,7 @@ for dst, op, x, z in ir:
     if key in seen:
         vals[dst] = vals[seen[key]]          # 复用旧结果
     else:
-        vals[dst] = env[x] + env[z]
+        vals[dst] = lookup(x) + lookup(z)
         seen[key] = dst
 print(vals["y"])
 ```

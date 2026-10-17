@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"arithmetic/addition","to":"/docs/arithmetic/addition","title":"加法与交换律"}]}
+{"prereqs":[{"id":"arithmetic/addition","to":"/docs/arithmetic/addition","title":"加法与交换律","kind":"core","why":"乘法是\"同数连加\"的压缩记号，分配律的矩形证明也只用到加法与面积拼接。","recall":"点阵横着数与竖着数结果相同，这就是交换律在图形上的样子。"}]}

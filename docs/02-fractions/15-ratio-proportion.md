@@ -3,6 +3,11 @@ title: 比、比率与正比例
 lesson_id: fractions/ratio-proportion
 prereqs:
   - fractions/fraction-as-division
+prereq_notes:
+  - id: fractions/fraction-as-division
+    kind: core
+    why: 比 a:b 的比值就是 a÷b 那个分数；不会把比写成分数线，交叉相乘就没有立足点。
+    recall: 分数线就是躺平的除号；分数不挑大小，7/2 = 3.5 也是分数。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

@@ -3,6 +3,11 @@ title: 小数与十进制
 lesson_id: fractions/decimals
 prereqs:
   - fractions/fraction-arithmetic
+prereq_notes:
+  - id: fractions/fraction-arithmetic
+    kind: core
+    why: 分数化小数的两条路都要先会通分与约分；除不尽的判断也用到了分数的邻居关系。
+    recall: 分数基本性质让 3/5 能写成 6/10；分数线就是除号。
 introduces_math: []
 introduces_builtin:
   - round

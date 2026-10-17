@@ -123,7 +123,7 @@ $|z|<1$ 的两个点迅速靠近理论值 $1/(1-z)$；$|z|>1$ 的部分和开始
 
 ```exercise
 # @title: 练习：计算 sum (2z)^n / n! 的收敛半径
-# @check: inf
+# @check: R = inf
 # @hint: 先用比值判别法求出相邻系数比的极限 0，再把这个精确极限写入 ratio_limit。
 n = 10
 ratio_limit = 2 / n      # 初始代码用固定 n 冒充极限；请先数学求出极限并替换它
@@ -132,7 +132,7 @@ if ratio_limit == 0:
     radius = float("inf")
 else:
     radius = 1 / ratio_limit
-print(radius)
+print(f"R = {radius}")   # 格式化后 inf 会原样打印成 R = inf
 ```
 
 <details>
@@ -142,7 +142,7 @@ print(radius)
 
 $$\left|\frac{2^{n+1}/(n+1)!}{2^n/n!}\right|=\frac{2}{n+1}\to0.$$
 
-数学上先求出 $\rho=0$，因此代码应写 `ratio_limit = 0`，输出 `inf` 表示 $R=+\infty$。整函数 $e^{2z}$ 在全平面解析。
+数学上先求出 $\rho=0$，因此代码应写 `ratio_limit = 0`，输出 `R = inf` 表示 $R=+\infty$。整函数 $e^{2z}$ 在全平面解析。
 </details>
 
 ## 7. 选读：为什么最近奇点挡住收敛圆

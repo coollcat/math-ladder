@@ -4,6 +4,15 @@ lesson_id: fractions/precedence-practice
 prereqs:
   - fractions/negative-multiply
   - arithmetic/precedence
+prereq_notes:
+  - id: fractions/negative-multiply
+    kind: core
+    why: 这一课不是重讲规则，而是练"负数混进来之后符号不出错"——符号判决正是上一课的全部内容。
+    recall: 同号得正、异号得负、有零得零；连续相乘数一数负因数的个数。
+  - id: arithmetic/precedence
+    kind: refresh
+    why: 规则清单直接复用：括号 → 乘除 → 加减，同级从左到右。
+    recall: 乘法是压缩的加法，所以要先拆包；括号是唯一能打破这条顺序的写法。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

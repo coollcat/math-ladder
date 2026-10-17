@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"arithmetic/division","to":"/docs/arithmetic/division","title":"除法与余数"}]}
+{"prereqs":[{"id":"arithmetic/division","to":"/docs/arithmetic/division","title":"除法与余数","kind":"core","why":"分数正是\"除不尽\"那次除法留下的答案——商与余数分开记账写成分数，就是同一件事的两种写法。","recall":"a = b×q + r 且 0 ≤ r < b；余数 r 就是 a/b 那个\"分数的尾巴\"。"}]}

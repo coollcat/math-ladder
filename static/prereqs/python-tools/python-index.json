@@ -1,1 +1,1 @@
-{"prereqs":[]}
+{"prereqs":[{"id":"python-tools/matplotlib","to":"/docs/python-tools/matplotlib","title":"matplotlib 入门","kind":"refresh","why":"索引收的是\"出生地\"——先见过它出生，再回查才有得对号入座。","recall":"工具都有出生证明：先看没有它会怎样，再收编成一句功能。"}]}

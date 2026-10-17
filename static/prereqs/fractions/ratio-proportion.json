@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"fractions/fraction-as-division","to":"/docs/fractions/fraction-as-division","title":"分数是除法的另一种写法"}]}
+{"prereqs":[{"id":"fractions/fraction-as-division","to":"/docs/fractions/fraction-as-division","title":"分数是除法的另一种写法","kind":"core","why":"比 a:b 的比值就是 a÷b 那个分数；不会把比写成分数线，交叉相乘就没有立足点。","recall":"分数线就是躺平的除号；分数不挑大小，7/2 = 3.5 也是分数。"}]}

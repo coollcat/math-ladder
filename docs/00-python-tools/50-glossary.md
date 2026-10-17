@@ -2,7 +2,13 @@
 title: 术语表
 description: 卷一关键术语的中英对照速查，一句话解释
 lesson_id: python-tools/glossary
-prereqs: []
+prereqs:
+  - python-tools/conventions
+prereq_notes:
+  - id: python-tools/conventions
+    kind: refresh
+    why: 术语表是随翻随用的地图，先读过本课的约定，才知道哪些词对应哪段代码。
+    recall: 五个约定——变量名说人话、f-string 输出、for 循环、def 函数、while 循环。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

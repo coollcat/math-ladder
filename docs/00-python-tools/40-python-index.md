@@ -2,7 +2,13 @@
 title: Python 工具索引
 description: 卷一用到的每个 Python 工具：一句话用途 + 它在哪一课出生
 lesson_id: python-tools/python-index
-prereqs: []
+prereqs:
+  - python-tools/matplotlib
+prereq_notes:
+  - id: python-tools/matplotlib
+    kind: refresh
+    why: 索引收的是"出生地"——先见过它出生，再回查才有得对号入座。
+    recall: 工具都有出生证明：先看没有它会怎样，再收编成一句功能。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

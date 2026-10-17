@@ -160,6 +160,8 @@ def r(k):
     num = sum(s[n] * s[n - k] for n in range(k, 240))
     et = math.sqrt(sum(x ** 2 for x in s[k:]))
     eh = math.sqrt(sum(x ** 2 for x in s[:240 - k]))
+    if et == 0 or eh == 0:      # 滞后太长时窗口里只剩 0 样点，归一化分母为 0；记 0 分跳过
+        return 0.0
     return num / (et * eh)
 
 k = max(range(100, 240), key=r)   # ← 问题在这：下限 100 样点 = 160 Hz，把真周期 80 排除在窗外

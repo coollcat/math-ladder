@@ -3,6 +3,11 @@ title: 数学建模五步：把现实问题翻译成算式
 lesson_id: python-tools/modeling-loop
 prereqs:
   - python-tools/conventions
+prereq_notes:
+  - id: python-tools/conventions
+    kind: core
+    why: 建模的最后一步要把式子交给代码验算，先会写 for 循环、累加器和 def 函数，才翻译得动关系式。
+    recall: 累加器是 total = total + x；range(1, n + 1) 含头不含尾，想含 n 就得 +1。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

@@ -4,6 +4,15 @@ lesson_id: fractions/fraction-arithmetic
 prereqs:
   - fractions/fraction-as-division
   - fractions/negative-multiply
+prereq_notes:
+  - id: fractions/fraction-as-division
+    kind: core
+    why: 通分与约分改的是"切片方式"，分数值不变这个前提得先在"分数就是除法"那里立住。
+    recall: 分数基本性质：分子分母同乘或同除一个非零数，值不变。
+  - id: fractions/negative-multiply
+    kind: refresh
+    why: 通分后的分子会出现负数，符号判决自动继承上一课的那张表。
+    recall: 先定符号、再算数字；除以一个数等于乘它的倒数。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

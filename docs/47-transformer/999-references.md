@@ -113,3 +113,47 @@ difficulty: 5
 # @page: https://arxiv.org/abs/2412.19437
 # @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzI0MTIuMTk0Mzc=
 ```
+
+```paper
+# @title: Efficiently Modeling Long Sequences with Structured State Spaces（S4）
+# @authors: Albert Gu, Karan Goel, Christopher Ré
+# @year: 2021
+# @venue: arXiv:2111.00396 (ICLR 2022)
+# @tag: 论文
+# @desc: 把结构化的线性状态空间写成可并行计算的卷积核：现代长序列 SSM 的关键起点。
+# @page: https://arxiv.org/abs/2111.00396
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIxMTEuMDAzOTY=
+```
+
+```paper
+# @title: Linear-Time Sequence Modeling with Selective State Spaces（Mamba）
+# @authors: Albert Gu, Tri Dao
+# @year: 2023
+# @venue: arXiv:2312.00752 (COLM 2024)
+# @tag: 论文
+# @desc: 让状态转移、输入与读出随 token 变化，用 selective scan 在灵活性与线性时间之间换挡。
+# @page: https://arxiv.org/abs/2312.00752
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIzMTIuMDA3NTI=
+```
+
+```paper
+# @title: RWKV: Reinventing RNNs for the Transformer Era
+# @authors: Bo Peng 等
+# @year: 2023
+# @venue: arXiv:2305.13048 (EMNLP 2023 Findings)
+# @tag: 论文
+# @desc: 把注意力式的历史加权改写成可递推的 WKV 记忆：固定状态推理与并行训练的代表路线。
+# @page: https://arxiv.org/abs/2305.13048
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzIzMDUuMTMwNDg=
+```
+
+```paper
+# @title: Eagle and Finch: RWKV with Matrix-Valued States and Dynamic Recurrence
+# @authors: Bo Peng 等
+# @year: 2024
+# @venue: arXiv:2404.05892
+# @tag: 论文
+# @desc: RWKV 后续世代把标量状态扩展到矩阵值状态，并强化动态递推与数据相关门控。
+# @page: https://arxiv.org/abs/2404.05892
+# @pdf64: aHR0cHM6Ly9hcnhpdi5vcmcvcGRmLzI0MDQuMDU4OTI=
+```

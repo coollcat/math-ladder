@@ -244,15 +244,15 @@ print(f"非正交（|0> 与 |+>）： χ = {holevo([0.5, 0.5], nonorth):.6f} bit
 
 ## 6. 练习
 
-**练习 1**：下面的代码想算最大混合态的 von Neumann 熵，但忘了在 $\lambda=0$ 时按约定跳过（$0\log 0 = 0$），也没有正确处理数值误差。改到输出 `1.0`：
+**练习 1**：下面的代码想算一个混合态的 von Neumann 熵（特征值 $1/2, 1/2, 0$），但直接把 $\lambda=0$ 代进了对数——按约定 $0\log 0$ 应记作 0，不是错误。现在它一跑就抛 `ValueError`，改到输出 `1.0`：
 
 ```exercise
 # @title: 练习：最大混合态的熵
 # @check: 1.0
-# @hint: 特征值是 1/2 和 1/2，熵 = -(1/2·log2(1/2))×2 = 1；注意 λ>0 才取对数
+# @hint: 只有 λ>0 才取对数（0·log0 约定为 0）；剩下 1/2、1/2 两项，熵 = -(1/2·log2(1/2))×2 = 1
 
 import math
-eigenvalues = [0.5, 0.5]
+eigenvalues = [0.5, 0.5, 0.0]   # 纯态分量的特征值是 0，0·log0 按约定记 0
 S = 0.0
 for lam in eigenvalues:
     S = S - lam * math.log2(lam)     # ← 这里没检查 lam 是否为正

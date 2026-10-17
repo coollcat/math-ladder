@@ -72,7 +72,23 @@ $$\text{比特} \to \text{信道编码} \to \text{映射为符号} \to \text{脉
 
 ## 5. 动手实验
 
-### 实验 1（python）：四级流水线走一遍
+### 实验 1（lab）：同一比特串穿过整条链路
+
+下面把同一串比特同时放进码型、载波和星座三个工位。点画面里的比特方块可以改写序列；切换 NRZ / Manchester、ASK / FSK / BPSK / QAM，观察码型和载波怎样同步变化。红点是带噪接收落在判决域里的位置，能直接看到门限附近的危险边缘。
+
+```lab
+{
+  "type": "eye-matched-filter",
+  "title": "同一比特串：码型 → 载波 → 星座判决",
+  "view": "link",
+  "bits": "1011001",
+  "code": "nrz",
+  "carrier": "psk",
+  "noise": 0.25
+}
+```
+
+### 实验 2（python）：四级流水线走一遍
 
 ```python title="把两个字母送进迷你通信链路"
 import matplotlib.pyplot as plt  # 画图库（卷一已引入）
@@ -104,7 +120,7 @@ print("链路无差错:", bits == rebuilt_bits)
 
 运行可见比特流被捆包、运输、拆包的全过程，`链路无差错: True`。把第三站的 `list(symbols)` 改成 `[s if s != 3 else 1 for s in symbols]` 模拟一次信道捣乱，再看输出——判决环节会忠实放大错误。真实系统靠信道编码兜底，第 35 章的老朋友该出场了。
 
-### 实验 2（python 滑块）：噪声往符号上泼脏水
+### 实验 3（python 滑块）：噪声往符号上泼脏水
 
 ```python title="拖动噪声强度 sigma，看接收端的处境"
 # sliders: sigma=0.3 [0:1.2:0.1]

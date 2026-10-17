@@ -3,6 +3,11 @@ title: 乘法与分配律
 lesson_id: arithmetic/multiplication
 prereqs:
   - arithmetic/addition
+prereq_notes:
+  - id: arithmetic/addition
+    kind: core
+    why: 乘法是"同数连加"的压缩记号，分配律的矩形证明也只用到加法与面积拼接。
+    recall: 点阵横着数与竖着数结果相同，这就是交换律在图形上的样子。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []
@@ -28,7 +33,7 @@ $$6 \times 4 = 24$$
 
 ## 3. 正式定义
 
-**记号**：$a \times b$（也写作 $a\cdot b$ 或代码里的 `a * b`）表示 $b$ 个 $a$ 相加。相乘的两者叫**因数**，结果叫**积**。
+**记号**：$a \times b$（也写作 $a\cdot b$ 或代码里的 `a * b`）表示 $a$ 个 $b$ 相加；数点阵时就是"$a$ 行、每行 $b$ 个"。相乘的两者叫**因数**，结果叫**积**。
 
 由加法的性质可以推出乘法自己的三条性质：
 

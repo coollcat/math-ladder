@@ -178,7 +178,7 @@ $$n_{\text{每组}} = \frac{2(z_{1-\alpha/2}+z_{1-\beta})^2}{d^2} \approx \frac{
 {
   "type": "plot",
   "title": "80% 功效下的最小可检测提升 MDE = 4*sqrt(p*(1-p)/n)",
-  "expr": "4 * sqrt(0.11 * (1 - 0.11) / x)",
+  "expr": "4 * sqrt(a * (1 - a) / x)",
   "xmin": 100,
   "xmax": 200000,
   "sliders": [

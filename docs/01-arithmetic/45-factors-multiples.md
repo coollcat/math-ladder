@@ -4,6 +4,15 @@ lesson_id: arithmetic/factors-multiples
 prereqs:
   - arithmetic/multiplication
   - arithmetic/division
+prereq_notes:
+  - id: arithmetic/multiplication
+    kind: core
+    why: 因数与倍数都是乘法句子里的角色——因数当拼块、倍数当成品，两者靠同一句"积"联系起来。
+    recall: 点阵里行数与每行个数都是积的因数，交换只是把名册换了个顺序。
+  - id: arithmetic/division
+    kind: core
+    why: 判断"整除"的资格证是余数为零；配对扫描法也是用除法找回丢失的搭档。
+    recall: a = b×q + r 且 0 ≤ r < b；余数为零就说明除得尽。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []
@@ -15,7 +24,7 @@ introduces_import: []
 
 15 颗糖要摆成**整齐的矩形**，每行必须一样多。试一试：摆 1 行 15 颗，行；摆 3 行每行 5 颗，也行；摆 2 行呢？每行 7 颗半——糖不能切，阵型当场崩了。
 
-同样是 15 颗糖，有的行数陪它拼得出矩形，有的陪不出。能拼出的那几个数（1、3、5、15）是这个数的**乘法搭档**——数学给它们起了正式的名字：**因数**。这一课把乘法世界的这份"搭档名册"立起来，它是整除世界的语法书。
+同样是 15 颗糖，有的行数陪它拼得出矩形，有的陪不出。能拼出的那几个数（1、3、5、15）是这个数的**乘法搭档**——数学给它们起了正式的名字：**因数**。这一课就把乘法世界的这份"搭档名册"立起来——它是整除世界的语法书。
 
 ## 2. 直觉解释
 

@@ -192,7 +192,7 @@ def dot(u, v):
     return u[0] * v[0] + u[1] * v[1] + u[2] * v[2]
 
 def norm(u):
-    return math.sqrt(dot(u, u))
+    return dot(u, u)          # ← 问题在这：这里算出来的是模长的平方，没有开方
 
 a = (1, 1, 0)
 b = (1, 1, 1)

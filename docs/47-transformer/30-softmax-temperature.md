@@ -3,8 +3,16 @@ title: Softmax 与温度
 lesson_id: transformer/softmax-temperature
 prereqs:
   - transformer/attention-qkv
-  - complex/euler
   - information/entropy
+prereq_notes:
+  - id: transformer/attention-qkv
+    kind: core
+    why: softmax 把查询—键打分变成注意力配比。
+    recall: 点积先给原始分数，归一化后才成为可加权平均的系数。
+  - id: information/entropy
+    kind: refresh
+    why: 温度改变的不只是概率形状，也改变分布的不确定性与信息量。
+    recall: 越接近均匀分布，熵越大；越接近 one-hot，熵越小。
 volume: 5
 layer: L11
 track:
@@ -51,7 +59,7 @@ $$\text{softmax}(z)_i = \frac{e^{z_i / T}}{\sum_{j=1}^{n} e^{z_j / T}}$$
 | --- | --- |
 | 保序 | 分数大的概率仍大；温度只改形状不改排名 |
 | 归一 | 所有输出非负且总和恒为 1 |
-| 极限 | $T \to 0$ 趋向 one-hot（全押冠军）；$T \to \infty$ 趋向均匀分布 |
+| 极限 | 若冠军唯一，$T \to 0$ 趋向 one-hot；若有并列冠军，则只在并列者之间均分。$T \to \infty$ 趋向均匀分布 |
 | 平移不变 | 全部分数同加常数结果不变（分子分母同乘同一因子） |
 
 第 40 章的熵在这里现身：温度越高分布越接近均匀，**熵越大**；温度越低越确定，熵越小。"模型幻觉"的一种技术表述就是：低温自信地抽中了错误答案。

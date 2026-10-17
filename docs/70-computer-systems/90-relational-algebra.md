@@ -47,11 +47,11 @@ $R$ 的元素叫**元组（tuple）**。关系是**集合**，所以**没有重�
 五个基本算子（$\theta$ 是谓词，$X$ 是属性子集）：
 | 算子 | 符号 | 定义 | 结果 |
 | --- | --- | --- | --- |
-| 选择 | $\sigma_\theta(R)$ | $\lbrace t \in R \mid \theta(t)\rbrace$ | 列数不变，行数 $\le |
+| 选择 | $\sigma_\theta(R)$ | $\lbrace t \in R \mid \theta(t)\rbrace$ | 列数不变，行数 $\le$ 原表 |
 | 投影 | $\pi_X(R)$ | $\lbrace t[X] \mid t \in R\rbrace$ | **集合语义，自动去重** |
 | 并 | $R \cup S$ | 集合并 | 要求属性**相容** |
 | 差 | $R - S$ | 集合差 | 要求属性相容 |
-| 笛卡尔积 | $R \times S$ | $\lbrace (r,s) \mid r\in R, s\in S\rbrace$ | $ |
+| 笛卡尔积 | $R \times S$ | $\lbrace (r,s) \mid r\in R, s\in S\rbrace$ | 列数相加，行数相乘 |
 **自然连接**是派生的——它就是"先乘后筛再去重"：
 $R \bowtie S \;=\; \pi_{A_R \cup A_S}\bigl(\sigma_{R.k = S.k}(R \times S)\bigr)$
 | 符号 | 含义 |

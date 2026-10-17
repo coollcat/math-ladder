@@ -208,7 +208,7 @@ plt.tight_layout()
 (c) 全序（$1 \mid 2 \mid 4 \mid 8 \mid 16$），也是良序（有限全序集自动良序）。
 </details>
 
-**练习 2**：画出 $\lbrace 2, 3, 4, 6, 8, 12\rbrace$ 按整除关系的哈斯图，并找出所有极大元和极小元。
+**练习 2**：画出 $\lbrace 2, 3, 4, 6, 8, 12\rbrace$ 按整除关系的哈斯图，并找出所有极大元和极小元。下面的代码把其中一条判据的方向写反了，于是极大元算成了 `{2, 3}`——和极小元撞了。改对之后再核对：极大元应是 `{8, 12}`。
 
 ```exercise
 # @title: 整除哈斯图
@@ -222,7 +222,7 @@ for a in S:
     is_minimal = True          # 假设 a 是极小元
     is_maximal = True          # 假设 a 是极大元
     for b in S:
-        if a != b and b % a == 0:   # b 能被 a 整除 → a 不是极大元
+        if a != b and a % b == 0:   # ← 问题在这：方向反了，应是 b % a == 0（b 能被 a 整除）
             is_maximal = False
         if a != b and a % b == 0:   # a 能被 b 整除 → a 不是极小元
             is_minimal = False

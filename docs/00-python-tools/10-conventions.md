@@ -1,7 +1,13 @@
 ---
 title: 本站 Python 约定
 lesson_id: python-tools/conventions
-prereqs: []
+prereqs:
+  - python-tools/console-playground
+prereq_notes:
+  - id: python-tools/console-playground
+    kind: core
+    why: 本课的每段代码都要在浮窗里亲手跑一遍，先知道按钮在哪、怎么改代码，才能把"约定"练成手上的动作。
+    recall: 右下角 Py 圆球与 Alt + P 打开浮窗；Ctrl + Enter 运行；改坏了点「恢复代码」。
 introduces_builtin:
   - sum
 ---

@@ -261,7 +261,7 @@ check(tet_v, tet_e, tet_f, "四面体表面")
 
 ## 6. 练习
 
-**练习 1**：下面的代码想算"实心三角形"的 $\beta_1$，但忘记把填充的面贡献到的边界算进去，导致 $\beta_1$ 算成了 1（应该是 0）。补上 $\partial_2$ 的秩计算，改到输出 `(1, 0, 0)`：
+**练习 1**：下面的代码想算"实心三角形"的 $\beta_1$，但 $\partial_2$ 那一行整个漏填了——填充的面被当成"没填"，于是算出来是 `(1, 1, 1)`（空心三角形）。补上 $\partial_2$ 的秩计算，改到输出 `(1, 0, 0)`：
 
 ```exercise
 # @title: 练习：填上面之后 β1 应该归零
@@ -300,12 +300,8 @@ for j, (a, b) in enumerate(edges):
 r1 = rank_mod2(d1, nv, ne)
 
 d2 = [[0] * nf for _ in range(ne)]
-for j, tri in enumerate(faces):
-    for a in range(3):
-        e = (tri[a], tri[(a + 1) % 3])
-        if e in edges:
-            d2[edges.index(e)][j] ^= 1
-r2 = rank_mod2(d2, ne, nf)          # ← 这里算对了吗？
+# ← 问题在这：d2 一行都没填，这个面的边界贡献被整段漏掉了
+r2 = rank_mod2(d2, ne, nf)
 beta0 = nv - r1
 beta1 = (ne - r1) - r2
 beta2 = nf - r2

@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"python-tools/conventions","to":"/docs/python-tools/conventions","title":"本站 Python 约定"}]}
+{"prereqs":[{"id":"python-tools/modeling-loop","to":"/docs/python-tools/modeling-loop","title":"数学建模五步：把现实问题翻译成算式","kind":"core","why":"画图是建模五步里\"求解\"之后的翻译动作——先把\"要回答什么\"和\"变量关系\"立好，图才画得有的放矢。","recall":"提问 → 抽象变量 → 建立关系 → 求解 → 检验回代；最后一步回代是唯一能抓住错误的环节。"}]}

@@ -14,15 +14,31 @@ function parseFrontMatter(text) {
   if (!match) return {};
   const data = {};
   let key = null;
+  let currentItem = null;
+  const clean = (value) => value.trim().replace(/^["']|["']$/g, '');
   for (const line of match[1].split(/\r?\n/)) {
-    const bullet = line.match(/^\s*-\s*(.+)$/);
+    const bullet = line.match(/^(\s*)-\s*(.+)$/);
     if (bullet && key && Array.isArray(data[key])) {
-      data[key].push(bullet[1].trim());
+      const body = bullet[2].trim();
+      const itemField = body.match(/^([A-Za-z_][\w-]*):\s*(.*)$/);
+      if (itemField) {
+        currentItem = { [itemField[1]]: clean(itemField[2]) };
+        data[key].push(currentItem);
+      } else {
+        currentItem = null;
+        data[key].push(clean(body));
+      }
+      continue;
+    }
+    const child = line.match(/^\s+([A-Za-z_][\w-]*):\s*(.*)$/);
+    if (child && currentItem) {
+      currentItem[child[1]] = clean(child[2]);
       continue;
     }
     const kv = line.match(/^([A-Za-z_][\w-]*):\s*(.*)$/);
     if (!kv) continue;
     key = kv[1];
+    currentItem = null;
     const raw = kv[2].trim();
     const inline = raw.match(/^\[(.*)\]$/);
     if (inline) {
@@ -34,7 +50,7 @@ function parseFrontMatter(text) {
     } else if (raw === '') {
       data[key] = [];
     } else {
-      data[key] = raw.replace(/^["']|["']$/g, '');
+      data[key] = clean(raw);
       key = null;
     }
   }
@@ -193,6 +209,9 @@ const lessons = files.map((rel) => {
     ch: chNum,
     ord,
     prereqs: Array.isArray(fm.prereqs) ? fm.prereqs : [],
+    prereqNotes: Array.isArray(fm.prereq_notes)
+      ? fm.prereq_notes.filter((note) => note && typeof note.id === 'string')
+      : [],
     title: fm.title || rel,
     short: shortTitle(fm.title || rel),
     to: `/docs/${segments.join('/')}`,
@@ -384,7 +403,20 @@ for (const lesson of lessons) {
   for (const ref of lesson.prereqs) {
     prereqRefs += 1;
     const hit = resolveRef(ref);
-    if (hit) items.push({ id: hit.id, to: hit.to, title: hit.title });
+    if (hit) {
+      const note = lesson.prereqNotes.find((it) => it.id === hit.id || it.id === ref);
+      const item = {
+        id: hit.id,
+        to: hit.to,
+        title: hit.title,
+      };
+      if (note) {
+        item.kind = ['core', 'refresh', 'optional'].includes(note.kind) ? note.kind : 'core';
+        if (typeof note.why === 'string' && note.why) item.why = note.why;
+        if (typeof note.recall === 'string' && note.recall) item.recall = note.recall;
+      }
+      items.push(item);
+    }
     else prereqMiss.push(`${lesson.id} -> ${ref}`);
   }
   const outFile = path.join(prereqOutDir, `${lesson.id}.json`);

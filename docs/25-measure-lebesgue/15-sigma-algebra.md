@@ -219,28 +219,33 @@ Borel σ-代数是由什么生成的？
 ? Borel σ-代数 B(R) 是由 R 上所有开集生成的最小 σ-代数。它包含所有开集、闭集、区间、可数集等"自然"集合。
 ```
 
-**练习 1**：证明 $\lbrace A \subseteq \mathbb{R} \mid A \text{ 可数或 } A^c \text{ 可数}\rbrace$ 是 $\mathbb{R}$ 上的 σ-代数。
+**练习 1**：证明 $\lbrace A \subseteq \mathbb{R} \mid A \text{ 可数或 } A^c \text{ 可数}\rbrace$ 是 $\mathbb{R}$ 上的 σ-代数。下面的代码在一个有限沙盘上把「原子拼块」的族枚举出来自检三条性质，但组合数取错了（少枚举了一半成员），于是前两行打印 `False`。改对组合数，让三条性质全部为 `True`：
 
 ```exercise
 # @title: 可数-余可数 σ-代数
 # @check: 包含全集: True
 # @check: 补集封闭: True
 # @check: 可数并封闭: True
-# @hint: 可数个可数集的并仍可数
+# @hint: 4 块原子能拼出的并集一共有 2^4 = 16 个；组合数少算一半，族就不封闭了。可数个可数集的并仍可数
 
-# 验证三条性质
-import math
+# 用一个有限的「宇宙」X = {0,...,5} 做可数-余可数 σ-代数的沙盘推演
+# 全集 X 本身可数 → 它属于族；任意 A 的补集与它有相同的可数性 → 补集封闭
+# 下面用「原子拼块」的方式把族真实枚举出来，再逐条自检
+X = set(range(6))                 # 假想的「全集」，有限即可代表 ℝ 的角色
+atoms = [{0, 1}, {2, 3}, {4}, {5}]  # 把 X 切成 4 块原子，族的成员都是原子的并
 
-# 1. 全集 R 的补集是空集（可数）→ R 在族中
-print(f"包含全集: True")  # R^c = ∅ 可数
+family = []                       # 族：所有「若干原子的并」
+for mask in range(2 ** 3):        # ← 错了：4 个原子应有 2**4 种组合，这里漏了一半
+    s = set()
+    for i, a in enumerate(atoms):
+        if mask >> i & 1:
+            s |= a
+    family.append(s)
 
-# 2. 若 A 可数，A^c 的补集是 A（可数）→ A^c 在族中
-#    若 A^c 可数，A 的补集是 A^c（可数）→ A 在族中
-print(f"补集封闭: True")
+print("包含全集:", X in family)
+print("补集封闭:", all((X - A) in family for A in family))
+print("可数并封闭:", all((A | B) in family for A in family for B in family))
 
-# 3. 若每个 A_n 可数，∪A_n 可数（可数个可数集的并可数）
-#    若某个 A_n^c 可数，(∪A_n)^c = ∩A_n^c ⊆ A_n^c 可数
-print(f"可数并封闭: True")
 ```
 
 **练习 2**：$\sigma(\lbrace (0,1), (2,3)\rbrace)$ 包含哪些集合？

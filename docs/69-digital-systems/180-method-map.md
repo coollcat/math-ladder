@@ -174,7 +174,7 @@ print("  中断 80 拍/次 ÷ 事件间隔 2000 拍 = 占 4%   轮询占比 = �
 
 ## 6. 练习
 
-**练习 1**：分诊台的分支顺序被人调乱了：把"循环慢"排在了"偶发毛刺"前面，导致一块时序违例的板子被开了缓存科的单。请把它扶正，使输出依次是 `timing-setup`、`cache-lab`、`twos-complement`：
+**练习 1**：分诊台的分支顺序被人调乱了：把"循环慢"排在了"偶发毛刺"前面，导致一块时序违例的板子被开了缓存科的单。请把它扶正，使输出依次是 `timing-setup`、`cache-lab`、`twos-complement`（初始代码第一行会打印 `cache-lab`，那就是被开错科室单的那块板）：
 
 ```exercise
 # @title: 练习：谁的科室单开错了
@@ -183,7 +183,7 @@ print("  中断 80 拍/次 ÷ 事件间隔 2000 拍 = 占 4%   轮询占比 = �
 # @check: twos-complement
 # @hint: 会继续污染后续数据的硬件问题优先级最高——时序违例产出的坏数据会被每一级放大。交换 glitch 与 slow_loop 两支的先后
 def triage(glitch, slow_loop, wrong_negative):
-    if slow_loop:
+    if slow_loop:                 # ← 错了：先判了「循环慢」
         return "cache-lab"
     if glitch:
         return "timing-setup"
@@ -191,7 +191,7 @@ def triage(glitch, slow_loop, wrong_negative):
         return "twos-complement"
     return "karnaugh"
 
-print(triage(True, False, False))    # 时钟提频后偶发算错
+print(triage(True, True, False))     # 时钟提频后偶发算错，同时循环也慢
 print(triage(False, True, True))     # 循环慢，而且负数结果也怪
 print(triage(False, False, True))    # 单纯负数错
 ```

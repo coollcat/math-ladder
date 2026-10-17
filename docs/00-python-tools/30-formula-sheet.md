@@ -2,7 +2,13 @@
 title: 公式速查表
 description: 卷一公式的紧凑索引，按主题分节，忘了就回来翻
 lesson_id: python-tools/formula-sheet
-prereqs: []
+prereqs:
+  - python-tools/conventions
+prereq_notes:
+  - id: python-tools/conventions
+    kind: refresh
+    why: 这张表里不少公式会配一段代码验证，先在浮窗里跑顺了，再来查表才查得动。
+    recall: 浮窗里变量会保留到下一次运行；「重置变量」清空，「清屏」只清输出。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []

@@ -4,6 +4,15 @@ lesson_id: arithmetic/addition
 prereqs:
   - python-tools/conventions
   - python-tools/matplotlib
+prereq_notes:
+  - id: python-tools/conventions
+    kind: core
+    why: 本课所有实验都是"写几行代码验证一个猜想"，看不动 f-string 与 for 循环，实验就只剩看热闹。
+    recall: f-string 用 {表达式} 直接把值嵌进字符串；for n in range(1, 101) 含头不含尾。
+  - id: python-tools/matplotlib
+    kind: core
+    why: 交换律与结合律的"两条路线同一落点"要靠数轴图和加法表看出来，先把 plt.plot 的基础用法拿在手里。
+    recall: plt.plot(x, y) 把 x、y 两组等长的列表连成线；本站不需要 plt.show()，运行器自动抓图。
 introduces_math: []
 introduces_builtin: []
 introduces_import: []
@@ -186,7 +195,7 @@ plt.title("addition table")
 - 数学书规定了它们必须相等
 - "往后跳 5 步再跳 3 步"和"先 3 后 5"落在同一点：交换律 [*]
 - 只有在小数字时才相等
-? 交换律不是规定，而是"往后数"这个动作的必然推论——选读部分给出了完整论证。
+? 交换律不是规定，而是"往后数"这个动作的必然推论。本课选读给出归纳思路的简版，严格证明在《数学归纳法》一课。
 ```
 
 :::warning[常见误区]

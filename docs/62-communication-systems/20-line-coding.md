@@ -72,7 +72,23 @@ exits:
 
 ## 5. 动手实验
 
-### 实验 1（python）：两种码型同屏对画
+### 实验 1（lab）：同一比特串的两种码型
+
+工作台把同一串比特同时送进码型和载波。先保持 NRZ，再切到 Manchester：中线跳变一下变密，载波与判决点也随之重算。拖动比特方块或改变噪声，可以直接对照「直流偏置、时钟内容、判决门限」三笔账。
+
+```lab
+{
+  "type": "eye-matched-filter",
+  "title": "同一比特串：NRZ 与 Manchester 的跳变密度",
+  "view": "link",
+  "bits": "1011001",
+  "code": "nrz",
+  "carrier": "ask",
+  "noise": 0
+}
+```
+
+### 实验 2（python）：两种码型同屏对画
 
 ```python title="比特串 1011001 的 NRZ 与曼彻斯特波形"
 import matplotlib.pyplot as plt  # 画图库（卷一已引入）
@@ -109,7 +125,7 @@ plt.legend()
 
 灰阶 NRZ 台阶稀疏、整段偏在零轴上方；红色曼彻斯特密度翻倍、在零轴上下严格对称。数一数红线的中央跳变——每比特恰好一次，节拍器肉眼可见。
 
-### 实验 2（python）：连发长串 0 的灾难现场
+### 实验 3（python）：连发长串 0 的灾难现场
 
 ```python title="给 NRZ 喂二十个 0，看时钟恢复如何失联"
 import matplotlib.pyplot as plt

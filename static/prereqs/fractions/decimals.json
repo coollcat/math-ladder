@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"fractions/fraction-arithmetic","to":"/docs/fractions/fraction-arithmetic","title":"分数四则运算"}]}
+{"prereqs":[{"id":"fractions/fraction-arithmetic","to":"/docs/fractions/fraction-arithmetic","title":"分数四则运算","kind":"core","why":"分数化小数的两条路都要先会通分与约分；除不尽的判断也用到了分数的邻居关系。","recall":"分数基本性质让 3/5 能写成 6/10；分数线就是除号。"}]}

@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"arithmetic/multiplication","to":"/docs/arithmetic/multiplication","title":"乘法与分配律"},{"id":"arithmetic/division","to":"/docs/arithmetic/division","title":"除法与余数"}]}
+{"prereqs":[{"id":"arithmetic/multiplication","to":"/docs/arithmetic/multiplication","title":"乘法与分配律","kind":"core","why":"因数与倍数都是乘法句子里的角色——因数当拼块、倍数当成品，两者靠同一句\"积\"联系起来。","recall":"点阵里行数与每行个数都是积的因数，交换只是把名册换了个顺序。"},{"id":"arithmetic/division","to":"/docs/arithmetic/division","title":"除法与余数","kind":"core","why":"判断\"整除\"的资格证是余数为零；配对扫描法也是用除法找回丢失的搭档。","recall":"a = b×q + r 且 0 ≤ r < b；余数为零就说明除得尽。"}]}

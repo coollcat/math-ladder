@@ -17,7 +17,7 @@ introduces_import: []
 
 # 第 53 章 · 图网络组件规格
 
-> 状态：**未来组件设计稿，尚未实现。** 本文件只服务后续 `src/pyrunner/viz.js` 开发；第 53 章正式课当前不得引用这些 type。
+> 状态：`graph-message-passing`（逐层聚合 + PageRank）已实现并注册在 `src/pyrunner/lab/registries/ch53.js`；其余条目仍是设计稿。新增组件一律走 `src/pyrunner/lab/`，不要扩写冻结的 `viz.js`。
 
 ## 0. 全局硬性约束
 
@@ -27,7 +27,7 @@ introduces_import: []
    - 悬停或键盘聚焦图节点时，高亮矩阵对应行列；
    - 高亮状态必须有非颜色冗余（加粗描边、文字标签或焦点框），不能只靠色觉传达；
    - 触屏需要点选切换模式，不能只依赖 hover。
-3. 组件继续遵守现有 viz 架构：
+3. 组件继续遵守现有 lab 架构：
    - JSON 配置可被 `scripts/validate.mjs` 解析；
    - 渲染容器挂载在原生 code block 后方，不删除 React 节点；
    - 使用 `dataset` 防止 MutationObserver 重复绑定；

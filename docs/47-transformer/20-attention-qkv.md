@@ -4,6 +4,20 @@ lesson_id: transformer/attention-qkv
 prereqs:
   - transformer/token-embedding
   - linalg/dot-product
+  - linalg/projection
+prereq_notes:
+  - id: transformer/token-embedding
+    kind: core
+    why: Q/K/V 不是原词向量本身，而是从同一个词向量线性变换出的三个角色。
+    recall: 嵌入矩阵负责查表，W_Q/W_K/W_V 负责把同一输入派生成不同用途。
+  - id: linalg/dot-product
+    kind: core
+    why: 注意力分数由查询与键的点积给出。
+    recall: 点积同时编码长度与夹角；归一化后的点积才只比较方向。
+  - id: linalg/projection
+    kind: refresh
+    why: 把查询投影到键方向上，可以看到“方向匹配”这一部分。
+    recall: 点积 = 键长 × 查询在键方向上的投影长度，还可以写成两向量长度的乘积乘余弦。
 volume: 5
 layer: L11
 track:
@@ -82,18 +96,23 @@ $$\text{output} = 0.6 \times (0,\ 1) + 0.4 \times (1,\ 1) = (0.4,\ 1.0)$$
 
 ## 5. 动手实验
 
-### 实验 1：匹配强度就是投影长度
+### 实验 1：点积 = 键长 × 方向匹配
 
-```viz
+```lab
 {
-  "type": "projection",
-  "title": "查询落在键方向上的影子越长，越匹配",
-  "u": [2, 1],
-  "v": [3, 1]
+  "type": "attention-pipeline",
+  "title": "先扫键，再分账：点积不是投影长度的别名",
+  "mode": "dot",
+  "temperature": 1,
+  "keyScale": 1
 }
 ```
 
-蓝色是某词的查询向量，绿色是一把键。拖动它们：橙色影子（投影）越长，点积越大，注意力配比就越倾斜。注意即使键比查询短很多，只要方向对，照样能拿到高分——匹配看的是方向。
+第一幕先让查询扫过两把键；第二幕再切换“点积 / 余弦”，并拖动“华为”的键长。蓝色是查询向量，绿/橙是键，虚线端点是查询在键方向上的投影。要得到完整点积，还得把投影长度再乘上键长：
+
+$$\vec q\cdot\vec k=\lvert\vec k\rvert\left(\lvert\vec q\rvert\cos\theta\right).$$
+
+所以“方向很合拍”只保证余弦大；如果键向量被学得很短，最终分数仍可能变小。反过来，方向一般但键很长，点积也可能被放大。只有把 $q,k$ 先归一化，才得到纯粹的方向相似度 $\cos\theta$。真实注意力通常直接使用未归一化的点积，再除以 $\sqrt{d_k}$，模型因此可以同时利用方向和尺度。
 
 ### 实验 2：手写打分循环
 

@@ -1,1 +1,1 @@
-{"prereqs":[{"id":"arithmetic/multiplication","to":"/docs/arithmetic/multiplication","title":"乘法与分配律"},{"id":"arithmetic/division","to":"/docs/arithmetic/division","title":"除法与余数"}]}
+{"prereqs":[{"id":"arithmetic/multiplication","to":"/docs/arithmetic/multiplication","title":"乘法与分配律","kind":"core","why":"先乘除后加减的唯一理由就是乘法是压缩的加法——没拆包的部分必须先展开。","recall":"a×(b+c) = a×b + a×c；矩形切一刀，面积两块相加。"},{"id":"arithmetic/division","to":"/docs/arithmetic/division","title":"除法与余数","kind":"refresh","why":"乘除同级、从左到右；这里要靠 // 与 % 的口径把\"顺序\"落到能跑的代码上。","recall":"// 只留商、% 只留余数，两者合起来才等于原数。"}]}

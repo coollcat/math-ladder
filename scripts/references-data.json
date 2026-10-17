@@ -1390,6 +1390,46 @@
       "d": "6710 亿总参数、每 token 激活 370 亿：MLA、无辅助损失均衡、FP8 训练与 MTP 的完整账本。",
       "p": "https://arxiv.org/abs/2412.19437",
       "f": "https://arxiv.org/pdf/2412.19437"
+    },
+    {
+      "t": "Efficiently Modeling Long Sequences with Structured State Spaces（S4）",
+      "a": "Albert Gu, Karan Goel, Christopher Ré",
+      "y": 2021,
+      "v": "arXiv:2111.00396 (ICLR 2022)",
+      "g": "论文",
+      "d": "把结构化的线性状态空间写成可并行计算的卷积核：现代长序列 SSM 的关键起点。",
+      "p": "https://arxiv.org/abs/2111.00396",
+      "f": "https://arxiv.org/pdf/2111.00396"
+    },
+    {
+      "t": "Linear-Time Sequence Modeling with Selective State Spaces（Mamba）",
+      "a": "Albert Gu, Tri Dao",
+      "y": 2023,
+      "v": "arXiv:2312.00752 (COLM 2024)",
+      "g": "论文",
+      "d": "让状态转移、输入与读出随 token 变化，用 selective scan 在灵活性与线性时间之间换挡。",
+      "p": "https://arxiv.org/abs/2312.00752",
+      "f": "https://arxiv.org/pdf/2312.00752"
+    },
+    {
+      "t": "RWKV: Reinventing RNNs for the Transformer Era",
+      "a": "Bo Peng 等",
+      "y": 2023,
+      "v": "arXiv:2305.13048 (EMNLP 2023 Findings)",
+      "g": "论文",
+      "d": "把注意力式的历史加权改写成可递推的 WKV 记忆：固定状态推理与并行训练的代表路线。",
+      "p": "https://arxiv.org/abs/2305.13048",
+      "f": "https://arxiv.org/pdf/2305.13048"
+    },
+    {
+      "t": "Eagle and Finch: RWKV with Matrix-Valued States and Dynamic Recurrence",
+      "a": "Bo Peng 等",
+      "y": 2024,
+      "v": "arXiv:2404.05892",
+      "g": "论文",
+      "d": "RWKV 后续世代把标量状态扩展到矩阵值状态，并强化动态递推与数据相关门控。",
+      "p": "https://arxiv.org/abs/2404.05892",
+      "f": "https://arxiv.org/pdf/2404.05892"
     }
   ],
   "48-embeddings-geometry": [
