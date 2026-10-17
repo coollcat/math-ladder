@@ -1418,6 +1418,26 @@ a:hover .ml-chapter.is-done {
   padding: 0.05rem 0.9rem 0.4rem;
 }
 
+.ml-alg-stage__timeline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.2rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.2rem 0.9rem 0.05rem;
+}
+
+.ml-alg-stage__scrub {
+  width: 100%;
+  accent-color: var(--ifm-color-primary);
+}
+
+.ml-alg-stage__time {
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ifm-color-emphasis-700);
+  text-align: right;
+}
+
 .ml-alg-stage__dot {
   width: 10px;
   height: 10px;
@@ -1758,22 +1778,76 @@ a:hover .ml-chapter.is-done {
 }
 
 .ml-prereq__list li {
-  margin: 3px 0;
-  padding-left: 2px;
+  margin: 7px 0;
+  padding: 7px 0 7px 8px;
+  border-left: 2px solid var(--ifm-color-emphasis-300);
+}
+
+.ml-prereq__item--core {
+  border-left-color: var(--ifm-color-primary) !important;
+}
+
+.ml-prereq__item--refresh {
+  border-left-color: var(--ifm-color-warning) !important;
+}
+
+.ml-prereq__item--optional {
+  border-left-color: var(--ifm-color-emphasis-500) !important;
+}
+
+.ml-prereq__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.ml-prereq__kind {
+  flex: 0 0 auto;
+  padding: 1px 5px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 999px;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.66rem;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.ml-prereq__done {
+  flex: 0 0 auto;
+  color: var(--ifm-color-success);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.45;
+  white-space: nowrap;
 }
 
 .ml-prereq__list a {
+  flex: 1 1 auto;
   display: block;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 0;
   color: var(--ifm-font-color-base);
   line-height: 1.45;
+  font-weight: 600;
 }
 
 .ml-prereq__list a:hover {
-  background: var(--ifm-color-primary);
-  color: #fff;
-  text-decoration: none;
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+}
+
+.ml-prereq__why,
+.ml-prereq__recall {
+  margin-top: 3px;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.ml-prereq__recall span {
+  display: inline-block;
+  margin-right: 4px;
+  color: var(--ifm-color-primary);
+  font-weight: 700;
 }
 
 .ml-prereq__note {
@@ -1792,13 +1866,10 @@ a:hover .ml-chapter.is-done {
     margin: 0 0 14px;
   }
   .ml-prereq__list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    display: block;
   }
-  .ml-prereq__list a {
-    border: 1px solid var(--ifm-color-emphasis-300);
-    padding: 3px 10px;
+  .ml-prereq__list li {
+    margin: 6px 0;
   }
 }
 
@@ -3024,3 +3095,495 @@ a:hover .ml-chapter.is-done {
     opacity var(--ml-t-fast) var(--ml-ease),
     transform var(--ml-t-base) var(--ml-ease);
 }
+
+/* =========================================================================
+ * 文档页排版体系 + 移动端阅读（2026-10 UI 改版）
+ * -------------------------------------------------------------------------
+ * 四件事：
+ *   1. 正文有自己的阅读宽度与标题节奏（h1/h2/h3 与段落、代码块成一条曲线）；
+ *   2. 右栏三块（前置知识 / 学习进度 / 目录）降一级权重：透明底 + 细边框 +
+ *      小一号标题，不再用 540px 高的重卡片把目录挤到屏幕中间；
+ *   3. 移动端只保留基础显示：正文 16px/1.75、标题收敛、代码块/公式/表格横向
+ *      滚动不撑破、底部留 safe-area；
+ *   4. 浮层圆钮与「返回顶部」错位排布（见文末那一段）。
+ * 断点只用全站口径 996 / 576；字号写 px，移动端不随视口缩放跳变。
+ * ========================================================================= */
+
+/* ---------- 0. 正文列在宽屏上的居中 ----------
+ * 症状：≥1600px 时正文贴着左栏右缘，右侧留出 500–1000px 空白——
+ * 「左侧元素导致中间/右侧大量空白」的那一类观感问题。
+ * 成因在主题的内层：main[docMainContainer] 是 flex 容器，里面
+ *   .container(max-width 1360) → .row → .col.docItemCol(max-width:75%)
+ * 三层全部左对齐，正文（阅读宽度 736px）又钉在 .docItemCol 里。
+ * 于是视口越宽，正文越靠左，右侧空得越多。
+ * 修法：把 container 变成「按可用宽度居中 + 上限」，并让 row 内的列
+ * 用 margin-inline:auto 居中；不改 736px 阅读宽度本身（那是有意的排版口径），
+ * 也不动 ≤996px 的移动版式与右栏折叠那套逻辑。
+ * 96rem=1536px：1440 及以下几乎无感，1600+ 才逐步把正文往中间拉。 */
+@media (min-width: 1400px) {
+  main[class*='docMainContainer'] > .container {
+    max-width: min(96rem, calc(100% - 3rem));
+    margin-inline: auto;
+  }
+
+  /* col 是 flex:1 0 0% 的列（会撑满自己的轨道），对列本身设 auto margin 没用——
+     真正要居中的是列里那 736px 的正文。正文左右留白由 auto margin 均分，
+     正文与右栏目录之间的空隙因此从 200–380px 收到 ~100px。 */
+  .theme-doc-markdown,
+  nav[class*='breadcrumbsContainer'],
+  .theme-doc-footer,
+  [class*='docItemContainer'] > article > nav {
+    margin-inline: auto;
+  }
+}
+
+/* ---------- 1. 阅读宽度与标题节奏 ---------- */
+
+.theme-doc-markdown {
+  /* 46rem ≈ 736px：中文一行 43–45 字，比 823px（≈51 字）耐读 */
+  --ml-read-measure: 46rem;
+  line-height: 1.8;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 997px) {
+  .theme-doc-markdown,
+  nav[class*='breadcrumbsContainer'] {
+    max-width: var(--ml-read-measure);
+  }
+}
+
+/* ---- 标题规则为什么带 :not(#\#):not(#\#) ----
+ * Infima 把字号写在**元素级**规则里：`.markdown:not(#\#):not(#\#) > h2`
+ * 直接把 --ifm-h2-font-size 设到 h2 元素自己身上，父级传下来的变量到不了它；
+ * 那两个 :not(#id) 又给它 ID 级特异性（2,2,1），纯类选择器（就算写到
+ * .markdown.theme-doc-markdown 也只有 0,4,1）压不过——实测写完 1.72rem，
+ * h2 仍是 24px（Infima ≤576 的 1.5rem）。
+ * 这里沿用 Infima 自己的写法补到同级，靠源顺序（本文件在主题之后）取胜。
+ * **全站只有这三条标题阶梯用这一招**，其余一律普通类选择器。 */
+.markdown.theme-doc-markdown h1:first-child:not(#\#):not(#\#) {
+  --ifm-h1-font-size: clamp(2.4rem, 2.7vw, 2.85rem);
+  margin-bottom: 1.05rem;
+  letter-spacing: -0.012em;
+}
+
+.markdown.theme-doc-markdown > h2:not(#\#):not(#\#) {
+  --ifm-h2-font-size: 1.66rem;
+  margin-top: 2.75rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.42rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.markdown.theme-doc-markdown > h3:not(#\#):not(#\#) {
+  --ifm-h3-font-size: 1.28rem;
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+}
+
+.markdown.theme-doc-markdown > h4:not(#\#):not(#\#) {
+  margin-top: 1.5rem;
+  margin-bottom: 0.45rem;
+}
+
+/* 段落与块级元素统一到 1.25rem（=20px）这一条基线。
+   Infima 的 `p:not(#\#):not(#\#)` 是 ID 级特异性（--ifm-paragraph-margin-bottom
+   = 1.25rem），所以这里也补 :not(#\#)：不改的话写 1.05rem 会被压回去。 */
+.theme-doc-markdown > p:not(#\#):not(#\#) {
+  margin: 0 0 1.25rem;
+}
+
+.theme-doc-markdown > ul,
+.theme-doc-markdown > ol {
+  margin: 0 0 1.25rem;
+}
+
+.theme-doc-markdown > .theme-code-block,
+.theme-doc-markdown > pre,
+.theme-doc-markdown > table,
+.theme-doc-markdown > blockquote {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- 2. 右栏三块：权重降一级，目录回到视线里 ---------- */
+
+@media (min-width: 997px) {
+  /* 三块（前置知识 / 进度 / 目录）之间统一 8px 呼吸，作为一列往下走；
+     原先 12px 的 gap + 16px 的 margin 让目录被推到第一屏中间。 */
+  .ml-toc-widgets {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .ml-prereq--toc,
+  .ml-miniprogress {
+    padding: 9px 11px 8px;
+    background: transparent;
+    box-shadow: none;
+    border-left-width: 2px;
+    border-radius: var(--ml-radius-block, 8px);
+  }
+
+  .ml-prereq__title,
+  .ml-miniprogress__title {
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .ml-prereq__list li {
+    margin: 3px 0;
+    padding: 3px 0 3px 7px;
+  }
+
+  .ml-prereq__list a {
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .ml-prereq__why,
+  .ml-prereq__recall {
+    font-size: 0.7rem;
+    line-height: 1.45;
+  }
+
+  .ml-prereq__note {
+    margin-top: 4px;
+    padding-top: 4px;
+    font-size: 0.68rem;
+  }
+
+  .ml-miniprogress__head {
+    margin-bottom: 4px;
+  }
+
+  .ml-miniprogress__bar {
+    height: 6px;
+  }
+
+  .ml-miniprogress__count,
+  .ml-miniprogress__note {
+    font-size: 0.7rem;
+  }
+
+  .table-of-contents {
+    font-size: 0.78rem;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .table-of-contents li {
+    margin: 0.22rem 0;
+  }
+
+  /* 折叠把手贴右边缘（20px 宽），目录留一点内边距免得文字被按钮压住；
+     padding-top 归零，让目录紧接着上面那块（原来是 8px 的额外空隙）。 */
+  .theme-doc-toc-desktop {
+    padding: 0 4px 0 0;
+  }
+
+  .theme-doc-toc-desktop > .table-of-contents {
+    padding-top: 2px;
+  }
+}
+
+/* ---------- 3. 正文内前置知识：默认折叠成一行摘要 ---------- */
+
+/* DocItem/Layout 在面包屑后面插的挂载点（portal 落点，见该文件头注释）。
+   未挂载时是个空 div，别占位、别出间距。 */
+.ml-prereq-slot:empty {
+  display: none;
+}
+
+@media (max-width: 996px) {
+  /* 挂载点只在窄屏生效：面包屑 → 前置知识折叠条 → 本页总览 → 标题 */
+  .ml-prereq-slot {
+    margin: 0 0 10px;
+  }
+}
+
+.ml-prereq--fold {
+  padding: 0;
+  overflow: hidden;
+  border-left-width: 3px;
+  border-radius: var(--ml-radius-block, 8px);
+  font-size: 0.85rem;
+}
+
+.ml-prereq--fold > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 13px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.ml-prereq--fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ml-prereq--fold > summary:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.ml-prereq__chev {
+  flex: 0 0 auto;
+  color: var(--ifm-color-primary);
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: transform var(--ml-t-base) var(--ml-ease);
+}
+
+.ml-prereq--fold[open] .ml-prereq__chev {
+  transform: rotate(90deg);
+}
+
+.ml-prereq__summary-title {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--ifm-color-primary);
+}
+
+.ml-prereq__summary-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.78rem;
+}
+
+.ml-prereq__summary-hint {
+  flex: 0 0 auto;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.72rem;
+}
+
+.ml-prereq__body {
+  padding: 2px 13px 11px;
+}
+
+/* ---------- 4. 移动端（≤996px）：正文可读、块级元素不撑破 ---------- */
+
+@media (max-width: 996px) {
+  .markdown.theme-doc-markdown {
+    line-height: 1.75;
+  }
+
+  .markdown.theme-doc-markdown h1:first-child:not(#\#):not(#\#) {
+    --ifm-h1-font-size: 30px;
+    margin-bottom: 0.75rem;
+  }
+
+  .markdown.theme-doc-markdown > h2:not(#\#):not(#\#) {
+    --ifm-h2-font-size: 23px;
+    margin-top: 2rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .markdown.theme-doc-markdown > h3:not(#\#):not(#\#) {
+    --ifm-h3-font-size: 19px;
+    margin-top: 1.5rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .theme-doc-markdown > p:not(#\#):not(#\#) {
+    margin-bottom: 1.1rem;
+  }
+
+  .ml-prereq--inline {
+    margin: 0 0 12px;
+  }
+
+  /* 代码块 / 公式 / 表格 / 图片：一律横向滚动，不撑破容器 */
+  .theme-doc-markdown .theme-code-block,
+  .theme-doc-markdown pre {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .theme-doc-markdown pre {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .theme-doc-markdown .katex-display {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.3rem 0;
+  }
+
+  .theme-doc-markdown .katex-display > .katex {
+    font-size: 1.08em;
+  }
+
+  .theme-doc-markdown table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .theme-doc-markdown img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* 移动端目录：用主题自带的折叠块（不另造第二套），抬到 44px 触控高度 */
+  [class*='tocCollapsibleButton'] {
+    min-height: 44px;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  [class*='tocCollapsible'] {
+    margin-bottom: 6px;
+  }
+
+  [class*='tocCollapsible'] a {
+    display: block;
+    padding: 0.3rem 0;
+  }
+
+  /* 底部安全区：iPhone 手势条不压住文末按钮 */
+  main[class*='docMainContainer'] > .container {
+    padding-bottom: calc(2.2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* 右栏折叠把手在窄屏本就不显示，这里再兜一层（触屏媒体查询会改它宽度） */
+  .ml-rail-btn {
+    display: none;
+  }
+}
+
+/* ---------- 5. 窄屏（≤576px）：390px 宽下的字号台阶 ---------- */
+
+@media (max-width: 576px) {
+  .markdown.theme-doc-markdown h1:first-child:not(#\#):not(#\#) {
+    --ifm-h1-font-size: 27px;
+    line-height: 1.32;
+  }
+
+  .markdown.theme-doc-markdown > h2:not(#\#):not(#\#) {
+    --ifm-h2-font-size: 21px;
+    line-height: 1.4;
+    margin-top: 1.8rem;
+  }
+
+  .markdown.theme-doc-markdown > h3:not(#\#):not(#\#) {
+    --ifm-h3-font-size: 17.5px;
+    line-height: 1.45;
+    margin-top: 1.35rem;
+  }
+
+  .theme-doc-markdown p,
+  .theme-doc-markdown li {
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* 行内公式在 390px 下默认 1.21em（≈19.4px），一行里混排两三个分式就会
+     顶到容器外面（实测 `\sin(x_k)=[0, 0.707, 1, …]` 那条 368px，比列表项的
+     326px 宽 42px）。收到 1.05em（≈16.8px）后同一条是 319px，正好落回容器内，
+     也比正文略大一点、不破坏主次。显示公式不受影响（下面那条单独放大）。 */
+  .theme-doc-markdown .katex {
+    font-size: 1.02em;
+  }
+
+  .theme-doc-markdown blockquote {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0.5rem 0.8rem;
+  }
+}
+
+/* =========================================================================
+ * 移动端浮层圆钮（Py / 笔记本）与「返回顶部」的错位避让（2026-10）
+ * -------------------------------------------------------------------------
+ * 原先：Py 圆钮 50px 贴 right/bottom 0.9rem，笔记本圆钮 40px 叠在它上面，
+ * 而主题的「返回顶部」也在右下（right/bottom 1.3rem、48px）——三个圆撞在一起，
+ * 滚到底部还压住正文最后一行。
+ * 现在按「返回顶部 → Py → 笔记本」从下往上排，各留 8–10px 间隙：
+ *   返回顶部  bottom 1.3rem（主题自带，不动）
+ *   Py 圆钮   bottom = 1.3rem + 48px + 10px
+ *   笔记本    再往上 = 上一条 + Py 高度 + 8px
+ * right 统一加 env(safe-area-inset-right)，横屏刘海不会切掉按钮。
+ * ========================================================================= */
+
+@media (max-width: 996px) {
+  .ml-fab,
+  .ml-fab--note {
+    right: calc(0.8rem + env(safe-area-inset-right, 0px));
+  }
+
+  .ml-fab {
+    bottom: calc(1.3rem + 48px + 10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ml-fab--note {
+    bottom: calc(1.3rem + 48px + 10px + 50px + 8px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 576px) {
+  .ml-fab {
+    width: 40px;
+    height: 40px;
+    font-size: 0.86rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.24), 0 8px 24px rgba(15, 23, 42, 0.22);
+  }
+
+  .ml-fab--note {
+    width: 34px;
+    height: 34px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.24), 0 8px 24px rgba(15, 23, 42, 0.22);
+    bottom: calc(1.3rem + 48px + 10px + 40px + 8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* 圆钮缩小后用伪元素把命中区补到 46px（放 3px，不压到「返回顶部」） */
+  .ml-fab::after,
+  .ml-fab--note::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+  }
+
+  /* ---- 全屏面板（笔记本 / 代码仓库 / 数据面板）的触控目标 ----
+   * 这三块在手机上已经铺满 88dvh，布局本身没问题；问题在头部与工具条上的
+   * 小按钮：实测笔记本的关闭按钮只有 18×21px、头部按钮 25px 高，
+   * 手指点不中（点偏就落在面板上没反应）。这里一律抬到 40px 高，
+   * 关闭按钮单独给到 40×40 并在头部右端留出位置。 */
+  .ml-notebook__close,
+  .ml-repo__close,
+  .ml-backup__close {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+
+  .ml-notebook__hbtn,
+  .ml-notebook .py-runner__btn,
+  .ml-repo .py-runner__btn,
+  .ml-backup .py-runner__btn {
+    min-height: 40px;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+}
+

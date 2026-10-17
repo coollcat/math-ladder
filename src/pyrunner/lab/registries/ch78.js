@@ -9,6 +9,7 @@ export default {
   'bci-population-vector': () => import('../components/bci-population-vector.js'),
   'bci-kalman-cursor': () => import('../components/bci-kalman-cursor.js'),
   'bci-csp': () => import('../components/bci-csp.js'),
+  'bci-csp-topomap': () => import('../components/eeg-csp-topomap.js'),
   'bci-spd-manifold': () => import('../components/bci-spd-manifold.js'),
   'bci-mutual-info': () => import('../components/bci-mutual-info.js'),
   'bci-closed-loop': () => import('../components/bci-closed-loop.js'),

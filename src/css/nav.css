@@ -190,7 +190,7 @@
   transform: scaleX(1);
 }
 
-/* ---- 右侧：搜索 + 账号 ---- */
+/* ---- 右侧：搜索 + 更多（外观/数据/账号） + 汉堡 ---- */
 
 .ml-nav__right {
   display: flex;
@@ -199,6 +199,31 @@
   margin-left: auto;
   animation: ml-nav-drop 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
   animation-delay: 0.24s;
+  /* 右侧簇必须能压缩：搜索框吃掉剩余宽度，两个 40px 钮不见不散。
+     这一条在桌面端同样必要——997–1150px 这一段顶栏本来就挤，
+     不给 min-width:0 的话整簇按内容宽撑开，documentElement 出现横向滚动条。 */
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+/* ---- 「更多」容器（窄屏收口） ----
+ * 桌面端它是一条**透明通道**：容器与三行包裹层都 display:contents，
+ * 外观钮 / 数据钮 / 账号芯片直接参与 .ml-nav__right 的 flex 排布，
+ * 视觉与改版前逐像素一致（顺序也没变：外观 → 数据 → 账号）。
+ * ≤996px 才收成一颗「更多」钮 + 一张下拉面板，三个入口一个不少。
+ * 这样桌面端不必维护两套 DOM，跨端也不会出现「桌面上少了个入口」。 */
+.ml-nav__more,
+.ml-nav__morepanel,
+.ml-nav__morerow {
+  display: contents;
+}
+
+.ml-nav__morebtn {
+  display: none;
+}
+
+.ml-nav__morelabel {
+  display: none;
 }
 
 .ml-nav__search {
@@ -300,6 +325,12 @@
   align-items: center;
 }
 
+/* 外观钮的文字标签：默认藏起来（顶栏上是图标钮），
+   只在「更多」面板 / 抽屉里显出来——那里只有一颗图标没人认得出。 */
+.ml-nav__modelabel {
+  display: none;
+}
+
 /* 三个图标都渲染，只显示当前那个——按 html[data-theme-choice] 挑。
    这个属性由 Docusaurus 在 <head> 的内联脚本里于首帧前写好，
    所以刷新时图标直接就是对的，不会先闪一下再跳。 */
@@ -322,6 +353,10 @@ html[data-theme-choice='system'] .ml-nav__modeicon[data-mode='auto'] {
   height: 34px;
   padding: 0 0.7rem;
   font-size: 0.84rem;
+}
+
+.ml-nav__modebtn--wide .ml-nav__modelabel {
+  display: inline;
 }
 
 .ml-nav__drawer-modes {
@@ -566,6 +601,52 @@ html[data-theme-choice='system'] .ml-nav__modeicon[data-mode='auto'] {
   }
 }
 
+/* ---- 中宽（997–1160px）：顶栏本来就挤，先收自己再谈别的 ----
+ * 实测 997px 时右侧簇（搜索 216 + 外观 40 + 数据 71 + 登录 75 + 间距）加上
+ * 品牌与五个导航项，整条 inner 内容宽 1133px > 视口，documentElement 直接
+ * 长出 136px 横向滚动条（整页左右跑偏，锚点跳转也跟着歪）。
+ * 这一段不是移动端，不该砍功能：只把「留白」与「搜索框」收窄，
+ * 把省下的 ~150px 还给一行装得下的排布。≤996 走另一套（收进「更多」）。 */
+@media (min-width: 997px) and (max-width: 1160px) {
+  .ml-nav__inner {
+    gap: 0.55rem;
+    padding: 0 0.85rem;
+    min-width: 0;
+  }
+
+  .ml-nav__links {
+    gap: 0;
+    margin-left: 0.2rem;
+    min-width: 0;
+  }
+
+  .ml-nav__link {
+    padding: 0 0.38rem;
+    font-size: 0.84rem;
+  }
+
+  .ml-nav .ml-nav__search .navbar__search-input {
+    width: 7.6rem;
+  }
+
+  .ml-nav__right {
+    gap: 0.3rem;
+  }
+
+  .ml-nav__login {
+    padding: 0 0.55rem;
+    font-size: 0.82rem;
+  }
+
+  .ml-nav__modebtn {
+    padding: 0 0.45rem;
+  }
+
+  .ml-nav__databtn {
+    padding: 0 0.5rem;
+  }
+}
+
 /* ---- 窄屏：汉堡 + 抽屉 ---- */
 .ml-nav__burger {
   display: none;
@@ -691,9 +772,34 @@ html[data-theme-choice='system'] .ml-nav__modeicon[data-mode='auto'] {
     display: none;
   }
 
-  /* 顶栏挤：搜索框收窄、快捷键提示藏掉 */
+  /* 顶栏这一行只有搜索能伸缩：右侧簇整块拉满剩余宽度，搜索再在其中吃掉空白。
+     品牌(30) + 搜索(弹性) + 更多(40) + 汉堡(40) 一行放得下，320px 也不溢出。 */
+  .ml-nav__right {
+    flex: 1 1 auto;
+  }
+
+  /* 顶栏这一行只有搜索能伸缩。 */
+  .ml-nav__search {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .ml-nav .ml-nav__search .navbar__search {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* 搜索框宽度必须 !important：Infima 把 input 的宽度声明在
+     `.navbar__search-input:not(#\#):not(#\#)` 上（两个 ID，特异性 2,1,0），
+     三级类选择器（0,3,0）无论排多后都压不过；插件自己的 CSS module 在
+     ≤576px 还把它收成 2rem（没聚焦时）。既然宽度要「吃掉剩余空间」，
+     这两处都得盖过去——否则 390px 下搜索右边会留一条秃缝，
+     点起来也只有 144px 宽。高度/圆角/边框不冲突，仍按普通规则走。 */
   .ml-nav .ml-nav__search .navbar__search-input {
-    width: 9.5rem;
+    width: 100% !important;
+    min-width: 0;
+    padding-left: 2rem;
+    padding-right: 0.8rem;
   }
 
   .ml-nav__search kbd,
@@ -705,24 +811,178 @@ html[data-theme-choice='system'] .ml-nav__modeicon[data-mode='auto'] {
     display: none;
   }
 
-  /* 「登录」只留图标：481–560px 这一段，品牌 + 搜索 + 登录文字 + 外观 + 汉堡
-     会一起挤爆顶栏（实测文字换行、顶栏被撑高）。文字在这个宽度本来也读不全，
-     图标 + aria-label 足够表意。 */
-  .ml-nav__login span {
+  /* ---- ≤996px：外观 / 数据 / 账号收进「更多」 ---- */
+
+  /* 右侧簇不再做入场动画。
+     不只是「窄屏动效不重要」——ml-nav-drop 的关键帧里带 transform，
+     配 animation-fill-mode: both 时元素会一直保留一个 identity matrix；
+     而**任何非 none 的 transform 都会给 fixed 后代造一个新的包含块**。
+     于是「更多」面板的 left/right: 0.5rem 变成相对这颗簇算，
+     390px 下面板右缘落在 355（屏幕 390），320px 就直接被裁掉一半。
+     动画只是首屏一次淡入，换一个稳定的定位上下文，值。 */
+  .ml-nav__right {
+    animation: none;
+  }
+
+  .ml-nav__more {
+    position: relative;
+    display: flex;
+  }
+
+  .ml-nav__morepanel {
     display: none;
   }
 
-  .ml-nav__login {
-    padding: 0.3rem 0.55rem;
+  .ml-nav__more.is-open .ml-nav__morepanel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 30;
+    width: min(20rem, calc(100vw - 1.6rem));
+    padding: 0.5rem;
+    border: 1.5px solid var(--ml-nav-line);
+    border-radius: 12px;
+    background: var(--ml-nav-paper2);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+    animation: ml-nav-pop 0.16s ease-out both;
+  }
+
+  .ml-nav__morerow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.15rem 0.3rem;
+  }
+
+  .ml-nav__morerow + .ml-nav__morerow {
+    border-top: 1px dashed var(--ml-nav-line);
+  }
+
+  .ml-nav__morelabel {
+    display: block;
+    flex: none;
+    width: 2.4rem;
+    font-size: 0.78rem;
+    color: var(--ml-nav-ink-soft);
+  }
+
+  /* 面板里的控件都是「行」里的一整块：按钮宽度铺满，右缘对齐 */
+  .ml-nav__morerow > .ml-nav__acct,
+  .ml-nav__morerow > .ml-nav__data {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .ml-nav__morerow .ml-nav__modebtn,
+  .ml-nav__morerow .ml-nav__databtn,
+  .ml-nav__morerow .ml-nav__acctbtn,
+  .ml-nav__morerow .ml-nav__login {
+    justify-content: flex-start;
+    min-height: 40px;
+    height: 40px;
+  }
+
+  /* 面板里三行统一成「图标 + 文字」的整块按钮，右缘对齐 */
+  .ml-nav__morerow .ml-nav__modebtn {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
+
+  .ml-nav__morerow .ml-nav__modelabel {
+    display: inline;
+    font-size: 0.84rem;
+  }
+
+  .ml-nav__morerow .ml-nav__databtn,
+  .ml-nav__morerow .ml-nav__acctbtn {
+    width: 100%;
+  }
+
+  /* 数据面板挂在「更多」面板里：气泡本来就用 fixed + 顶栏高度定位，
+     这里只要抬高一层层级，免得被「更多」面板自己的背景盖住 */
+  .ml-nav__more .ml-nav__datapop {
+    z-index: 40;
+  }
+
+  .ml-nav__morebtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid var(--ml-nav-line);
+    border-radius: 10px;
+    background: var(--ml-nav-paper2);
+    color: var(--ml-nav-ink);
+    font-family: inherit;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .ml-nav__morebtn:hover {
+    border-color: var(--ml-nav-seal);
+    color: var(--ml-nav-seal);
+  }
+
+  .ml-nav__morebtn:focus-visible {
+    outline: 2px solid var(--ml-nav-seal);
+    outline-offset: 2px;
+  }
+
+  .ml-nav__more.is-open .ml-nav__morebtn {
+    border-color: var(--ml-nav-seal);
+    color: var(--ml-nav-seal);
+    background: var(--ml-nav-seal-a);
+  }
+
+  /* 触控目标：汉堡也提到 40px（原先 34px，390px 下是顶栏最小的可点区域） */
+  .ml-nav__burger {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* 顶栏高度：桌面沿用 Infima 的 3.75rem；≤996px 收到 56px。
+   这个变量同时驱动侧栏 padding-top、右栏 TOC 的 top、移动端侧栏抽屉的
+   margin-top——所以**必须改在 .navbar 上而不是 :root**：Infima 的
+   :root:not(#\#):not(#\#) 是 ID 级特异性，普通 :root 压不过它，
+   而 .navbar 是元素自身，变量按就近生效。
+   同时它就是锚点偏移的依据（scroll-margin-top 取同值下方留白），
+   所以「高度 56px 左右」和「不遮锚点」是同一件事的两个面。 */
+@media (max-width: 996px) {
+  .navbar.ml-nav {
+    --ifm-navbar-height: 56px;
+    padding: 0.35rem 0;
   }
 }
 
 /* ≤620px：顶栏这一排「品牌文字 + 搜索框 + 登录 + 汉堡」放不下了。
    实测 414px 溢出 9px、390px 溢出 33px、360px 溢出 63px（横向滚动条整页跑偏）。
    收成移动端的标准形态：**只留印章，藏掉品牌文字**——搜索是要用的功能，不能砍；
-   印章 + aria-label（见 Navbar/index.js 的 .ml-nav__brand）足以表意。
-   藏掉文字后这一排约 301px，320px 的窄屏也放得下。 */
+   印章 + aria-label（见 Navbar/index.js 的 .ml-nav__brand）足以表意。 */
 @media (max-width: 620px) {
+  /* 「更多」面板改成顶栏下方一整条：贴屏幕两边，够宽、也不会从右侧溢出被裁。
+     选择器必须带上 .ml-nav__more.is-open（0,3,0）——上面 ≤996px 那段就是用这个
+     特异性写的定位，只写 .ml-nav__morepanel（0,1,0）会被它盖掉，
+     面板仍锚在钮上、右半边跑到屏幕外（实测右缘 390+66px）。 */
+  .ml-nav__more.is-open .ml-nav__morepanel {
+    position: fixed;
+    left: 0.5rem;
+    right: 0.5rem;
+    top: calc(var(--ifm-navbar-height) + 0.25rem);
+    width: auto;
+    max-height: calc(100dvh - var(--ifm-navbar-height) - 1rem);
+    overflow-y: auto;
+  }
+
   .ml-nav__brandtext {
     display: none;
   }

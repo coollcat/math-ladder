@@ -118,6 +118,13 @@
   cursor: not-allowed;
 }
 
+/* 键盘操作时给所有控件一个清楚的焦点圈；鼠标点击不显示，避免画面发花。 */
+.ml-fn button:focus-visible,
+.ml-fn input[type='range']:focus-visible {
+  outline: 2px solid var(--ml-fn-vermilion);
+  outline-offset: 2px;
+}
+
 /* ---- 函数卡片 ---- */
 
 .ml-fn__cards {
@@ -734,6 +741,13 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* 窄屏时 workspace.js 会把预设和键盘移到画布之后；margin 归零，
+     只保留网格自身的间距，免得页面出现三段式的大空白。 */
+  .ml-fn__presets,
+  .ml-fn__keypadhost {
+    margin-top: 0;
+  }
+
   .ml-fn__plot {
     height: 360px;
   }
@@ -749,3 +763,214 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* =========================================================================
+ * 本轮 UI 改版 · /function 页面（2026-10-17）
+ * -------------------------------------------------------------------------
+ * 手机首屏必须同时看到「输入框 + 图形区」。原先两段导语（约 400 字）把工作区
+ * 推到 y≈740，加上工具条换行，图形区落到 y≈866 去了。
+ * 做法：① 导语在 ≤996px 收成一行摘要（页面侧 .ml-fnpage__intro 负责）；
+ *       ② 画布高度收到 44vh，输入卡与图形区之间不再有整段说明；
+ *       ③ 符号键盘横向可滚、不撑破页面。
+ * ========================================================================= */
+
+.ml-fnpage__leadbtn {
+  display: none;
+}
+
+@media (max-width: 996px) {
+  /* 导语：一行摘要 + 展开把手（桌面端整段显示、按钮不出现） */
+  .ml-fnpage__intro {
+    margin-bottom: 0.9rem;
+  }
+
+  .ml-fnpage__intro .ml-page-intro {
+    margin-bottom: 0;
+  }
+
+  .ml-fnpage__intro .ml-fnpage__lead {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    max-width: none;
+    margin: 0;
+  }
+
+  .ml-fnpage__intro:not(.is-open) .ml-fnpage__lead {
+    display: none;
+  }
+
+  /* 收起时留一行摘要：把第一段的第一句显示出来 */
+  .ml-fnpage__intro:not(.is-open)::before {
+    content: '写下一个式子，它的形状立刻出现在右边。左边可以直接敲，也可以用符号键盘一格一格拼。';
+    display: block;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--ifm-color-emphasis-700);
+  }
+
+  .ml-fnpage__intro .ml-page-intro {
+    display: block;
+  }
+
+  .ml-fnpage__leadbtn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    margin-top: 0.1rem;
+    padding: 0 0.1rem;
+    border: none;
+    background: transparent;
+    color: var(--ml-fn-vermilion);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* 画布：手机首屏要能看见图形区，44vh 够读形状又不吃掉操作区 */
+  .ml-fn__plot {
+    height: 44vh;
+    min-height: 240px;
+  }
+
+  /* 两栏在 1100px 以下已经堆成一列；这里补上「输入卡 → 画布」的紧凑间距，
+     别让工具栏与读数行把首屏第二屏之间的节奏撑散 */
+  .ml-fn {
+    gap: 10px;
+  }
+
+  /* 工具条：手机上分两段。
+     第 ① 行是模式切换（平面 / 立体）——这是最常用的入口，永远整块可见；
+     第 ② 行是「适应曲线 / ＋ / － / 重置视野 / 网格 / 零点 / 极值 / 面积」，
+     九颗按钮在 390 宽下无论如何排不进一行，收成**一条可横滑的单行**：
+     按钮不换行、不裁切丢失，滚动条常显，右缘还有一道渐隐提示。
+     这样既不用把画布往下推（换行成 3 行要 110px），也不会像纯裁切那样
+     让人以为「后面的按钮没了」。 */
+  .ml-fn__toolbar {
+    gap: 5px;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .ml-fn__seg {
+    flex: 0 0 auto;
+  }
+
+  .ml-fn__tbgroup {
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    /* 常显的细滚动条就是「这一行能滑」的最直接证据（触屏浏览器会自己忽略它） */
+    scrollbar-width: thin;
+  }
+
+  .ml-fn__tbgroup::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .ml-fn__tbgroup::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: var(--ml-fn-line);
+  }
+
+  .ml-fn__tbgroup > * {
+    flex: none;
+  }
+
+  /* 右缘渐隐：滑到头时自动消失（滚动容器看不见 padding 之外的伪元素，
+     这里用一条贴在视口右缘的粘性色块模拟） */
+  .ml-fn__tbgroup::after {
+    content: '';
+    position: sticky;
+    right: 0;
+    flex: none;
+    width: 24px;
+    margin-left: -24px;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, var(--ml-fn-paper));
+  }
+
+  .ml-fn__btn {
+    min-height: 36px;
+  }
+
+  /* 「＋ 再叠一条曲线」并进工具条那一行的视觉节奏：不再独占一整行 */
+  .ml-fn__addrow {
+    margin-top: 8px;
+  }
+
+  .ml-fn__addrow .ml-fn__btn {
+    min-height: 40px;
+  }
+
+  /* 符号键盘：手机上允许横向滚动，格子固定宽度，绝不撑破页面 */
+  .ml-fn__kbgrid {
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  }
+
+  .ml-fn__kbbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 9px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .ml-fn__kbbar .ml-fn__kbtn {
+    flex: none;
+  }
+
+  .ml-fn__kbkey {
+    min-height: 40px;
+  }
+
+  /* 预设条同理：横向滚，不换行成五六行 */
+  .ml-fn__presetrow {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ml-fn__chip {
+    flex: none;
+    min-height: 36px;
+  }
+
+  .ml-fn__paramgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ml-fn__kv {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .ml-fn__plot {
+    height: 42vh;
+    min-height: 220px;
+  }
+
+  .ml-fn__toolbar .ml-fn__btn {
+    font-size: 0.78rem;
+    padding: 4px 9px;
+  }
+}
+
+/* ---- 桌面：两栏比例与留白（输入栏不再固定 380px 上限，画布多留一点给曲线） ---- */
+@media (min-width: 1101px) {
+  .ml-fn {
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .ml-fn__plot {
+    height: 470px;
+  }
+}
+

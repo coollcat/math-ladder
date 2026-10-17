@@ -193,6 +193,53 @@
   }
 }
 
+/* ---------- 移动端（≤576px，2026-10 UI 改版） ----------
+ * 登录页是全站唯一由本文件负责的整页，手机上三件事：
+ *   1. 卡片内边距收到 1.1rem（1.75rem 在 390px 宽下把输入框压到 240px 以内）；
+ *   2. 触控目标 ≥40px（「打开数据面板」那颗胶囊原先只有 30px 高）；
+ *   3. 底部 safe-area —— iPhone 手势条不压住最后一行说明。 */
+@media (max-width: 576px) {
+  .ml-auth {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ml-auth__card {
+    padding: 1.1rem 1rem;
+    border-radius: 10px;
+  }
+
+  .ml-auth__title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .ml-auth__field input {
+    min-height: 44px;
+    font-size: 16px; /* iOS 上 <16px 会在聚焦时整页放大 */
+  }
+
+  .ml-auth__submit .button,
+  .ml-auth__data-open {
+    min-height: 44px;
+  }
+
+  .ml-auth__data-open {
+    display: flex;
+    justify-content: center;
+    padding: 0.55rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .ml-auth__actions {
+    flex-wrap: wrap;
+  }
+
+  .ml-auth__actions .button {
+    flex: 1 1 8rem;
+    min-height: 44px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ml-auth__data-open {
     transition: none;

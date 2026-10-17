@@ -115,7 +115,11 @@ export function makeStage(host, opts = {}) {
 
   const canvasBox = el('div', 'ml-alg-stage__canvas');
   box.appendChild(canvasBox);
-  const cv = setupCanvas(canvasBox, H0, { aspect: opts.aspect || 9 / 16 });
+  const cv = setupCanvas(
+    canvasBox,
+    H0,
+    opts.aspect === null ? {} : { aspect: opts.aspect || 9 / 16 },
+  );
 
   const cap = el('div', 'ml-alg-stage__caption', scenes[0].caption || '');
   box.appendChild(cap);
@@ -129,6 +133,18 @@ export function makeStage(host, opts = {}) {
   btnPlay.disabled = reduced;
   const badge = el('span', 'ml-lab__hint', '');
   controls.append(btnPrev, btnPlay, btnNext, btnReplay, badge);
+
+  const timeline = el('div', 'ml-alg-stage__timeline');
+  const scrub = el('input', 'ml-alg-stage__scrub');
+  scrub.type = 'range';
+  scrub.min = '0';
+  scrub.max = String(total);
+  scrub.step = '0.01';
+  scrub.value = '0';
+  scrub.setAttribute('aria-label', '拖动查看动画时间轴');
+  const timeLabel = el('span', 'ml-alg-stage__time', '0.00');
+  timeline.append(scrub, timeLabel);
+  box.appendChild(timeline);
 
   const dots = el('div', 'ml-alg-stage__dots');
   box.appendChild(dots);
@@ -162,6 +178,12 @@ export function makeStage(host, opts = {}) {
     cap.classList.add('is-fade');
   }
 
+  function syncTimeline() {
+    const timelineValue = Math.min(total, idx + Math.max(0, Math.min(1, t)));
+    if (document.activeElement !== scrub) scrub.value = String(timelineValue);
+    timeLabel.textContent = timelineValue.toFixed(2);
+  }
+
   function syncChrome() {
     badge.textContent = '第 ' + (idx + 1) + ' / ' + total + ' 幕'
       + (playing ? ' · 播放中' : '');
@@ -170,6 +192,7 @@ export function makeStage(host, opts = {}) {
       d.classList.toggle('is-past', i < idx);
     });
     btnPlay.textContent = reduced ? '减少动效' : (playing ? '暂停' : '播放');
+    syncTimeline();
   }
 
   function draw() {
@@ -236,6 +259,7 @@ export function makeStage(host, opts = {}) {
       trimInfo.dy = 0;
     }
     ctx.restore();
+    syncTimeline();
   }
 
   function loop(now) {
@@ -318,6 +342,27 @@ export function makeStage(host, opts = {}) {
   });
   btnReplay.addEventListener('click', () => go(0, true));
   btnPlay.addEventListener('click', () => play());
+  scrub.addEventListener('input', () => {
+    const value = Math.max(0, Math.min(total, parseFloat(scrub.value) || 0));
+    const nextIndex = Math.min(total - 1, Math.floor(value));
+    const nextT = Math.min(1, Math.max(0, value - nextIndex));
+    const changedScene = nextIndex !== idx;
+    playing = false;
+    if (raf != null) {
+      cancelAnimationFrame(raf);
+      raf = null;
+    }
+    idx = nextIndex;
+    t = nextT;
+    hold = 0;
+    if (changedScene) {
+      trimmer.resetSmooth();
+      setCaption(idx);
+      if (opts.onScene) opts.onScene(idx);
+    }
+    syncChrome();
+    draw();
+  });
 
   /* 可见性观测（自己持有，stop 时断开，不依赖 core 的无柄 onScreen） */
   const io = (typeof IntersectionObserver !== 'undefined')

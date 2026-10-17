@@ -73,10 +73,20 @@ function fmtNum(v, d) {
 
 function debounce(fn, ms) {
   let t = null;
-  return function debounced(...args) {
+  function debounced(...args) {
     clearTimeout(t);
-    t = setTimeout(() => fn.apply(null, args), ms);
+    t = setTimeout(() => {
+      t = null;
+      fn.apply(null, args);
+    }, ms);
+  }
+  debounced.cancel = () => {
+    if (t !== null) {
+      clearTimeout(t);
+      t = null;
+    }
   };
+  return debounced;
 }
 
 export function createWorkspace(host, opts) {
@@ -91,6 +101,7 @@ export function createWorkspace(host, opts) {
     areaMode: false,
     mode: o.mode === '3d' ? '3d' : '2d',
     domain: o.domain || 4,   /* 3D 的 xy 域半边长 */
+    params2d: null,      /* 离开平面模式时留一份参数快照，回来不丢旋钮值 */
     show: {
       grid: true,
       zeros: o.zeros !== false,
@@ -105,6 +116,32 @@ export function createWorkspace(host, opts) {
 
   /* 自变量表：2D 只有 x，3D 是 z = f(x, y) */
   const vars = () => (state.mode === '3d' ? ['x', 'y'] : ['x']);
+  const activeFuncs = () => (state.mode === '3d'
+    ? state.funcs.slice(0, MAX_FUNCS_3D)
+    : state.funcs);
+
+  if (state.mode === '2d') state.params2d = Object.assign({}, state.params);
+
+  /* 切模式不再截断 state.funcs：3D 只画并只展示第一条，其余曲线留在数组里，
+     切回平面时原样恢复。 */
+  function enterMode(v) {
+    const next = v === '3d' ? '3d' : '2d';
+    if (state.mode === next) return false;
+    state.funcs.forEach(cancelParseTimer);
+    if (state.mode === '2d' && next === '3d') {
+      state.params2d = Object.assign({}, state.params);
+    } else if (state.mode === '3d' && next === '2d') {
+      /* 先拿回 2D 的参数快照，再用 3D 里改过的同名参数覆盖，
+         这样 y 这类只在 2D 存在的参数不会丢，a/b 的 3D 调整也能带回来。 */
+      state.params = Object.assign({}, state.params2d || {}, state.params);
+    }
+    state.mode = next;
+    const active = activeFuncs();
+    if (!active.some((fu) => fu.id === state.activeId)) {
+      state.activeId = active[0] ? active[0].id : null;
+    }
+    return true;
+  }
 
   /* ---------- 骨架 ---------- */
 
@@ -149,6 +186,29 @@ export function createWorkspace(host, opts) {
   if (presetBox) left.appendChild(presetBox);
   left.appendChild(keypadHost);
 
+  /* 窄屏时把画布紧跟在输入卡后面，再把预设与符号键盘挪到性质面板之后。
+     这样手机上写完式子不用先滚过 50 个符号键才能看见图。
+     这里真的移动 DOM 节点，而不是只用 CSS order，键盘 Tab 顺序也跟着一致。 */
+  const compactMq = window.matchMedia ? window.matchMedia('(max-width: 1100px)') : null;
+  let compactLayout = null;
+  function syncCompactLayout() {
+    if (!compactMq) return;
+    const next = compactMq.matches;
+    if (next === compactLayout) return;
+    compactLayout = next;
+    if (next) {
+      left.append(cardBox, addRow);
+      right.after(keypadHost);
+      if (presetBox) right.after(presetBox);
+    } else {
+      left.append(cardBox, addRow);
+      if (presetBox) left.appendChild(presetBox);
+      left.appendChild(keypadHost);
+    }
+  }
+  if (compactMq && compactMq.addEventListener) compactMq.addEventListener('change', syncCompactLayout);
+  else if (compactMq && compactMq.addListener) compactMq.addListener(syncCompactLayout);
+
   /* --- 右栏 --- */
 
   const toolbar = el('div', 'ml-fn__toolbar');
@@ -169,9 +229,13 @@ export function createWorkspace(host, opts) {
   /* 画布高度：课文里写 height 就用；没写就交给 CSS（.ml-fn__plot 的
      440/360/300 响应式高度）——别在这里抢着给默认值，否则 CSS 变窄了
      画布还是 420，底部会被 plothost 的 overflow:hidden 切掉一截。 */
+  const initialView = o.view
+    ? { x0: o.view[0], x1: o.view[1], y0: -6, y1: 6 }
+    : { x0: -12, x1: 12, y0: -3, y1: 3 };
   const plot = createPlot(plotHost, {
     height: o.height,
-    view: o.view ? { x0: o.view[0], x1: o.view[1], y0: -6, y1: 6 } : { x0: -12, x1: 12, y0: -3, y1: 3 },
+    view: initialView,
+    onReset: () => reset2dView(),
   });
 
   /* 3D 曲面与 2D 画布同处一个坑里，谁在场上谁显示——
@@ -181,16 +245,30 @@ export function createWorkspace(host, opts) {
   const surface = createSurface(surfaceHost, { height: o.height });
   const plotWrap = plot.el;
 
+  function reset2dView() {
+    plot.setView(initialView, true);
+    state.area = null;
+    plot.setSelection(null);
+    refreshPlot();
+    scheduleRecompute();
+  }
+
   /* ---------- 工具栏 ---------- */
 
-  function mkToggle(label, title, get, set) {
+  function mkToggle(label, title, get, set, after) {
     const b = el('button', 'ml-fn__btn ml-fn__btn--toggle', label);
     b.type = 'button';
     b.title = title;
-    const sync = () => b.classList.toggle('is-on', !!get());
+    const sync = () => {
+      const on = !!get();
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    };
     b.addEventListener('click', () => {
-      set(!get());
+      const next = !get();
+      set(next);
       sync();
+      if (after) after(next);
       refreshPlot();
     });
     sync();
@@ -216,18 +294,13 @@ export function createWorkspace(host, opts) {
 
   const tbReset = el('button', 'ml-fn__btn', '重置视野');
   tbReset.type = 'button';
-  tbReset.addEventListener('click', () => {
-    plot.setView({ x0: -10, x1: 10 });
-    state.area = null;
-    plot.setSelection(null);
-    refreshPlot();
-    scheduleRecompute();
-    refreshInfo();
-  });
+  tbReset.addEventListener('click', () => reset2dView());
 
   const tGrid = mkToggle('网格', '显示坐标网格', () => state.show.grid, (v) => { state.show.grid = v; });
-  const tZero = mkToggle('零点', '标出与 x 轴的交点', () => state.show.zeros, (v) => { state.show.zeros = v; });
-  const tExtr = mkToggle('极值', '标出极大值与极小值', () => state.show.extrema, (v) => { state.show.extrema = v; });
+  const tZero = mkToggle('零点', '标出与 x 轴的交点', () => state.show.zeros,
+    (v) => { state.show.zeros = v; }, (v) => { if (v) scheduleRecompute(); });
+  const tExtr = mkToggle('极值', '标出极大值与极小值', () => state.show.extrema,
+    (v) => { state.show.extrema = v; }, (v) => { if (v) scheduleRecompute(); });
   const tArea = mkToggle('∫ 面积', '在画布上横向拖一段，量出这段的定积分', () => state.areaMode, (v) => {
     state.areaMode = v;
     plot.setDragMode(v ? 'select' : 'pan');
@@ -271,12 +344,14 @@ export function createWorkspace(host, opts) {
   domainRange.max = '20';
   domainRange.step = '0.5';
   domainRange.value = String(state.domain);
+  domainRange.setAttribute('aria-label', '三维曲面的定义域半边长');
   const domainVal = el('span', 'ml-fn__paramval', '±' + state.domain);
   domainRange.addEventListener('input', () => {
     state.domain = parseFloat(domainRange.value);
     domainVal.textContent = '±' + state.domain;
-    scheduleRecompute();
+    scheduleRecompute(false);
   });
+  domainRange.addEventListener('change', () => scheduleRecompute());
   const domainLab = el('span', 'ml-fn__domainlab', '域');
   domainLab.title = 'xy 平面上取多大的方块来画（± 这个值）';
   domainRow.append(domainLab, domainRange, domainVal);
@@ -290,6 +365,7 @@ export function createWorkspace(host, opts) {
   zScaleRange.max = '2.5';
   zScaleRange.step = '0.05';
   zScaleRange.value = String(surface.zScale);
+  zScaleRange.setAttribute('aria-label', '曲面高度夸张倍数');
   const zScaleVal = el('span', 'ml-fn__paramval', '×' + fmtNum(surface.zScale, 2));
   zScaleRange.addEventListener('input', () => {
     const v = parseFloat(zScaleRange.value);
@@ -310,12 +386,14 @@ export function createWorkspace(host, opts) {
   /* 模式切换：2D 与 3D 的自变量表不同（后者多一个 y），
      切过去必须把所有式子按新的自变量表重新编译一遍 */
   const modeSeg = el('div', 'ml-fn__seg');
+  modeSeg.setAttribute('aria-label', '平面或立体模式');
   const modeBtns = [
     { v: '2d', label: '平面 y = f(x)' },
     { v: '3d', label: '立体 z = f(x, y)' },
   ].map((m) => {
     const b = el('button', 'ml-fn__segbtn', m.label);
     b.type = 'button';
+    b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', () => setMode(m.v));
     modeSeg.appendChild(b);
     return { b, v: m.v };
@@ -324,21 +402,21 @@ export function createWorkspace(host, opts) {
   toolbar.append(modeSeg, tb2d, tb3d);
 
   function setMode(v) {
-    if (state.mode === v) return;
-    state.mode = v;
-    /* 3D 只画一条：多曲面互相穿插时排序排不对，叠着反而是添乱 */
-    if (v === '3d' && state.funcs.length > MAX_FUNCS_3D) {
-      state.funcs = state.funcs.slice(0, MAX_FUNCS_3D);
-      renderCards();
-    }
+    if (!enterMode(v)) return;
     syncMode();
     renderPresets();
-    refreshAll();
+    renderCards();
+    refreshAll(false);
+    recompute();
   }
 
   function syncMode() {
     const d3 = state.mode === '3d';
-    modeBtns.forEach((x) => x.b.classList.toggle('is-on', state.mode === x.v));
+    modeBtns.forEach((x) => {
+      const on = state.mode === x.v;
+      x.b.classList.toggle('is-on', on);
+      x.b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
     tb2d.classList.toggle('is-off', d3);
     tb3d.classList.toggle('is-off', !d3);
     plotWrap.classList.toggle('is-off', d3);
@@ -363,6 +441,7 @@ export function createWorkspace(host, opts) {
       colorIndex: colorIndex === undefined ? uid - 1 : colorIndex,
       result: null,
       inputs: null,
+      parseTimer: null,
     };
   }
 
@@ -379,18 +458,22 @@ export function createWorkspace(host, opts) {
     dot.style.background = colorOf(fu);
     /* 3D 里式子是 z = f(x, y)，卡片标题得跟着变，否则会以为 y 是参数 */
     const argTxt = state.mode === '3d' ? '(x, y) =' : '(x) =';
-    const name = el('span', 'ml-fn__fname', 'f' + subDigits(index + 1) + argTxt);
+    const fLabel = 'f' + subDigits(index + 1);
+    const name = el('span', 'ml-fn__fname', fLabel + argTxt);
 
     const btns = el('div', 'ml-fn__cardbtns');
     const bEye = el('button', 'ml-fn__icon', '◉');
     bEye.type = 'button';
     bEye.title = '显示 / 隐藏这条曲线';
+    bEye.setAttribute('aria-label', '显示或隐藏 ' + fLabel);
     const bDeriv = el('button', 'ml-fn__icon', 'f′');
     bDeriv.type = 'button';
     bDeriv.title = '同时画出它的导函数（虚线）';
+    bDeriv.setAttribute('aria-label', '显示或隐藏 ' + fLabel + ' 的导函数');
     const bDel = el('button', 'ml-fn__icon', '×');
     bDel.type = 'button';
     bDel.title = '删掉这条';
+    bDel.setAttribute('aria-label', '删除 ' + fLabel);
     btns.append(bEye, bDeriv, bDel);
     head.append(dot, name, btns);
 
@@ -404,6 +487,7 @@ export function createWorkspace(host, opts) {
     input.autocomplete = 'off';
     input.placeholder = '写个式子，比如 sin(x)/x 或 \\frac{\\sin x}{x}';
     input.value = fu.src;
+    input.setAttribute('aria-label', fLabel + ' 的表达式');
 
     const err = el('div', 'ml-fn__err');
 
@@ -447,7 +531,11 @@ export function createWorkspace(host, opts) {
     });
     bDel.addEventListener('click', () => {
       if (state.funcs.length <= 1) return;
+      cancelParseTimer(fu);
       state.funcs = state.funcs.filter((x) => x.id !== fu.id);
+      if (state.activeId === fu.id) {
+        state.activeId = state.funcs[0] ? state.funcs[0].id : null;
+      }
       renderCards();
       refreshAll();
     });
@@ -463,12 +551,20 @@ export function createWorkspace(host, opts) {
   }
 
   function renderCards() {
+    /* 只给当前模式真正会用的卡片保留 DOM 引用；3D 下其余曲线的旧 inputs
+       如果不清掉，符号键盘可能往已经移除的输入框里插字。 */
+    state.funcs.forEach((fu) => { fu.inputs = null; });
     cardBox.innerHTML = '';
-    state.funcs.forEach((fu, i) => cardBox.appendChild(buildCard(fu, i)));
-    btnAdd.disabled = state.funcs.length >= MAX_FUNCS;
+    const list = activeFuncs();
+    list.forEach((fu, i) => cardBox.appendChild(buildCard(fu, i)));
+    if (state.mode === '3d' && state.funcs.length > MAX_FUNCS_3D) {
+      cardBox.appendChild(el('div', 'ml-fn__note',
+        '立体模式只画第一条曲面；其余曲线和参数会保留，切回平面后恢复。'));
+    }
+    btnAdd.disabled = state.mode !== '3d' && state.funcs.length >= MAX_FUNCS;
     syncActive();
-    state.funcs.forEach(syncCard);
-    state.funcs.forEach(paintPreview);
+    list.forEach(syncCard);
+    list.forEach(paintPreview);
   }
 
   function syncActive() {
@@ -488,6 +584,7 @@ export function createWorkspace(host, opts) {
 
   /* ---------- 预览 ---------- */
 
+  let previewToken = 0;
   function paintPreview(fu) {
     if (!fu.inputs) return;
     const box = fu.inputs.preview;
@@ -495,6 +592,8 @@ export function createWorkspace(host, opts) {
     /* 没改过的式子不重渲（把渲染键记在节点上，卡片重建后自然失效） */
     if (box.dataset.painted === raw) return;
     box.dataset.painted = raw;
+    const token = String(++previewToken);
+    box.dataset.paintToken = token;
     if (!raw) {
       box.className = 'ml-fn__preview is-empty';
       box.textContent = '在下面写个式子，或点下面的符号键盘拼一个';
@@ -511,6 +610,8 @@ export function createWorkspace(host, opts) {
     box.className = 'ml-fn__preview';
     getKatex()
       .then((katex) => {
+        /* KaTeX 是异步加载的：慢网络下旧式子的渲染结果不能盖掉新式子。 */
+        if (box.dataset.paintToken !== token || !box.isConnected) return;
         try {
           box.innerHTML = katex.renderToString(tex, { displayMode: true, throwOnError: true });
           box.classList.remove('is-error');
@@ -520,6 +621,7 @@ export function createWorkspace(host, opts) {
         }
       })
       .catch(() => {
+        if (box.dataset.paintToken !== token || !box.isConnected) return;
         box.textContent = tex;
       });
   }
@@ -548,35 +650,44 @@ export function createWorkspace(host, opts) {
     }
   }
 
-  function allParams() {
+  function collectParams(list) {
     const set = new Set();
-    state.funcs.forEach((fu) => {
+    list.forEach((fu) => {
       if (fu.compiled) fu.compiled.params.forEach((p) => set.add(p));
     });
     return Array.from(set).sort();
   }
 
+  function allParams() { return collectParams(state.funcs); }
+  function visibleParams() { return collectParams(activeFuncs()); }
+
   /* ---------- 参数滑块 ---------- */
 
   function syncParams() {
     const names = allParams();
+    const keep = new Set(names);
+    /* 3D 只展示第一条的参数，但 2D 其余曲线的参数值要留着。 */
+    if (state.mode === '3d' && state.params2d) {
+      Object.keys(state.params2d).forEach((p) => keep.add(p));
+    }
     /* 新出现的参数给个默认值 1，消失的清掉，免得滑块越攒越多 */
-    names.forEach((p) => {
+    keep.forEach((p) => {
       if (!(p in state.params)) state.params[p] = 1;
     });
     Object.keys(state.params).forEach((p) => {
-      if (names.indexOf(p) < 0) delete state.params[p];
+      if (!keep.has(p)) delete state.params[p];
     });
 
+    const shown = visibleParams();
     paramBox.innerHTML = '';
-    if (!names.length) {
+    if (!shown.length) {
       paramBox.classList.add('is-empty');
       return;
     }
     paramBox.classList.remove('is-empty');
     paramBox.appendChild(el('div', 'ml-fn__subhead', '参数（拖动看形变）'));
     const grid = el('div', 'ml-fn__paramgrid');
-    names.forEach((p) => {
+    shown.forEach((p) => {
       const row = el('div', 'ml-fn__param');
       const lab = el('span', 'ml-fn__paramname', '');
       lab.textContent = p;
@@ -586,20 +697,25 @@ export function createWorkspace(host, opts) {
       range.max = '10';
       range.step = '0.05';
       range.value = String(state.params[p]);
+      range.setAttribute('aria-label', '参数 ' + p + ' 的值');
       const val = el('span', 'ml-fn__paramval', fmtNum(state.params[p], 2));
+      const commit = (value, live) => {
+        state.params[p] = value;
+        if (state.mode === '2d' && state.params2d) state.params2d[p] = value;
+        range.value = String(value);
+        val.textContent = fmtNum(value, 2);
+        scheduleRecompute(!live);
+      };
       range.addEventListener('input', () => {
-        state.params[p] = parseFloat(range.value);
-        val.textContent = fmtNum(state.params[p], 2);
-        scheduleRecompute();
+        commit(parseFloat(range.value), true);
       });
+      range.addEventListener('change', () => scheduleRecompute());
       const dbl = el('button', 'ml-fn__icon', '×2');
       dbl.type = 'button';
       dbl.title = '翻一倍，看曲线怎么被拉扯';
+      dbl.setAttribute('aria-label', '把参数 ' + p + ' 翻倍');
       dbl.addEventListener('click', () => {
-        state.params[p] = Math.max(-10, Math.min(10, state.params[p] * 2));
-        range.value = String(state.params[p]);
-        val.textContent = fmtNum(state.params[p], 2);
-        scheduleRecompute();
+        commit(Math.max(-10, Math.min(10, state.params[p] * 2)), false);
       });
       row.append(lab, range, val, dbl);
       grid.appendChild(row);
@@ -630,19 +746,26 @@ export function createWorkspace(host, opts) {
   /* ---------- 重算 ---------- */
 
   let rafId = null;
-  function scheduleRecompute() {
+  let wantInfo = false;
+  function scheduleRecompute(withInfo) {
+    if (withInfo !== false) wantInfo = true;
     if (rafId != null) return;
     rafId = requestAnimationFrame(() => {
       rafId = null;
-      recompute();
+      const full = wantInfo;
+      wantInfo = false;
+      recompute(full);
     });
   }
 
-  function recompute() {
+  function recompute(withInfo) {
     if (state.mode === '3d') {
-      recompute3();
+      recompute3(withInfo);
       return;
     }
+    /* withInfo === false 只出现在拖滑块的连续帧：这时用均匀采样先保住手感，
+       松手（change）后再做自适应细分与两两交点。 */
+    const live = withInfo === false;
     const v = plot.view;
     /* 采样比视野宽一圈：拖动时先有得画，不用等重新采样 */
     const pad = (v.x1 - v.x0) * 0.2;
@@ -658,28 +781,32 @@ export function createWorkspace(host, opts) {
       const r = A.analyze(f, x0, x1, {
         zeros: state.show.zeros,
         extrema: state.show.extrema,
+        refine: !live,
       });
       r.f = f;
       fu.result = r;
     });
 
-    /* 交点：两两求一次，只在此刻可见的曲线之间 */
+    /* 交点：两两求一次，只在此刻可见的曲线之间。拖动参数时先跳过，
+       松手后再补上；否则 6 条曲线要跑 15 组 400 点网格，是拖动的最大头。 */
     state.crosses = [];
-    const vis = state.funcs.filter((fu) => fu.result);
-    for (let i = 0; i < vis.length; i += 1) {
-      for (let j = i + 1; j < vis.length; j += 1) {
-        const pts = A.intersections(vis[i].result.f, vis[j].result.f, x0, x1);
-        pts.forEach((p) => {
-          p.a = vis[i];
-          p.b = vis[j];
-          p.y = vis[i].result.f(p.x);
-          state.crosses.push(p);
-        });
+    if (!live) {
+      const vis = state.funcs.filter((fu) => fu.result);
+      for (let i = 0; i < vis.length; i += 1) {
+        for (let j = i + 1; j < vis.length; j += 1) {
+          const pts = A.intersections(vis[i].result.f, vis[j].result.f, x0, x1);
+          pts.forEach((p) => {
+            p.a = vis[i];
+            p.b = vis[j];
+            p.y = vis[i].result.f(p.x);
+            state.crosses.push(p);
+          });
+        }
       }
     }
 
     refreshPlot();
-    refreshInfo();
+    if (withInfo !== false) refreshInfo();
   }
 
   /* ---------- 3D 重算 ---------- */
@@ -688,10 +815,10 @@ export function createWorkspace(host, opts) {
      拖动时 surface 内部会跳格降到 1/4，帧率才跟得上。 */
   const GRID_N = 40;
 
-  function recompute3() {
+  function recompute3(withInfo) {
     const d = Math.max(0.05, state.domain);
-    state.funcs.forEach((fu) => {
-      if (!fu.compiled || !fu.visible) {
+    state.funcs.forEach((fu, index) => {
+      if (index >= MAX_FUNCS_3D || !fu.compiled || !fu.visible) {
         fu.result3 = null;
         return;
       }
@@ -713,7 +840,7 @@ export function createWorkspace(host, opts) {
       };
     });
     refreshPlot();
-    refreshInfo();
+    if (withInfo !== false) refreshInfo();
   }
 
   /* ---------- 画图 ---------- */
@@ -965,31 +1092,54 @@ export function createWorkspace(host, opts) {
         grid.appendChild(item);
       };
 
+      /* 采样比视野宽 20%，读数必须先裁回真正看得见的那一段，
+         否则性质面板会报出屏幕外的零点/极值。 */
+      const zeros = r.zeros.filter((z) => z.x >= v.x0 && z.x <= v.x1);
+      const extrema = r.extrema.filter((e) => e.x >= v.x0 && e.x <= v.x1);
+
       /* 零点 */
-      put('零点', r.zeros.length
-        ? r.zeros.slice(0, 6).map((z) => fmtNum(z.x, 4)).join('，') +
-          (r.zeros.length > 6 ? ' …' : '')
-        : '视野内没有', r.zeros.length ? '' : 'is-mute');
+      put('零点', zeros.length
+        ? zeros.slice(0, 6).map((z) => fmtNum(z.x, 4)).join('，') +
+          (zeros.length > 6 ? ' …' : '')
+        : '视野内没有', zeros.length ? '' : 'is-mute');
 
       /* 极值 */
-      const ex = r.extrema.slice(0, 4);
+      const ex = extrema.slice(0, 4);
       put('极值', ex.length
         ? ex.map((e) => (e.type === 'max' ? '极大 ' : '极小 ') +
             fmtNum(e.y, 4) + ' @ ' + fmtNum(e.x, 3)).join('；')
         : '视野内没有', ex.length ? '' : 'is-mute');
 
       /* 单调 */
-      const mono = (r.mono || []).filter((m) => m.x1 > v.x0 && m.x0 < v.x1);
+      const eps = 1e-9 * Math.max(1, Math.abs(v.x1 - v.x0));
+      const mono = (r.mono || [])
+        .map((m) => ({
+          dir: m.dir,
+          x0: Math.max(m.x0, v.x0),
+          x1: Math.min(m.x1, v.x1),
+        }))
+        .filter((m) => m.x1 - m.x0 > eps);
       put('单调', mono.length
         ? mono.map((m) => '[' + fmtNum(m.x0, 2) + ', ' + fmtNum(m.x1, 2) + '] ' +
             (m.dir === 'up' ? '↗' : '↘')).join('  ')
         : '—', mono.length ? '' : 'is-mute');
 
       /* 定义域（视野内算得出来的部分） */
-      const dom = r.segs.map(([i0, i1]) => [r.xs[i0], r.xs[i1]]);
-      put('有定义', dom.length > 1
-        ? dom.map(([a, b]) => '[' + fmtNum(a, 2) + ', ' + fmtNum(b, 2) + ']').join(' ∪ ')
-        : '整段都有', dom.length > 1 ? '' : 'is-mute');
+      const dom = r.segs
+        .map(([i0, i1]) => [
+          Math.max(r.xs[i0], v.x0),
+          Math.min(r.xs[i1], v.x1),
+        ])
+        .filter(([a, b]) => b - a > eps);
+      const coversAll = dom.length === 1 &&
+        dom[0][0] <= v.x0 + eps && dom[0][1] >= v.x1 - eps;
+      let domText = '视野内没有';
+      if (dom.length) {
+        domText = coversAll
+          ? '整段都有'
+          : dom.map(([a, b]) => '[' + fmtNum(a, 2) + ', ' + fmtNum(b, 2) + ']').join(' ∪ ');
+      }
+      put('有定义', domText, dom.length && !coversAll ? '' : 'is-mute');
 
       /* 积分：有选区就按选区，否则按整个视野 */
       const ia = area ? area[0] : v.x0;
@@ -1011,7 +1161,7 @@ export function createWorkspace(host, opts) {
     });
 
     /* 奇偶性单独一行：只在单条曲线时说，多条叠着看就没意思了 */
-    if (vis.length === 1 && vis[0].result) {
+    if (vis.length === 1 && vis[0].result && v.x0 < 0 && v.x1 > 0) {
       const f = vis[0].result.f;
       const p = A.parity(f, Math.min(8, Math.abs(v.x1)));
       if (p) {
@@ -1023,8 +1173,9 @@ export function createWorkspace(host, opts) {
     }
 
     /* 交点 */
-    if (state.crosses && state.crosses.length) {
-      const list = state.crosses.slice(0, 8);
+    const crosses = (state.crosses || []).filter((p) => p.x >= v.x0 && p.x <= v.x1);
+    if (crosses.length) {
+      const list = crosses.slice(0, 8);
       const box = el('div', 'ml-fn__note');
       box.appendChild(el('strong', null, '交点'));
       box.appendChild(document.createTextNode('　' +
@@ -1130,26 +1281,56 @@ export function createWorkspace(host, opts) {
 
   /* ---------- 串联 ---------- */
 
-  const scheduleParse = debounce((fu) => {
-    parseOne(fu);
-    paintPreview(fu);
-    syncParams();
-    paintParamNames();
-    if (fu.inputs) {
-      fu.inputs.err.textContent = fu.error || '';
-      fu.inputs.err.classList.toggle('is-show', !!fu.error);
+  /* 防抖必须按函数分开：全组件共用一个计时器时，快速连续编辑多条曲线，
+     前一条的解析会被后一条取消，只有最后一条真正编译。 */
+  function cancelParseTimer(fu) {
+    if (fu && fu.parseTimer != null) {
+      clearTimeout(fu.parseTimer);
+      fu.parseTimer = null;
     }
-    scheduleRecompute();
-  }, 180);
+  }
+
+  function scheduleParse(fu) {
+    cancelParseTimer(fu);
+    fu.parseTimer = setTimeout(() => {
+      fu.parseTimer = null;
+      parseOne(fu);
+      paintPreview(fu);
+      syncParams();
+      paintParamNames();
+      if (fu.inputs) {
+        fu.inputs.err.textContent = fu.error || '';
+        fu.inputs.err.classList.toggle('is-show', !!fu.error);
+      }
+      scheduleRecompute();
+    }, 180);
+  }
 
   const scheduleRecomputeDebounced = debounce(() => recompute(), 120);
 
   plot.onView(() => scheduleRecomputeDebounced());
-  plot.onHover((h) => paintReadout(h));
+  /* 鼠标每秒能发一百多个 move，读数 DOM 没必要每个事件都重搭一次；
+     合并到一帧一次，画布上的探针仍然由画布自己按 rAF 跟进。 */
+  let hover2Raf = 0;
+  let hover2Value = null;
+  function scheduleReadout(h) {
+    hover2Value = h;
+    if (hover2Raf) return;
+    hover2Raf = requestAnimationFrame(() => {
+      hover2Raf = 0;
+      paintReadout(hover2Value);
+    });
+  }
+  plot.onHover(scheduleReadout);
   /* 3D 的悬停读数：surface 反解出 (x,y) 并用 at 求出 z，这里只剩展示 */
+  let hover3Raf = 0;
   surface.onHover((h) => {
     hover3 = h;
-    paintReadout3();
+    if (hover3Raf) return;
+    hover3Raf = requestAnimationFrame(() => {
+      hover3Raf = 0;
+      paintReadout3();
+    });
   });
   plot.onSelect((r, done) => {
     state.area = r ? [Math.min(r[0], r[1]), Math.max(r[0], r[1])] : null;
@@ -1177,8 +1358,11 @@ export function createWorkspace(host, opts) {
   function applyPreset(p) {
     /* 预设自己带模式：点 3D 的例子就切到立体，反之切回平面 */
     const presetMode = p.domain !== undefined ? '3d' : '2d';
-    const modeChanged = state.mode !== presetMode;
-    if (modeChanged) state.mode = presetMode;
+    const modeChanged = enterMode(presetMode);
+    if (modeChanged) {
+      syncMode();
+      renderPresets();
+    }
     if (p.domain !== undefined) {
       state.domain = p.domain;
       domainRange.value = String(p.domain);
@@ -1186,34 +1370,37 @@ export function createWorkspace(host, opts) {
     }
     state.funcs = p.funcs.map((src, i) => makeFunc(src, i));
     state.params = Object.assign({}, p.params || {});
+    state.params2d = presetMode === '2d' ? Object.assign({}, state.params) : null;
     state.area = null;
     state.areaMode = false;
     plot.setDragMode('pan');
     plot.setSelection(null);
     tArea.sync();
     if (p.view) plot.setView({ x0: p.view[0], x1: p.view[1] }, true);
-    if (modeChanged) {
-      syncMode();
-      renderPresets();
-    }
     renderCards();
-    state.funcs.forEach(parseOne);
-    syncParams();
-    paintParamNames();
     state.activeId = state.funcs[0].id;
     syncActive();
+    refreshAll(false);
+    if (presetMode === '2d') state.params2d = Object.assign({}, state.params);
+    computeAndFit();
+  }
+
+  function refreshAll(schedule) {
+    activeFuncs().forEach((fu) => {
+      cancelParseTimer(fu);
+      parseOne(fu);
+    });
+    syncParams();
+    paintParamNames();
+    if (schedule !== false) scheduleRecompute();
+  }
+
+  function computeAndFit() {
     recompute();
     if (state.mode === '2d') {
       plot.fitY(0.12);
       recompute();
     }
-  }
-
-  function refreshAll() {
-    state.funcs.forEach(parseOne);
-    syncParams();
-    paintParamNames();
-    scheduleRecompute();
   }
 
   /* 键盘：插到当前激活的那条的输入框里 */
@@ -1232,10 +1419,10 @@ export function createWorkspace(host, opts) {
   renderCards();
   renderPresets();
   syncMode();
+  syncCompactLayout();
   if (o.view) plot.setView({ x0: o.view[0], x1: o.view[1] }, true);
-  refreshAll();
-  if (state.mode === '2d') plot.fitY(0.12);
-  recompute();
+  refreshAll(false);
+  computeAndFit();
 
   return {
     el: root,
@@ -1243,7 +1430,7 @@ export function createWorkspace(host, opts) {
     setFuncs(list, opts) {
       const op = Array.isArray(opts) ? { view: opts } : (opts || {});
       if (op.mode && op.mode !== state.mode) {
-        state.mode = op.mode === '3d' ? '3d' : '2d';
+        enterMode(op.mode);
         syncMode();
         renderPresets();
       }
@@ -1252,12 +1439,33 @@ export function createWorkspace(host, opts) {
       state.funcs = (list || []).slice(0, cap).map((src, i) => makeFunc(src, i));
       if (op.view) plot.setView({ x0: op.view[0], x1: op.view[1] }, true);
       renderCards();
-      refreshAll();
-      if (state.mode === '2d') plot.fitY(0.12);
-      recompute();
+      state.activeId = state.funcs[0] ? state.funcs[0].id : null;
+      syncActive();
+      refreshAll(false);
+      state.params2d = state.mode === '2d' ? Object.assign({}, state.params) : null;
+      computeAndFit();
     },
     getView() { return plot.view; },
     destroy() {
+      state.funcs.forEach(cancelParseTimer);
+      scheduleRecomputeDebounced.cancel();
+      if (rafId != null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      if (hover2Raf) {
+        cancelAnimationFrame(hover2Raf);
+        hover2Raf = 0;
+      }
+      if (hover3Raf) {
+        cancelAnimationFrame(hover3Raf);
+        hover3Raf = 0;
+      }
+      if (compactMq && compactMq.removeEventListener) {
+        compactMq.removeEventListener('change', syncCompactLayout);
+      } else if (compactMq && compactMq.removeListener) {
+        compactMq.removeListener(syncCompactLayout);
+      }
       plot.destroy();
       /* 曲面也在场：漏了它，它的 ResizeObserver 与 MutationObserver
          会一直挂着，工作区早就拆了它还在监听 documentElement */

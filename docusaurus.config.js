@@ -51,7 +51,13 @@ async function createConfig() {
             routeBasePath: 'docs',
             sidebarPath: './sidebars.js',
             remarkPlugins: [remarkMath],
-            rehypePlugins: [rehypeKatex],
+            /* KaTeX 的 strict 默认是 'warn'：公式里出现裸中文（或其它 Unicode 文字）时
+               会在构建日志里刷几百行 "Unicode text character … used in math mode"。
+               这些页面的实际渲染是对的（KaTeX 会把它当文本排），但日志噪音会淹没真正的错误，
+               而且 React 端也会往浏览器控制台灌警告。本站的数学内容一律应该写成
+               \text{中文}，扫描脚本 _ai-workspace/tools/katex-final.mjs 单独负责体检；
+               这里把 strict 降成 'ignore'，让构建日志只留能阻断的问题。 */
+            rehypePlugins: [[rehypeKatex, { strict: 'ignore' }]],
             showLastUpdateTime: false,
             showLastUpdateAuthor: false,
             sidebarCollapsible: true,

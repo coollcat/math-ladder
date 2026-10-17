@@ -131,6 +131,9 @@ export default function KnowledgeGraphRadial() {
   const [ringFilter, setRingFilter] = React.useState(null);
   const [zoomPct, setZoomPct] = React.useState(100);
   const [outline, setOutline] = React.useState(true); /* 目录侧栏（窄屏默认收起） */
+  /* 图例（层级环 + 卷色）在手机上默认折叠：六枚环芯片 + 七枚卷芯片会占掉
+     画布下方一屏，而它们的任务只是「认出颜色」。桌面端默认展开，与改版前一致。 */
+  const [legendOpen, setLegendOpen] = React.useState(true);
   /* 课级钻取（2026-09-29）：{ n, data, err }。
      data 是 static/graph-chapters/NN.json 的内容——**点击时才从服务器 fetch**，
      拿到后本章每门课在图上原位展开成一圈课点。 */
@@ -150,10 +153,13 @@ export default function KnowledgeGraphRadial() {
   /* 焦点：点选优先于悬停——鼠标移开后面板还留着刚点的那一章 */
   const focus = picked ?? hot;
 
-  /* 窄屏默认收起目录（画布优先），桌面默认展开 */
+  /* 窄屏默认收起目录与图例（画布优先），桌面默认展开 */
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (window.matchMedia('(max-width: 996px)').matches) setOutline(false);
+    if (window.matchMedia('(max-width: 996px)').matches) {
+      setOutline(false);
+      setLegendOpen(false);
+    }
   }, []);
 
   const applyView = React.useCallback(() => {
@@ -853,6 +859,19 @@ export default function KnowledgeGraphRadial() {
         )}
       </div>
 
+      {/* 图例折叠把手（只有 ≤996px 显示；桌面端 .ml-rg__legendbox 是 display:contents，
+          两段图例与改版前完全一样地铺开） */}
+      <button
+        type="button"
+        className={'ml-rg__legendbtn' + (legendOpen ? ' is-on' : '')}
+        onClick={() => setLegendOpen((v) => !v)}
+        aria-expanded={legendOpen}
+        aria-controls="ml-rg-legend"
+      >
+        {legendOpen ? '收起图例' : '图例：环与卷'}
+      </button>
+
+      <div id="ml-rg-legend" className={'ml-rg__legendbox' + (legendOpen ? ' is-open' : '')}>
       {/* 层级图例：环的名字与章数（环上只标了难度区间，整句写环上必然压住节点） */}
       <div className="ml-rg__rings">
         <span className="ml-rg__rings-lead">由内向外：</span>
@@ -888,6 +907,7 @@ export default function KnowledgeGraphRadial() {
             {`${v.n} · ${v.title}`}
           </button>
         ))}
+      </div>
       </div>
 
       {/* ---------- 信息面板 ---------- */}

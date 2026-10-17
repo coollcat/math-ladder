@@ -1,6 +1,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import KnowledgeGraphRadial from '@site/src/components/ml-home/KnowledgeGraphRadial';
+import PageIntro from '@site/src/components/ml-home/PageIntro';
 
 /* =========================================================================
  * 知识图谱页（/graph）
@@ -18,16 +19,25 @@ export default function GraphPage() {
     >
       <main className="container margin-vert--lg">
         <h1>知识图谱 · 从起点爬到前沿</h1>
-        <p className="ml-rg__lead">
-          一颗圆点是一章。<strong>离圆心越远，层级越高</strong>：第 1 环是卷一「数学地基」里最靠前的几章
-          （算术、分数、幂与对数、代数、几何……），往外依次是主干、进阶、高等、深水，最外一环是范畴论、
-          量子信息、可信 AI 这些前沿章。<strong>颜色代表卷</strong>，同色的章在环上连成一段弧。
-          连的是章与章之间的先修关系，一律朝外画，看上去就是「整门学问从圆心长出去」。
-        </p>
-        <p className="ml-rg__lead">
-          一颗圆点只能告诉你「哪一章在哪一层」；<strong>点击任意章的圆点</strong>，这一章的每一门课会
-          从服务器加载、在图上原位展开成一小圈课点——再点空白处收起，随时回到全景。
-        </p>
+        {/* 两段导语层级拉开：第一段讲「怎么读这张图」（主案），
+            第二段讲「能拿它做什么」（次案，桌面靠右并压一档字号）。 */}
+        <PageIntro
+          className="ml-rg__lead"
+          main={(
+            <>
+              一颗圆点是一章。<strong>离圆心越远，层级越高</strong>：第 1 环是卷一「数学地基」里最靠前的几章
+              （算术、分数、幂与对数、代数、几何……），往外依次是主干、进阶、高等、深水，最外一环是范畴论、
+              量子信息、可信 AI 这些前沿章。<strong>颜色代表卷</strong>，同色的章在环上连成一段弧。
+              连的是章与章之间的先修关系，一律朝外画，看上去就是「整门学问从圆心长出去」。
+            </>
+          )}
+          aside={(
+            <>
+              一颗圆点只能告诉你「哪一章在哪一层」；<strong>点击任意章的圆点</strong>，这一章的每一门课会
+              从服务器加载、在图上原位展开成一小圈课点——再点空白处收起，随时回到全景。
+            </>
+          )}
+        />
         <KnowledgeGraphRadial />
       </main>
     </Layout>

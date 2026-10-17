@@ -182,6 +182,7 @@ export function buildKeypad(host, getTarget, onChange) {
     const b = el('button', 'ml-fn__kbtn' + (cls ? ' ' + cls : ''), label);
     b.type = 'button';
     b.title = title;
+    b.setAttribute('aria-label', title);
     b.addEventListener('click', () => {
       const ta = getTarget();
       if (!ta) return;
@@ -225,6 +226,7 @@ export function buildKeypad(host, getTarget, onChange) {
       b.type = 'button';
       b.dataset.tex = tex;
       b.title = tip || tex;
+      b.setAttribute('aria-label', tip || tex);
       b.textContent = tex; /* KaTeX 没到货前先显示源码，不至于一片空白 */
       b.addEventListener('click', () => {
         const ta = getTarget();
@@ -245,6 +247,7 @@ export function buildKeypad(host, getTarget, onChange) {
   function paint() {
     getKatex()
       .then((katex) => {
+        if (!wrap.isConnected) return;
         wrap.querySelectorAll('.ml-fn__kbkey').forEach((b) => {
           try {
             b.innerHTML = katex.renderToString(b.dataset.tex, { throwOnError: false });

@@ -136,6 +136,32 @@ function TryButton() {
   );
 }
 
+/* ---- 英雄区导语：桌面全展开，手机收成 2 行 + 「展开」 ----
+ * 手机首屏只该承担「标题 + 一句话导语 + 主按钮」这三件事；这段七卷说明
+ * 三百多字，一上来就把按钮推到第二屏去（实测 390×844 下按钮在 y≈595）。
+ * 折叠状态**只由 CSS 的 clamp 实现、且只写在 ≤996px 的媒体查询里**，
+ * 桌面端永远整段显示——所以初始 state 取 false 不会让桌面端少一段话，
+ * 也不会造成 SSR/水合失配（服务端与首帧都渲染同一个结构）。 */
+function HeroNote() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="ml-hero__notebox">
+      <p className={'ml-hero__note' + (open ? ' is-open' : '')}>
+        内容按七卷组织：卷一《数学地基》铺底；卷二高等核心、卷三离散计算、卷四概率信息、卷五应用
+        AI、卷六《工程与系统》全线成稿；卷七《物理与前沿交叉》把数学搬进物理与神经科学的主战场——狭义相对论、哈密顿力学与脑机接口。每个概念配一个能动手的交互，新工具先讲它的来历，代码块都能当场修改运行。
+      </p>
+      <button
+        type="button"
+        className="ml-hero__notebtn"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? '收起' : '七卷都写了什么？展开'}
+      </button>
+    </div>
+  );
+}
+
 /* ---- 迷你选择题：现场演示 quiz 组件 ---- */
 
 function MiniQuiz() {
@@ -217,10 +243,7 @@ export default function Home() {
               <span className="ml-seal" aria-hidden="true">阶</span>
             </h1>
             <p className="ml-hero__subtitle">从 1+1 出发，每一级台阶都亲手踩上去——一路长到现代数学与 AI 的地基。</p>
-            <p className="ml-hero__note">
-              内容按七卷组织：卷一《数学地基》铺底；卷二高等核心、卷三离散计算、卷四概率信息、卷五应用
-              AI、卷六《工程与系统》全线成稿；卷七《物理与前沿交叉》把数学搬进物理与神经科学的主战场——狭义相对论、哈密顿力学与脑机接口。每个概念配一个能动手的交互，新工具先讲它的来历，代码块都能当场修改运行。
-            </p>
+            <HeroNote />
             <div className="ml-hero__btns">
               <Link className="button button--primary button--lg" to="/docs/python-tools/conventions">
                 从第 0 课开始

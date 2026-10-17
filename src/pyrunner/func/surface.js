@@ -114,7 +114,14 @@ export function createSurface(host, opts) {
   const canvas = document.createElement('canvas');
   canvas.className = 'ml-fn__canvas';
   wrap.appendChild(canvas);
-  const ctx = canvas.getContext('2d');
+  let ctx = canvas.getContext('2d');
+
+  /* 曲面本体与视角有关，但与悬停探针无关。把本体画到离屏画布缓存，
+     悬停时只把缓存贴回来再补探针，避免每帧重排 1600 个面片。 */
+  let baseCanvas = null;
+  let baseCtx = null;
+  let baseDirty = true;
+  function markBaseDirty() { baseDirty = true; }
 
   /* 视角：方位角、仰角、缩放。zScale 是高度夸张倍数 */
   let az = o.az === undefined ? -0.9 : o.az;
@@ -154,18 +161,23 @@ export function createSurface(host, opts) {
     canvas.height = Math.round(H * dpr);
     canvas.style.width = W + 'px';
     canvas.style.height = H + 'px';
+    baseDirty = true;
     return true;
   }
   fit();
   let ro = null;
   if (window.ResizeObserver) {
     ro = new ResizeObserver(() => {
-      if (fit()) draw();
+      if (fit()) {
+        dropRect();
+        draw();
+      }
     });
     ro.observe(wrap);
   }
   const mo = new MutationObserver(() => {
     cache = null;
+    markBaseDirty();
     draw();
   });
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -532,17 +544,43 @@ export function createSurface(host, opts) {
     ctx.restore();
   }
 
-  function draw() {
-    if (!canvas.isConnected) return;
-    const C = themeColors();
-    buildProjection();
+  function ensureBase(C) {
+    if (!baseCanvas) {
+      baseCanvas = document.createElement('canvas');
+      baseCtx = baseCanvas.getContext('2d');
+    }
+    if (baseCanvas.width !== canvas.width || baseCanvas.height !== canvas.height) {
+      baseCanvas.width = canvas.width;
+      baseCanvas.height = canvas.height;
+      baseDirty = true;
+    }
+    if (!baseDirty) return;
+
+    const mainCtx = ctx;
+    ctx = baseCtx;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    if (!mesh) return;
+    if (!mesh) {
+      ctx = mainCtx;
+      baseDirty = false;
+      return;
+    }
     if (showBox) drawBox(C);
     drawSurface();
     if (showBox) drawTicks(C);
     drawMarks(C);
+    ctx = mainCtx;
+    baseDirty = false;
+  }
+
+  function draw() {
+    if (!canvas.isConnected) return;
+    const C = themeColors();
+    buildProjection();
+    ensureBase(C);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(baseCanvas, 0, 0, W, H);
     drawHover(C);
   }
 
@@ -634,6 +672,7 @@ export function createSurface(host, opts) {
     /* 拖动时降精度：44×44 全画是 1900 多个面片，逐帧重画会掉帧 */
     if (lod === 1) {
       lod = 2;
+      markBaseDirty();
       draw();
     }
   }, opt);
@@ -653,6 +692,7 @@ export function createSurface(host, opts) {
     drag = null;
     canvas.classList.remove('is-dragging');
     lod = 1;
+    markBaseDirty();
     draw();
     cbView.forEach((f) => f({ az, el, zoom }));
   };
@@ -690,6 +730,7 @@ export function createSurface(host, opts) {
       /* 悬停求值由调用方给（surface 只管几何，不认识式子）；
          网格换了旧探针就作废 */
       meshAt = (d && d.at) || null;
+      markBaseDirty();
       clearHover();
       buildNorm();
       draw();
@@ -698,11 +739,12 @@ export function createSurface(host, opts) {
     setAngles(a, e) {
       az = a;
       el = Math.max(-0.05, Math.min(Math.PI / 2, e));
+      markBaseDirty();
       draw();
     },
     getAngles() { return { az, el, zoom }; },
-    setZoom(z) { zoom = z; draw(); },
-    setZScale(v) { zScale = v; buildNorm(); draw(); },
+    setZoom(z) { zoom = z; markBaseDirty(); draw(); },
+    setZScale(v) { zScale = v; buildNorm(); markBaseDirty(); draw(); },
     get zScale() { return zScale; },
     onView(f) { cbView.push(f); },
     /** 悬停探针：回调收到 {x, y, z} 或 null（域外、算不出、正平视时） */
@@ -712,6 +754,8 @@ export function createSurface(host, opts) {
       if (rafId2) { cancelAnimationFrame(rafId2); rafId2 = 0; }
       if (ro) ro.disconnect();
       mo.disconnect();
+      baseCanvas = null;
+      baseCtx = null;
       if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
     },
   };

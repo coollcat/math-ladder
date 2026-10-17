@@ -2,6 +2,39 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import FunctionLab from '@site/src/components/FunctionLab';
 
+/* 导语：桌面整段（两段并排成 1.9fr/1fr，与工作区同宽），
+   手机上**收成一行摘要**——首屏要留给输入框与图形区，
+   原先两段说明（约 400 字）把工作区推到 y≈740 去。
+   折叠实现只写在 ≤996px 的媒体查询里，桌面端不会少一段话。 */
+function Lead() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className={'ml-fnpage__intro' + (open ? ' is-open' : '')}>
+      <div className="ml-page-intro">
+        <p className="ml-fnpage__lead">
+          写下一个式子，它的形状立刻出现在右边——这就是这一页唯一要做的事。
+          左边可以直接敲，也可以像微软数学那样用符号键盘一格一格拼：点一下分数就多一个分式，
+          方格里的空位填什么由你决定。式子里的 <code>a</code>、<code>b</code>、<code>θ</code>
+          这些不是自变量的字母会自动变成滑块，拖一拖，看图形被参数捏成各种样子。
+        </p>
+        <p className="ml-fnpage__lead">
+          切到<strong>「立体 z = f(x, y)」</strong>，同一个输入框就变成了二元函数：
+          曲面会立起来，拖动可以绕着它转，滚轮拉近拉远，还可以切到正俯视去看等高线那样的形状。
+          曲面的颜色按高度走（低处深紫、高处亮黄），明暗跟着法线走，所以转动时起伏会从光影里「浮」出来。
+        </p>
+      </div>
+      <button
+        type="button"
+        className="ml-fnpage__leadbtn"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? '收起说明' : '这一页怎么玩 · 展开说明'}
+      </button>
+    </div>
+  );
+}
+
 /* =========================================================================
  * /function 「看见函数」
  * -------------------------------------------------------------------------
@@ -17,17 +50,7 @@ export default function FunctionPage() {
       description="拼一个式子，立刻看见它的形状：零点、极值、单调区间、导数、积分与交点，一次全给出来">
       <main className="container margin-vert--md ml-fnpage">
         <h1>看见函数</h1>
-        <p className="ml-fnpage__lead">
-          写下一个式子，它的形状立刻出现在右边——这就是这一页唯一要做的事。
-          左边可以直接敲，也可以像微软数学那样用符号键盘一格一格拼：点一下分数就多一个分式，
-          方格里的空位填什么由你决定。式子里的 <code>a</code>、<code>b</code>、<code>θ</code>
-          这些不是自变量的字母会自动变成滑块，拖一拖，看图形被参数捏成各种样子。
-        </p>
-        <p className="ml-fnpage__lead">
-          切到<strong>「立体 z = f(x, y)」</strong>，同一个输入框就变成了二元函数：
-          曲面会立起来，拖动可以绕着它转，滚轮拉近拉远，还可以切到正俯视去看等高线那样的形状。
-          曲面的颜色按高度走（低处深紫、高处亮黄），明暗跟着法线走，所以转动时起伏会从光影里「浮」出来。
-        </p>
+        <Lead />
 
         <FunctionLab />
 

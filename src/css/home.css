@@ -128,9 +128,20 @@
 
 .ml-home .ml-hero__note {
   max-width: 42rem;
-  margin: 1rem 0 0;
+  margin: 0;
   opacity: 0.72;
   line-height: 1.9;
+}
+
+/* 导语 + 它在手机上的「展开」把手（见 index.js 的 HeroNote）。
+   桌面端把手不显示、导语整段显示——折叠只发生在 ≤996px。 */
+.ml-hero__notebox {
+  margin: 1rem 0 0;
+  max-width: 42rem;
+}
+
+.ml-hero__notebtn {
+  display: none;
 }
 
 .ml-home .ml-hero__note--i18n {
@@ -993,8 +1004,11 @@
   /* 点阵网格：让「这是一张可拖动的画布」一眼可读 */
   background-image: radial-gradient(var(--ifm-color-emphasis-300) 1px, transparent 1px);
   background-size: 20px 20px;
-  height: min(82vh, 880px);
-  height: min(82dvh, 880px); /* iPad/Safari：vh 不扣地址栏，dvh 才是真实视口 */
+  /* 桌面 76vh：原先 82vh 把画布一直顶到折线以下，「正文—工具条—画布」在
+     1000 高的屏上只剩画布，信息面板与图例全被挤到第二屏。收到 76vh 后
+     整块仍占满视觉重心，图例与信息面板也能在下一行露头。 */
+  height: min(76vh, 820px);
+  height: min(76dvh, 820px); /* iPad/Safari：vh 不扣地址栏，dvh 才是真实视口 */
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -1835,7 +1849,11 @@
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--ml-radius-panel);
   background: var(--ifm-background-surface-color, var(--ifm-background-color));
+  /* 与画布同高（.ml-rg__svg 也是 min(74vh,760px)）——两栏底边对齐，
+     不再出现「左栏画布到底、右栏目录提前收口」的错位。
+     目录内容比画布高时在栏内自己滚，不把页面拉长。 */
   max-height: min(74vh, 760px);
+  height: min(74vh, 760px);
   overflow: auto;
   overscroll-behavior: contain;
   padding: 0.4rem;
@@ -2183,6 +2201,18 @@
   margin-bottom: 0.15rem;
 }
 
+/* ---- 图例折叠（手机专用）----
+ * ≤996px 时环芯片（6 枚）与卷芯片（7 枚）会一起占掉画布下方近一屏，
+ * 而它们只承担「认出颜色」这一件事——默认收起，点把手再看。
+ * 桌面端 .ml-rg__legendbox 是 display:contents，两段图例照旧直接铺开。 */
+.ml-rg__legendbox {
+  display: contents;
+}
+
+.ml-rg__legendbtn {
+  display: none;
+}
+
 /* ---- 层级图例（环的名字与章数）：环上只标了难度区间，整句写环上必然压住节点 ---- */
 
 .ml-rg__rings {
@@ -2429,3 +2459,407 @@
     animation: none;
   }
 }
+
+/* =========================================================================
+ * 本轮 UI 改版 · 首屏节奏与移动端（2026-10-17）
+ * -------------------------------------------------------------------------
+ * 断点只用 996px（Infima 桌面阈值）与 576px 两档。全部规则都带
+ * .ml-home / .ml-tr / .ml-rg / .ml-fnpage 作用域前缀——home.css 构建后与
+ * 全站同表，裸类名会漏到别的页面去。
+ * ========================================================================= */
+
+/* ---- 首屏节奏：标题区 → 导语 → 按钮 → 纸带 的间距收成一套 ---- */
+.ml-home .ml-hero {
+  padding: 3.6rem 0 2.4rem;
+}
+
+.ml-home .ml-hero__kicker {
+  margin-bottom: 0.7rem;
+}
+
+.ml-home .ml-hero__title {
+  margin-bottom: 0.85rem;
+}
+
+.ml-hero__btns {
+  margin-top: 1.35rem;
+}
+
+.ml-hero__scope {
+  margin-top: 2rem;
+}
+
+.ml-home .ml-hero__scope figcaption {
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* 首页知识树：不让整棵树把页面拉成一米长。
+   桌面框内限高 520px、手机 46vh，超出部分在框里滚；
+   「打开知识树 →」就在标题右边，想细看有专门那一页。 */
+.ml-ht__stage {
+  max-height: 520px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* ---- 页面导语（PageIntro 组件：/tree 与 /graph）----
+ * 桌面：与画布同宽的两栏——正文说明在左、延伸指引在右。
+ * 手机：折成 2 行 + 「展开说明」。
+ * 折叠只靠 CSS clamp + 一个按钮，桌面端两段永远整段显示。 */
+.ml-page-intro {
+  margin-bottom: 1.1rem;
+}
+
+.ml-page-intro p {
+  max-width: none;
+  margin: 0;
+}
+
+.ml-page-intro p + p {
+  margin-top: 0.85rem;
+}
+
+/* 展开把手：桌面不显示（那边本来就整段展开） */
+.ml-page-intro__more {
+  display: none;
+}
+
+@media (min-width: 997px) {
+  .ml-page-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    gap: 0 2.6rem;
+    align-items: start;
+  }
+
+  .ml-page-intro p + p {
+    margin-top: 0;
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--ifm-color-emphasis-200);
+    font-size: 0.88rem;
+    line-height: 1.8;
+    opacity: 0.85;
+  }
+}
+
+/* ---- ≤996px：手机/平板 ---- */
+@media (max-width: 996px) {
+  /* 标题阶梯收一档（设计口径：h1 26–28 / h2 20–22 / 正文 16） */
+  .ml-home {
+    --ifm-h1-font-size: 1.75rem;
+    --ifm-h2-font-size: 1.3rem;
+  }
+
+  .ml-home .ml-hero {
+    padding: 1.5rem 0 1.4rem;
+  }
+
+  .ml-home .ml-hero__kicker {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    margin-bottom: 0.45rem;
+  }
+
+  .ml-home .ml-hero__title {
+    margin-bottom: 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .ml-home .ml-hero__subtitle {
+    font-size: 1.02rem;
+    line-height: 1.7;
+  }
+
+  /* 导语：手机上先给 3 行，点「展开」再看全（桌面端整段显示、按钮不出现） */
+  .ml-hero__notebox {
+    margin-top: 0.55rem;
+  }
+
+  .ml-hero__note {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    font-size: 0.9rem;
+    line-height: 1.72;
+    opacity: 0.66;
+  }
+
+  .ml-hero__note.is-open {
+    display: block;
+    -webkit-line-clamp: unset;
+  }
+
+  .ml-hero__notebtn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 0.1rem;
+    border: none;
+    background: transparent;
+    color: var(--ml-vermilion);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .ml-hero__btns {
+    margin-top: 1rem;
+    gap: 0.55rem;
+  }
+
+  .ml-hero__btns .button--lg {
+    padding: 0.55rem 1.1rem;
+    font-size: 1rem;
+  }
+
+  .ml-hero__scope {
+    margin-top: 1.3rem;
+  }
+
+  .ml-hero__scope figcaption {
+    font-size: 0.76rem;
+  }
+
+  .ml-ht {
+    padding: 8px 8px 4px;
+  }
+
+  .ml-ht__stage {
+    max-height: 46vh;
+  }
+
+  .ml-ht__bar {
+    gap: 0.5rem;
+    padding: 0.45rem 0.1rem 0.1rem;
+  }
+
+  .ml-ht__legend {
+    font-size: 0.76rem;
+  }
+
+  /* 页面导语：一列、小一档 */
+  .ml-page-intro p {
+    font-size: 0.92rem;
+    line-height: 1.8;
+  }
+
+  /* ≤996px 只收字号；真正折成 2 行在下面 620px 那一档 */
+  .ml-page-intro__more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 0.1rem;
+    border: none;
+    background: transparent;
+    color: var(--ifm-color-primary);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .ml-page-intro.is-open .ml-page-intro__more {
+    color: var(--ifm-color-emphasis-700);
+  }
+
+  /* 章节芯片墙：手机上收成一列紧凑卡片（并排胶囊会挤成两三列参差） */
+  .ml-wall {
+    gap: 1.15rem;
+  }
+
+  .ml-wall__group {
+    padding-left: 0.85rem;
+  }
+
+  .ml-wall__chips {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+  }
+
+  .ml-wall__chip {
+    width: 100%;
+    min-height: 40px;
+    padding: 0.3rem 0.7rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+  }
+
+  .ml-wall__chip-count {
+    margin-left: auto;
+  }
+
+  .ml-cta-band {
+    padding: 1.1rem 1rem;
+  }
+
+  .ml-cta-band__glyph {
+    font-size: 6rem;
+  }
+}
+
+/* =========================================================================
+ * 本轮 UI 改版 · /tree 与 /graph 的移动端（2026-10-17）
+ * -------------------------------------------------------------------------
+ * 画布 55–62vh（设计口径），工具条在手机上换行不溢出，/graph 的图例折叠。
+ * 断点仍只用 996px / 576px。
+ * ========================================================================= */
+@media (max-width: 996px) {
+  /* 画布高度：原 82vh 在手机上几乎是整屏，一滚就到工具栏后面去了 */
+  .ml-tr__viewport {
+    height: 58vh;
+    height: 58dvh;
+    min-height: 300px;
+  }
+
+  .ml-rg__svg {
+    height: 58vh;
+    height: 58dvh;
+    min-height: 300px;
+  }
+
+  /* 工具条：搜索独占一行，剩下的控件在第二、三行换行排布 */
+  .ml-tr__bar,
+  .ml-rg__bar {
+    gap: 0.45rem;
+  }
+
+  .ml-tr__searchwrap {
+    flex: 1 1 100%;
+  }
+
+  .ml-rg__search {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .ml-fg__meta,
+  .ml-rg__meta {
+    margin-left: 0;
+    flex: 1 1 100%;
+    text-align: right;
+    font-size: 0.74rem;
+  }
+
+
+  /* ---- 画布控件与右下角浮动圆钮（Py / 笔记本）的占位 ----
+   * 圆钮是 fixed 在右下角（直径 34–40px，右缘 ~1rem），/tree 与 /graph 的
+   * 缩放组原先也贴右缘——768–996 与 390 两档都实测「＋/－ 压在圆钮下面」
+   * （本文件里圆钮本身不归我改，所以让缩放组让位）。
+   * ≤996px：缩放组挪到**左下**并改成横排一行。左边没有任何浮动控件；
+   * 横排把占地从 40×216 收到 216×40，不吃画布左边一条。
+   * 桌面端（≥997）不动：那边宽度足够，圆钮离画布右缘还有 30px 以上。 */
+  .ml-tr__ctrls,
+  .ml-rg__ctrls {
+    left: 10px;
+    right: auto;
+  }
+
+  .ml-tr__ctrls {
+    flex-direction: row;
+    bottom: 10px;
+  }
+
+  .ml-rg__ctrls {
+    flex-direction: row;
+    align-items: center;
+    bottom: 0.6rem;
+  }
+
+  /* 图谱页图例：手机上默认折叠，点「图例：环与卷」再看（见 KnowledgeGraphRadial） */
+  .ml-rg__legendbox {
+    display: none;
+  }
+
+  .ml-rg__legendbox.is-open {
+    display: block;
+  }
+
+  .ml-rg__legendbtn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    margin: 0.55rem 0 0.1rem;
+    padding: 0 0.8rem;
+    border: 1px solid var(--ifm-color-emphasis-300);
+    border-radius: 999px;
+    background: var(--ifm-background-color);
+    color: var(--ifm-font-color-base);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+
+  .ml-rg__legendbtn.is-on {
+    border-color: var(--ifm-color-primary);
+    color: var(--ifm-color-primary);
+  }
+
+  .ml-rg__outline {
+    max-height: 46vh;
+  }
+}
+
+
+/* ---- ≤620px：/tree 与 /graph 的说明折成 2 行 + 展开 ----
+ * 390 宽下两段说明要 10 行以上（约 330px），画布被顶到第二屏。
+ * 这一段是读图方法，读一遍就够——先给两行，要看再展开。 */
+@media (max-width: 620px) {
+  .ml-page-intro {
+    margin-bottom: 0.75rem;
+  }
+
+  .ml-page-intro p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  /* 第二段（延伸指引）在折叠态整段藏起来：两段各两行等于四行，还是太长 */
+  .ml-page-intro p + p {
+    display: none;
+  }
+
+  .ml-page-intro.is-open p {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  .ml-page-intro.is-open p + p {
+    display: block;
+    margin-top: 0.7rem;
+  }
+}
+
+@media (max-width: 576px) {
+  /* 触控目标 ≥40px：模式切换、复选框芯片、图例芯片 */
+  .ml-tr__mode {
+    min-height: 40px;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .ml-fg__chip,
+  .ml-rg__chip {
+    min-height: 40px;
+  }
+
+  .ml-tr__legend {
+    font-size: 0.74rem;
+    gap: 0.4rem 0.5rem;
+  }
+
+  /* 图谱缩放钮在窄屏别叠成一根柱子压住画布右缘 */
+  .ml-rg__ctrls,
+  .ml-tr__ctrls {
+    gap: 0.25rem;
+  }
+}
+
+

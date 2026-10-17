@@ -11,8 +11,27 @@ import ch00 from './registries/ch00.js';
 /* ch04 是代数章（卷一）的分册：3Blue1Brown 式分幕动画演示组件 */
 import ch04 from './registries/ch04.js';
 
+import ch06 from './registries/ch06.js';
+import ch07 from './registries/ch07.js';
+import ch10 from './registries/ch10.js';
+import ch11 from './registries/ch11.js';
+import ch13 from './registries/ch13.js';
+import ch15 from './registries/ch15.js';
+
+/* ch16 是傅里叶章（卷一）的分册：旋转探针等频率叙事组件 */
+import ch16 from './registries/ch16.js';
+
 /* ch47 是 Transformer 章（卷五）的分册：MoE 门控等组件 */
 import ch47 from './registries/ch47.js';
+import ch50 from './registries/ch50.js';
+import ch53 from './registries/ch53.js';
+/* ch61 是数字信号处理章（卷五）的分册：EEG 读谱等组件 */
+import ch61 from './registries/ch61.js';
+import ch62 from './registries/ch62.js';
+import ch64 from './registries/ch64.js';
+import ch65 from './registries/ch65.js';
+import ch66 from './registries/ch66.js';
+import ch67 from './registries/ch67.js';
 import ch68 from './registries/ch68.js';
 import ch69 from './registries/ch69.js';
 import ch70 from './registries/ch70.js';
@@ -30,7 +49,22 @@ export const RENDERERS = Object.assign(
   {},
   ch00,
   ch04,
+  ch06,
+  ch07,
+  ch10,
+  ch11,
+  ch13,
+  ch15,
+  ch16,
   ch47,
+  ch50,
+  ch53,
+  ch61,
+  ch62,
+  ch64,
+  ch65,
+  ch66,
+  ch67,
   ch68,
   ch69,
   ch70,

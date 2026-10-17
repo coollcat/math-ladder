@@ -35,11 +35,11 @@ export default function FunctionLab({ funcs, view, height, title, mode, domain }
       });
     return () => {
       dead = true;
-      if (instRef.current) {
-        instRef.current.destroy();
-        instRef.current = null;
-      }
-      if (inst) inst.destroy();
+      /* instRef 与局部 inst 指向同一个实例；只解一次，
+         否则 destroy 里的监听器/定时器会走两遍。 */
+      const current = instRef.current || inst;
+      instRef.current = null;
+      if (current) current.destroy();
     };
     /* 只在挂载时建一次：式子、参数、视野都由组件内部自己管，
        重渲染不该把用户刚调好的东西冲掉 */

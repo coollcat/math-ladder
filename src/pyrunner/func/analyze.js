@@ -353,29 +353,49 @@ export function integrate(f, a, b, n) {
   return (acc * h) / 3;
 }
 
-/** 单调区间：用极值点把视窗切开，每段取中点问一次导数符号 */
-export function monotonic(f, x0, x1, extrema) {
-  const cuts = [x0];
-  (extrema || []).forEach((e) => {
-    if (e.x > x0 && e.x < x1) cuts.push(e.x);
-  });
-  cuts.push(x1);
-  cuts.sort((a, b) => a - b);
+/**
+ * 单调区间：在每一个连续段内部，用极值点切开，每小段取中点问一次导数符号。
+ * domains 来自 analyze() 已经切好的 segs；没有它时退化成整个 [x0,x1]，
+ * 但调用方有断点时必须传，否则 1/x 会被报成跨极点「↗」。
+ */
+export function monotonic(f, x0, x1, extrema, domains) {
+  const regions = (domains && domains.length ? domains : [[x0, x1]])
+    .map(([a, b]) => [Math.max(a, x0), Math.min(b, x1)])
+    .filter(([a, b]) => b - a > 1e-12)
+    .sort((a, b) => a[0] - b[0]);
   const d = derivative(f);
   const out = [];
-  for (let i = 0; i + 1 < cuts.length; i += 1) {
-    const a = cuts[i];
-    const b = cuts[i + 1];
-    if (b - a < 1e-12) continue;
-    const mid = (a + b) / 2;
-    const s = d(mid);
-    /* 导数取不出来（段内有断点）就退化成比较两端函数值 */
-    const dir = Number.isFinite(s) ? (s > 0 ? 'up' : 'down')
-      : f(b) > f(a) ? 'up' : 'down';
-    const last = out[out.length - 1];
-    if (last && last.dir === dir && Math.abs(last.x1 - a) < 1e-12) last.x1 = b;
-    else out.push({ x0: a, x1: b, dir });
-  }
+  regions.forEach(([rx0, rx1]) => {
+    const cuts = [rx0];
+    (extrema || []).forEach((e) => {
+      if (e.x > rx0 && e.x < rx1) cuts.push(e.x);
+    });
+    cuts.push(rx1);
+    cuts.sort((a, b) => a - b);
+    for (let i = 0; i + 1 < cuts.length; i += 1) {
+      const a = cuts[i];
+      const b = cuts[i + 1];
+      if (b - a < 1e-12) continue;
+      const mid = (a + b) / 2;
+      const s = d(mid);
+      const fm = f(mid);
+      const fa = f(a);
+      const fb = f(b);
+      /* 导数为 0 或取不出来时，只有在两端和中点都能算出来、且两端真的不同，
+         才退化成比较两端函数值；否则宁可不说。这样既不会把常函数报成「↘」，
+         也不会把跨断点的区间报成「↗/↘」。 */
+      let dir = null;
+      if (Number.isFinite(s) && s !== 0) {
+        dir = s > 0 ? 'up' : 'down';
+      } else if (Number.isFinite(fm) && Number.isFinite(fa) && Number.isFinite(fb) && fb !== fa) {
+        dir = fb > fa ? 'up' : 'down';
+      }
+      if (!dir) continue;
+      const last = out[out.length - 1];
+      if (last && last.dir === dir && Math.abs(last.x1 - a) < 1e-12) last.x1 = b;
+      else out.push({ x0: a, x1: b, dir });
+    }
+  });
   return out;
 }
 
@@ -431,7 +451,8 @@ export function analyze(f, x0, x1, opts) {
   const segs = segments(fine.xs, fine.ys);
   const zeros = o.zeros === false ? [] : findZeros(f, fine.xs, fine.ys, segs);
   const extrema = o.extrema === false ? [] : findExtrema(f, fine.xs, fine.ys, segs);
-  const mono = o.mono === false ? [] : monotonic(f, x0, x1, extrema);
+  const domains = segs.map(([i0, i1]) => [fine.xs[i0], fine.xs[i1]]);
+  const mono = o.mono === false ? [] : monotonic(f, x0, x1, extrema, domains);
   return { xs: fine.xs, ys: fine.ys, segs, zeros, extrema, mono };
 }
 

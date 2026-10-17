@@ -791,6 +791,34 @@ function setSliderMax(sliders, i, max) {
   if (r) r.max = String(max);
 }
 
+/* 统一图例：颜色直接来自 themeColors().series(i)，避免各组件重复拼 DOM。 */
+function buildLegend(entries) {
+  const box = el('div', 'ml-lab__legend');
+  (entries || []).forEach((entry) => {
+    const item = el('span');
+    if (entry.color) {
+      const swatch = el('i');
+      swatch.style.background = entry.color;
+      item.appendChild(swatch);
+    }
+    item.appendChild(document.createTextNode(entry.label || ''));
+    box.appendChild(item);
+  });
+  return box;
+}
+
+/* 轨迹历史：组件每帧 push 一次，超过上限自动丢弃最旧点。 */
+function pushTrail(trail, x, y, max = 360) {
+  trail.push([x, y]);
+  if (trail.length > max) trail.splice(0, trail.length - max);
+  return trail;
+}
+
+function drawTrail(ctx, trail, color, width = 1.8, dash) {
+  if (!trail || trail.length < 2) return;
+  polyline(ctx, trail, color, width, dash);
+}
+
 export {
   cssVar,
   isDarkMode,
@@ -837,4 +865,7 @@ export {
   pois,
   sceneGray,
   clearBg,
+  buildLegend,
+  pushTrail,
+  drawTrail,
 };

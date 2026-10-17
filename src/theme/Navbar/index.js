@@ -56,7 +56,12 @@ export default function Navbar() {
   const [auth, setAuth] = useState(null);
   const [drawer, setDrawer] = useState(false);
   const [menu, setMenu] = useState(false);
+  /* 窄屏「更多」：外观 / 数据 / 账号三个入口收进一个下拉。
+     桌面端这个容器用 display:contents 摊平（见 nav.css），视觉上与原来一模一样；
+     窄屏才收成一个钮 + 面板。 */
+  const [more, setMore] = useState(false);
   const acctRef = useRef(null);
+  const moreRef = useRef(null);
 
   /* 登录态：初始值 null，挂载后才读 localStorage——SSR 与首帧渲染一致，水合安全。
      别的页面登录后靠 ml-auth-changed 事件同步，不用刷新。 */
@@ -90,6 +95,7 @@ export default function Navbar() {
   useEffect(() => {
     setDrawer(false);
     setMenu(false);
+    setMore(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -100,6 +106,33 @@ export default function Navbar() {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [drawer]);
+
+  /* 「更多」下拉：点外面 / Esc 收起。
+     数据面板是它的子节点（窄屏必须如此，否则 fixed 的气泡会被 display:none 的
+     祖先一起藏掉），所以这里只在「点面板之外」才收——点面板里的钮不动它。 */
+  useEffect(() => {
+    if (!more) return undefined;
+    const onDown = (e) => {
+      if (moreRef.current && !moreRef.current.contains(e.target)) setMore(false);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') setMore(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [more]);
+
+  /* 数据面板可能从别处被叫醒（Alt+D、?panel=data 深链、抽屉里的按钮）：
+     请求一到就把「更多」展开，否则窄屏上它的宿主还是 display:none，面板看不见。 */
+  useEffect(() => {
+    const onAsk = () => setMore(true);
+    window.addEventListener(OPEN_DATA_EVENT, onAsk);
+    return () => window.removeEventListener(OPEN_DATA_EVENT, onAsk);
+  }, []);
 
   /* 点账号菜单外面就关掉（用 pointerdown：比 click 早，不会跟按钮自己打架） */
   useEffect(() => {
@@ -175,7 +208,9 @@ export default function Navbar() {
             </span>
           ))}
         </span>
-        {inDrawer && <span className="ml-nav__modelabel">{MODES[cur].label}</span>}
+        {/* 文字标签一直渲染、默认由 CSS 藏起来（桌面顶栏是图标钮）；
+            「更多」面板里再显出来，否则面板里只有一颗不说话的图标。 */}
+        <span className="ml-nav__modelabel">{MODES[cur].label}</span>
       </button>
     );
   };
@@ -230,54 +265,82 @@ export default function Navbar() {
             <SearchBar />
           </div>
 
-          {modeButton(false)}
+          {/* 「更多」容器：桌面 display:contents（子项直接参与顶栏这一行，
+              与改版前完全一致）；≤996px 收成一个「更多」钮 + 下拉面板。
+              外观 / 数据 / 账号三个入口一个不少，只是换了住处。 */}
+          <div className={'ml-nav__more' + (more ? ' is-open' : '')} ref={moreRef}>
+            <button
+              type="button"
+              className="ml-nav__morebtn"
+              onClick={() => setMore((v) => !v)}
+              aria-expanded={more}
+              aria-haspopup="true"
+              aria-label="更多：外观、数据与账号"
+              title="更多：外观 · 数据 · 账号"
+            >
+              {/* 用三个点而不是再引一个图标：icons.js 是全站共享表，
+                  这里只为一颗钮加一项不划算，字符也能跟着 currentColor 走。 */}
+              <span aria-hidden="true">⋯</span>
+            </button>
 
-          <DataMenu />
-
-          {auth ? (
-            <div className="ml-nav__acct" ref={acctRef}>
-              <button
-                type="button"
-                className="ml-nav__acctbtn"
-                onClick={() => setMenu((v) => !v)}
-                aria-expanded={menu}
-                aria-haspopup="menu"
-                title="账号与学习进度"
-              >
-                <span className="ml-nav__avatar" aria-hidden="true">
-                  {(auth.name || auth.u || '?').slice(0, 1)}
-                </span>
-                <span className="ml-nav__acctname">{auth.name || auth.u}</span>
-                <Icon name="chevron" size={14} />
-              </button>
-              {menu && (
-                <div className="ml-nav__menu" role="menu">
-                  <p className="ml-nav__menuhint">
-                    学习进度存在账号空间 <strong>{auth.u}</strong>
-                  </p>
-                  <Link to="/login" role="menuitem" className="ml-nav__menuitem">
+            <div className="ml-nav__morepanel">
+              <div className="ml-nav__morerow">
+                <span className="ml-nav__morelabel">外观</span>
+                {modeButton(false)}
+              </div>
+              <div className="ml-nav__morerow">
+                <span className="ml-nav__morelabel">数据</span>
+                <DataMenu />
+              </div>
+              <div className="ml-nav__morerow ml-nav__morerow--acct">
+                <span className="ml-nav__morelabel">账号</span>
+                {auth ? (
+                  <div className="ml-nav__acct" ref={acctRef}>
+                    <button
+                      type="button"
+                      className="ml-nav__acctbtn"
+                      onClick={() => setMenu((v) => !v)}
+                      aria-expanded={menu}
+                      aria-haspopup="menu"
+                      title="账号与学习进度"
+                    >
+                      <span className="ml-nav__avatar" aria-hidden="true">
+                        {(auth.name || auth.u || '?').slice(0, 1)}
+                      </span>
+                      <span className="ml-nav__acctname">{auth.name || auth.u}</span>
+                      <Icon name="chevron" size={14} />
+                    </button>
+                    {menu && (
+                      <div className="ml-nav__menu" role="menu">
+                        <p className="ml-nav__menuhint">
+                          学习进度存在账号空间 <strong>{auth.u}</strong>
+                        </p>
+                        <Link to="/login" role="menuitem" className="ml-nav__menuitem">
+                          <Icon name="user" size={16} />
+                          账号与进度
+                        </Link>
+                        {/* 数据面板就在右上角（同一个下拉里也留一条，顺手指一下）。
+                            点了不再跳登录页：面板落在右上角那颗钮下方，人不用离开当前页。 */}
+                        <button type="button" role="menuitem" className="ml-nav__menuitem" onClick={askData}>
+                          <Icon name="database" size={16} />
+                          数据 · 备份与搬家
+                        </button>
+                        <button type="button" role="menuitem" className="ml-nav__menuitem" onClick={logout}>
+                          <Icon name="logout" size={16} />
+                          退出登录
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link className="ml-nav__login" to={loginUrlFor(pathname)}>
                     <Icon name="user" size={16} />
-                    账号与进度
+                    <span>登录</span>
                   </Link>
-                  {/* 数据面板就在右上角（同一个下拉里也留一条，顺手指一下）。
-                      点了不再跳登录页：面板落在右上角那颗钮下方，人不用离开当前页。 */}
-                  <button type="button" role="menuitem" className="ml-nav__menuitem" onClick={askData}>
-                    <Icon name="database" size={16} />
-                    数据 · 备份与搬家
-                  </button>
-                  <button type="button" role="menuitem" className="ml-nav__menuitem" onClick={logout}>
-                    <Icon name="logout" size={16} />
-                    退出登录
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          ) : (
-            <Link className="ml-nav__login" to={loginUrlFor(pathname)}>
-              <Icon name="user" size={16} />
-              <span>登录</span>
-            </Link>
-          )}
+          </div>
 
           <button
             type="button"
