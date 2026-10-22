@@ -53,7 +53,7 @@ $$\pi(a\mid s)=1-\epsilon+\epsilon/|\mathcal A(s)|\ \text{若}\ a=\arg\max_bQ(s,
 
 ## 5. 动手实验
 
-先拖动下面的交互看探索比例怎么随 epsilon 变化（横轴是 epsilon，滑块换动作个数），再运行一个两臂小模拟。
+下面这张图里，横轴是 epsilon，滑块换动作个数，你能直接看到探索比例怎么跟着变；图下面还有一个两臂小模拟可以跑。
 
 ```viz
 {

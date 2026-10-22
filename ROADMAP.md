@@ -14,6 +14,7 @@
 
 - **全站规模**：7 卷 / 79 个章目录。**正式课门数不在这里写死**——以 `node scripts/check-chapter-sync.mjs` 或 `node scripts/gen-graph.mjs` 最近一次输出为准。
   **不计入正式课的三类文件**：17 章「下一程导读」的 3 门导览课（非正式课，豁免九段式，不入图谱/知识树——见下「编号与结构要点」）、各章的 `index.md`、各章的 `999-references.md`。另有若干 `COMPONENT_SPEC.md`（组件生产档案）同样不计入。
+  本口径与 `gen-graph.mjs` 排除 `17-` 前缀后产出的图谱门数一致，改动后请以最近一次 `node scripts/gen-graph.mjs` 的输出为准。
 - 课程与图谱规模以 `node scripts/gen-graph.mjs` 最近一次输出为准；当前生成数据供首页、/tree、/graph 共用，不在多处维护门数快照（章名/短名/卷号的唯一源头是各章 `index.md` 的 front matter，构建闸门 `npm run check:sync` 守着）。/graph 的章课表数据另由 `npm run gen:chapters` 拆到 `static/graph-chapters/`。
 - `node scripts/validate.mjs` 当前全绿；它检查 front matter、先修顺序、工具出生证明、viz/lab 表达式与交互围栏结构。
 - 课程结构已覆盖 00–16、18–78（卷七 76–78 于 2026-09-29 建成）；交互覆盖率**不在仓库内维护快照**（历史审计文件已不出现在仓库根）；需要数字时现场跑 `node _ai-workspace/skills/math-ladder-lesson-audit/scripts/scan-gaps.mjs .` 或按代码扫描为准，不要把“结构已成稿”误写成“每门课都已有专属可视化”。
