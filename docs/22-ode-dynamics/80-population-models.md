@@ -185,6 +185,7 @@ plt.show()
 ```exercise
 # @title: 练习：再生数判据与一步更新的双笔账
 # @check: 200
+# @check: 50
 # @check: 899
 # @check: 100
 # @hint: R0 和阈值互为倒数，别把 β/γ 又写成 γ/β；更新 I 时减去 gamma*i*h 那一笔"出院流水"，疫情才有止境。
@@ -207,7 +208,7 @@ print(round(1000 * i_new))
 
 第一问：基本再生数 $R_0=\beta/\gamma=0.5/0.25=2$，放大一百倍后打印 `200`；全人群对应的全员门槛是它的倒数 $S^\ast=\gamma/\beta=0.5$，即 `50`。两行判据的比值被写反了，对调即可：
 
-```python
+```py
 print(round(100 * (beta / gamma)))    # R0 = 2 → 200
 print(round(100 * (gamma / beta)))    # 阈值 S* = 0.5 → 50
 ```

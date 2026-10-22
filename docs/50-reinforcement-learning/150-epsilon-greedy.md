@@ -39,7 +39,7 @@ $\epsilon=0$ 完全利用，容易锁死次优动作；$\epsilon=1$ 完全探索
 
 $$\pi(a\mid s)=1-\epsilon+\epsilon/|\mathcal A(s)|\ \text{若}\ a=\arg\max_bQ(s,b),\ \text{否则}\ \pi(a\mid s)=\epsilon/|\mathcal A(s)|.$$
 
-显示公式必须单行；上式表示贪心动作获得基础概率加上均分出的探索份额。
+上式表示贪心动作获得基础概率加上均分出的探索份额。
 
 ## 4. 分步例题
 
@@ -53,7 +53,7 @@ $$\pi(a\mid s)=1-\epsilon+\epsilon/|\mathcal A(s)|\ \text{若}\ a=\arg\max_bQ(s,
 
 ## 5. 动手实验
 
-先看现有 plot 组件中探索比例随 epsilon 变化（横轴是 epsilon，滑块换动作个数），再运行一个两臂小模拟。
+下面这张图里，横轴是 epsilon，滑块换动作个数，你能直接看到探索比例怎么跟着变；图下面还有一个两臂小模拟可以跑。
 
 ```viz
 {

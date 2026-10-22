@@ -131,7 +131,7 @@ print(f"阶码: 菌群 {order(colony)}, 地球 {order(earth)}")
 
 修正后的关键代码：
 
-```python
+```py
 colony = 2 ** rounds          # 幂记号：72 轮翻倍
 
 n = 0                         # 轮次计数器从 0 起步
