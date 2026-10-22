@@ -82,6 +82,7 @@ difficulty: 3
 print(79 - 15)             # (a) 剩余可用信道数（已示范）
 print()                    # (b) 区分全部可用信道所需的比特数
 print()                    # (c) 每秒用于信道选择的比特吞吐量
+print()                    # (d) 最高可用信道的中心频率（MHz）
 print(12 + 4)              # (e) WiFi 让出 4 条后还剩几条——有 bug
 print()                    # (f) 剩余 WiFi 总容量（Mbps）
 print()                    # (g) 保留容量的整数百分比

@@ -155,10 +155,10 @@ print(round(p, 1))
 <summary>点开查看逐步解答</summary>
 
 ```python
-odds_for, odds_against = 1, 9
-total_lr = 3 ** 2
+odds_for, odds_against = 1, 99      # 先验：1:99（患病率 1%），不是例题的 1:9
+total_lr = 90                         # 似然比 = 灵敏度 / 假阳性率 = 0.90 / 0.01
 p = odds_for * total_lr / (odds_for * total_lr + odds_against)
-print(round(p, 1))
+print(round(p, 3))                    # 0.476：后验约 47.6%
 ```
 
 似然比升到 $0.90/0.01=90$，后验赔率 $=1\times 90 : 99\times 1=90:99$，概率 $90/189\approx 47.6\%$。假阳性率从 8% 压到 1%（特异性 92%→99%），阳性含金量从 10% 跃升至近一半——筛查手段的价值主要由特异性决定，这正是罕见病筛查反复强调特异性的原因。

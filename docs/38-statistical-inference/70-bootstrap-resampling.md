@@ -101,7 +101,7 @@ for b in range(B):
     resample = []
     for i in range(n):
         resample.append(customers[int(random.random() * n)])   # ← 全课核心：有放回地重抽一枚
-    resample.sort()
+    resample.sort()          # .sort() 就地排序（改自己，返回 None）；sorted() 才是另给一份新列表
     medians_b.append((resample[n // 2 - 1] + resample[n // 2]) / 2)
 
 medians_b.sort()

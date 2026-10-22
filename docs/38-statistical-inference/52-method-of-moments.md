@@ -116,7 +116,7 @@ print(f"矩估计 σ² = {sigma2_hat:.3f}")
 ### 实验 2（python）：矩估计 vs MLE 对比
 
 ```python title="均匀分布的矩估计与 MLE"
-from scipy.optimize import minimize_scalar
+import numpy as np                       # numpy：数值计算库，np 是它约定俗成的别名
 
 np.random.seed(42)
 true_theta = 10.0

@@ -94,7 +94,7 @@ print(edge_count * 2)   # 握手定理：度和 = 边数的两倍
 distance = {"阿静": 0}  # 起点到自己的距离是 0
 queue = ["阿静"]
 while queue:
-    current = queue.pop(0)
+    current = queue.pop(0)     # pop(0)：从队首取出并删掉一个元素——这就是"队列"与栈的区别
     for friend in graph[current]:
         if friend not in distance:
             distance[friend] = distance[current]    # ← 少了点什么？

@@ -176,9 +176,11 @@ print(prediction)
 <summary>点开查看逐步解答</summary>
 
 ```python
-a_prior, b_prior, k, n = 1, 1, 6, 6
+# 当前后验是 Beta(12, 8)：a=12 记为"垃圾"的次数，b=8 记为"正常"的次数
+a_prior, b_prior = 12, 8
+k, n = 1, 5                  # 新来 5 封：1 封垃圾（成功）、4 封正常（失败）
 prediction = (a_prior + k) / (a_prior + b_prior + n)
-print(prediction)
+print(round(prediction, 2))  # 0.52 = 13/25
 ```
 
 $a=12+1=13$，$b=8+4=12$，新后验 Beta(13, 12)，预测概率 $13/25=0.52$。注意只需在原参数上做加减法——历史 20 封的记忆全部浓缩在 (12, 8) 两个数字里，无需回看原始邮件。这就是流式贝叶斯的存储优势。

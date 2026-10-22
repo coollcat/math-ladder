@@ -107,6 +107,7 @@ fig, axes = plt.subplots(2, 2, figsize=(10, 6))
 for i, (series, name) in enumerate([(ar, "AR(1)"), (ma, "MA(1)")]):
     # ACF：自相关函数，计算 k 步延迟的相关性
     lags = 30
+    # np.corrcoef(a, b)：返回 2×2 相关系数矩阵，[0,1] 才是我们要的那一个相关系数
     acf_vals = [np.corrcoef(series[:n-k], series[k:])[0,1] for k in range(lags)]
     # PACF：偏自相关函数，去除中间项后的纯相关
     axes[i,0].bar(range(lags), acf_vals, color="steelblue")

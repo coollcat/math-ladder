@@ -157,11 +157,12 @@ data = [["甲", 5, 9], ["乙", 6, 7], ["丙", 11, 12]]   # [姓名, Y(0), Y(1)]
 
 for p in data:
     plt.plot([0, 1], [p[1], p[2]], marker="o")        # 一条线连接两个世界的结局
+    # plt.text(x, y, 字符串)：在图的指定坐标处落一行字；ha 是水平对齐方式
     plt.text(-0.06, p[1], p[0], ha="right")
     plt.text(1.06, p[2], f"+{p[2] - p[1]}", ha="left", color="dimgray")
 
 plt.xticks([0, 1], ["不参加的世界", "参加的世界"])
-plt.xlim(-0.5, 1.5)
+plt.xlim(-0.5, 1.5)          # 手动锁定横轴范围，给两端的标签留出地方
 plt.ylabel("工资增量（千元）")
 ```
 
