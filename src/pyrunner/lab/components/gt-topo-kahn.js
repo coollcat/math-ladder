@@ -118,7 +118,13 @@ export default function render(host, spec) {
   function stepOnce() {
     const ready = nodes.filter((n) => !done.has(n) && indeg[n] === 0);
     if (!ready.length) {
-      cyclic = true;
+      /* 没有入度为 0 的点，有两种完全不同的情形：
+         · 已经全部出队 —— 正常排完，「自动播完」正好会走到这里；
+         · 还有剩下的点却都堵着 —— 那才是环。
+         以前无条件置 cyclic = true，于是合法 DAG 上点「自动播完」必被判
+         「否（有环）」，画布还写出「输出长度 5 < n = 5」这种自相矛盾的话；
+         而手动单步恰好停在 n 次、不再多点一下，就不会误报。 */
+      if (done.size < nodes.length) cyclic = true;
       return false;
     }
     const pick = ready[0];

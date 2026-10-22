@@ -133,7 +133,7 @@ print(same_level)         # 输出 True / False
 
 把减号改成加号：
 
-```python
+```py
 def f(x, y):
     return x * x + y * y
 ```

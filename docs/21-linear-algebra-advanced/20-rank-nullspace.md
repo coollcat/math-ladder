@@ -116,8 +116,11 @@ print(rank2(0, 0, 0, 0))
 # @check: rank=1
 # @check: nullity=1
 # @hint: 先把第二行减去 2 倍第一行；非零行数是 rank，未知数个数减 rank 是 nullity。
+# 2×2 矩阵：第二行恰好是第一行的 2 倍，两行线性相关
 A = [[1, 2], [2, 4]]
+# rank 是消元后非零行的条数
 rank = 2
+# nullity（零空间维数）= 未知数个数 - 秩
 nullity = 2 - rank
 print(f"rank={rank}")
 print(f"nullity={nullity}")

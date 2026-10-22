@@ -105,8 +105,10 @@ print("area=", epsilon * height)
 # @title: 练习：计算窄矩形的面积
 # @check: area=1.0
 # @hint: 冲激近似要求高度乘宽度不变。
+# 窄矩形的宽度与高度
 width = 0.2
 height = 10.0
+# area 记录这条窄矩形的面积
 area = width + height
 print("area=" + str(area))
 ```
@@ -117,8 +119,10 @@ print("area=" + str(area))
 面积为 $0.2\times10=2$，不是 1。要让极限是单位冲激，高度应取 $1/0.2=5$，此时乘积为 1。
 
 ```python
+# 窄矩形的宽度与高度：两者相乘才是面积
 width = 0.2
 height = 5.0
+# 面积恰好为 1，这正是冲激近似的要求
 area = width * height
 print("area=" + str(area))
 ```

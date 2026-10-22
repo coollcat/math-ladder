@@ -127,7 +127,7 @@ for point in points:       # 逐点打印（现在还是原坐标）
 
 均值：
 
-```python
+```py
 mean_x = (1 + 3) / 2
 mean_y = (1 + 3) / 2
 ```

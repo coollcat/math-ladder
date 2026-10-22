@@ -205,7 +205,7 @@ export default function render(host, spec) {
       14, 38, C.axis, { size: 10.5 });
 
     const wide = W >= 640;
-    const ax = wide ? 22 : 22;
+    const ax = 22; /* 宽窄屏同值；写成三元是死代码 */
     const ay = 66;
     const aw = wide ? Math.min(W * 0.34, 250) : Math.min(W - 44, 300);
     const ah = 96;
@@ -266,7 +266,7 @@ export default function render(host, spec) {
     drawPhases(ctx, C, 14, ly, W - 28);
 
     /* 记录表 */
-    const ry = wide ? ly + 116 : ly + 116;
+    const ry = ly + 116; /* 同上：两侧同值 */
     drawLog(ctx, C, 14, ry, W - 28);
     void Hh;
   }

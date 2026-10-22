@@ -160,10 +160,13 @@ $$\int_0^3 10t\,dt = 5\times 3^2 - 5\times 0 = 45 \text{ 米}$$
 # @title: 动手解：黎曼和算路程
 # @check: 45.0
 # @hint: 每一小步累加的是"速度 × dt"；现在代码里漏乘了 dt，所以结果大得离谱
+# total 是累加器：把每一小步的路程加起来
 total = 0
+# dt 是每一小步的时间长度
 dt = 0.001
 for k in range(3000):
     t = k * dt
+    # 按到达时刻的速度累加这一小段
     total = total + 10 * t
 print(round(total, 1))
 ```

@@ -100,20 +100,27 @@ import matplotlib.pyplot as plt   # 绘图模块
 random.seed(4242)
 T, theta, mu, sigma = 4.0, 2.0, 4.0, 1.0     # 终点时刻 / 回归速率 / 目标水平 / 噪声强度
 
-def em_path(n):                   # n 步走到 T，返回整条轨迹列表
+NMAX = 4000                     # 最细一层：整条布朗路径就按这个分辨率抽
+dW = [random.gauss(0.0, 1.0) for _ in range(NMAX)]   # 标准正态增量，下面各档都从这里取
+
+def em_path(n, dW=dW):            # n 步走到 T，返回整条轨迹列表
+    """粗格子必须用**同一条**布朗路径的增量：把 NMAX 段并成 n 段。
+    以前每档各抽自己的噪声，等于拿几条互不相干的路径互相比，
+    误差表当然不单调（换 9 个种子有 6 个不降）。"""
     dt = T / n                    # 步长
+    stride = NMAX // n            # 每段并掉多少个细增量
     x, xs = 0.0, [0.0]
     for k in range(n):
-        z = random.gauss(0.0, 1.0)
+        # 并段：方差要相加，所以先求和再乘 √dt（不是乘 √stride）
+        z = sum(dW[k * stride:(k + 1) * stride]) / (stride ** 0.5)
         x = x + theta * (mu - x) * dt + sigma * z * (dt ** 0.5)   # EM 核心：漂移半步 + 噪声半步
         xs.append(x)
     return xs
 
+ref = em_path(NMAX)               # 极细参照轨（肉眼层面的"真解"）
 for n in [10, 40, 160]:           # 由粗到细的三档步长
     p = em_path(n)
     plt.plot([i * T / n for i in range(n + 1)], p, linewidth=1.0, label="dt=" + str(round(T / n, 4)))
-
-ref = em_path(4000)               # 极细参照轨（肉眼层面的"真解"）
 plt.plot([i * T / len(ref) for i in range(len(ref))], ref, color="gray", linewidth=0.6, alpha=0.7)
 plt.axhline(y=mu, color="black", linestyle="--", linewidth=0.8)   # axhline：画一条水平参考线
 plt.legend()

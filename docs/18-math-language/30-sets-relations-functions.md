@@ -105,11 +105,13 @@ print(describe([[1, 0], [0, 1]]))
 # @check: function
 # @check: bijection
 # @hint: 先检查每个左元素是否恰好一个 1；双射还要求右列都至少一个 1，且不同左元素不指向同一列。第二组的右列 1 没有 1。
+# 用 0/1 矩阵表示「箭头」：第 i 行第 j 列为 1 表示 i 指向 j
 arrows = [
     [[1, 1], [1, 0]],
     [[1, 0], [1, 0]],
     [[0, 1], [1, 0]],
 ]
+# 逐个关系检查
 for item in arrows:
     print("relation")
 ```

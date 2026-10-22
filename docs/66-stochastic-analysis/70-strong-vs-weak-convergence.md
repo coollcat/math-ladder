@@ -69,7 +69,7 @@ $$\text{强：}\quad \Bigl(\operatorname{E}\lvert X_T-X_T^{(\Delta)}\rvert^{2}\B
 
 用已知真解的 GBM 当靶场（上一课的显式解直接当裁判），两杆秤同时上机：强秤抽多条路径求 RMS 误差，弱秤只比较终端均值。参数与上一课一致（$\mu=0.08$、$\sigma=0.2$、$T=1$、$S_0=100$）。
 
-```python title="GBM 靶场：两杆秤同时称"
+```python title="GBM 靶场：两杆秤分头称"
 import random                     # 标准库随机模块；seed 固定保证可复现
 import numpy as np                # 数值库：exp、sqrt、mean 都在这里
 
@@ -77,31 +77,40 @@ random.seed(77)
 s0, mu, sig, T = 100.0, 0.08, 0.2, 1.0
 paths_per_grid = 400              # 每档格子抽多少条路径
 
-def em_terminal(dt):              # 一条 GBM 的 EM 终点价
+def em_terminal(dt, zs):          # 一条 GBM 的 EM 终点价，用外部给好的增量
     x = s0
     n = int(round(T / dt))
     for k in range(n):
-        z = random.gauss(0.0, 1.0)
-        x = x * (1.0 + mu * dt + sig * (dt ** 0.5) * z)   # 朴素 EM：扩散系数 ∝ s 不随状态变
+        x = x * (1.0 + mu * dt + sig * (dt ** 0.5) * zs[k])   # 朴素 EM：扩散系数 ∝ s 不随状态变
     return x
 
-def truth():                      # 显式解裁判
-    return s0 * np.exp((mu - 0.5 * sig * sig) * T + sig * (T ** 0.5) * random.gauss(0.0, 1.0))
+def truth(zs, dt):                # 显式解裁判，吃同一串增量
+    """强收敛比较的是「同一条布朗路径上，数值解与真解差多少」，
+    所以两者必须用**同一串**随机数。若各自 random.gauss 抽一个新的，
+    减出来的东西方差是解析解的两倍、且与 dt 无关，表格根本不会收敛。"""
+    # n 段独立增量各乘 √dt 后求和：方差 = dt·n = T，才是 T 时刻的布朗运动
+    W = (dt ** 0.5) * float(np.sum(zs))
+    return s0 * np.exp((mu - 0.5 * sig * sig) * T + sig * W)
 
-print("dt       强尺(RMS)     弱尺(|均值差|)")
+print("dt       强尺(RMS)     弱尺(解析)")
 for dt in [0.05, 0.025, 0.0125]:
     errs = []
-    means_sim = []
+    n = int(round(T / dt))
     for i in range(paths_per_grid):
-        sim = em_terminal(dt)
-        errs.append(sim - truth())            # 同抽签配对的路径级偏差
-        means_sim.append(sim)
+        zs = [random.gauss(0.0, 1.0) for _ in range(n)]   # 同一条路径的增量，两边共用
+        errs.append(em_terminal(dt, zs) - truth(zs, dt))  # 同抽签配对的路径级偏差
     rms = np.sqrt(np.mean(np.square(errs)))   # square 平方后 mean 平均再开方
-    weak_err = abs(np.mean(means_sim) - s0 * np.exp(mu * T))
+    # 弱尺没法用这几百条路径"测"出来：EM 的弱误差只有 1e-2 量级，
+    # 而 400 条路径的均值标准误 ≈ 0.5，噪声比信号大 50 倍。
+    # 一期的 EM 终点均值可以精确算：E[x_T] = S0·(1+μΔt)^n，直接拿它比解析真值。
+    em_mean = s0 * (1.0 + mu * dt) ** n
+    weak_err = em_mean - s0 * np.exp(mu * T)
     print(str(dt).ljust(9), str(round(float(rms), 3)).ljust(13), round(float(weak_err), 4))
 ```
 
-读表要点：左侧强尺一栏大体按 $\sqrt{2}$ 相邻缩放（半阶的面相），右侧弱尺一栏接近相邻减半（一阶的面相）。抽样噪声会让个别行抖动——加大 `paths_per_grid` 再跑一次，轮廓就会稳下来。这正是两份文献对同一格式给出不同阶数的现场。
+读表要点：左侧强尺一栏大体按 $\sqrt{2}$ 相邻缩放（半阶的面相：$0.649\to0.496\to0.357$，相邻比约 $1.31$），右侧弱尺一栏接近相邻减半（一阶的面相：$-0.0173\to-0.0087\to-0.0043$，每次恰好除以 $2$）。抽样噪声会让强尺个别行抖动——加大 `paths_per_grid` 可以让它更稳。
+
+**为什么弱尺要走解析而不是抽样**：EM 的弱误差只有 $10^{-2}$ 量级，而 $400$ 条路径算出的均值标准误约 $0.5$——噪声比信号大五十倍，抽样根本分不出 $0.017$ 与 $0.0087$。这不是偷懒：强阶本来就是「逐路径」的性质，必须抽样；弱阶是「分布」的性质，能用矩精确算就该精确算。两杆秤的用法本来就不一样。
 
 概念自检放一张时间轴对照图也行，不过这课的灵魂全在表格读数上，我们把交互配额留给下一课的密度云动画。
 

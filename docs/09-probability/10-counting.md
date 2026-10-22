@@ -180,8 +180,10 @@ $P(n,k)$ 数的是队形，$C(n,k)$ 数的是团队。每个团队内部恰有 $
 # @title: 练习：从排列折回组合
 # @check: 28
 # @hint: 同一对人会被 2! = 2 种队形重复计数，用 math.factorial 除掉它
+# math 是标准库的数学模块，factorial 负责阶乘
 import math
 
+# 8!/6! = 8×7：从 8 人里排 2 个位置的排列数；// 是整除，结果保持整数
 p = math.factorial(8) // math.factorial(6)
 print(p)
 ```
@@ -192,8 +194,10 @@ print(p)
 $P(8,2)=56$ 把同一支两人小队的 $2!=2$ 种队形各算了一次，所以再除以 $2$：
 
 ```python
+# math 是标准库的数学模块，factorial 负责阶乘
 import math
 
+# 组合数 C(8,2)：先算排列，再除掉同一对两种顺序造成的重复计数
 p = math.factorial(8) // math.factorial(6)
 print(p // math.factorial(2))
 ```

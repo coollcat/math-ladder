@@ -86,7 +86,7 @@ exits:
 ### 实验 1：有限集上的 σ-代数
 
 ```python title="枚举 X={0,1,2} 上所有 σ-代数"
-from itertools import combinations
+from itertools import combinations   # combinations：从可迭代对象里取定长组合，这里用来枚举子集
 
 X = frozenset({0, 1, 2})        # frozenset：不可变集合
 power_set = []
@@ -243,7 +243,7 @@ for mask in range(2 ** 3):        # ← 错了：4 个原子应有 2**4 种组�
     family.append(s)
 
 print("包含全集:", X in family)
-print("补集封闭:", all((X - A) in family for A in family))
+print("补集封闭:", all((X - A) in family for A in family))   # all(...)：可迭代对象全为真才返回 True（本站首见）
 print("可数并封闭:", all((A | B) in family for A in family for B in family))
 
 ```
@@ -261,10 +261,12 @@ print("可数并封闭:", all((A | B) in family for A in family for B in family)
 - $A \cup B = (0,1) \cup (2,3)$
 - $A^c \cap B^c = (A \cup B)^c = (-\infty,0] \cup [1,2] \cup [3,\infty)$
 - $A \cap B^c = (0,1)$（已含）
-- $A^c \cup B = (-\infty,0] \cup [1,3)$
-- 等等——共 16 个集合，对应 $\lbrace A, B\rbrace$ 生成的 4 个"原子"区域的所有组合。
+- $A^c \cup B = (-\infty,0] \cup [1,\infty)$（注意 $(2,3)$ 整个含在 $[1,\infty)$ 里，所以不是 $[1,3)$）
+- 等等——共 8 个集合。
 
-四个原子：$(0,1)$，$(2,3)$，$[1,2]$，$(-\infty,0] \cup [3,\infty)$。σ-代数是这四个原子的所有并集，共 $2^4 = 16$ 个。
+三个原子：$(0,1)$，$(2,3)$，$(-\infty,0] \cup [1,2] \cup [3,\infty)$。σ-代数是这三个原子的所有并集，共 $2^3 = 8$ 个。
+
+为什么只有三个不是四个：$A$ 与 $B$ **不相交**，$A$ 与 $B$ 的隶属关系只有三种组合（属于 $A$、属于 $B$、两个都不属于），没有"既在 $A$ 又在 $B$"的那一格。一般地，由 $k$ 个两两不交的非空集合生成的 σ-代数有 $2^k$ 个成员、$k$ 个原子；只要其中两个有交，原子数就会涨上去。
 
 </details>
 

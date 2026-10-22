@@ -232,7 +232,11 @@ export default function render(host, spec) {
         minE = Math.min(minE, e);
         maxE = Math.max(maxE, e);
       }
-      const flat = photoErr(curPose, gs);
+      /* joint 模式下 gs 已经把整张地图平移了 jointShift，位姿也必须跟着平移，
+         否则比的是「平移后的地图」配「没平移的相机」，误差当然不是 0——
+         以前这里少加了一个 jointShift，读数印出「光度误差 96.81（恒为 0）」，
+         扫描口径说恒为 0、读数却给 96.81，自相矛盾。 */
+      const flat = photoErr(curPose + jointShift, gs);
       ctx.save();
       ctx.strokeStyle = C.bad;
       ctx.lineWidth = 2;
@@ -241,7 +245,9 @@ export default function render(host, spec) {
       ctx.lineTo(sx(pHi), cy1 - 6);
       ctx.stroke();
       ctx.restore();
-      label(ctx, 'E(s) ≡ ' + flat.toFixed(2) + '　（扫过 s ∈ [−0.6, 0.6]，最小 '
+      /* 这条线的**高度**是地图不完整造成的残余（≈60），**起伏**才是 0。
+         写「E(s) ≡ 0」会把高度也说成 0，与左边画的线自相矛盾。 */
+      label(ctx, 'E(s) ≡ ' + flat.toFixed(2) + '（水平线：起伏 ≡ 0）　（扫过 s ∈ [−0.6, 0.6]，最小 '
         + minE.toFixed(2) + '、最大 ' + maxE.toFixed(2) + '，起伏 '
         + Math.abs(maxE - minE).toExponential(1) + '）', sx(2.5), cy1 - 14, C.bad,
       { size: 10.5, weight: 700 });
@@ -336,12 +342,16 @@ export default function render(host, spec) {
 
   function sync() {
     const gs = currentMap();
-    const err = photoErr(pose, gs);
+    /* joint 模式下 gs 含 jointShift，判读位姿也必须是 pose + jointShift。 */
+    const err = photoErr(pose + (mode === 'joint' ? jointShift : 0), gs);
     const best = bestPose(gs);
     ro.set('模式', mode === 'track' ? '跟踪：冻结地图调位姿'
       : mode === 'map' ? '建图：冻结位姿调地图' : '同时调（反面教材）');
     ro.set('相机位姿', pose.toFixed(3) + ' m（真值 2.400）');
-    ro.set('光度误差', err.toFixed(2) + (mode === 'joint' ? '（恒为 0，所以这个 0 不作数）' : ''));
+    /* 别再写「恒为 0」了：joint 模式下误差曲线是一条**水平线**，但水平的高度
+       是地图不完整造成的残余（约 59.9），不是 0。说成 0 会让人以为组件算错了。
+       真正要强调的是「起伏 = 0」，也就是对平移毫无分辨率。 */
+    ro.set('光度误差', err.toFixed(2) + (mode === 'joint' ? '（起伏 ≡ 0，但水平高度不为 0）' : ''));
     ro.set('高斯枚数', gs.length + ' 枚' + (mapSteps ? '（已补 ' + mapSteps + ' 枚）' : ''));
     ro.set('结论', mode === 'joint'
       ? '一整条零误差谷底：位姿与地图互相吸收'

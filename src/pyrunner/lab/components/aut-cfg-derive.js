@@ -235,9 +235,13 @@ export default function render(host, spec) {
     ro.set('这一步用的产生式', step > 0
       ? PRODS[SCRIPT[step - 1]].label + '　（' + PRODS[SCRIPT[step - 1]].note + '）'
       : '还没开始：整棵树只有根 S');
-    ro.set('距目标', form.join('') === TARGET
+    /* 比较前必须去掉 ε：frontier() 会把 ε 也当叶子推进 out，
+       而 TARGET = '(())()' 里没有 ε。不去掉的话 form 永远等不到目标串，
+       成功分支永远走不到，读数条会一直报「推导跑完，但生成的串是 ((ε))(ε)」，
+       而同一帧的画布（下面 label 那行已 replace(/ε/g,'')）却显示 '(())()'。 */
+    ro.set('距目标', form.join('').replace(/ε/g, '') === TARGET
       ? '已生成目标串 ' + TARGET
-      : (step >= total ? '推导跑完，但生成的串是 ' + form.join('')
+      : (step >= total ? '推导跑完，但生成的串是 ' + form.join('').replace(/ε/g, '')
         : '还差 ' + (total - step) + ' 步'));
   }
 

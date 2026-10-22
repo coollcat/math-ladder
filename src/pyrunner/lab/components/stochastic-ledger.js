@@ -372,7 +372,11 @@ export default function render(host, spec) {
     ro.set('分割', 'm = ' + m + ' 段（细分档 ' + Math.round(sliders.state.level) + '，同一条路径的嵌套细分）');
     ro.set('进度', '第 ' + Math.min(c + (anim ? 1 : 0), m) + ' / ' + m + ' 段');
     ro.set('普通账 Σ|ΔB|', fmt(L.tv, 3) + '（最终 ' + fmt(acc.tv[m], 2) + '，没有天花板）');
-    ro.set('平方账 Σ(ΔB)²', fmt(L.qv, 3) + '（理论端点 T = 1）');
+    /* 措辞要小心：E[Σ(ΔB)²] = T 对**任何**分割都成立，但这是期望，
+       不是这条路径的实测值。细分越粗，单次实现的涨落越大（相对标准差
+       ≈ √(2/m)），所以读数 1.14～2.21 都可能出现。写成"理论端点 T = 1"
+       容易被读成"应该等于 1"，反而让人以为组件算错了。 */
+    ro.set('平方账 Σ(ΔB)²', fmt(L.qv, 3) + '（期望 = T = 1，单次实现会抖）');
     ro.set('右 − 左', fmt(L.r - L.l, 4));
     ro.set('左 + 平方/2', fmt(L.floor.l + L.floor.qv / 2, 4) + '（B_T²/2 = ' + fmt((bEnd * bEnd) / 2, 4) + '）');
   }

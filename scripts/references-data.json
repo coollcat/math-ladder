@@ -2195,7 +2195,7 @@
       "y": 1827,
       "v": "柏林首版（德文）",
       "g": "原著",
-      "d": "「电流正比于电压、反比于电阻」第一次被写成公式——第 2 课那颗 150 Ω 限流电阻的全部依据都在这里。",
+      "d": "「电流正比于电压、反比于电阻」第一次被写成公式——第 68 章第 20 课那颗 150 Ω 限流电阻的全部依据都在这里。",
       "p": "https://en.wikipedia.org/wiki/Ohm%27s_law"
     },
     {
@@ -2222,7 +2222,7 @@
       "y": 1934,
       "v": "Bell System Technical Journal 13(1)",
       "g": "论文",
-      "d": "负反馈的发明：用一大堆不可靠的增益，换一个精确可靠的增益——第 13 课「虚短」的祖师爷。",
+      "d": "负反馈的发明：用一大堆不可靠的增益，换一个精确可靠的增益——第 68 章第 130 课「虚短」的祖师爷。",
       "p": "https://en.wikipedia.org/wiki/Negative-feedback_amplifier",
       "f": "https://archive.org/download/bstj13-1-1/bstj13-1-1.pdf"
     },
@@ -2242,7 +2242,7 @@
       "y": 1948,
       "v": "Bell System Technical Journal",
       "g": "论文",
-      "d": "采样定理的原始出处：第 17 课 ADC 那把「把时间切段」的刀，是从这里递过来的。",
+      "d": "采样定理的原始出处：第 68 章第 170 课 ADC 那把「把时间切段」的刀，是从这里递过来的。",
       "p": "https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem",
       "f": "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf"
     }
@@ -2264,7 +2264,7 @@
       "y": 1973,
       "v": "Journal of the ACM 20(1)",
       "g": "论文",
-      "d": "速率单调调度与那个 ln2 ≈ 69% 的利用率上界：第 3 课「SJF 平均等待最短却没人真用」的另一半答案。",
+      "d": "速率单调调度与那个 ln2 ≈ 69% 的利用率上界：第 70 章第 30 课「SJF 平均等待最短却没人真用」的另一半答案。",
       "p": "https://en.wikipedia.org/wiki/Rate-monotonic_scheduling"
     },
     {
@@ -2291,7 +2291,7 @@
       "y": 1970,
       "v": "Communications of the ACM 13(6)",
       "g": "论文",
-      "d": "「SQL 不是查表语言，它是集合论穿了件外套」——这句话的原始出处，第 9 课的主角。",
+      "d": "「SQL 不是查表语言，它是集合论穿了件外套」——这句话的原始出处，第 70 章第 90 课的主角。",
       "p": "https://en.wikipedia.org/wiki/Relational_model",
       "f": "https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf"
     },
@@ -2311,7 +2311,7 @@
       "y": 1974,
       "v": "IEEE Transactions on Communications",
       "g": "论文",
-      "d": "TCP/IP 的出生证明：第 12 课里「100 字节发出去、线上跑的是 158 字节」的信封格式，从这儿定下来。",
+      "d": "TCP/IP 的出生证明：第 70 章第 120 课里「100 字节发出去、线上跑的是 158 字节」的信封格式，从这儿定下来。",
       "p": "https://en.wikipedia.org/wiki/Internet_protocol_suite",
       "f": "https://www.cs.princeton.edu/courses/archive/fall06/cos561/papers/cerf74.pdf"
     },
@@ -2464,7 +2464,7 @@
       "y": 1854,
       "v": "伦敦首版",
       "g": "原著",
-      "d": "把逻辑变成代数：AND/OR/NOT 从此有了运算律。第 20 课那三块积木的全套公理都在这本书里。",
+      "d": "把逻辑变成代数：AND/OR/NOT 从此有了运算律。第 69 章第 20 课那三块积木的全套公理都在这本书里。",
       "p": "https://en.wikipedia.org/wiki/George_Boole"
     },
     {
@@ -2482,7 +2482,7 @@
       "y": 1953,
       "v": "Bell System Technical Journal",
       "g": "论文",
-      "d": "把真值表排成格雷码网格，相邻合并圈组化简——第 30 课那张图的原始论文。",
+      "d": "把真值表排成格雷码网格，相邻合并圈组化简——第 69 章第 30 课那张图的原始论文。",
       "p": "https://en.wikipedia.org/wiki/Karnaugh_map"
     },
     {

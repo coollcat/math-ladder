@@ -119,7 +119,7 @@ for chickens in range(heads + 1):        # 外层循环：鸡的数量从 0 到 
 文具店双票问题的两条直线长什么样？各自移项解出 $y$，再请 matplotlib 上场：
 
 ```python title="两条直线的交点就是解"
-import matplotlib.pyplot as plt      # 绘图工具箱，第 0 课引入过
+import matplotlib.pyplot as plt      # 绘图工具箱，第 0 章第 20 课引入过
 
 xs = []                              # 收集横坐标：0 到 7 的整数
 for v in range(8):

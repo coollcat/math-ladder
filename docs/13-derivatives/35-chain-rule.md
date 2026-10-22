@@ -144,9 +144,11 @@ print(f"拆开对账：外层 {round(outer, 4)} × 内层 {inner} = {round(outer
 # @title: 练习：补上断掉的链条
 # @check: 54.0
 # @hint: 外层 u³ 的导数是 3u²，这步代码做对了；但内层 2x+1 的导数是谁？把它乘上去
+# 复合函数求导：外层与内层的导数都要算进去
 def df(x):
     return 3 * (2 * x + 1) ** 2
 
+# round(x, 1) 保留一位小数
 print(round(df(1.0), 1))
 ```
 

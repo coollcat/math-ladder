@@ -64,8 +64,11 @@ $$v=\sum_n \langle v,e_n\rangle e_n,\qquad \lVert v\rVert^2=\sum_n |\langle v,e_
 ### 实验 2：逐项保留能量
 
 ```python title="Parseval 的三项检查"
+# 三个正交坐标下的分量
 coords = [3.0, -4.0, 0.0]
+# Parseval：向量长度的平方 = 各坐标平方之和
 kept = coords[0] * coords[0] + coords[1] * coords[1]
+# 把剩下那一项也加进总账
 total = kept + coords[2] * coords[2]
 print("kept=", kept)
 print("total=", total)
@@ -91,8 +94,10 @@ print("total=", total)
 # @title: 练习：用内积求傅里叶式坐标
 # @check: coefficient=4.0
 # @hint: 标准基方向上的系数等于 v 点乘 e。
+# v 是被投影的向量，e 是标准基的一个方向
 v = [3.0, 4.0]
 e = [0.0, 1.0]
+# coefficient 想算出 v 在 e 方向上的坐标
 coefficient = v[0] + v[1]
 print("coefficient=" + str(coefficient))
 ```
@@ -103,8 +108,10 @@ print("coefficient=" + str(coefficient))
 $e=(0,1)$ 时，$\langle v,e\rangle=3\cdot0+4\cdot1=4$。初始代码把两个坐标相加，混入了第一分量；应改成按 $e$ 的分量加权求和：`v[0] * e[0] + v[1] * e[1]`。
 
 ```python
+# v 是被投影的向量，e 是标准基的一个方向
 v = [3.0, 4.0]
 e = [0.0, 1.0]
+# 内积：对应分量相乘再相加，读出 v 在 e 方向上的坐标
 coefficient = v[0] * e[0] + v[1] * e[1]
 print("coefficient=" + str(coefficient))
 ```

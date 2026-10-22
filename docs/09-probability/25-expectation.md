@@ -159,9 +159,11 @@ print(round(value, 2))
 期望奖金 = 奖金 × 概率：
 
 ```python
+# 期望值 = 奖金 × 中奖概率：把「可能拿多少」按概率加权
 prize = 10000000
 p_win = 1 / 17721088
 value = prize * p_win
+# round(x, 2) 保留两位小数，免得打印出一长串浮点尾巴
 print(round(value, 2))
 ```
 

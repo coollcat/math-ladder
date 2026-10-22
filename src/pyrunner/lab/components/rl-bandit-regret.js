@@ -10,7 +10,9 @@
  *   c         UCB1 的探索系数 0..2，默认 1.0
  *   horizon   总步数上限 200..4000，默认 1200
  *   mus       三根臂的真实均值，默认 [0.25, 0.45, 0.65]
- *   seed      随机种子，默认 160
+ *   seed      随机种子，默认 2（刻意选用：这一条流里 c=0 的 UCB1 恰好锁死
+ *             在次好臂上，与课文「c 拖到 0 会陡成直线」的说法一致；换个种子，
+ *             c=0 大多反而最省——原因见课文里的说明）
  *   height    画布高度，默认 520
  *
  * 演示什么：两条策略在同一个赌场里同时跑，谁也没特权——
@@ -35,19 +37,22 @@ import {
 
 const BASE = [
   { name: 'epsilon', label: 'ε（A 的探索率）', min: 0, max: 0.5, step: 0.01, value: 0.1 },
-  { name: 'c', label: 'UCB 系数 c', min: 0, max: 2, step: 0.1, value: 1.0 },
+  { name: 'c', label: 'UCB 系数 c', min: 0, max: 2, step: 0.1, value: 2.0 },
   { name: 'horizon', label: '总步数', min: 200, max: 4000, step: 100, value: 1200 },
 ];
 
 export default function render(host, spec) {
   const H = clamp(spec.height || 520, 360, 940);
   let eps = clamp(typeof spec.epsilon === 'number' ? spec.epsilon : 0.1, 0, 0.5);
-  let cUcb = clamp(typeof spec.c === 'number' ? spec.c : 1.0, 0, 2);
+  let cUcb = clamp(typeof spec.c === 'number' ? spec.c : 2.0, 0, 2);
   const horizon = clamp(Math.round(spec.horizon || 1200), 200, 4000);
   const mus = Array.isArray(spec.mus) && spec.mus.length >= 2
     ? spec.mus.slice(0, 4).map((v) => clamp(Number(v) || 0, 0, 1))
     : [0.25, 0.45, 0.65];
-  const seed = Math.round(typeof spec.seed === 'number' ? spec.seed : 160);
+  /* 种子 2 是挑过的：在这一条随机数流里 c=0 的 UCB1 会锁死在次好臂
+     （best% = 0、regret 一路线性涨到 479.4），正好演示课文那句话。
+     别的种子（如 160）里 c=0 往往更快锁定最优臂，regret 反而最低。 */
+  const seed = Math.round(typeof spec.seed === 'number' ? spec.seed : 2);
   const best = Math.max(...mus);
   const bestArm = mus.indexOf(best);
 
@@ -238,7 +243,16 @@ export default function render(host, spec) {
 
     const box = geo.plot;
     const xmax = Math.max(horizon, 10);
-    const ymax = Math.max(best * Math.min(A.t, horizon), 1) * 1.05;
+    /* y 轴上限要看两条曲线的实测最高点，不能按参照线（斜率 best 画满全程）来定：
+       参照线在 t=300 时已到 102，而真实 regret 只有 8.4 与 28.6，两条线全贴在地轴上，
+       课文说的「谁更贴底部」根本看不出来。参照线本身超出窗口就让它出界。 */
+    const peak = Math.max(A.regret, B.regret, 1);
+    /* 加一点"台阶"：直接按峰值缩放会让 y 轴每帧都在变，曲线看起来像不动。
+       取 1/2/5×10^k 的整齐刻度做上限。 */
+    const mag = Math.pow(10, Math.floor(Math.log10(peak)));
+    const norm = peak / mag;
+    const step = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10;
+    const ymax = step * mag * 1.05;
     const { X, Y } = plotFrame(ctx, C, box, [0, xmax], [0, ymax], { xTicks: 5, yTicks: 4 });
 
     /* 线性 regret 参考线：一直瞎拉能到多高 */

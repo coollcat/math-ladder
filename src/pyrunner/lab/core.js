@@ -384,16 +384,30 @@ function buildSegmented(options, initial, onChange) {
 function buildReadout(pairs) {
   const box = el('div', 'ml-lab__readout');
   const refs = {};
+  const keyRefs = {};
   Object.keys(pairs).forEach((k) => {
     const item = el('div', 'ml-lab__ro');
     item.append(el('span', 'ml-lab__ro-k', k), el('span', 'ml-lab__ro-v', pairs[k]));
     refs[k] = item.lastChild;
+    keyRefs[k] = item.firstChild;
     box.appendChild(item);
   });
   return {
     box,
     set(k, v) {
       if (refs[k]) refs[k].textContent = v;
+    },
+    /* 换场景时键名要跟着换：值是对的而标签留着上一套场景的，读者会把 A 状态的
+       V 读成 B 状态的。只改键文本，不动值与布局。 */
+    setKey(k, label) {
+      if (!keyRefs[k] || k === label) return;
+      keyRefs[k].textContent = label;
+      /* 改名后把索引挪到新键上，之后 ro.set(新键) 才写得进去——否则标签是新的、
+         值仍写向旧键，画面上「名字变了数字没变」，比不改还糟。 */
+      keyRefs[label] = keyRefs[k];
+      refs[label] = refs[k];
+      delete keyRefs[k];
+      delete refs[k];
     },
   };
 }

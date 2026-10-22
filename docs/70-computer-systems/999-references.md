@@ -32,7 +32,7 @@ difficulty: 3
 # @year: 1973
 # @venue: Journal of the ACM 20(1)
 # @tag: 论文
-# @desc: 速率单调调度与那个 ln2 ≈ 69% 的利用率上界：第 3 课「SJF 平均等待最短却没人真用」的另一半答案。
+# @desc: 速率单调调度与那个 ln2 ≈ 69% 的利用率上界：第 70 章第 30 课「SJF 平均等待最短却没人真用」的另一半答案。
 # @page: https://en.wikipedia.org/wiki/Rate-monotonic_scheduling
 ```
 
@@ -62,7 +62,7 @@ difficulty: 3
 # @year: 1970
 # @venue: Communications of the ACM 13(6)
 # @tag: 论文
-# @desc: 「SQL 不是查表语言，它是集合论穿了件外套」——这句话的原始出处，第 9 课的主角。
+# @desc: 「SQL 不是查表语言，它是集合论穿了件外套」——这句话的原始出处，第 70 章第 90 课的主角。
 # @page: https://en.wikipedia.org/wiki/Relational_model
 # @pdf64: aHR0cHM6Ly93d3cuc2Vhcy51cGVubi5lZHUvfnppdmVzLzAzZi9jaXM1NTAvY29kZC5wZGY=
 ```
@@ -84,7 +84,7 @@ difficulty: 3
 # @year: 1974
 # @venue: IEEE Transactions on Communications
 # @tag: 论文
-# @desc: TCP/IP 的出生证明：第 12 课里「100 字节发出去、线上跑的是 158 字节」的信封格式，从这儿定下来。
+# @desc: TCP/IP 的出生证明：第 70 章第 120 课里「100 字节发出去、线上跑的是 158 字节」的信封格式，从这儿定下来。
 # @page: https://en.wikipedia.org/wiki/Internet_protocol_suite
 # @pdf64: aHR0cHM6Ly93d3cuY3MucHJpbmNldG9uLmVkdS9jb3Vyc2VzL2FyY2hpdmUvZmFsbDA2L2NvczU2MS9wYXBlcnMvY2VyZjc0LnBkZg==
 ```

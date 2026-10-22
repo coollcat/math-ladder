@@ -110,7 +110,7 @@ print(area_ratio)
 数字之外亲眼看一看"保形放大"：同一个三角形分别放大 1、2、3 倍叠在一起。
 
 ```python title="放缩对比图：变的是大小，不变的是形状"
-import matplotlib.pyplot as plt      # 绘图工具箱，第 0 课引入过
+import matplotlib.pyplot as plt      # 绘图工具箱，第 0 章第 20 课引入过
 
 small = [[0, 0], [3, 0], [1, 2]]     # 三顶点列表；每个点是 [x, y]，外层套一层装点集
 ks = [1, 2, 3]                       # 打算试验的三个放大倍数

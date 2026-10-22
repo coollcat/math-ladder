@@ -7,7 +7,7 @@
  *
  * 字段（都可省）：
  *   piRight  策略选「右」的概率 0..1，默认 0.75（左 = 1 − piRight）
- *   gamma    折扣因子 0.5..0.99，默认 1.0（本课的例子取 γ=1，便于手算）
+ *   gamma    折扣因子 0.5..1，默认 1（本课的例子取 γ=1，便于手算）
  *   height   画布高度，默认 520
  *
  * 演示什么：一张 3 状态 × 2 动作的 Q 表，用等距投影画成 6 根柱子：
@@ -29,7 +29,7 @@ import { fillRound, caption, colorRGBA, strokeRound, chip, dashedLine, dot } fro
 
 const BASE = [
   { name: 'piRight', label: '策略 π(右)', min: 0, max: 1, step: 0.05, value: 0.75 },
-  { name: 'gamma', label: '折扣因子 γ', min: 0.5, max: 0.99, step: 0.01, value: 0.99 },
+  { name: 'gamma', label: '折扣因子 γ', min: 0.5, max: 1, step: 0.01, value: 1 },
 ];
 
 /* 三套小例子：每套是 [状态名, r(左), r(右), V(s′左), V(s′右)] */
@@ -63,7 +63,10 @@ const SCENES = [
 export default function render(host, spec) {
   const H = clamp(spec.height || 520, 360, 940);
   let piRight = clamp(typeof spec.piRight === 'number' ? spec.piRight : 0.75, 0, 1);
-  let gamma = clamp(typeof spec.gamma === 'number' ? spec.gamma : 0.99, 0.5, 0.99);
+  /* 上限必须是 1，不能夹到 0.99：本课例题取的正是 γ=1（Q=1+2=3、V=4.5 才手算得出来），
+     夹到 0.99 会让画布上出现 3.970 这种与例题对不上的数，而且读者无从发现被改过。
+     这里只有一步回溯 r+γV(s′)，γ=1 不会发散，没有必须回避 1 的理由。 */
+  let gamma = clamp(typeof spec.gamma === 'number' ? spec.gamma : 1, 0.5, 1);
   let sceneIdx = 0;
 
   const cv = setupCanvas(host, H);
@@ -127,9 +130,15 @@ export default function render(host, spec) {
       });
     });
     ro.set('Q 最高的格子', best ? best.where + ' = ' + fmt(best.q, 3) : '—');
-    ro.set('V(低档)', fmt(rows[0].v, 3));
-    ro.set('V(中档)', fmt(rows[1].v, 3));
-    ro.set('V(高档)', fmt(rows[2].v, 3));
+    /* 读数条的值一直按 rows[0..2] 填，是对的；错的是标签被写死成「低档/中档/高档」。
+       第 2/3 套场景的状态叫 入口/走廊/门前 与 岔口/捷径/绕路，标签不跟着换，
+       读者就会把「门前」的 V 当成「高档」的 V。 */
+    ['低档', '中档', '高档'].forEach((oldName, i) => {
+      const oldKey = 'V(' + oldName + ')';
+      const newKey = 'V(' + rows[i].s + ')';
+      if (newKey !== oldKey) ro.setKey(oldKey, newKey);
+      ro.set(newKey, fmt(rows[i].v, 3));
+    });
     ro.set('贪心动作', rows.map((r) => r.s + ':' + (r.qL >= r.qR ? '左' : '右')).join('　'));
   }
 

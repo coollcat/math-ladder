@@ -166,7 +166,7 @@ print(round(f(h, 2 * h), 3))          # 沿 y=2x 的读数
 
 分子应为 $x\cdot y$：
 
-```python
+```py
 def f(x, y):
     return x * y / (x * x + y * y)
 ```

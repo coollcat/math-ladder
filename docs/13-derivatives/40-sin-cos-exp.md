@@ -138,11 +138,14 @@ e^x 的导数是什么？
 # @title: 练习：正弦在 π/3 处的斜率
 # @check: 0.5
 # @hint: 三大明星第一条：(sin x)' = cos x——被求导的应该是哪个函数？检查喂给 nd 的参数
+# math 是标准库的数学模块，cos 与 pi 都在里面
 import math
 
+# 中心差分：在 x 两侧各取一个点算斜率，比单侧差分更精确
 def nd(fn, x, h=0.00001):
     return (fn(x + h) - fn(x - h)) / (2 * h)
 
+# 求正弦在 π/3 处的斜率
 print(round(nd(math.cos, math.pi / 3), 3))
 ```
 

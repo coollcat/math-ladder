@@ -147,7 +147,7 @@ print(status)       # 分类结论
 
 二阶偏导：
 
-```python
+```py
 fxx = 4   # 2x² 的二阶导
 fxy = 1   # 交叉项 xy：先对 x 再对 y
 fyy = 6   # 3y² 的二阶导

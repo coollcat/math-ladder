@@ -123,9 +123,12 @@ for k in range(4):                 # range(4) 生成 0,1,2,3
 # @check: -3.0
 # @check: 4.0
 # @hint: u=x^2-y^2，v=2xy；初始代码里 u 的减号写成了加号，v 漏了系数 2。
+# z = x + iy 的实部与虚部
 x = 1.0
 y = 2.0
+# z² 的实部 u 由 x、y 组合而成
 u = x * x + y * y
+# 虚部 v 也由 x、y 组合而成
 v = x * y
 print(round(u, 1))
 print(round(v, 1))

@@ -181,10 +181,12 @@ print(lcm)
 先求 gcd，再代恒等式：
 
 ```python
+# math 是标准库的数学模块，gcd 求最大公约数
 import math
 
 a = 12
 b = 18
+# 最小公倍数 = 两数之积 ÷ 最大公约数；// 是整除，保证结果是整数
 lcm = a * b // math.gcd(a, b)
 print(lcm)
 ```

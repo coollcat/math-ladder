@@ -166,19 +166,19 @@ print(conservative)
 
 把采样数改成：
 
-```python
+```py
 n = 1000
 ```
 
 方向按角度增加，所以路径是：
 
-```python
+```py
 direction = "counterclockwise"
 ```
 
 场 $(-y,x)$ 沿不同路径可做不同功，因此：
 
-```python
+```py
 conservative = "not conservative"
 ```
 

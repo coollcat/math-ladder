@@ -22,7 +22,7 @@ difficulty: 3
 # @year: 1827
 # @venue: 柏林首版（德文）
 # @tag: 原著
-# @desc: 「电流正比于电压、反比于电阻」第一次被写成公式——第 2 课那颗 150 Ω 限流电阻的全部依据都在这里。
+# @desc: 「电流正比于电压、反比于电阻」第一次被写成公式——第 68 章第 20 课那颗 150 Ω 限流电阻的全部依据都在这里。
 # @page: https://en.wikipedia.org/wiki/Ohm%27s_law
 ```
 
@@ -52,7 +52,7 @@ difficulty: 3
 # @year: 1934
 # @venue: Bell System Technical Journal 13(1)
 # @tag: 论文
-# @desc: 负反馈的发明：用一大堆不可靠的增益，换一个精确可靠的增益——第 13 课「虚短」的祖师爷。
+# @desc: 负反馈的发明：用一大堆不可靠的增益，换一个精确可靠的增益——第 68 章第 130 课「虚短」的祖师爷。
 # @page: https://en.wikipedia.org/wiki/Negative-feedback_amplifier
 # @pdf64: aHR0cHM6Ly9hcmNoaXZlLm9yZy9kb3dubG9hZC9ic3RqMTMtMS0xL2JzdGoxMy0xLTEucGRm
 ```
@@ -74,7 +74,7 @@ difficulty: 3
 # @year: 1948
 # @venue: Bell System Technical Journal
 # @tag: 论文
-# @desc: 采样定理的原始出处：第 17 课 ADC 那把「把时间切段」的刀，是从这里递过来的。
+# @desc: 采样定理的原始出处：第 68 章第 170 课 ADC 那把「把时间切段」的刀，是从这里递过来的。
 # @page: https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem
 # @pdf64: aHR0cHM6Ly9wZW9wbGUubWF0aC5oYXJ2YXJkLmVkdS9+Y3RtL2hvbWUvdGV4dC9vdGhlcnMvc2hhbm5vbi9lbnRyb3B5L2VudHJvcHkucGRm
 ```

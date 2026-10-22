@@ -63,6 +63,17 @@ export default function render(host, spec) {
       if (k !== goal) walls.add(k);
     }
   });
+
+  /* 可学状态数 = 总格数 − 目标格 − 墙格。
+     目标格永远不再行动（envStep 提前 return）、墙格也不能落脚，两者都不会
+     被当作 s 写进 Q 表。分母若用 N-1 就会把 2 堵墙算进来，读者跑满 400 回合
+     也只能看到 13/15，误以为没收敛。 */
+  function learnable() {
+    let m = 0;
+    for (let k = 0; k < N; k += 1) if (k !== goal && !walls.has(k)) m += 1;
+    return m;
+  }
+
   const maxSteps = 60;
 
   let Q = new Float64Array(N * 4);
@@ -97,7 +108,7 @@ export default function render(host, spec) {
     '目标 r+γmax Q': '—',
     'δ': '—',
     'Q 变化': '—',
-    '已学状态': '0 / ' + (N - 1),
+    '已学状态': '0 / ' + learnable(),
   });
   host.appendChild(ro.box);
 
@@ -267,8 +278,8 @@ export default function render(host, spec) {
       ro.set('Q 变化', fmt(last.before, 3) + ' → ' + fmt(last.after, 3));
     }
     let cnt = 0;
-    for (let k = 0; k < N; k += 1) if (seen[k] && k !== goal) cnt += 1;
-    ro.set('已学状态', String(cnt) + ' / ' + String(N - 1) + (episodesDone ? '　已完成 ' + episodesDone + ' 回合' : ''));
+    for (let k = 0; k < N; k += 1) if (seen[k] && k !== goal && !walls.has(k)) cnt += 1;
+    ro.set('已学状态', String(cnt) + ' / ' + String(learnable()) + (episodesDone ? '　已完成 ' + episodesDone + ' 回合' : ''));
   }
 
   /* ---- 布局 ---- */

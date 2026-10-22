@@ -125,6 +125,24 @@ print(f"误差: {np.max(np.abs(L @ U - A)):.2e}")  # np.max(np.abs(...))：最�
 ```python title="前代 + 回代解 Ax = b"
 import numpy as np
 
+# 本块要独立可跑：lu_decompose 定义在"实验 1"那一块里，
+# 直接调用会 NameError。同一页里 Python 命名空间是共享的，但读者很可能
+# 只点这一个块的运行按钮，所以这里把函数再写一遍（内容与实验 1 完全一致）。
+def lu_decompose(A):
+    """Doolittle 算法：L 对角线为 1 的 LU 分解"""
+    n = len(A)
+    L = np.eye(n)
+    U = np.copy(A.astype(float))
+    for k in range(n - 1):
+        for i in range(k + 1, n):
+            if U[k, k] == 0:
+                raise ValueError("主元为零，需要行交换")
+            L[i, k] = U[i, k] / U[k, k]
+            for j in range(k, n):
+                U[i, j] -= L[i, k] * U[k, j]
+    return L, U
+
+
 def forward_sub(L, b):
     """前代：解 L y = b（L 下三角，对角线为 1）"""
     n = len(b)

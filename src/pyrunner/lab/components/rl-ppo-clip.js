@@ -106,7 +106,7 @@ export default function render(host, spec) {
     r = clamp(Math.round((r + d) * 100) / 100, 0.5, 1.5);
     syncAll();
   }
-  bOut.addEventListener('click', () => nudge(sign > 0 ? 0.05 : 0.05));
+  bOut.addEventListener('click', () => nudge(sign > 0 ? 0.05 : -0.05));
   bIn.addEventListener('click', () => nudge(-0.05));
   bEdge.addEventListener('click', () => {
     /* 跳到「离当前 r 最近、且已经进入归零区」的那个边界 */

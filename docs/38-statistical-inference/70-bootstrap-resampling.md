@@ -143,7 +143,7 @@ mean_obs = sum(customers) / n
 ssum = 0
 for v in customers:
     ssum += (v - mean_obs) ** 2
-sd = (ssum / (n - 1)) ** 0.5      # 样本标准差：除以 n-1 的那版（第 1 课的修正）
+sd = (ssum / (n - 1)) ** 0.5      # 样本标准差：除以 n-1 的那版（第 38 章第 10 课的修正）
 
 half_formula = 1.96 * sd / n ** 0.5     # 公式带半宽 = 1.96 × 标准误
 

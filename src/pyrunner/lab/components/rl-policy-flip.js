@@ -144,7 +144,11 @@ export default function render(host, spec) {
   function improve() {
     if (phase === 'done') return;
     if (phase === 'eval' && (delta === null || delta >= 1e-5)) {
+      /* 只提示、不 return 会让按钮一边说"先评估到收敛"一边把策略改了——
+         标准策略迭代里「改进」的前提就是评估收敛，没收敛就没有"贪心"可言。 */
       msg = '先把策略评估到收敛（Δ<1e-5）再改进，才是标准策略迭代';
+      syncReadout();
+      return;
     }
     flipped = new Int8Array(N);
     flipCount = 0;

@@ -166,7 +166,7 @@ print(area)
 
 $g_u=2v$，所以 $jyx=4$。行列式：
 
-```python
+```py
 jxx = 2      # f_u = 2u，u=1
 jxy = -1     # f_v = -1
 jyx = 4      # g_u = 2v = 2×2

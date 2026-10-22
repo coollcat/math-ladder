@@ -22,7 +22,7 @@ difficulty: 3
 # @year: 1854
 # @venue: 伦敦首版
 # @tag: 原著
-# @desc: 把逻辑变成代数：AND/OR/NOT 从此有了运算律。第 20 课那三块积木的全套公理都在这本书里。
+# @desc: 把逻辑变成代数：AND/OR/NOT 从此有了运算律。第 69 章第 20 课那三块积木的全套公理都在这本书里。
 # @page: https://en.wikipedia.org/wiki/George_Boole
 ```
 
@@ -42,7 +42,7 @@ difficulty: 3
 # @year: 1953
 # @venue: Bell System Technical Journal
 # @tag: 论文
-# @desc: 把真值表排成格雷码网格，相邻合并圈组化简——第 30 课那张图的原始论文。
+# @desc: 把真值表排成格雷码网格，相邻合并圈组化简——第 69 章第 30 课那张图的原始论文。
 # @page: https://en.wikipedia.org/wiki/Karnaugh_map
 ```
 

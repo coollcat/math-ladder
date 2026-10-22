@@ -173,10 +173,14 @@ for M in [9, 25, 81]:
 # @title: 动手解：在跳跃点上求值
 # @check: 0.0
 # @hint: 题问的是跳跃点 x = π 本身；现在算的是平台中点 x = π/2，把 x 换成 math.pi 再跑
+# math 提供 sin 与 pi
 import math
+# M 是用到的谐波个数
 M = 50
+# 求值点：方波的跳跃点在 x = π
 x = math.pi / 2
 total = 0
+# 第 n 项谐波用 sin 叠加，只有奇数项非零
 for n in range(1, M + 1):
     total = total + 4 / math.pi * math.sin(n * x) / n
 print(round(total, 2))

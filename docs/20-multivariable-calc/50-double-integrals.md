@@ -175,14 +175,14 @@ print(round(outer_integral(3), 3))   # 最终体积（本题与上一行同值�
 
 内层：
 
-```python
+```py
 def inner_integral(y):
     return 2.0 * y
 ```
 
 在 $y=2$ 时值是 4。外层：
 
-```python
+```py
 def outer_integral(limit):
     return 1.0 * limit * limit
 ```

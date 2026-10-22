@@ -113,34 +113,34 @@ plt.grid(True)
 
 ### 实验 3：$1/p(z)$ 的有界性
 
-```python title="多项式的倒数在无穷远处趋向 0"
+```python title="圆周上的最大值：精确值 vs 数值"
 import numpy as np
-import matplotlib.pyplot as plt
 
-# p(z) = z^2 + 1，1/p(z) 是整函数吗？不是（z=±i 是极点）
-# 但如果 p 无零点（如 z^2 + 1 替换为 z^2 + 1 在实轴上无零点）
-# 用 p(z) = z^3 + 2 验证：|1/p(z)| 在大圆盘上趋向 0
+# 目标：看清「1/p 为什么会趋于 0」，以及「为什么必须先假定 p 没有零点」。
+# 取 p(z) = z^2 + 1，零点在 ±i（模长 1）。
+# 关键：把观测范围取成**圆周 |z|=R**（不是整个圆盘）。
+#   圆周上只要 R>1 就碰不到零点，|1/p| 才有资格谈"最大值"。
+#   若取圆盘 |z|<=R（R>1），盘里就含着极点，max|1/p| 恒为 +∞，什么都看不出来。
 
-Rs = [1, 5, 10, 50]
-fig, axes = plt.subplots(1, 4, figsize=(14, 3))
+Rs = [2, 4, 8, 16]
+print("R      数值max|1/p|(圆周)   精确 1/(R²-1)")
+for R in Rs:
+    th = np.linspace(0, 2 * np.pi, 20000)   # 圆周上密采样
+    Z = R * (np.cos(th) + 1j * np.sin(th))
+    P = Z ** 2 + 1
+    val = np.max(1.0 / np.abs(P))
+    exact = 1.0 / (R * R - 1)               # 极**值**在 z=±iR 处取到（注意不是"极点"：p 的零点在 ±i）
+    print(str(R).ljust(6), f"{val:.6f}".ljust(22), f"{exact:.6f}")
 
-for ax, R in zip(axes, Rs):
-    x = np.linspace(-R, R, 200)
-    y = np.linspace(-R, R, 200)
-    X, Y = np.meshgrid(x, y)
-    Z = X + 1j * Y
-    P = Z**3 + 2
-    with np.errstate(divide='ignore', invalid='ignore'):
-        W = 1.0 / np.abs(P)
-        W[W > 5] = 5              # 截断以便可视化
-    ax.contourf(X, Y, W, levels=20, cmap="hot")
-    ax.set_title(f"|1/p(z)|, R={R}")
-    ax.set_aspect("equal")
-
-plt.tight_layout()
+print()
+print("圆盘 |z|<=R 里的 max|1/p|：R>1 时恒为 +inf（盘内含极点 z=±i）")
 ```
 
-$R$ 越大，$|1/p(z)|$ 的最大值越小——趋向 0，说明 $1/p$ 有界。
+$R$ 越大，$|1/p(z)|$ 在圆周上的最大值越小，且精确等于 $\dfrac{1}{R^2-1}$——$R=2,4,8,16$ 时是 $0.333,0.0667,0.0159,0.0039$，一路趋向 $0$。
+
+**为什么一定要走圆周而不是圆盘**：$p(z)=z^2+1$ 的零点在 $\pm i$，模长是 $1$。所以任何 $|z|\le R$（$R>1$）的**圆盘都含着极点**，$1/p$ 在盘里根本无界——这正是原版这段代码的病：它在圆盘里取 max，$R=1$ 那格恰好没踩到极点、$R=5$ 那格踩到了，于是"最大值"随 $R$ 变大而变大，与课文要讲的结论相反。换到圆周上，$R>1$ 时圆周永远碰不到 $\pm i$，最大值才存在、才有意义。
+
+这件事恰好就是 Liouville 定理的门口：定理要求 $f$ **整**（处处有定义）且**有界**。$1/p$ 只有在 $p$ 没有零点时才是整函数；一旦 $p$ 有零点，$1/p$ 就连"有界"都谈不上。证明代数基本定理正是这么走的——**假设** $p$ 没有零点，则 $1/p$ 是整函数，而在大圆周上 $|1/p|\to0$ 给出有界，于是 $1/p$ 是常数，矛盾。
 
 ## 6. 练习
 

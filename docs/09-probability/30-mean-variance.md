@@ -163,8 +163,10 @@ print(statistics.mean(salaries))      # 平均瞬间翻倍还多，但没人真�
 # @title: 练习：这组数据有多散
 # @check: 2.0
 # @hint: 要的是"散开程度"，不是中心位置——换成 statistics.pstdev；round(x, 2) 负责保留两位小数
+# statistics 是标准库的统计模块，mean 求算术平均
 import statistics
 
+# 这组数据的中心位置
 xs = [2, 4, 4, 4, 5, 5, 7, 9]
 print(round(statistics.mean(xs), 2))
 ```
@@ -175,8 +177,10 @@ print(round(statistics.mean(xs), 2))
 题目要求总体标准差，所以用 `pstdev`（除以 $n$），再用 `round` 保留两位小数：
 
 ```python
+# statistics 是标准库的统计模块
 import statistics
 
+# pstdev 是总体标准差：各点与均值之差的平方取平均再开方，衡量的是散开程度
 xs = [2, 4, 4, 4, 5, 5, 7, 9]
 print(round(statistics.pstdev(xs), 2))
 ```

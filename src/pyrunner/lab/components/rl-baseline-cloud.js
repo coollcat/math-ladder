@@ -73,7 +73,7 @@ export default function render(host, spec) {
     '均值（减 b 后）': '—',
     '标准差（不减 b）': '—',
     '标准差（减 b 后）': '—',
-    '方差降低': '—',
+    '标准差降低': '—',
   });
   host.appendChild(ro.box);
 
@@ -183,7 +183,7 @@ export default function render(host, spec) {
     ro.set('标准差（不减 b）', fmt(R.sd, 3));
     ro.set('标准差（减 b 后）', fmt(Q.sd, 3));
     const red = R.sd > 1e-9 ? (1 - Q.sd / R.sd) * 100 : 0;
-    ro.set('方差降低', (red >= 0 ? '降 ' : '升 ') + fmt(Math.abs(red), 1) + '%'
+    ro.set('标准差降低', (red >= 0 ? '降 ' : '升 ') + fmt(Math.abs(red), 1) + '%'
       + (red < -1 ? '（b 离 V(s) 太远了）' : ''));
   }
 

@@ -203,7 +203,11 @@ export default function render(host, spec) {
   }
 
   function drawGraph(ctx, rect, es, C) {
-    const deg = degOf(adjOf(n, records, { directed: false }));
+    /* 度必须按**去重后的边集** es 算，不能按原始记录 records：records 里同一条
+       关系可能记了多次，用它会得到 [2,4,3,1]、Σd=10，而屏幕上同时写着「3 条边」——
+       Σd=2E 的握手引理当场被违反，而本课的全部论点正是「重复记录不该让边变粗」。
+       按 es 算才是 [1,2,2,1]、Σd=6 = 2×3。 */
+    const deg = degOf(adjOf(n, es, { directed: false }));
     es.forEach(([u, v]) => {
       if (!pos[u] || !pos[v]) return;
       const hot = hover.i >= 0 && (hover.i === u || hover.i === v);

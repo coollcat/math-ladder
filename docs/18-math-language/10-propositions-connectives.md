@@ -101,8 +101,10 @@ print(not p)     # not：真变假，假变真
 # @check: True
 # @check: False
 # @hint: and 要求两个都真；or 只要求一个真；not 会翻转 p。
+# p、q 是两个命题的真假值
 p = True
 q = False
+# or 只要一边为真就为真；and 要求两边都真；not 翻转真假
 print(p or q)
 print(p and q)
 print(not q)
@@ -120,8 +122,11 @@ print(not q)
 ```python
 p = True
 q = False
+# and：两个都真才为真
 print(p and q)
+# or：一个真就为真
 print(p or q)
+# not：取反
 print(not p)
 ```
 

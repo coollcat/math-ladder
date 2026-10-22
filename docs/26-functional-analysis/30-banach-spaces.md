@@ -96,9 +96,11 @@ for n in range(1, 7):
 # @title: 练习：找出压缩因子
 # @check: ratio=0.25
 # @hint: 若每次距离变成四分之一，压缩常数就是 0.25。
+# d0 / d1 / d2 是相邻三次迭代后两点之间的距离
 d0 = 8.0
 d1 = d0 / 4
 d2 = d1 / 4
+# ratio 想表达每次迭代后距离缩小的倍数
 ratio = d1 / d0
 ratio = ratio * d2 / d1
 print("ratio=" + str(ratio))
@@ -110,9 +112,11 @@ print("ratio=" + str(ratio))
 $8\to2\to0.5$。第一段比例是 $2/8=0.25$，第二段也是 $0.25$。最后一行多乘了一次相同比值，会把答案改成 $0.0625$；删除多余乘法即可得到 `ratio=0.25`。
 
 ```python
+# 相邻三次迭代后两点之间的距离
 d0 = 8.0
 d1 = d0 / 4
 d2 = d1 / 4
+# 压缩常数：后一段距离除以前一段，与起点无关
 ratio = d2 / d1
 print("ratio=" + str(ratio))
 ```

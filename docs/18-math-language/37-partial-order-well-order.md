@@ -187,7 +187,7 @@ for n0 in elems:
     while d * d <= m:
         while m % d == 0:
             m //= d
-            k += 1
+            k += 1              # += 是"就地加并赋值"：k = k + 1 的简写（本站首见）
         d += 1
     if m > 1:
         k += 1

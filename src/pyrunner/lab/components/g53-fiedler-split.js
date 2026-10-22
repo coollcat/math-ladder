@@ -224,11 +224,16 @@ export default function render(host, spec) {
   host.appendChild(ro.box);
   host.appendChild(buildSegmented(MODES, cfg.mode, (v) => { cfg.mode = v; draw(); }));
 
-  const sliders = buildSliders([
-    {
-      name: 'threshold', label: '分组阈值', min: -1, max: 1, step: 0.01, value: threshold, fmt: 2,
-    },
-  ], (st) => { threshold = st.threshold; refresh(); });
+  /* buildSliders 的首参是 { sliders: [...] } 而不是裸数组——传数组时
+     (spec.sliders || []) 取到 undefined，"分组阈值"这一个滑块根本不会被创建，
+     课文让读者拖阈值的那整段交互就做不了（分组恒 3/3、切边恒 1 条）。 */
+  const sliders = buildSliders({
+    sliders: [
+      {
+        name: 'threshold', label: '分组阈值', min: -1, max: 1, step: 0.01, value: threshold, fmt: 2,
+      },
+    ],
+  }, (st) => { threshold = st.threshold; refresh(); });
   host.appendChild(sliders.box);
 
   const btnBridge = mkBtn('拆掉桥');

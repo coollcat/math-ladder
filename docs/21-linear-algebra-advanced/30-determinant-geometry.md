@@ -113,11 +113,14 @@ print(det2([1, 2], [1, 2]))
 # @check: det=3
 # @check: invertible
 # @hint: det=a*d-b*c；只要行列式不是 0，就写 invertible。
+# 2×2 矩阵的四个元素
 a = 2
 b = 1
 c = 1
 d = 2
+# 行列式：几何上是两个列向量张成的带符号面积
 det = a * c - b * d
+# 面积塌成 0 就意味着不可逆
 status = "singular"
 print(f"det={det}")
 print(status)
@@ -130,7 +133,9 @@ print(status)
 
 ```python
 a, b, c, d = 2, 1, 1, 2
+# 行列式：面积为 0 ⇔ 两列共线 ⇔ 不可逆
 det = a * d - b * c
+# 条件表达式：一行写完 if / else 的赋值
 status = "singular" if det == 0 else "invertible"
 print(f"det={det}")
 print(status)

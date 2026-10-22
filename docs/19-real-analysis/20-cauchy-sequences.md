@@ -115,10 +115,13 @@ print("cauchy" if spread < 0.2 else "not yet")
 # @check: 0.0709
 # @check: cauchy
 # @hint: Cauchy 看第 10 项之后任意两项的最大差，不是只看第 10 项和第 11 项；尾幅小于 0.2 时还要把 verdict 从 "not yet" 改成 "cauchy"。
+# 序列 a_n = 1 + 1/n，随 n 增大越来越接近 1
 def a(n):
     return 1 + 1 / n
 
+# spread 记下序列尾部两项之间的距离
 spread = abs(a(10) - a(11))
+# verdict 是结论占位
 verdict = "not yet"
 print(round(spread, 4))
 print(verdict)

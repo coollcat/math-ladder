@@ -117,7 +117,7 @@ for s in [3, 4, 5]:
 ### 实验 2：用 Laplace 变换解微分方程（符号计算）
 
 ```python title="用 sympy 做 Laplace 变换求解"
-from sympy import symbols, Function, laplace_transform, inverse_laplace_transform, exp, solve
+from sympy import symbols, Function, laplace_transform, inverse_laplace_transform, exp, solve  # sympy：符号计算库，能把 t 当真正的符号做变换（全站唯一一处用它）
 
 t, s = symbols('t s')           # 定义符号变量
 Y = symbols('Y')                # Y(s) 的符号
