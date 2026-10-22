@@ -12,18 +12,31 @@ import './style.css';
  * 但注意课文是纯 markdown，得靠 lab 围栏（见 lab/components/see-function.js）。
  * ========================================================================= */
 
-export default function FunctionLab({ funcs, view, height, title, mode, domain }) {
+export default function FunctionLab({ funcs, view, height, title, mode, domain, fromUrl, onIntro }) {
   const hostRef = useRef(null);
   const instRef = useRef(null);
+  /* onIntro 进 option 里只在挂载时读一次，用 ref 兜住最新的那个回调 */
+  const introRef = useRef(onIntro);
+  introRef.current = onIntro;
 
   useEffect(() => {
     let dead = false;
     let inst = null;
-    import('@site/src/pyrunner/func/workspace.js')
-      .then((mod) => {
+    Promise.all([
+      import('@site/src/pyrunner/func/workspace.js'),
+      import('@site/src/pyrunner/func/bridge.js'),
+    ])
+      .then(([mod, bridge]) => {
         if (dead || !hostRef.current) return;
+        /* fromUrl：/function?s=…（「复制链接」、Python 的 see() 新开标签页）或 ?f=sin(x)&m=3d
+           直接按链接里的式子开场；链接坏了就当没有 */
+        const spec = fromUrl ? bridge.readUrlSpec() : null;
         /* mode='3d' 时式子是 z = f(x, y)，domain 是 xy 域的半边长 */
-        inst = mod.createWorkspace(hostRef.current, { funcs, view, height, mode, domain });
+        inst = mod.createWorkspace(hostRef.current, {
+          funcs, view, height, mode, domain, spec,
+          /* 「此刻这张图」的料：形态、自变量、参数、报错 */
+          onIntro: (info) => { if (introRef.current) introRef.current(info); },
+        });
         instRef.current = inst;
       })
       .catch((e) => {

@@ -1,44 +1,32 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import KnowledgeGraphRadial from '@site/src/components/ml-home/KnowledgeGraphRadial';
-import PageIntro from '@site/src/components/ml-home/PageIntro';
+import Link from '@docusaurus/Link';
+import KnowledgeAtlas from '@site/src/components/ml-home/KnowledgeAtlas';
+import '@site/src/css/graph-pages.css';
 
 /* =========================================================================
- * 知识图谱页（/graph）
+ * 知识图谱页（/graph）·「阶梯版图」
  * -------------------------------------------------------------------------
- * 2026-09-29：同心环 v3。环＝层级（不是难度阈值），算法见
- * src/components/ml-home/ringLayout.js —— 难度分位分类 + 强先修边单调上修，
- * 结果：各环 9/15/13/13/10/14 章、难度区间单调递增、**没有一条强先修边朝内**。
- * 于是「基础在圆心、高级在外围」不再是排版效果，而是数据本身的位置。
+ * 2026-10 重做：同心环退役。列 = 层级（ringLayout.chapterModel 的口径不变），
+ * 行 = 七卷，一章一张卡、一格一门课。实现与口径见 KnowledgeAtlas.js 头注释与
+ * UNIT_GUIDES/graph-pages.md。
  * ========================================================================= */
 export default function GraphPage() {
   return (
     <Layout
       title="知识图谱"
-      description="同心环知识图谱：圆心是起点、外圈是前沿；半径＝层级，颜色＝所属卷，另附按环分组的章节目录"
+      description="阶梯版图：七卷 × 六级台阶，一章一张卡、一格一门课，悬停看先修与后续，并点亮你的学习进度"
     >
-      <main className="container margin-vert--lg">
-        <h1>知识图谱 · 从起点爬到前沿</h1>
-        {/* 两段导语层级拉开：第一段讲「怎么读这张图」（主案），
-            第二段讲「能拿它做什么」（次案，桌面靠右并压一档字号）。 */}
-        <PageIntro
-          className="ml-rg__lead"
-          main={(
-            <>
-              一颗圆点是一章。<strong>离圆心越远，层级越高</strong>：第 1 环是卷一「数学地基」里最靠前的几章
-              （算术、分数、幂与对数、代数、几何……），往外依次是主干、进阶、高等、深水，最外一环是范畴论、
-              量子信息、可信 AI 这些前沿章。<strong>颜色代表卷</strong>，同色的章在环上连成一段弧。
-              连的是章与章之间的先修关系，一律朝外画，看上去就是「整门学问从圆心长出去」。
-            </>
-          )}
-          aside={(
-            <>
-              一颗圆点只能告诉你「哪一章在哪一层」；<strong>点击任意章的圆点</strong>，这一章的每一门课会
-              从服务器加载、在图上原位展开成一小圈课点——再点空白处收起，随时回到全景。
-            </>
-          )}
-        />
-        <KnowledgeGraphRadial />
+      <main className="ml-gp container margin-vert--md">
+        <header className="ml-gp-head">
+          <p className="ml-gp-kicker">知识图谱 · 阶梯版图</p>
+          <h1>整座数学阶梯，一张图看完</h1>
+          <p className="ml-gp-lede">
+            往右是台阶，往下是领域。每张卡是一章，卡里每一格是一门课。悬停看谁托起它，点击看课表和来路。
+            想看单门课的来龙去脉，去<Link to="/tree">课程家谱</Link>。
+          </p>
+        </header>
+        <KnowledgeAtlas />
       </main>
     </Layout>
   );

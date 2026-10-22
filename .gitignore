@@ -94,3 +94,7 @@ _tmp_*
 # 一次性分析脚本的中间产物（与 _c75b 同类）：
 py_blocks.json
 py_ex.json
+
+# AI 工具缓存（不入库）
+.stabledge/
+.sd

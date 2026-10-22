@@ -44,8 +44,8 @@ npm start          :: 打开 http://localhost:9452
 | --- | --- | --- |
 | 首页 | `/` | 演算纸视觉 + 七卷版图 + 继续学习 |
 | 怎么用本站 | `/docs/intro` | 三类交互积木、方法准入制度的读者版说明 |
-| 知识图谱 | `/graph` | 同心环：半径＝层级、颜色＝卷，点章在图上展开该章课点 |
-| 知识树 | `/tree` | 先修关系树，章节/单元双模式 + 搜索 |
+| 知识图谱 | `/graph` | 阶梯版图：列＝六级台阶、行＝七卷，一章一卡、一格一课，按学习进度着色；点章看课表与来路 |
+| 知识树（课程家谱） | `/tree` | 一次看一门课：左边先修、右边后续，`?l=课程id` 可分享 |
 | 看见函数 | `/function` | 拼式子立刻出图，2D 多曲线 / 3D 曲面 |
 
 ## 目录导航
@@ -71,7 +71,7 @@ npm start          :: 打开 http://localhost:9452
 | `npm run validate` | 课程闭环校验：front matter、先修顺序、方法准入、围栏结构 |
 | `npm run check:sync` | 章节信息同步校验：各章 `index.md` ↔ 生成物 `CHAPTER_INFO` |
 | `npm run gen:graph` | 重生成 `full-graph-data.js` + `static/prereqs/` + `lesson-count.js`（**不在 build 里，改章节信息或增删课后必须手跑**） |
-| `npm run gen:chapters` | 重生成 `static/graph-chapters/`（/graph 课级钻取数据） |
+| `npm run gen:chapters` | 重生成 `static/graph-chapters/`（/graph 点章时按需加载的课表数据） |
 | `npm run audit` | 机械体检：h2 源/产物比对、Python compile、MDX 塌陷扫描 |
 | `npm run serve` / `npm run clear` | 预览 `build/` / 清 Docusaurus 缓存（行为诡异时第一步） |
 

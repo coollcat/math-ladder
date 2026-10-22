@@ -126,7 +126,7 @@ node scripts/check-index-links.mjs   :: 章首页是否漏收本章课
 node scripts/check-links.mjs         :: docs 内相对链接断链
 node scripts/check-lab-syntax.mjs    :: lab 组件语法（复制成 .mjs 后 node --check）
 node scripts/lab-engine-selftest.mjs :: 六个数值引擎的数学正确性
-node scripts/check-graph-drill.mjs   :: /graph 课级钻取运行时验收（先 build）
+node scripts/check-graph-drill.mjs   :: /graph 阶梯版图 + /tree 课程家谱运行时验收（先 build）
 node scripts/audit-unit-guides.mjs   :: UNIT_GUIDES 里的章号引用审计
 python scripts/audit-py-syntax.py docs    :: 全部 python/exercise 块 compile
 python scripts/audit-py-checks.py docs    :: @check 期望值的小数位数分布

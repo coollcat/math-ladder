@@ -22,7 +22,7 @@
         │                    ┌──────┴────────────┐               │
         │                    ▼                   ▼               ▼
         │        full-graph-data.js      static/graph-chapters/ docs/**/999-references.md
-        │        static/prereqs/*.json   （/graph 钻取数据）       static/papers/*.pdf
+        │        static/prereqs/*.json   （/graph 章课表数据）     static/papers/*.pdf
         │        lesson-count.js                                （不入库）
         ▼                    │
   docusaurus build ──────────┴──► build/（纯静态：HTML/CSS/JS/字体/PDF）

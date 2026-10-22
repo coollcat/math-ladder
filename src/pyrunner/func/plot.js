@@ -506,7 +506,8 @@ export function createPlot(host, opts) {
     const x = ix(px);
     const points = [];
     curves.forEach((c) => {
-      if (c.visible === false || !c.segs) return;
+      /* noHover：参数曲线、隐函数这类不是 x 的函数，竖线上的「值」没有意义 */
+      if (c.visible === false || !c.segs || c.noHover) return;
       const y = c.at ? c.at(x) : valueAt(c, x);
       if (y !== null && Number.isFinite(y)) points.push({ y, color: c.color });
     });

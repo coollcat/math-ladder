@@ -56,7 +56,7 @@ AGENTS.md（硬规则/红线）
 - [ ] 改 lab 组件 → `node scripts/check-lab-syntax.mjs` + `node scripts/lab-engine-selftest.mjs`
 - [ ] 改章首页收录 → `node scripts/check-index-links.mjs`
 - [ ] 改课内链接 → `node scripts/check-links.mjs`
-- [ ] 改 `/graph` 钻取 → `npm run build` 后 `node scripts/check-graph-drill.mjs`
+- [ ] 改 `/graph` 或 `/tree` → `npm run build` 后 `node scripts/check-graph-drill.mjs`
 - [ ] 改 `enhancer.js` / 浮窗 → 手测 python/quiz/exercise 三类块 + 浮窗开关 + 路由往返无重复注入
 - [ ] 改 `src/css/**` → 996 / 620 两个断点 + 暗色 + reduced-motion
 - [ ] 出包 → `node scripts/check-build-auth.mjs`（打包脚本已串）

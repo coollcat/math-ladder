@@ -2,14 +2,15 @@
 
 ## 一句话
 
-视觉体系是**演算纸 × 印章朱砂**：暖纸底、墨蓝正文、朱砂做强调，衬线字只用于展示性标题。所有设计变量集中在 `src/css/custom.css` 的 `:root` 与 `body`，各页面再用一层作用域类（`.ml-home` / `.ml-nav` / `.ml-rg` / `.ml-ht` / `.ml-fn` / `.ml-auth`）把规则圈住。
+视觉体系是**演算纸 × 印章朱砂**：暖纸底、墨蓝正文、朱砂做强调，衬线字只用于展示性标题。所有设计变量集中在 `src/css/custom.css` 的 `:root` 与 `body`，各页面再用一层作用域类（`.ml-home` / `.ml-nav` / `.ml-ht` / `.ml-gp` / `.ml-fn` / `.ml-auth`）把规则圈住。
 
 ## 样式文件分工
 
 | 文件 | 作用域 | 谁 import |
 | --- | --- | --- |
 | `src/css/custom.css` | 全站：Infima 变量覆盖、阅读排版、所有交互卡（quiz/exercise/viz/lab/浮窗/挂件） | `docusaurus.config.js` 的 `theme.customCss` |
-| `src/css/home.css` | 首页 `.ml-home` + 章级树 `.ml-ht` + 图谱 `.ml-rg` | `src/pages/index.js`（构建后与全站同一张表） |
+| `src/css/home.css` | 首页 `.ml-home` + 章级树 `.ml-ht` + 页面导语 `.ml-page-intro` | `src/pages/index.js`（构建后与全站同一张表） |
+| `src/css/graph-pages.css` | /graph 阶梯版图 `.ml-atlas` + /tree 课程家谱 `.ml-lin` + 页面壳 `.ml-gp` | `src/pages/graph.js`、`src/pages/tree.js` |
 | `src/css/nav.css` | 顶栏 `.ml-nav` + 数据下拉 | `src/theme/Navbar/index.js` |
 | `src/css/auth.css` | 登录页 `.ml-auth` | `src/pages/login.js` |
 | `src/components/FunctionLab/style.css` | 看见函数 `.ml-fn` / `.ml-fnlab` | `src/components/FunctionLab/index.js` |
@@ -31,7 +32,7 @@
 | `--ml-down` / `--ml-down-ink` | `#e8871e` / `#b45309` | 「被它托起的后续」橙 |
 | `--ml-vol1…7` | 见下 | 七卷配色，**全站唯一一份**，亮/暗各一组 |
 
-七卷色：卷一 `#2f5fa8` 墨蓝 · 卷二 `#0e8a7c` 青碧 · 卷三 `#96690f` 藤黄 · 卷四 `#c2401c` 朱砂 · 卷五 `#7b4ea3` 紫檀 · 卷六 `#4a7c2f` 松绿 · 卷七 `#8a5a2b` 赭棕。**新增卷只在这一处加色**，别在任何作用域里再写 hex。`.ml-rg` 里那套是别名，不是第二份。
+七卷色：卷一 `#2f5fa8` 墨蓝 · 卷二 `#0e8a7c` 青碧 · 卷三 `#96690f` 藤黄 · 卷四 `#c2401c` 朱砂 · 卷五 `#7b4ea3` 紫檀 · 卷六 `#4a7c2f` 松绿 · 卷七 `#8a5a2b` 赭棕。**新增卷只在这一处加色**，别在任何作用域里再写 hex。图谱页一律直接 `var(--ml-volN)`，不另设别名。
 
 Infima 主色也接进印章体系（`--ifm-color-primary*` 7 个），**只写在 `body` 块里**：
 
@@ -62,7 +63,7 @@ body { --ifm-color-primary: #c2401c; /* … */ }
 | `--ml-radius-surface` | 14px | 大画布/展示框：图谱、树、英雄区 |
 | `--ml-radius-pill` | 999px | 胶囊、徽章 |
 | `--ml-t-fast` / `--ml-t-base` / `--ml-t-slow` / `--ml-t-enter` | 0.14 / 0.18 / 0.32 / 0.6s | 即时反馈 / 常规 hover / 面板展开 / 入场描画 |
-| `--ml-ease` / `--ml-ease-spring` | `cubic-bezier` | 常规（spring 只给同心环节点入场） |
+| `--ml-ease` / `--ml-ease-spring` | `cubic-bezier` | 常规（spring 原给同心环入场，同心环退役后暂无引用） |
 | `--ml-lift` | -1px | hover 抬起量，全站统一一档 |
 | `--ml-tap` | 40px | 触控命中区下限 |
 
@@ -89,7 +90,8 @@ body { --ifm-color-primary: #c2401c; /* … */ }
 | `.ml-nav…` | 顶栏与其下拉/抽屉 |
 | `.ml-home…` / `.ml-hero…` / `.ml-wall…` / `.ml-cta-band` | 首页 |
 | `.ml-ht…` | 首页章级知识树 |
-| `.ml-rg…` / `.ml-fg…` / `.ml-tree-head` | /graph 同心环与 /tree |
+| `.ml-gp…` / `.ml-atlas…` / `.ml-lin…` | /graph 阶梯版图与 /tree 课程家谱（`graph-pages.css`） |
+| `.ml-tree-head` | 首页知识树小节标题 |
 | `.ml-fn…` / `.ml-fnlab…` | 看见函数 |
 | `.ml-auth…` | 登录页 |
 | `.ml-console…` / `.ml-fab…` / `.ml-slider…` | 浮窗控制台与圆钮 |
@@ -124,4 +126,4 @@ body { --ifm-color-primary: #c2401c; /* … */ }
 6. **暗色必须给**：每个新 token 都要在 `[data-theme='dark']` 里给一份，并检查对比度（正文尺度 ≥4.5:1）。
 7. **移动端自测 996 / 620 两个断点**，触屏再看 `pointer: coarse` 那条——圆钮和面板最容易挡正文。
 
-站点 UI 的实现细节（顶栏 v2、首页、右栏挂件、侧栏折叠、三态外观按钮）在 `UNIT_GUIDES/site-ui.md`；图谱双页布局与坐标换算在 `UNIT_GUIDES/graph-pages.md`。
+站点 UI 的实现细节（顶栏 v2、首页、右栏挂件、侧栏折叠、三态外观按钮）在 `UNIT_GUIDES/site-ui.md`；图谱双页（阶梯版图 / 课程家谱）的模块分工、交互口径与 Infima 双 ID 尾巴的对策在 `UNIT_GUIDES/graph-pages.md`。
