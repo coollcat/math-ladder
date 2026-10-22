@@ -94,7 +94,7 @@ print("window_tail_energy=", window_tail_energy)
 # @title: 练习：判断衰减级数是否可和
 # @check: True
 # @hint: p 范数判别中，p 大于 1 时 1/n^p 可和。
-# 指数 p 决定衰减速度
+# p 是衰减指数：p 越大，通项 1/n^p 掉得越快，级数越容易封顶
 p = 2.0
 # 1/n^p 的部分和：p > 1 时能封在一个上限之下
 total = 1 + 1 / 2 + 1 / 3 + 1 / 4

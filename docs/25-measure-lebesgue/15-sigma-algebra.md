@@ -65,7 +65,7 @@ exits:
 
 1. 最小的：$\lbrace \emptyset, X\rbrace$（只有空集和全集）。
 2. 若包含 $\lbrace 1\rbrace$，则必含 $\lbrace 2,3\rbrace$（补集），进一步必含 $\lbrace 1,2\rbrace$, $\lbrace 3\rbrace$, $\lbrace 2\rbrace$, $\lbrace 1,3\rbrace$, $\emptyset$, $X$——整个幂集 $\mathcal{P}(X)$。
-3. 有限集上的 σ-代数一定是有限代数（因为可数并退化为有限并）。
+3. 有限集上的 σ-代数**一定有限**——理由不是「可数并退化为有限并」（那讲的是并的运算次数），而是 σ-代数是 $\mathcal{P}(X)$ 的子集，而 $\mathcal{P}(X)$ 只有 $2^{\lvert X\rvert}$ 个成员，子集不可能比它更大。$\lvert X\rvert=3$ 时上限是 $2^3=8$ 个集合。
 
 **例 2**：$[0,1]$ 中的 Borel 集有哪些？
 

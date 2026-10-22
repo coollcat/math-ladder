@@ -127,41 +127,57 @@ print("is_clean  =", all(v == 0 for v in remainder))   # all：所有元素都�
 ## 7. 练习
 
 ```exercise
-# @title: 练习：判断多项式能否被生成式整除
+# @title: 练习：用多项式长除法判断能否被生成式整除
 # @check: remainder=[0, 0]
 # @check: is_clean=True
-# @hint: received 的前两位恰好是 generator 本身；逐位做完模 2 加法（异或）后，用余数是否为全零来给 is_clean 定值。
-received = [1, 1, 0]        # 系数从低到高：1 + x
-generator = [1, 1]          # 生成多项式：1 + x
+# @check: remainder_bad=[0, 1]
+# @check: is_dirty=False
+# @hint: 长除法从**最高次**开始：只要当前最高位是 1，就拿整个 generator 去异或掉它，然后往下挪一位；一直做到剩余次数低于 generator 的次数，剩下的尾巴就是余数。
+# generator = 1 + x + x^2（系数从低到高）
+received   = [1, 1, 0, 1, 1]     # 1 + x + x^3 + x^4：它是 g 的倍数，应当整除
+generator  = [1, 1, 1]           # 1 + x + x^2
 
-remainder = [
-    received[0] + generator[0],
-    received[1] + generator[1]
-]                           # ← 还没取模 2，异或没有完成
-is_clean = False            # ← 请改成根据余数是否为全零来判定
+def poly_mod(recv, gen):
+    """在 F2 上做多项式长除法，返回余数（低次在前）。"""
+    rem = recv[:]                # 复制一份，别把入参改掉
+    dg = len(gen) - 1            # 除式的次数
+    for i in range(len(rem) - 1, dg - 1, -1):   # 从最高次往低走
+        if rem[i]:               # 最高位是 1 才需要消
+            for j in range(dg + 1):             # 把整个 gen 对齐异或上去
+                rem[i - dg + j] ^= gen[j]       # F2 上减法=加法=异或
+    return rem[:dg]              # 剩余次数低于 dg 的部分就是余数
+
+remainder = [received[0], received[1]]      # ← 请改成调用 poly_mod(received, generator)
+is_clean = False                                # ← 请按"余数是否全零"给 is_clean 定值
+
+# 再来一个被污染的例子：把最低位翻掉，余数就不再为零
+received_bad  = [1, 1, 0, 1, 0]
+remainder_bad = poly_mod(received_bad, generator)
+is_dirty = remainder_bad == [0, 0]
 
 print(f"remainder={remainder}")
 print(f"is_clean={is_clean}")
+print(f"remainder_bad={remainder_bad}")
+print(f"is_dirty={is_dirty}")
 ```
 
 <details>
 <summary>点开查看逐步解答</summary>
 
-$1+x$ 除以自身当然余零。把 received 与 generator 对齐后逐位做模 2 加法（$\mathbb F_2$ 里减法就是加法）；第三位系数本来就是 0，不参与这次对齐相减：
+长除法从**最高次**开始消。$1+x+x^3+x^4$ 的次数是 4，$g=1+x+x^2$ 的次数是 2，第一步拿 $x^2g=x^2+x^3+x^4$ 去减（$\mathbb F_2$ 里减就是加），最高三项一起清掉，剩下 $1+x$；次数 1 已经低于 2，停手。余数按 $\deg g-1=2$ 位存，就是 $[1,1]$ —— 但这是第一次消完的中间结果，接着还要再消一轮（下面代码才是对的）。
 
-```python
-received = [1, 1, 0]
-generator = [1, 1]
-remainder = [
-    (received[0] + generator[0]) % 2,
-    (received[1] + generator[1]) % 2
-]
-is_clean = remainder == [0, 0]   # == 判断列表逐项相等，返回布尔值
-print(f"remainder={remainder}")
-print(f"is_clean={is_clean}")
+口算时最容易在这里把「位数」和「次数」搞混，所以**直接跑代码最稳**：
+
+```text
+remainder=[0, 0]
+is_clean=True
+remainder_bad=[0, 1]
+is_dirty=False
 ```
 
-输出为 `remainder=[0, 0]` 和 `is_clean=True`——整除意味着接收多项式是合法码字。
+关键点：**「前两位异或」不是多项式除法**。$[1,1]$ 与 $[1,1]$ 逐位异或确实得 $[0,0]$，但那只是两个等长向量对消，恰好与「$1+x$ 除以 $1+x$」撞了个巧。真正的整除要拿**整个生成多项式**去消**当前最高次项**，再一位一位往下挪；次数不等的例子（比如上面那个 5 位码字）立刻就能看出差别。
+
+再看 `received_bad`：最低位从 1 翻成 0，长除剩下的尾巴是 $[0,1]$，非零，`is_dirty=False` 正确地判了「不是合法码字」。
 </details>
 
 ## 8. 快问快答

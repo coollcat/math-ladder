@@ -147,7 +147,7 @@ print(round(F.imag, 3))
 
 取 $z(t)=t(1+i)$，$0\le t\le1$，则 $\displaystyle\int_0^1 z\,dz=\left[z^2/2\right]_0^{1+i}=i$。
 
-所以正确输出是实部 `0.000`、虚部 `1.000`。把终点改成 `z_end = 1 + 1j * t_end` 即可通过。
+所以正确输出是实部 `0.0`、虚部 `1.0`（`print` 直接打印 float，不会补零到三位）。把终点改成 `z_end = 1 + 1j * t_end` 即可通过。
 </details>
 
 ## 7. 选读：为什么需要分段光滑

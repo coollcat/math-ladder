@@ -113,7 +113,7 @@ print(det2([1, 2], [1, 2]))
 # @check: det=3
 # @check: invertible
 # @hint: det=a*d-b*c；只要行列式不是 0，就写 invertible。
-# 2×2 矩阵的四个元素
+# 2×2 矩阵按行读作 [a b; c d]，下面用它们算行列式
 a = 2
 b = 1
 c = 1

@@ -63,18 +63,24 @@ $$v=\sum_n \langle v,e_n\rangle e_n,\qquad \lVert v\rVert^2=\sum_n |\langle v,e_
 
 ### 实验 2：逐项保留能量
 
-```python title="Parseval 的三项检查"
-# 三个正交坐标下的分量
+```python title="Parseval 账本：两项保留 vs 三项全算"
+# coords 是向量在一组正交基下的三个坐标；正交的好处是各坐标互不干扰
 coords = [3.0, -4.0, 0.0]
 # Parseval：向量长度的平方 = 各坐标平方之和
-kept = coords[0] * coords[0] + coords[1] * coords[1]
-# 把剩下那一项也加进总账
-total = kept + coords[2] * coords[2]
-print("kept=", kept)
-print("total=", total)
+kept = coords[0] * coords[0] + coords[1] * coords[1]     # 只算前两个坐标
+# 把第三个坐标的平方也计入总长度——漏掉任何一项，Parseval 等式就不成立
+total = kept + coords[2] * coords[2]                     # 三个坐标全算
+print("kept=", kept)      # 25.0：丢掉第三个坐标时的"记账"
+print("total=", total)    # 25.0：这一例第三个坐标恰好是 0，两项三项同值
+# 把 coords[2] 改成非零（比如 2.0）就能看出差别：kept 仍是 25.0，total 变成 29.0
+coords2 = [3.0, -4.0, 2.0]
+total2 = sum(c * c for c in coords2)
+print("total2=", total2)  # 29.0：真正的模方，漏掉任何一项都对不上
 ```
 
-若再有一个非零坐标，就必须把它加入 `total`；漏掉一项会让能量账本不平衡。
+这一例里第三个坐标恰好是 $0$，所以 `kept` 与 `total` 同值——**这不是说少算一项没关系**。第二段把第三个坐标换成 $2$，`total2` 立刻变成 $29$，而只算前两项仍是 $25$：漏掉任何一项，能量账本就对不上 $\lVert v\rVert^2$。
+
+标题说「两项保留 vs 三项全算」，就是指这两种记账的差别；正交基的好处正在于各坐标**互不干扰**，所以总能量永远等于各项平方之和——你要少算几项，就得清楚自己漏了多少。
 
 ## 6. 常见误区
 

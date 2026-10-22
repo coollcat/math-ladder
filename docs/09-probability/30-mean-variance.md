@@ -166,7 +166,7 @@ print(statistics.mean(salaries))      # 平均瞬间翻倍还多，但没人真�
 # statistics 是标准库的统计模块，mean 求算术平均
 import statistics
 
-# 这组数据的中心位置
+# mean 把 8 个数加起来除以 8：它回答的是「中心在哪」，与散开程度无关
 xs = [2, 4, 4, 4, 5, 5, 7, 9]
 print(round(statistics.mean(xs), 2))
 ```

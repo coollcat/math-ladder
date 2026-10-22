@@ -145,7 +145,7 @@ import math
 def nd(fn, x, h=0.00001):
     return (fn(x + h) - fn(x - h)) / (2 * h)
 
-# 求正弦在 π/3 处的斜率
+# 中心差分求导：nd 吃一个函数当参数（函数也能像数字一样传进去），传入 cos 就是求 cos 的导数
 print(round(nd(math.cos, math.pi / 3), 3))
 ```
 

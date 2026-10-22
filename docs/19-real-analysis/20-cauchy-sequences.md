@@ -121,7 +121,7 @@ def a(n):
 
 # spread 记下序列尾部两项之间的距离
 spread = abs(a(10) - a(11))
-# verdict 是结论占位
+# verdict 是结论字符串：先摆一个中性占位，判断条件写在后面
 verdict = "not yet"
 print(round(spread, 4))
 print(verdict)

@@ -122,11 +122,11 @@ print(not q)
 ```python
 p = True
 q = False
-# and：两个都真才为真
+# 同一组 p、q 换成 and：一个真一个假，合取取假——对比上一行的 or 才看得出两个联结词的区别
 print(p and q)
 # or：一个真就为真
 print(p or q)
-# not：取反
+# not 是一元联结词，只作用在一个命题上，真假直接翻转
 print(not p)
 ```
 
