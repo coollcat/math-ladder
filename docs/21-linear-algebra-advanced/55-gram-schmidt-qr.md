@@ -80,18 +80,18 @@ $R$ 的元素：$r_{jk} = \langle \mathbf{a}_k, \mathbf{e}_j \rangle$（$j \leq 
 ### 实验 1：手写 Gram-Schmidt
 
 ```python title="经典 Gram-Schmidt 正交化"
-import numpy as np
+import numpy as np     # 数值库；as np 是社区约定俗成的别名
 
 def gram_schmidt(V):
     """经典 Gram-Schmidt：V 是列向量矩阵，返回正交归一化的 Q"""
-    n = V.shape[1]
-    Q = np.zeros_like(V, dtype=float)
-    for k in range(n):
-        u = V[:, k].copy()       # 取第 k 列
-        for j in range(k):
-            proj = np.dot(Q[:, j], u)  # 投影系数
-            u = u - proj * Q[:, j]     # 减去在已有方向上的投影
-        Q[:, k] = u / np.linalg.norm(u)  # 归一化
+    n = V.shape[1]                 # .shape 是 (行数, 列数) 的元组，[1] 取出列数
+    Q = np.zeros_like(V, dtype=float)   # 造一个和 V 同形状的全零矩阵装结果；dtype=float 免得整数除法丢精度
+    for k in range(n):                 # 逐个处理第 k 列
+        u = V[:, k].copy()       # 取第 k 列：逗号前的冒号表示"所有行"，copy() 避免改动原矩阵
+        for j in range(k):             # 只和"已经掰正"的前 k 个方向打交道
+            proj = np.dot(Q[:, j], u)  # 投影系数：两个向量的点积（这里 Q 的列已是单位向量）
+            u = u - proj * Q[:, j]     # 减去在已有方向上的投影，剩下的就与之垂直
+        Q[:, k] = u / np.linalg.norm(u)  # 归一化：除以自身长度，把整列缩成单位向量
     return Q
 
 A = np.array([[1, 1, 0], [1, 0, 1], [0, 1, 1]], dtype=float)
@@ -105,21 +105,21 @@ print(f"正交性误差: {np.max(np.abs(Q.T @ Q - np.eye(3))):.2e}")
 ### 实验 2：QR 分解
 
 ```python title="QR 分解：A = QR"
-import numpy as np
+import numpy as np   # 数值库
 
 def qr_decompose(A):
     """QR 分解：返回 Q 和 R"""
-    m, n = A.shape
-    Q = np.zeros((m, n))
+    m, n = A.shape        # 元组解包：一次拿到行数 m 和列数 n
+    Q = np.zeros((m, n))  # 注意参数是"一个元组" (行, 列)，和 zeros_like 的用法不同
     R = np.zeros((n, n))
     for k in range(n):
-        u = A[:, k].copy()
+        u = A[:, k].copy()        # 原始第 k 列（保留不动，边减边算）
         for j in range(k):
-            R[j, k] = np.dot(Q[:, j], u)
-            u = u - R[j, k] * Q[:, j]
-        R[k, k] = np.linalg.norm(u)
-        Q[:, k] = u / R[k, k]
-    return Q, R
+            R[j, k] = np.dot(Q[:, j], u)   # 投影系数恰好就是 R 的第 (j,k) 项
+            u = u - R[j, k] * Q[:, j]      # 减去该方向上的分量
+        R[k, k] = np.linalg.norm(u)   # 对角线元素 = 剩余向量的长度
+        Q[:, k] = u / R[k, k]         # 再归一化就得到正交基的第 k 列
+    return Q, R                       # 一次交回两个矩阵
 
 A = np.array([[1, 1, 0], [1, 0, 1], [0, 1, 1]], dtype=float)
 Q, R = qr_decompose(A)
@@ -131,38 +131,38 @@ print(f"QR 误差: {np.max(np.abs(Q @ R - A)):.2e}")
 ### 实验 3：数值稳定性——经典 vs 修正 Gram-Schmidt
 
 ```python title="经典 Gram-Schmidt vs 修正 Gram-Schmidt 的数值稳定性"
-import numpy as np
+import numpy as np   # 数值库
 
 def cgs(V):
     """经典 Gram-Schmidt"""
-    n = V.shape[1]
-    Q = np.zeros_like(V, dtype=float)
+    n = V.shape[1]                  # 列数
+    Q = np.zeros_like(V, dtype=float)   # 同形状零矩阵
     for k in range(n):
-        u = V[:, k].copy()
+        u = V[:, k].copy()          # 取第 k 列
         for j in range(k):
-            u -= np.dot(Q[:, j], u) * Q[:, j]
-        Q[:, k] = u / np.linalg.norm(u)
+            u -= np.dot(Q[:, j], u) * Q[:, j]   # -= 是"就地减"：等价于 u = u - …，但写起来更短
+        Q[:, k] = u / np.linalg.norm(u)   # 归一化
     return Q
 
 def mgs(V):
     """修正 Gram-Schmidt（数值更稳定）"""
-    n = V.shape[1]
-    V = V.copy().astype(float)
-    Q = np.zeros_like(V)
+    n = V.shape[1]                  # 列数
+    V = V.copy().astype(float)      # 先复制再转浮点：绝不改动调用方传进来的数组
+    Q = np.zeros_like(V)            # V 已是浮点，这里不用再写 dtype
     for k in range(n):
-        Q[:, k] = V[:, k] / np.linalg.norm(V[:, k])
-        for j in range(k + 1, n):
-            V[:, j] -= np.dot(Q[:, k], V[:, j]) * Q[:, k]
+        Q[:, k] = V[:, k] / np.linalg.norm(V[:, k])   # 先归一化第 k 列
+        for j in range(k + 1, n):   # 关键改动：马上去更新"后面所有"列，而不是等轮到它们再回头减
+            V[:, j] -= np.dot(Q[:, k], V[:, j]) * Q[:, k]   # 就地扣掉新方向的成分
     return Q
 
 # Hilbert 矩阵：臭名昭著的病态矩阵
-n = 8
-H = np.array([[1/(i+j+1) for j in range(n)] for i in range(n)])
+n = 8                  # Hilbert 矩阵的阶数：阶数越高越病态
+H = np.array([[1/(i+j+1) for j in range(n)] for i in range(n)])   # 嵌套列表推导式造二维数组：第 (i,j) 项是 1/(i+j+1)
 
-Q_cgs = cgs(H)
-Q_mgs = mgs(H)
-print(f"经典 GS 正交性误差: {np.max(np.abs(Q_cgs.T @ Q_cgs - np.eye(n))):.2e}")
-print(f"修正 GS 正交性误差: {np.max(np.abs(Q_mgs.T @ Q_mgs - np.eye(n))):.2e}")
+Q_cgs = cgs(H)     # 经典版
+Q_mgs = mgs(H)     # 修正版
+print(f"经典 GS 正交性误差: {np.max(np.abs(Q_cgs.T @ Q_cgs - np.eye(n))):.2e}")   # .T 是转置，@ 是矩阵乘法；QᵀQ 与单位阵 np.eye(n) 差多少
+print(f"修正 GS 正交性误差: {np.max(np.abs(Q_mgs.T @ Q_mgs - np.eye(n))):.2e}")   # ::.2e 是科学计数法、保留 2 位小数
 ```
 
 修正 Gram-Schmidt 的正交性误差通常比经典版小好几个数量级。
@@ -208,24 +208,25 @@ QR 分解中 R 为什么是上三角矩阵？
 
 ```exercise
 # @title: Gram-Schmidt 练习
-# @check: e1 = [0.7071, 0, 0.7071]
-# @check: e2 = [0.4082, 0.8165, -0.4082]
-# @hint: u1 = a1, u2 = a2 - (a2·u1/||u1||²) u1
-import numpy as np
+# @check: e1 = [0.7071 0.     0.7071]
+# @check: e2 = [ 0.4082  0.8165 -0.4082]
+# @check: e1·e2 = 0.00e+00
+# @hint: u2 = a2 - (a2·u1 / ||u1||²)·u1 —— 分母是 ||u1||² 还是 ||u1||？
+import numpy as np   # 数组与线性代数都在这个库里
 
-a1 = np.array([1, 0, 1], dtype=float)
+a1 = np.array([1, 0, 1], dtype=float)   # np.array 把列表变成向量；dtype=float 避免整数除法
 a2 = np.array([1, 1, 0], dtype=float)
 
-u1 = a1
-e1 = u1 / np.linalg.norm(u1)
+u1 = a1                                  # 第一步：第一个方向原样保留
+e1 = u1 / np.linalg.norm(u1)             # 归一化：np.linalg.norm 求向量长度
 
-proj = np.dot(a2, u1) / np.dot(u1, u1)  # ← 计算投影系数
+proj = np.dot(a2, u1) / np.linalg.norm(u1)  # ← 投影系数：分母是平方还是长度？
 u2 = a2 - proj * u1                      # ← 减去投影
 e2 = u2 / np.linalg.norm(u2)             # ← 归一化
 
-print(f"e1 = {np.round(e1, 4)}")
+print(f"e1 = {np.round(e1, 4)}")         # np.round(数组, 4)：逐元素保留 4 位小数
 print(f"e2 = {np.round(e2, 4)}")
-print(f"e1·e2 = {np.dot(e1, e2):.2e}")   # 应接近 0
+print(f"e1·e2 = {np.dot(e1, e2):.2e}")   # 正交性验收：两个单位向量应当内积为 0
 ```
 
 **练习 2**：为什么 QR 分解中 $R$ 是上三角矩阵？
@@ -240,7 +241,22 @@ print(f"e1·e2 = {np.dot(e1, e2):.2e}")   # 应接近 0
 几何意义：每个新向量只在已有的正交方向上有分量，不会在未来的方向上有分量。
 </details>
 
-## 7. 选读：Modified Gram-Schmidt 为何更稳定
+## 7. 常见误区
+
+:::warning[常见误区]
+
+**误区一**：以为"正交"就等于"标准正交"。
+Gram-Schmidt 的中间产物 $\mathbf{u}_k$ 只保证两两垂直，长度还不一定是 1；要再做一次 $\mathbf{e}_k=\mathbf{u}_k/\|\mathbf{u}_k\|$ 才成为标准正交基。少写这一步，$Q^TQ$ 得到的是对角矩阵而非单位矩阵，QR 分解里 $R$ 的对角元也会全错。
+
+**误区二**：以为投影系数写成 $\langle\mathbf{a}_k,\mathbf{u}_j\rangle$ 就够了。
+分母 $\langle\mathbf{u}_j,\mathbf{u}_j\rangle=\|\mathbf{u}_j\|^2$ 是必须的。只有当 $\mathbf{u}_j$ 已经是单位向量时，它才等于 1 可以省掉；把两种情形混着用，是手算最常见的错源。
+
+**误区三**：以为经典 GS 与修正 GS 只是写法不同、结果一样。
+精确算术下确实等价，浮点算术下不是：经典版拿**原始**的 $\mathbf{e}_j$ 去减，误差会累积；修正版一构造出 $\mathbf{e}_k$ 就立刻拿去更新所有后续列，正交性误差能小好几个数量级（本课实验 3 的 Hilbert 矩阵就是活证据）。反过来，也不能因为"修正版更稳"就以为它对秩亏矩阵也万无一失——列线性相关时 $\|\mathbf{u}_k\|\approx0$，两种写法都会崩，需要换 Householder 或带列主元的办法。
+
+:::
+
+## 8. 选读：Modified Gram-Schmidt 为何更稳定
 
 <details>
 <summary>选读 · 数值稳定性的根源</summary>
@@ -255,7 +271,7 @@ print(f"e1·e2 = {np.dot(e1, e2):.2e}")   # 应接近 0
 
 </details>
 
-## 8. 下一站
+## 9. 下一站
 
 矩阵分解之后，我们转向微分方程——Laplace 变换把微分方程变成代数方程，是工程中最强大的求解工具之一。
 

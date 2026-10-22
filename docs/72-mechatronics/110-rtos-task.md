@@ -114,14 +114,14 @@ RMS 上界只是**充分条件**——$U$ 超过上界不代表一定超时，�
 ### 实验 2：自己算（Python）
 
 ```python title="RMS 上界与可调度性判定"
-n = 3
-bound = n * (2 ** (1/n) - 1)
-tasks = [(2, 10), (3, 15), (2.5, 25)]
-U = sum(c/t for c, t in tasks)
+n = 3  # 任务数 n = 3，RMS 上界公式里 n 同时出现在指数与系数上
+bound = n * (2 ** (1/n) - 1)  # RMS 利用率上界 n(2^(1/n) − 1)，n 越大越趋近 ln2 ≈ 0.693
+tasks = [(2, 10), (3, 15), (2.5, 25)]  # 每个任务写成 (执行时间 c, 周期 T) 元组，单位统一为毫秒
+U = sum(c/t for c, t in tasks)  # 利用率 U = Σ c/T：CPU 被这些任务占掉的份额
 print(f"任务数 n={n}")
 print(f"RMS 上界 = {bound:.3f}")
 print(f"利用率 U = {U:.3f}")
-if U <= bound:
+if U <= bound:  # U 不超过上界时 RMS（速率单调）一定可调度，这是充分条件不是必要条件
     print(f"U <= {bound:.3f} → RMS 保证可调度")
 elif U <= 1.0:
     print(f"RMS 上界不满足，但 U <= 1 → EDF 可调度，RMS 不保证（需仿真验证）")

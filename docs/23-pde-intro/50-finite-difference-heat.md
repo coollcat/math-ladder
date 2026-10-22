@@ -103,16 +103,16 @@ $r$ 可以看成“一步内最多搬走多少份差异”。超过一半时，�
 ### 实验 3：手算一步并测试稳定参数
 
 ```python title="显式热格式的一步"
-r = 0.4
-u_left = 0.4
-u_center = 0.8
-u_right = 0.2
+r = 0.4                      # 差分比 r = k·dt/h²：本课主角，稳定与否全看它
+u_left = 0.4                 # 左邻居温度
+u_center = 0.8               # 中心格点温度
+u_right = 0.2                # 右邻居温度
 
 # 显式格式：当前值加上 r 倍的二阶差分
-u_new = u_center + r * (u_left - 2 * u_center + u_right)
-stable = r <= 0.5
-print(round(u_new, 3))
-print(stable)
+u_new = u_center + r * (u_left - 2 * u_center + u_right)   # 显式格式：当前值加 r 倍的二阶差分
+stable = r <= 0.5            # 一维显式格式的稳定线：r 超过 0.5 就会震荡放大
+print(round(u_new, 3))       # round(x, 3)：保留三位小数
+print(stable)                # 布尔值原样打印：True / False
 ```
 
 输出 `0.4` 和 `True`。把 `r` 改成大于 0.5 后再运行，就能看到过度修正。
@@ -124,15 +124,15 @@ print(stable)
 # @check: -0.4
 # @check: False
 # @hint: 使用 U+r*(left-2*center+right)，并用 r<=0.5 判断稳定性。
-r = 1.2
-u_left = 0.4
-u_center = 0.8
-u_right = 0.2
+r = 1.2                      # 差分比；这个值已经越过了稳定线
+u_left = 0.4                 # 左邻居
+u_center = 0.8               # 中心
+u_right = 0.2                # 右邻居
 
-u_new = u_center - r * (u_left - 2 * u_center + u_right)
-stable = r < 1
-print(round(u_new, 3))
-print(stable)
+u_new = u_center - r * (u_left - 2 * u_center + u_right)   # ← 减号写反了：二阶差分前应是加号
+stable = r < 1               # ← 判据也错了：一维的稳定线是 r <= 0.5
+print(round(u_new, 3))       # 第一行与 @check 对位
+print(stable)                # 第二行与 @check 对位
 ```
 
 <details>
@@ -141,15 +141,15 @@ print(stable)
 正确更新为：
 
 ```python
-r = 1.2
-u_left = 0.4
-u_center = 0.8
-u_right = 0.2
+r = 1.2          # 差分比（本例只为对齐修正后的公式）
+u_left = 0.4     # 左邻居
+u_center = 0.8   # 中心
+u_right = 0.2    # 右邻居
 
-u_new = u_center + r * (u_left - 2 * u_center + u_right)
-stable = r <= 0.5
-print(round(u_new, 3))
-print(stable)
+u_new = u_center + r * (u_left - 2 * u_center + u_right)   # 修正后：二阶差分前取加号
+stable = r <= 0.5   # 修正后：稳定线是 0.5
+print(round(u_new, 3))   # -0.4
+print(stable)            # False
 ```
 
 三点组合是 `-1.0`，所以：

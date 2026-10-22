@@ -157,22 +157,51 @@ plt.tight_layout()
 
 全序矩阵是**下三角全 1**（每对元素都能比）；偏序矩阵有一些空洞（不可比的元素对）。
 
-### 实验 4：偏序的哈斯图可视化
+### 实验 4：亲手把哈斯图的层级算出来
 
-```viz
-{
-  "type": "plot",
-  "title": "整除偏序哈斯图",
-  "expr": "floor(x)",
-  "xmin": 0,
-  "xmax": 13,
-  "ymin": -0.5,
-  "ymax": 3.5,
-  "sliders": []
-}
+哈斯图不是"画得像棵树"就行，它要满足一条硬规则：**只连"直接覆盖"的边**（$a\prec b$ 且中间没有第三个元素）。这条规则能纯靠程序算出来：
+
+```python title="整除偏序：算出覆盖关系与层级"
+N = 12                                        # 只看 1..12 这一段
+elems = list(range(1, N + 1))                 # 偏序的载体
+
+def divides(a, b):                            # 整除关系：a | b
+    return b % a == 0
+
+def covers(a, b):                             # 覆盖：a | b 且其间没有 c 使 a | c | b
+    if a == b or not divides(a, b):
+        return False
+    for c in elems:
+        if c != a and c != b and divides(a, c) and divides(c, b):
+            return False
+    return True
+
+edges = [(a, b) for a in elems for b in elems if covers(a, b)]
+print("覆盖关系（哈斯图的全部边）：")
+print("  " + "  ".join(f"{a}->{b}" for a, b in edges))
+
+level = {}                                    # 层级 = 质因数个数（含重数）
+for n0 in elems:
+    k, m = 0, n0
+    d = 2
+    while d * d <= m:
+        while m % d == 0:
+            m //= d
+            k += 1
+        d += 1
+    if m > 1:
+        k += 1
+    level[n0] = k
+
+print("\n按层级分层：")
+for L in range(0, max(level.values()) + 1):
+    print(f"  第 {L} 层：" + " ".join(str(n0) for n0 in elems if level[n0] == L))
+
+print("\n4 与 6 可比吗？", divides(4, 6) or divides(6, 4))
+print("4 与 12 可比吗？", divides(4, 12) or divides(12, 4))
 ```
 
-图中每个整数按其质因数个数（层级）排列，连线表示直接整除关系。比较 4 和 6——它们不可比，这正是偏序与全序的区别。
+边只连到"直接覆盖"的一对——比如 $2\to 4$、$2\to 6$ 都有边，但 $2\to 12$ **没有**：因为中间夹着 4 和 6，那条边会被它们"顶掉"。层级那一列是质因数个数：$1$ 在第 0 层，质数在第 1 层，$4=2^2$ 与 $6=2\times 3$ 都在第 2 层，$12=2^2\times 3$ 在第 3 层。**4 和 6 同层且互不整除——这就是"不可比"**，也正是偏序与全序的分界线：全序里任意两个元素都得分出上下，偏序允许它们并排待着。
 
 ## 6. 练习
 
@@ -216,14 +245,14 @@ plt.tight_layout()
 # @check: 极大元 = {8, 12}
 # @hint: 极小元是没有更小的元素能整除它的；极大元是它不能整除任何更大的元素
 S = [2, 3, 4, 6, 8, 12]
-minimal = []
+minimal = []  # 两个标志位都先假设成立，找到反例再推翻
 maximal = []
 for a in S:
     is_minimal = True          # 假设 a 是极小元
     is_maximal = True          # 假设 a 是极大元
-    for b in S:
+    for b in S:  # 逐个比较所有 (a, b) 对，把整张偏序关系扫一遍
         if a != b and a % b == 0:   # ← 问题在这：方向反了，应是 b % a == 0（b 能被 a 整除）
-            is_maximal = False
+            is_maximal = False  # 一旦找到比它“大”的见证元素，就推翻极大元的假设
         if a != b and a % b == 0:   # a 能被 b 整除 → a 不是极小元
             is_minimal = False
     if is_minimal:
@@ -231,7 +260,7 @@ for a in S:
     if is_maximal:
         maximal.append(a)
 
-print(f"极小元 = {set(minimal)}")
+print(f"极小元 = {set(minimal)}")  # set 去重后再打印成 {2, 3} 这样的集合形式
 print(f"极大元 = {set(maximal)}")
 ```
 

@@ -39,7 +39,7 @@ exits:
 4. 失效路径和安全边界是什么？
 5. 组织反馈能否修正模型和需求？
 
-## 3. 方法对照
+## 3. 正式表述：方法对照
 
 | 问题形状 | 首选方法 | 本章落点 |
 | --- | --- | --- |
@@ -69,22 +69,25 @@ exits:
 这张映射盘刻意粗糙。真实项目常要组合多种方法，并明确证据由谁验证。
 
 ```python title="有限条目的方法推荐"
-# sliders: has_hidden_state=1 [0:1:1]
-features = {"frequency-risk": False, "queueing": True, "hidden-state": bool(has_hidden_state)}
+# sliders: has_queueing=0 [0:1:1], has_hidden_state=1 [0:1:1]
+# 注意：queueing 不能写死成 True——它一旦恒真，elif 分支就永远到不了，
+# 滑块 has_hidden_state 拖到 0 或 1 输出都一模一样，交互承诺落空。
+# 这里把三项都交给独立的开关，滑块才真的能改变结论。
+features = {"frequency-risk": False, "queueing": bool(has_queueing), "hidden-state": bool(has_hidden_state)}  # 特征字典首现：bool(...) 把滑块整数 0/1 转成 True/False
 
-if features["frequency-risk"]:
-    answer = "bode-nyquist-margin"
+if features["frequency-risk"]:  # 按优先级从上往下问：频率风险 → 排队 → 隐藏状态 → 都不满足就回到需求环
+    answer = "bode-nyquist-margin"  # 频率域有风险就别急着调时域参数，先看 Bode / Nyquist 的裕度
 elif features["queueing"]:
-    answer = "little-law-bottleneck"
+    answer = "little-law-bottleneck"  # 排队现象明显时用 Little 定律找瓶颈，而不是加控制器
 elif features["hidden-state"]:
-    answer = "observer-diagnosis"
+    answer = "observer-diagnosis"  # 状态看不见就上观测器，别凭输出硬猜内部状态
 else:
-    answer = "requirements-loop"
+    answer = "requirements-loop"  # 三条都不成立时，问题往往在需求本身，回去补闭环
 
 print(answer)
 ```
 
-改布尔值和滑块，体会优先级：安全失稳通常先于性能优化。
+改布尔值和滑块，体会优先级：安全失稳通常先于性能优化。两个滑块各代表一类证据——`has_queueing` 管「有没有排队现象」，`has_hidden_state` 管「内部状态看不看得见」；打开排队那一项，答案就永远被它抢走，这正是优先级表在代码里的样子。
 
 ## 6. 练习
 

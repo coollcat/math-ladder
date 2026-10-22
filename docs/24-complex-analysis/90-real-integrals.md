@@ -108,11 +108,11 @@ print(round(answer, 6))
 ### 实验 3（python）：用留数直接算
 
 ```python title="上半平面极点给出的 π"
-import math
+import math  # import math 只为拿 pi；复数的 1j 是 Python 内置语法，不需要库
 
-residue = 1 / (2 * 1j)
-contour_value = 2 * math.pi * 1j * residue
-print(round(contour_value.real, 6))
+residue = 1 / (2 * 1j)  # 1/(2·1j) 是 1/(z²+1) 在 z=i 处的留数（分母是 2z 在 z=i 的取值）
+contour_value = 2 * math.pi * 1j * residue  # 留数定理：围道积分 = 2πi × 内部留数之和，这里只有 z=i 一个极点
+print(round(contour_value.real, 6))  # .real 取复数的实部，围道积分的结果通常落在实轴上
 print(round(contour_value.imag, 6))
 ```
 

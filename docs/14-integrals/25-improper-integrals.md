@@ -97,7 +97,7 @@ def log_tail(b):
     # ∫₁ᵇ 1/x dx 的现成答案：等于 ln(b) —— math.log 是自然对数
     return math.log(b)
 
-for b in [10, 100, 10000, 100000000]:
+for b in [10, 100, 10000, 100000000]:  # 四个 b 一路放大到 1 亿：看两条曲线的尾部积累是收敛还是发散
     print(f"b={b}: 1/x² 攒下 {round(short_tail(b), 4)} | 1/x 攒下 {round(log_tail(b), 4)}")
 ```
 

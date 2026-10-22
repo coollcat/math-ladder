@@ -92,25 +92,25 @@ $$a(b+c)=ab+ac,\qquad(a+b)c=ac+bc.$$
 选中第 2 行和第 3 列，交点正是 0。打开“零因子”后，2 与 3 相遇的深红格说明：非零相乘也能落回加法单位元。
 
 ```python title="在模 6 中找零因子与单位"
-n = 6
-zero_divisors = []
-units = []
+n = 6                        # 模数：环 Z/6Z
+zero_divisors = []           # 零因子账本
+units = []                   # 单位（可逆元）账本
 
-for a in range(1, n):
-    makes_zero = False
-    makes_one = False
-    for b in range(1, n):
-        if (a * b) % n == 0:
+for a in range(1, n):        # range(1, 6) 从 1 到 5；0 不算零因子也不需要单位
+    makes_zero = False       # 这个 a 能否乘出 0
+    makes_one = False        # 这个 a 能否乘出 1
+    for b in range(1, n):    # 逐个试乘
+        if (a * b) % n == 0:   # 乘积被 n 整除 → 零因子
             makes_zero = True
-        if (a * b) % n == 1:
+        if (a * b) % n == 1:   # 乘积余 1 → a 有逆元，是单位
             makes_one = True
-    if makes_zero:
+    if makes_zero:           # 命中即记账
         zero_divisors.append(a)
     if makes_one:
         units.append(a)
 
-print("zero_divisors:", zero_divisors)
-print("units:", units)
+print("zero_divisors:", zero_divisors)   # 逗号分隔打印
+print("units:", units)                   # 单位集：与 6 互素的那些数
 ```
 
 模 6 的单位只有 1 和 5；2、3、4 都是零因子。这个表直接显示为什么它不是域。
@@ -122,21 +122,21 @@ print("units:", units)
 # @check: zero_divisors=[2, 4, 6]
 # @check: units=[1, 3, 5, 7]
 # @hint: 对每个 a 尝试所有 b，看乘积是否可能为 0 或 1。
-n = 8
-zero_divisors = []
-units = [0]
+n = 8                        # 模数
+zero_divisors = []           # 零因子账本
+units = [0]                  # ← 初值不该带内容，应是空列表
 
-for a in range(1, n):
-    makes_zero = False
-    makes_one = False
-    for b in range(1, n):
+for a in range(1, n):        # 从 1 到 7 逐个检查
+    makes_zero = False       # 能否乘出 0
+    makes_one = False        # 能否乘出 1（这里后面没用到）
+    for b in range(1, n):    # 逐个 b 试乘
         if (a * b) % n == 0:
             makes_zero = True
     if makes_zero:
         zero_divisors.append(a)
 
-print("zero_divisors=" + str(zero_divisors))
-print("units=" + str(units))
+print("zero_divisors=" + str(zero_divisors))   # 第一行与 @check 对位
+print("units=" + str(units))   # 第二行与 @check 对位
 ```
 
 <details>
@@ -145,25 +145,25 @@ print("units=" + str(units))
 完整检查可以这样写：
 
 ```python
-n = 8
-zero_divisors = []
-units = []
+n = 8                        # 模数
+zero_divisors = []           # 零因子账本
+units = []                   # 空列表：修正后的正确初值
 
-for a in range(1, n):
-    makes_zero = False
-    makes_one = False
-    for b in range(1, n):
+for a in range(1, n):        # 逐个元素检查
+    makes_zero = False       # 能否乘出 0
+    makes_one = False        # 能否乘出 1
+    for b in range(1, n):    # 逐个 b 试乘
         if (a * b) % n == 0:
             makes_zero = True
-        if (a * b) % n == 1:
+        if (a * b) % n == 1:   # 补回「有逆元」的判据
             makes_one = True
     if makes_zero:
         zero_divisors.append(a)
-    if makes_one:
+    if makes_one:            # 命中就记账
         units.append(a)
 
-print("zero_divisors=" + str(zero_divisors))
-print("units=" + str(units))
+print("zero_divisors=" + str(zero_divisors))   # [2, 4, 6]
+print("units=" + str(units))   # [1, 3, 5, 7]
 ```
 
 （判题比的是这两行的完整文本，带标签。把中间量单独 `print` 出来会让输出对不上。）

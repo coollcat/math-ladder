@@ -142,14 +142,14 @@ print(f"votes={votes}")
 `block` 中有三个 1、两个 0。多数条件应是“大于一半”，不是“小于一半”：
 
 ```python
-block = [1, 0, 1, 1, 0]
-ones = sum(block)
+block = [1, 0, 1, 1, 0]      # 收到的五位重复码
+ones = sum(block)            # sum 数出其中 1 的个数
 
-if ones > len(block) / 2:
-    decoded = 1
+if ones > len(block) / 2:    # len(block) / 2 = 2.5，是「超过一半」的门槛
+    decoded = 1              # 1 占据多数，判成 1
 else:
-    decoded = 0
-votes = ones
+    decoded = 0              # 否则判成 0
+votes = ones                 # 记下支持 1 的票数，便于核对
 print(f"decoded={decoded}")
 print(f"votes={votes}")
 ```

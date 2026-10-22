@@ -116,24 +116,24 @@ $$J_F(G(0))J_G(0)=\binom{-1}{2}.$$
 ### 实验 3：Python 数值 Jacobian
 
 ```python title="四个偏导排成矩阵"
-def fx(u, v):
+def fx(u, v):        # 第一个输出分量 f(u, v)
     return u * u - v
 
-def fy(u, v):
+def fy(u, v):        # 第二个输出分量 g(u, v)
     return 2 * u * v
 
-h = 0.0001
-u = 1.0
+h = 0.0001           # 差分步长：太大近似不准，太小会被浮点误差吃掉
+u = 1.0              # 求 Jacobian 的点 (u, v)
 v = 2.0
-jxx = (fx(u + h, v) - fx(u - h, v)) / (2 * h)
-jxy = (fx(u, v + h) - fx(u, v - h)) / (2 * h)
-jyx = (fy(u + h, v) - fy(u - h, v)) / (2 * h)
-jyy = (fy(u, v + h) - fy(u, v - h)) / (2 * h)
-print([round(jxx, 3), round(jxy, 3)])
-print([round(jyx, 3), round(jyy, 3)])
-det = jxx * jyy - jxy * jyx
+jxx = (fx(u + h, v) - fx(u - h, v)) / (2 * h)   # f 对 u 的中心差分（v 不动）
+jxy = (fx(u, v + h) - fx(u, v - h)) / (2 * h)   # f 对 v 的中心差分（u 不动）
+jyx = (fy(u + h, v) - fy(u - h, v)) / (2 * h)   # g 对 u
+jyy = (fy(u, v + h) - fy(u, v - h)) / (2 * h)   # g 对 v
+print([round(jxx, 3), round(jxy, 3)])   # 方括号就地造列表：矩阵的第一行
+print([round(jyx, 3), round(jyy, 3)])   # 第二行
+det = jxx * jyy - jxy * jyx             # 行列式 ad - bc：注意是减号
 print(round(det, 3))
-print(round(abs(det), 3))
+print(round(abs(det), 3))               # abs 取绝对值：负号只表示翻面，面积要正数
 ```
 
 输出 `[2.0, -1.0]`、`[4.0, 2.0]`、`8.0`、`8.0`。
@@ -147,16 +147,16 @@ print(round(abs(det), 3))
 # @check: 8
 # @check: 8
 # @hint: g=2uv 对 u 的偏导是 2v，不是 2；行列式用 ad-bc。
-u = 1
+u = 1                # 求 Jacobian 的点
 v = 2
-jxx = 2 * u
-jxy = -1
-jyx = 2
-jyy = 2 * u
-det = jxx * jyy + jxy * jyx
-area = det
-print([jxx, jxy])
-print([jyx, jyy])
+jxx = 2 * u          # f_u = 2u：直接代公式，不跑差分
+jxy = -1             # f_v = -1（对 v 求导，u² 是常数）
+jyx = 2              # ← g_u = 2v，这里写成了几？
+jyy = 2 * u          # g_v = 2u
+det = jxx * jyy + jxy * jyx   # ← 行列式公式是 ad - bc，这里用的是加号
+area = det           # 面积直接抄了行列式：遇到负的行列式怎么办？
+print([jxx, jxy])    # 第一行
+print([jyx, jyy])    # 第二行
 print(det)
 print(area)
 ```
@@ -167,11 +167,11 @@ print(area)
 $g_u=2v$，所以 $jyx=4$。行列式：
 
 ```python
-jxx = 2
-jxy = -1
-jyx = 4
-jyy = 2
-det = jxx * jyy - jxy * jyx
+jxx = 2      # f_u = 2u，u=1
+jxy = -1     # f_v = -1
+jyx = 4      # g_u = 2v = 2×2
+jyy = 2      # g_v = 2u = 2×1
+det = jxx * jyy - jxy * jyx   # 行列式 ad - bc
 ```
 
 代入：
@@ -186,18 +186,18 @@ area=abs(8)=8
 可执行复查：
 
 ```python
-u = 1
+u = 1            # 求 Jacobian 的点
 v = 2
-jxx = 2 * u
-jxy = -1
-jyx = 2 * v
-jyy = 2 * u
-det = jxx * jyy - jxy * jyx
-area = abs(det)
-print([jxx, jxy])
-print([jyx, jyy])
-print(det)
-print(area)
+jxx = 2 * u      # f_u
+jxy = -1         # f_v
+jyx = 2 * v      # g_u = 2v：这里才是正确公式
+jyy = 2 * u      # g_v
+det = jxx * jyy - jxy * jyx   # 行列式 ad - bc
+area = abs(det)               # 面积放大率取绝对值
+print([jxx, jxy])   # [2, -1]：矩阵第一行
+print([jyx, jyy])   # [4, 2]：第二行
+print(det)          # 8
+print(area)         # 8
 ```
 
 </details>

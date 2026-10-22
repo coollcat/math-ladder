@@ -143,18 +143,18 @@ for m in [1, 3, 5]:
 # @title: 练习：方波的基频份量
 # @check: 1.27
 # @hint: 方波是奇函数，份量全藏在 sin 坐标轴上——检查你把信号投影到了哪根轴上
-import math
+import math  # import math 取 sin / cos / pi，系数就是拿信号与这些基函数做投影
 
-N = 64
-total = 0.0
+N = 64  # N=64 个采样点，对应一个完整周期
+total = 0.0  # total 累加投影值：方波乘基函数再逐点相加
 for k in range(N):
     x = 2 * math.pi * k / 64     # 第 k 个采样点的角度
-    if math.sin(x) >= 0:
+    if math.sin(x) >= 0:  # 方波取值：正弦为正取 +1，否则 −1
         f = 1.0
     else:
         f = -1.0
     total = total + f * math.cos(x)   # 往哪根轴上投影？
-print(round(2 * total / N, 2))
+print(round(2 * total / N, 2))  # 归一化因子 2/N 后保留两位小数，与 @check 的 1.27 对照
 ```
 
 改对后输出 1.27。想加深体会：把投影目标从 sin 换成 cos 再跑一遍——奇函数方波在 cos 轴上是隐形的，读数直接归零。

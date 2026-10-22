@@ -101,31 +101,31 @@ $$u_{i,j}^{\text{新}}=u_{i,j}+\omega\left(\frac{u_{i-1,j}+u_{i+1,j}+u_{i,j-1}+u
 ### 实验 2：松弛多少轮才收敛
 
 ```python title="九乘九网格：打印中心点随迭代轮数的变化"
-N = 9
-grid = [[0.0] * N for _ in range(N)]      # 列表推导：造一个 9x9 的全零表格
-for j in range(N):
-    grid[j][0] = 1.0                      # 左边界 = 1
-    grid[j][N - 1] = 0.0                  # 右边界 = 0
+N = 9                                     # 网格边长：9×9 个格点
+grid = [[0.0] * N for _ in range(N)]      # 列表推导：[0.0]*N 造一行，再套一层造 N 行
+for j in range(N):                        # 逐行遍历
+    grid[j][0] = 1.0                      # 左边界全设成 1：这是两维下标 grid[行][列]
+    grid[j][N - 1] = 0.0                  # 右边界全设成 0；N-1 是最后一列的索引
 
-def relax(v, times):                      # 做 times 轮 Jacobi 松弛
+def relax(v, times):                      # def 定义函数：做 times 轮 Jacobi 松弛
     for _ in range(times):                # 下划线变量名：这个计数用不到，只是占位
-        new = [row[:] for row in v]       # 整表复制：新值必须基于同一批旧值
-        for j in range(1, N - 1):
+        new = [row[:] for row in v]       # 逐行切片复制整张表：新值必须基于同一批旧值
+        for j in range(1, N - 1):         # 从 1 到 N-2：跳过上下两条边界行
             for i in range(1, N - 1):
-                new[j][i] = (v[j - 1][i] + v[j + 1][i] + v[j][i - 1] + v[j][i + 1]) / 4
+                new[j][i] = (v[j - 1][i] + v[j + 1][i] + v[j][i - 1] + v[j][i + 1]) / 4   # 四邻平均：离散 Laplace 方程的解就是这个不动点
         for i in range(1, N - 1):         # 上下绝热：边界行抄内侧一行
             new[0][i] = new[1][i]
             new[N - 1][i] = new[N - 2][i]
         v = new
     return v
 
-grid = relax(grid, 1)
-print(round(grid[4][4], 3))               # 一轮之后：只有紧邻边界的格子动了一下
-grid = relax(grid, 19)
+grid = relax(grid, 1)                     # 用返回值覆盖原表
+print(round(grid[4][4], 3))               # round 保留三位；中心格只有紧邻边界的格子动了一下
+grid = relax(grid, 19)                    # 再松弛 19 轮（累计 20 轮）
 print(round(grid[4][4], 3))               # 二十轮
-grid = relax(grid, 180)
+grid = relax(grid, 180)                   # 再松弛 180 轮（累计 200 轮）
 print(round(grid[4][4], 3))               # 二百轮
-print([round(grid[4][i], 3) for i in range(N)])
+print([round(grid[4][i], 3) for i in range(N)])   # 列表推导：把中间一整行写成列表一次性打印
 ```
 
 输出 `0.0`、`0.211`、`0.5`，最后一行是 `[1.0, 0.875, 0.75, 0.625, 0.5, 0.375, 0.25, 0.125, 0.0]`。第一轮中心还是 0——信息一格一格往里爬，中心要等 $N/2$ 轮才"知道"边界的存在。两百轮后整行是完美等差数列，与例 2 的解析直线 $u=1-x$ 分毫不差。
@@ -133,26 +133,26 @@ print([round(grid[4][i], 3) for i in range(N)])
 ### 实验 3：稳态就是热方程跑到时间的尽头
 
 ```python title="把热方程一直算下去，看它趋向谁"
-N = 9
-u = [[0.0] * N for _ in range(N)]
-for j in range(N):
-    u[j][0] = 1.0
-    u[j][N - 1] = 0.0
+N = 9                                     # 网格边长
+u = [[0.0] * N for _ in range(N)]         # 全零表格
+for j in range(N):                        # 逐行设边界
+    u[j][0] = 1.0                         # 左边界 = 1
+    u[j][N - 1] = 0.0                     # 右边界 = 0
 
-r = 0.2                                   # 差分比 r = k*dt/h^2，二维须不超过 0.25
+r = 0.2                                   # 差分比 r = k·dt/h²；二维显式格式要求不超过 0.25
 for _ in range(400):                      # 时间推进四百步
-    new = [row[:] for row in u]
-    for j in range(1, N - 1):
-        for i in range(1, N - 1):
-            nb = u[j - 1][i] + u[j + 1][i] + u[j][i - 1] + u[j][i + 1]
-            new[j][i] = u[j][i] + r * (nb - 4 * u[j][i])
-    for i in range(1, N - 1):
+    new = [row[:] for row in u]           # 整表复制
+    for j in range(1, N - 1):             # 内部行
+        for i in range(1, N - 1):         # 内部列
+            nb = u[j - 1][i] + u[j + 1][i] + u[j][i - 1] + u[j][i + 1]   # nb = 四邻之和
+            new[j][i] = u[j][i] + r * (nb - 4 * u[j][i])   # 二维显式格式：中心加 r 倍的（四邻和 − 4×中心）
+    for i in range(1, N - 1):             # 上下绝热边界
         new[0][i] = new[1][i]
         new[N - 1][i] = new[N - 2][i]
     u = new
 
-print(round(u[4][4], 3))
-print(round(abs(u[4][4] - 0.5), 4))       # 与解析直线中点的差距
+print(round(u[4][4], 3))                  # 稳态时应逼近 0.5
+print(round(abs(u[4][4] - 0.5), 4))       # abs 取绝对值：与解析直线中点的差距
 ```
 
 输出 `0.5` 与 `0.0`。热方程跑够久之后，中心点停在 0.5，与解析直线 $u=1-x$ 的中点差距小到四位小数都看不出来。**两条路通向同一个终点**：一条追着时间跑，一条直接问终点。
@@ -168,13 +168,13 @@ up = 0.8          # 上邻居
 down = 0.4        # 下邻居
 left = 0.6        # 左邻居
 right = 0.2       # 右邻居
-h = 0.5           # 网格步长
+h = 0.5           # 网格步长：源项要乘 h²
 f = 2.0           # 源强：正值表示供热
 
-poisson = (up + down + left + right - h * h * f) / 4   # ← 有错：源项应是 +h²f，这里写成了减
-laplace = (up + down + left + right) / 4               # 撤掉热源，退化为 Laplace
-print(round(poisson, 3))
-print(round(laplace, 3))
+poisson = (up + down + left + right - h * h * f) / 4   # ← 源项应是 +h²f，这里减号写反了
+laplace = (up + down + left + right) / 4               # 撤掉热源，退化为 Laplace 方程
+print(round(poisson, 3))   # 第一行与 @check 对位
+print(round(laplace, 3))   # 第二行与 @check 对位
 ```
 
 <details>
@@ -183,11 +183,11 @@ print(round(laplace, 3))
 修正版：
 
 ```python
-up, down, left, right = 0.8, 0.4, 0.6, 0.2
-h = 0.5
-f = 2.0
+up, down, left, right = 0.8, 0.4, 0.6, 0.2   # 多元组解包：一次给四个变量赋值
+h = 0.5          # 网格步长
+f = 2.0          # 源强
 
-poisson = (up + down + left + right + h * h * f) / 4
+poisson = (up + down + left + right + h * h * f) / 4   # 修正后：源项取加号
 laplace = (up + down + left + right) / 4
 print(round(poisson, 3))     # 0.625
 print(round(laplace, 3))     # 0.5

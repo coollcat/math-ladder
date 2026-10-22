@@ -185,14 +185,14 @@ print(int(shots * p0))             # int()：把小数截断取整
 <summary>练习 1 解法</summary>
 
 ```python
-alpha = 0.6 + 0j
+alpha = 0.6 + 0j  # +0j 首现：给实数补一个零虚部，构造复振幅，后面才能用 abs 取模
 beta = 0.8 + 0j
 shots = 1000
-p0 = round(abs(alpha) ** 2, 2)
-p1 = round(abs(beta) ** 2, 2)
+p0 = round(abs(alpha) ** 2, 2)  # 玻恩规则：概率 = |振幅|²，所以 abs 之后还要再平方，别只取模
+p1 = round(abs(beta) ** 2, 2)  # 两个概率凑成 1，正好自查归一化有没有破
 print(p0)
 print(p1)
-print(int(shots * p0))
+print(int(shots * p0))  # int() 截断取整：期望次数是小数时向下取整，不四舍五入
 ```
 </details>
 

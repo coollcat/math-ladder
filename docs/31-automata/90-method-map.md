@@ -44,7 +44,7 @@ $$\text{正则语言}\subsetneq\text{上下文无关语言}\subsetneq\text{可�
 
 严格包含说明每一层都有上一台机器做不到的事。
 
-## 3. 方法对照表
+## 3. 正式定义：方法对照表
 
 | 方法 | 记忆核心 | 典型问题 | 关键工具 |
 | --- | --- | --- | --- |
@@ -95,21 +95,21 @@ $$\text{正则语言}\subsetneq\text{上下文无关语言}\subsetneq\text{可�
 
 ```python title="根据特征选模型"
 def choose_model(needs_unbounded_nesting, needs_two_counts):
-    if needs_unbounded_nesting and needs_two_counts:
+    if needs_unbounded_nesting and needs_two_counts:   # 两个独立无界计数：栈不够用
         return "stronger model"
-    if needs_unbounded_nesting:
+    if needs_unbounded_nesting:                        # 只要一层嵌套：一根栈就够
         return "pda"
-    return "dfa"
+    return "dfa"                                       # 记忆有限：状态机最省
 
-cases = [
+cases = [                                              # 三份"病历"：各自的特征开关
     {"name": "even-a", "nesting": False, "two": False},
     {"name": "brackets", "nesting": True, "two": False},
     {"name": "three-counts", "nesting": True, "two": True},
 ]
 
-for case in cases:
+for case in cases:                                     # 逐个喂给决策表
     answer = choose_model(case["nesting"], case["two"])
-    print(f"{case['name']}: {answer}")
+    print(f"{case['name']}: {answer}")                 # f 字符串：把变量塞进花括号位置
 ```
 
 字典里的方括号表示列表，花括号表示字典；`case["name"]` 用键取值。这个函数只是决策表原型，不是形式语言判定器。
@@ -165,5 +165,7 @@ PDA 只有一根栈；图灵机有可来回移动的工作带，因此能模拟�
 ## 8. 本章回望
 
 第 31 章从字母表出发，经过 DFA、NFA、子集构造、正则表达式的等价三角形，用泵引理划界；随后加入栈，进入上下文无关文法、解析树与 CYK。你带走的不是一个名词表，而是“记忆形状决定语言能力”的设计直觉。
+
+## 9. 下一站
 
 → [第 32 章 · 可计算性与复杂度](../32-computability/index.md)

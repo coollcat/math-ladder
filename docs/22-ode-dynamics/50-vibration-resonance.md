@@ -101,18 +101,18 @@ $$A=\frac{F}{\sqrt{(k-m\omega^2)^2+(c\omega)^2}}.$$
 ### 实验 3：Python 计算振幅
 
 ```python title="由参数计算固有频率与振幅"
-import math
+import math                       # 标准库 math：sqrt 开根号要用
 
-m = 1.0
-c = 0.2
-k = 4.0
-F = 0.4
-omega = 2.0
-natural = math.sqrt(k / m)
-ratio = c / (2 * math.sqrt(m * k))
-denominator = math.sqrt((k - m * omega ** 2) ** 2 + (c * omega) ** 2)
-amplitude = F / denominator
-print(round(natural, 3))
+m = 1.0                           # 振子质量：决定惯性
+c = 0.2                           # 阻尼系数：越大能量耗散越快
+k = 4.0                           # 弹簧刚度：决定自然频率
+F = 0.4                           # 外力幅值（驱动力的大小）
+omega = 2.0                       # 外力角频率：这里正好等于自然频率，是共振点
+natural = math.sqrt(k / m)        # 自然频率 ω₀=√(k/m)，本课等于 2
+ratio = c / (2 * math.sqrt(m * k))  # 阻尼比 ζ：除以 2√(mk) 才无量纲，<1 为欠阻尼
+denominator = math.sqrt((k - m * omega ** 2) ** 2 + (c * omega) ** 2)  # 分母 = 刚度失配与阻尼的合成
+amplitude = F / denominator      # 稳态振幅：分子是外力，分母越小振幅越吓人
+print(round(natural, 3))         # round(值, 3)：保留三位小数
 print(round(ratio, 3))
 print(round(amplitude, 3))
 ```
@@ -127,16 +127,16 @@ print(round(amplitude, 3))
 # @check: 0.05
 # @check: 1.0
 # @hint: 共振附近不能只用 F/k；分母要包含刚度失配项和阻尼项。
-import math
+import math                     # 标准库 math：sqrt / pi
 
 m = 1.0
 c = 0.2
 k = 4.0
 F = 0.4
 omega = 2.0
-natural = math.sqrt(k / m)
+natural = math.sqrt(k / m)      # 自然频率，这行没错
 ratio = c / (2 * math.sqrt(m * k))
-amplitude = F / k
+amplitude = F / k               # ← 只在静态（ω=0）时才成立，共振附近必须用完整分母
 print(round(natural, 3))
 print(round(ratio, 3))
 print(round(amplitude, 3))
@@ -148,14 +148,14 @@ print(round(amplitude, 3))
 稳态振幅公式是：
 
 ```python
-import math
+import math      # 标准库 math：sqrt 开平方
 
-m, c, k, F, omega = 1.0, 0.2, 4.0, 0.4, 2.0
-denominator = math.sqrt((k - m * omega ** 2) ** 2 + (c * omega) ** 2)
-amplitude = F / denominator
-print(round(math.sqrt(k / m), 3))
-print(round(c / (2 * math.sqrt(m * k)), 3))
-print(round(amplitude, 3))
+m, c, k, F, omega = 1.0, 0.2, 4.0, 0.4, 2.0   # 元组解包：质量、阻尼、刚度、外力、驱动频率一次赋完
+denominator = math.sqrt((k - m * omega ** 2) ** 2 + (c * omega) ** 2)   # 分母是实部与虚部的平方和再开方
+amplitude = F / denominator   # 稳态振幅 = 外力 ÷ 分母
+print(round(math.sqrt(k / m), 3))               # 固有频率 √(k/m)
+print(round(c / (2 * math.sqrt(m * k)), 3))     # 阻尼比 c/(2√(mk))
+print(round(amplitude, 3))                      # 稳态振幅
 ```
 
 代入：

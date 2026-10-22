@@ -189,23 +189,21 @@ $\text{Var}(X_t) = \text{Var}(\varepsilon_t) + 0.5^2 \text{Var}(\varepsilon_{t-1
 
 ```exercise
 # @title: 模拟 AR(2) 过程
-# @check: done
-# @hint: 用循环，从 t=2 开始，每步用前两个值
+# @check: x[2:5] = [0.6477, 1.8469, 0.495]
+# @check: 前 100 步的方差 = 1.069
+# @hint: 从 t=2 开始循环（前两个点留作初值），每步把前两个值按系数 0.5 与 -0.3 混合；注意第二个系数的符号。
 import numpy as np
-import matplotlib.pyplot as plt
 
 np.random.seed(42)
 n = 300
 x = np.zeros(n)
-noise = np.random.randn(n)
+noise = np.random.randn(n)           # 每步的白噪声 ε_t
 
-for t in range(n):
-    x[t] = noise[t]  # ← 问题在这：缺少 AR(2) 的自回归项
+for t in range(2, n):
+    x[t] = 0.5 * x[t-1] + 0.3 * x[t-2] + noise[t]   # ← 问题在这：第二个系数的符号对不对？
 
-plt.plot(x)
-plt.title("AR(2) Simulation")
-plt.show()
-print("done")
+print("x[2:5] =", np.round(x[2:5], 4).tolist())
+print("前 100 步的方差 =", round(float(np.var(x[:100])), 4))
 ```
 
 ```quiz

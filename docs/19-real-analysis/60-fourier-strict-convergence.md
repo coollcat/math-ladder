@@ -90,22 +90,22 @@ $$\frac{f(x^-)+f(x^+)}{2}.$$
 ### 实验 3：Python 测跳点与峰值
 
 ```python title="跳点值、峰值与过冲比例"
-import math
+import math            # math.sin 与 math.pi 都来自这里
 
-M = 9
-def partial(x):
-    total = 0.0
-    for j in range(1, M + 1):
-        n = 2 * j - 1
-        total = total + math.sin(n * x) / n
-    return 4 * total / math.pi
+M = 9                  # 取前 9 项奇次谐波（1,3,…,17）
+def partial(x):        # 部分和 S_M(x)：参数 x 是要代入的位置
+    total = 0.0        # 累加器从 0 起步（加法的不变起点）
+    for j in range(1, M + 1):   # j = 1…M：range 含头不含尾，所以上界写 M+1
+        n = 2 * j - 1           # 第 j 个奇次谐波编号：1, 3, 5, …
+        total = total + math.sin(n * x) / n   # 系数 1/n：越高次谐波贡献越小
+    return 4 * total / math.pi   # 整体乘 4/π：方波级数的标准系数
 
-jump_value = partial(math.pi)
-peak = 0.0
-for k in range(1, 10000):
-    x = math.pi * k / 10000
-    peak = max(peak, partial(x))
-overshoot = (peak - 1) * 50
+jump_value = partial(math.pi)   # 跳点处的值：每一项 sin(nπ)=0，结果应为 0
+peak = 0.0                      # 扫描 (0,π) 找过冲峰值，先置 0
+for k in range(1, 10000):       # 撒 9999 个采样点
+    x = math.pi * k / 10000     # 把 (0, π) 均匀切分（k 从 1 起，不会取到 0）
+    peak = max(peak, partial(x))   # 只保留最大的那个值
+overshoot = (peak - 1) * 50     # 换成"占整个跳幅 2 的百分比"：(峰值-1)/2 × 100 = (峰值-1) × 50
 print(round(jump_value, 3))
 print(round(peak, 3))
 print(round(overshoot, 1))
@@ -121,20 +121,20 @@ print(round(overshoot, 1))
 # @check: 1.18
 # @check: 9.0
 # @hint: 跳点是 π，不是 π/2；峰值要扫描 (0,π) 内很多点。
-import math
+import math            # sin、pi 在 math 模块里
 
-M = 9
-def partial(x):
-    total = 0.0
-    for j in range(1, M + 1):
-        n = 2 * j - 1
-        total = total + math.sin(n * x) / n
-    return 4 * total / math.pi
+M = 9                  # 谐波项数
+def partial(x):        # 部分和 S_M(x)
+    total = 0.0        # 累加器
+    for j in range(1, M + 1):   # 遍历每一项
+        n = 2 * j - 1           # 奇次谐波编号 2j-1
+        total = total + math.sin(n * x) / n   # 累加这一项的贡献
+    return 4 * total / math.pi   # 乘上前置系数
 
-jump_value = partial(math.pi / 2)
-peak = jump_value
-overshoot = 0.0
-print(round(jump_value, 3))
+jump_value = partial(math.pi / 2)   # 现在取的位置是 π/2——题目要的是哪一个位置？
+peak = jump_value                   # 峰值直接照抄跳点值：扫描去哪了？
+overshoot = 0.0                     # 过冲比例写死成 0
+print(round(jump_value, 3))         # 三个数分别打印（round 保留 3 位小数）
 print(round(peak, 3))
 print(round(overshoot, 1))
 ```
@@ -145,10 +145,10 @@ print(round(overshoot, 1))
 跳点应为 $\pi$ 处的值，峰值要在 $(0,\pi)$ 上扫描，三行打印一个都不能少：
 
 ```python
-import math
+import math   # sin、pi
 
-M = 9
-def partial(x):
+M = 9         # 谐波项数
+def partial(x):   # 部分和
     total = 0.0
     for j in range(1, M + 1):
         n = 2 * j - 1

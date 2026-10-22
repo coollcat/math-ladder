@@ -97,25 +97,25 @@ $$u_x=v_y,\qquad u_y=-v_x,$$
 ### 实验 3（python）：数值检查 CR 残差
 
 ```python title="用小步长近似 z^2 的 Cauchy-Riemann 残差"
-h = 0.0001
-x = 0.8
-y = -1.2
+h = 0.0001                     # 差分步长：够小才能让中心差分贴近真导数
+x = 0.8                        # 考察点的实部
+y = -1.2                       # 考察点的虚部：故意取负，检验通用性
 
-def u(a, b):
-    return a * a - b * b
+def u(a, b):                   # def 定义函数：实部 u(x,y)=x²−y²（形参改名 a/b 避免和外层 x/y 撞名）
+    return a * a - b * b       # ** 或连乘都行，这里用连乘更直观
 
-def v(a, b):
-    return 2 * a * b
+def v(a, b):                   # 虚部 v(x,y)=2xy
+    return 2 * a * b           # 乘积两倍
 
-ux = (u(x + h, y) - u(x - h, y)) / (2 * h)
-uy = (u(x, y + h) - u(x, y - h)) / (2 * h)
-vx = (v(x + h, y) - v(x - h, y)) / (2 * h)
-vy = (v(x, y + h) - v(x, y - h)) / (2 * h)
-r1 = ux - vy
-r2 = uy + vx
-print(round(r1, 6))
-print(round(r2, 6))
-print(round(2 * x, 6))
+ux = (u(x + h, y) - u(x - h, y)) / (2 * h)   # 对 x 的中心差分：左右各取一点，除以 2h
+uy = (u(x, y + h) - u(x, y - h)) / (2 * h)   # 对 y 的同一招式
+vx = (v(x + h, y) - v(x - h, y)) / (2 * h)   # 虚部对 x 的偏导
+vy = (v(x, y + h) - v(x, y - h)) / (2 * h)   # 虚部对 y 的偏导
+r1 = ux - vy                   # 第一个 Cauchy–Riemann 式 u_x = v_y 的残差
+r2 = uy + vx                   # 第二式 u_y = −v_x 的残差：移项后变成加号
+print(round(r1, 6))            # round(值, 6)：保留六位小数，差分误差要被压到可见位数以下
+print(round(r2, 6))            # 第二个残差，同样应为 0
+print(round(2 * x, 6))         # 手算的 u_x = 2x，用来核对差分算得对不对
 ```
 
 两个残差都等于 0（第一行会打印成 `-0.0`，这是浮点负零，数值上就是 0），说明 CR 方程通过；最后一行的 $2x$ 只是导数实部的抽查。
@@ -147,12 +147,12 @@ $z^3$ 展开后交叉项带减号。下面的代码把一个符号写反了，�
 # @check: -46.0
 # @check: 9.0
 # @hint: z=x+iy 时 z^3=(x^3-3xy^2)+(3x^2*y-y^3)i。代入 x=2,y=3 后检查符号。
-x = 2.0
-y = 3.0
-u = x ** 3 + 3 * x * y ** 2  # ← 错了：交叉项应为减号 3xy^2，这里写成了加号
-v = 3 * x ** 2 * y - y ** 3
-print(u)
-print(v)
+x = 2.0                        # 考察点的实部
+y = 3.0                        # 考察点的虚部
+u = x ** 3 + 3 * x * y ** 2    # ← 展开 z³ 的实部时，交叉项前面该是减号
+v = 3 * x ** 2 * y - y ** 3    # 虚部 3x²y − y³
+print(u)                       # 第一行与 @check 对位
+print(v)                       # 第二行与 @check 对位
 ```
 
 <details>

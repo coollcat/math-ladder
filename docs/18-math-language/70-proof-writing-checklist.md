@@ -38,7 +38,9 @@ exits:
 
 缺任何一个，读者就会被迫替作者猜。
 
-## 3. 七问清单
+## 3. 正式定义：七问清单
+
+**合格证明**：一份证明合格，当且仅当下面七个问题中的每一个，都能在正文里指到一处明确的答案——不是"我认为对"，而是"这一行凭什么、出处在哪"。七个问题就是这个定义的全部条款。
 
 1. 论域是什么？空论域会不会破坏命题？
 2. 每个变量和符号在哪定义？
@@ -81,12 +83,12 @@ exits:
 ### 实验 2：机器化检查摘要
 
 ```python title="把清单变成四项摘要"
-checks = ["domain", "quantifier", "base-case", "cycle"]
+checks = ["domain", "quantifier", "base-case", "cycle"]   # 清单四项：论域、量词、归纳基础步、循环论证
 
-for item in checks:
-    if item == "cycle":
-        print("no-" + item)
-    else:
+for item in checks:              # 逐项检查：for 直接把列表元素交给 item，不用自己数下标
+    if item == "cycle":          # 字符串比较用 ==：判断内容是否完全相同
+        print("no-" + item)      # + 把两个字符串首尾粘起来，得到 "no-cycle"
+    else:                        # 其余三项：输出自身加后缀
         print(item + "-ok")
 ```
 
@@ -101,8 +103,8 @@ for item in checks:
 # @check: base-case-ok
 # @check: no-cycle
 # @hint: cycle 这一项要输出 no-cycle；其他三项输出自身加 -ok。
-checks = ["domain", "quantifier", "base-case", "cycle"]
-for item in checks:
+checks = ["domain", "quantifier", "base-case", "cycle"]   # 四个检查项的名字，原样当输出标签用
+for item in checks:            # 逐个取出：列表里每个字符串依次进 item
     print(item + "-ok")   # + 可以把两个字符串拼在一起
 ```
 
@@ -110,12 +112,12 @@ for item in checks:
 <summary>点开查看逐步解答</summary>
 
 ```python
-checks = ["domain", "quantifier", "base-case", "cycle"]
-for item in checks:
-    if item == "cycle":
-        print("no-" + item)
+checks = ["domain", "quantifier", "base-case", "cycle"]   # 四个检查项的名称，原样当输出标签
+for item in checks:              # 逐项取出：列表走完循环自动结束
+    if item == "cycle":          # 只对"循环论证"这一项换一种说法
+        print("no-" + item)      # 字符串相加=首尾相接，拼出 no-cycle
     else:
-        print(item + "-ok")
+        print(item + "-ok")      # 其余照原样加后缀
 ```
 
 最后一项表示“没有循环”，所以前缀是 `no-`。

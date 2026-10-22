@@ -65,16 +65,16 @@ $$\check C_\varepsilon(P)=\lbrace \sigma\subset P\mid \bigcap_{p\in\sigma}\overl
 把九个点拖成一团、一条链或两个分离云团。想象每个点带固定小圆盘：拖动会改变两两重叠和可能的三重叠区。未来专属组件会画出这些圆并高亮公共交叠。
 
 ```python title="检查等半径三点的公共交叠必要条件"
-centers = [[0, 0], [1, 0], [0.5, 0.8]]
-radius = 0.8
-pairs_ok = []
+centers = [[0, 0], [1, 0], [0.5, 0.8]]  # 覆盖圆的圆心首现：三点构成一个小三角形
+radius = 0.8  # 所有球取同一个半径，这样「三球共点」才等价于最小包围圆半径不超过它
+pairs_ok = []  # pairs_ok 收集两两交叠的点对，它们将成为 1 维单形
 
-for i in range(3):
+for i in range(3):  # 内层从 i+1 开始，保证每个点对只数一次，不会重复也不会自己配自己
     for j in range(i + 1, 3):
         dx = centers[i][0] - centers[j][0]
         dy = centers[i][1] - centers[j][1]
         dist = (dx * dx + dy * dy) ** 0.5
-        if dist <= 2 * radius:
+        if dist <= 2 * radius:  # 两球相交 ⇔ 圆心距 ≤ 半径之和；等半径时就是 2×radius
             pairs_ok.append((i, j))
 
 print(pairs_ok)
@@ -106,26 +106,26 @@ for points, radius in triangles:
 
 先用叉积判断面积：
 
-```python
+```python  # 三个待判三角形各配一个半径：正三角、近似共线、退化成线段
 triangles = [
     ([[0, 0], [1, 0], [0.5, 0.8]], 0.7),
     ([[0, 0], [2, 0], [1, 0.2]], 0.7),
     ([[-1, 0], [1, 0], [0, 0]], 0.5)
 ]
-for points, radius in triangles:
-    area2 = abs((points[1][0]-points[0][0])*(points[2][1]-points[0][1]) -
+for points, radius in triangles:  # for points, radius in triangles 拆开元组：一组点 + 一个半径
+    area2 = abs((points[1][0]-points[0][0])*(points[2][1]-points[0][1]) -  # 叉积的绝对值 = 平行四边形面积的两倍；用它顺带判断三点是否共线
                 (points[1][1]-points[0][1])*(points[2][0]-points[0][0]))
-    if area2 > 1e-9:
-        a = ((points[1][0]-points[2][0])**2 + (points[1][1]-points[2][1])**2) ** 0.5
+    if area2 > 1e-9:  # 1e-9 是判零容差：浮点比较不能直接写 area2 > 0
+        a = ((points[1][0]-points[2][0])**2 + (points[1][1]-points[2][1])**2) ** 0.5  # 三边长度按勾股定理算，后面要判断锐角还是钝角
         b = ((points[0][0]-points[2][0])**2 + (points[0][1]-points[2][1])**2) ** 0.5
         c = ((points[0][0]-points[1][0])**2 + (points[0][1]-points[1][1])**2) ** 0.5
         squared = [a*a, b*b, c*c]
         longest = max(squared)   # max 取最大平方边长
         # 最大边的平方小于另两边平方和时才是锐角；此时最小包围圆是外接圆。
-        if longest < squared[0] + squared[1] + squared[2] - longest:
-            circumradius = a * b * c / (2 * area2)
+        if longest < squared[0] + squared[1] + squared[2] - longest:  # 最长边的平方小于其余两边平方和 ⇔ 锐角三角形，此时最小包围圆就是外接圆
+            circumradius = a * b * c / (2 * area2)  # 外接圆半径 R = abc / (4Δ)，而 area2 是 2Δ，所以分母写 2*area2
         else:
-            circumradius = longest ** 0.5 / 2
+            circumradius = longest ** 0.5 / 2  # 直角或钝角时最小包围圆由最长边决定，半径取其一半
     else:
         longest = max((sum((points[i][k]-points[j][k])**2 for k in [0,1])) ** 0.5   # max 取最大值：共线时用最长边的一半
                       for i in range(3) for j in range(i))                          # 双层 for 的生成表达式：枚举全部点对

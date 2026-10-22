@@ -160,11 +160,15 @@ print(f"最终状态: {state}")
 
 ```exercise
 # @title: 串口帧解析状态机
+# @check: LEN
+# @check: PAYLOAD
+# @check: PAYLOAD
+# @check: PAYLOAD
 # @check: SYNC
 # @hint: 收到 0xAA 从 SYNC 进 LEN，收到 data 从 LEN 进 PAYLOAD
 # 串口帧解析 FSM，当前状态 SYNC。
 # 事件序列: "aa" "data" "data" "data" "ok"
-# 写出每个事件后的状态，最后一行的状态是什么？
+# 写出每个事件后的状态（每行一个，共 5 行）
 states = ["aa", "data", "data", "data", "ok"]
 cur = "SYNC"
 transitions = {
@@ -172,7 +176,7 @@ transitions = {
     ("SYNC", "data"): "SYNC",
     ("LEN", "data"): "PAYLOAD",
     ("PAYLOAD", "data"): "PAYLOAD",
-    ("PAYLOAD", "ok"): "SYNC",
+    ("PAYLOAD", "ok"): "PAYLOAD",   # ← 问题在这：ok 之后该回哪个状态？
 }
 for ev in states:
     cur = transitions.get((cur, ev), cur)

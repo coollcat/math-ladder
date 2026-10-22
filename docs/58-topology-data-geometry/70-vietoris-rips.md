@@ -71,19 +71,19 @@ $$VR_\varepsilon(P)=\lbrace \sigma\subset P\mid d(p,q)\le\varepsilon\ \text{对�
 拖动十个点构造一个环、两个团或噪声尾巴。未来 Rips 过滤盘会提供横轴双轴拖拽和实时连线；当前先手工观察哪些点应该被阈值连上。
 
 ```python title="按上限生成 Rips 边"
-points = [[0, 0], [1, 0], [0.5, 0.85]]
-epsilon = 1.0
-edges = []
+points = [[0, 0], [1, 0], [0.5, 0.85]]  # 四个共线点：间距 1、1.2、2.8，阈值一变边集就跟着变
+epsilon = 1.0  # ε 是 Vietoris–Rips 的过滤参数：距离 ≤ ε 就连一条边
+edges = []  # edges 存点对编号，顺序固定为 i < j
 
-for i in range(len(points)):
+for i in range(len(points)):  # i 从头走到尾，j 只从 i+1 开始，避免同一对点被数两遍
     for j in range(i + 1, len(points)):
         dx = points[i][0] - points[j][0]
         dy = points[i][1] - points[j][1]
-        if (dx * dx + dy * dy) ** 0.5 <= epsilon:
+        if (dx * dx + dy * dy) ** 0.5 <= epsilon:  # 距离不超过 ε 就连边——VR 复形的定义就是这一句
             edges.append((i, j))
 
 print(edges)
-print(3 - len(edges) + (1 if len(edges) == 3 else 0))
+print(3 - len(edges) + (1 if len(edges) == 3 else 0))  # 条件表达式 `A if 条件 else B` 首现：三条边齐全时才算进一个 2 维面，χ = V − E + F
 ```
 
 三条边同时出现时，按团规则补一个二维面。
@@ -116,14 +116,14 @@ for count in edge_counts:
 正确循环如下：
 
 ```python
-points = [[0, 0], [1, 0], [2.2, 0], [5, 0]]
+points = [[0, 0], [1, 0], [2.2, 0], [5, 0]]  # 阈值按从大到小排列，边数应当依次减少——这就是过滤
 thresholds = [2.5, 1.5, 1.1]
-for limit in thresholds:
+for limit in thresholds:  # 每个阈值从头重数一遍，注意 count 要在内层循环前清零
     count = 0
     for i in range(len(points)):
         for j in range(i + 1, len(points)):
             if abs(points[i][0] - points[j][0]) <= limit:
-                count += 1
+                count += 1  # count += 1 是 count = count + 1 的简写，首现于本课
     print(count)
 ```
 

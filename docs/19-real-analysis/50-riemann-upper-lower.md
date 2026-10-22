@@ -97,19 +97,19 @@ $$L(f,P)=\sum_{i=1}^n m_i\Delta x_i,\qquad U(f,P)=\sum_{i=1}^n M_i\Delta x_i.$$
 
 ```python title="均匀分割的上下和"
 def f(x):
-    return x * x
+    return x * x      # 被积函数：** 也可以写成 x * x
 
-a = 0.0
-b = 2.0
-n = 10
-width = (b - a) / n
-lower = 0.0
-upper = 0.0
-for i in range(n):
-    left = a + i * width
-    right = left + width
-    lower = lower + f(left) * width
-    upper = upper + f(right) * width
+a = 0.0               # 区间左端
+b = 2.0               # 区间右端
+n = 10                # 分成几格：n 越大，上下和越贴近
+width = (b - a) / n   # 每格宽度 Δx：区间长度除以格数
+lower = 0.0           # 下和累加器，从 0 起步（加法的不变起点）
+upper = 0.0           # 上和累加器
+for i in range(n):    # 逐格处理：i 从 0 数到 n-1
+    left = a + i * width        # 第 i 格的左端点
+    right = left + width        # 右端点＝左端点 + 一格宽
+    lower = lower + f(left) * width    # 下和：高度×宽度，接到累加器上（x² 递增，最小值在左端）
+    upper = upper + f(right) * width   # 上和：同样累加（递增时最大值在右端）
 
 print(round(lower, 4))
 print(round(upper, 4))
@@ -127,17 +127,17 @@ print(round(upper - lower, 4))
 # @check: 0.8
 # @hint: x² 在 [0,2] 上递增；下和用左端点，上和用右端点。
 def f(x):
-    return x * x
+    return x * x      # 被积函数 x²
 
-a = 0.0
-b = 2.0
-n = 10
-width = (b - a) / n
-lower = 0.0
-upper = 0.0
-for i in range(n):
-    left = a + i * width
-    right = left + width
+a = 0.0               # 左端点
+b = 2.0               # 右端点
+n = 10                # 格数
+width = (b - a) / n   # 每格宽度 Δx
+lower = 0.0           # 下和累加器
+upper = 0.0           # 上和累加器
+for i in range(n):    # 逐格累加
+    left = a + i * width         # 该格左端点
+    right = left + width         # 该格右端点
     lower = lower + f(right) * width  # ← BUG：递增函数下和应用左端点，这里 left/right 用反了
     upper = upper + f(left) * width   # ← BUG：递增函数上和应用右端点，需要交换
 
@@ -155,15 +155,15 @@ $x^2$ 在每格递增，所以：
 def f(x):
     return x * x
 
-a, b, n = 0.0, 2.0, 10
-width = (b - a) / n
-lower = 0.0
-upper = 0.0
+a, b, n = 0.0, 2.0, 10   # 一行同时赋三个变量：区间两端和格数
+width = (b - a) / n      # 格宽 Δx
+lower = 0.0              # 下和
+upper = 0.0              # 上和
 for i in range(n):
-    left = a + i * width
-    right = left + width
-    lower = lower + f(left) * width
-    upper = upper + f(right) * width
+    left = a + i * width      # 第 i 格左端点
+    right = left + width      # 第 i 格右端点
+    lower = lower + f(left) * width    # 下和取左端高度（递增函数的最小值）
+    upper = upper + f(right) * width   # 上和取右端高度（递增函数的最大值）
 
 print(round(lower, 4))
 print(round(upper, 4))

@@ -66,7 +66,22 @@ $$c_{j,1}=u_j,\qquad c_{j,2}=u_j+u_{j-1}\pmod2.$$
 
 ## 5. 动手实验
 
-### 实验：一步步推进状态机
+### 实验 1（lab）：把状态机画成网格图
+
+```lab
+{
+  "type": "code-conv-trellis",
+  "title": "输入 101：同一位 1，从状态 0 出 11，从状态 1 出 10",
+  "bits": [1, 0, 1],
+  "height": 520
+}
+```
+
+横轴是时间，纵轴是状态（也就是「上一位」），每条边上的写法是「输入 / 输出两位」，其中 $c_1=u$、$c_2=u\oplus$ 上一位。绿线是当前输入序列真正走过的那条路径，逐拍记录写在右侧。
+
+**点输入条上任意一格**可以翻转那一拍，路径立刻改道；**「补一个终止位 0」**会在末尾多加一拍，把状态送回 0——真实系统靠它让译码器干净收尾。关键在于盯着那两条从不同状态出发的边：同一个输入 1，从状态 0 出去是 `11`，从状态 1 出去是 `10`。所以接收端不能孤立地看一位输出，必须把整条路径的代价加起来比——这正是下一节维特比算法要干的事。
+
+### 实验 2（python）：一步步推进状态机
 
 ```python title="带状态的率 1/2 卷积编码器"
 bits = [1, 0, 1]              # 待编码的输入流
@@ -128,16 +143,16 @@ print(f"final_state={final_state}")
 正确顺序是先用旧的 `previous` 计算，再更新状态：
 
 ```python
-bits = [1, 0, 1]
-previous = 0
-output = []
-for current in bits:
-    first = current
-    second = current + previous
+bits = [1, 0, 1]              # 待编码的输入流
+previous = 0                  # 状态：上一位输入，初始设为 0
+output = []                   # 收集输出位
+for current in bits:          # 按时间顺序逐个取输入
+    first = current           # 第一路输出就是当前输入本身
+    second = current + previous   # 第二路用当前输入与「旧」状态相加
     output.append(first)
-    output.append(second % 2)
-    previous = current
-final_state = previous
+    output.append(second % 2)     # % 2 把和变成异或
+    previous = current        # 两个输出都算完之后才更新状态
+final_state = previous        # 收尾时留在寄存器里的状态
 print(f"output={output}")
 print(f"final_state={final_state}")
 ```

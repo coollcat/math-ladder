@@ -6,6 +6,9 @@ import { attachComplete, harvestWords } from './complete';
 import { watchPanel, bringToFront, isTopmost } from './zorder';
 /* 图标（圆钮上的笔记本图标走 iconSvg 字符串版，见 src/components/icons.js） */
 import { iconSvg } from '../components/icons';
+/* Python ⇄ 看见函数：see() / seen() 的 Python 端定义与总线（bridge.js 很轻，不含画布内核） */
+import { installPyFnBridge, USES_FN_BRIDGE } from './func/pybridge.js';
+import { getHub as getFnHub } from './func/bridge.js';
 
 /* viz 组件库很大（源码约 400KB），静态 import 会把它打进每页必下的主包。
    这里改成按需动态加载：页面里真出现 ```viz 围栏才拉取对应 chunk。
@@ -202,9 +205,20 @@ def _ml_console_run(code, extra=None):
     return buf.getvalue(), figs, err or ""
 `;
 
+async function ensureFnBridge(py) {
+  if (py.__mlFnBridge) return;
+  try {
+    await installPyFnBridge(py);
+  } catch (e) {
+    /* 桥装不上不影响跑代码，只是 see()/seen() 不可用 */
+    void e;
+  }
+}
+
 async function ensurePreamble(py) {
   if (preambleDone || py.__mlPreambleDone) {
     preambleDone = true;
+    await ensureFnBridge(py);
     return;
   }
   await py.runPythonAsync(PREAMBLE);
@@ -212,6 +226,7 @@ async function ensurePreamble(py) {
      PREAMBLE（重复执行会重置 _ml_console_g，丢掉随手算的变量） */
   py.__mlPreambleDone = true;
   preambleDone = true;
+  await ensureFnBridge(py);
 }
 
 /* =========================================================================
@@ -270,6 +285,8 @@ async function loadImportsFor(py, source, setStatus) {
   if (needsMpl) setStatus('加载绘图库…');
   else if (/(^|\n)\s*(import|from)\s/.test(source)) setStatus('检查依赖库…');
   try {
+    /* see()/seen() 不写 import 也要 numpy（Python 函数采样、seen() 求值都靠它） */
+    if (USES_FN_BRIDGE.test(source)) await py.loadPackage('numpy');
     await py.loadPackagesFromImports(source);
   } catch (e) {
     const msg = String((e && e.message) || e);
@@ -819,6 +836,11 @@ export function openInConsole(opts) {
   st.out.classList.remove('py-runner__out--visible');
   st.status.textContent = '';
   requestAnimationFrame(() => st.editor.focus());
+  /* autorun：「看见函数 → Python」送过来的代码直接跑一遍（槽位已换好，等一帧让面板就位） */
+  if (opts?.autorun && typeof st._run === 'function') {
+    setTimeout(() => st._run(), 60);
+  }
+  return true;
 }
 
 /* 拆掉笔记本的圆钮与面板（浮窗跨代重建时一起带走，避免留下点了没反应的残壳）。
@@ -831,6 +853,16 @@ function dropNotebookShell() {
   document.getElementById('ml-backup')?.remove();
   document.getElementById('ml-formula')?.remove();
   document.getElementById('ml-repo')?.remove();
+}
+
+/* 焦点在可输入的地方（输入框、文本域、代码编辑器、contenteditable）：全局快捷键别抢。
+   （Alt+N 的处理一直在调它，但此前没有定义——按下去只会抛 ReferenceError。） */
+function isTypingTarget(t) {
+  if (!t || t.nodeType !== 1) return false;
+  if (t.isContentEditable) return true;
+  const tag = t.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  return !!(t.closest && t.closest('.cm-editor, [contenteditable="true"]'));
 }
 
 /* 文档级监听去重：热更新重建浮窗时先摘掉上一实例挂的全局监听，防止重复触发 */
@@ -1405,6 +1437,9 @@ function ensureConsole() {
     /* 用户在代码里改了 # sliders: 行：先按新行刷新滑块，再注入参数 */
     refreshSliderSpec(source);
     const chunks = [];
+    /* 本页没有「看见函数」工作区时，see() 画的图内嵌进这次运行的输出区 */
+    const fnHub = getFnHub();
+    if (fnHub) fnHub.beginSink(out);
     try {
       const py = await getPyodide((s) => (status.textContent = s));
       await ensurePreamble(py);
@@ -1497,6 +1532,7 @@ function ensureConsole() {
       appendText(prettifyError(String(e.message || e)), 'py-runner__errtext');
       status.textContent = '出错 ✗';
     } finally {
+      if (fnHub) fnHub.endSink();
       const shouldRerun = st.sliderPending;
       st.sliderPending = false;
       const sync = st.syncAfterRun;

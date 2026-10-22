@@ -150,24 +150,24 @@ introduces_import: []
 # sliders: a=2.0 [-1.0:3.0:0.5]
 
 def dfp(x):
-    return (x - 1) * (x - a)          # 因式分解后的导数：符号一眼看得出
+    return (x - 1) * (x - a)          # 因式分解后的导数：符号一眼看得出（a 由滑块注入，函数体里直接引用了外层变量）
 
-cuts = []
-prev = dfp(-3 + 0.0005)               # 取样点错开半格：免得正好落在驻点上
-i = 1
-while i <= 8000:
-    x = -3 + i * 0.001 + 0.0005
-    cur = dfp(x)
-    if prev * cur < 0:                # 符号翻转 = 扫过一个分界点
-        cuts.append(round(x, 1))
-    prev = cur
-    i = i + 1
+cuts = []                             # 分界点收集桶
+prev = dfp(-3 + 0.0005)               # 取样点错开半格：免得正好落在驻点上（落在驻点上符号为 0，翻转判据会失灵）
+i = 1                                 # 手写步数计数器
+while i <= 8000:                      # 扫 8000 个步长；while 的圈数由条件自己决定
+    x = -3 + i * 0.001 + 0.0005       # 第 i 个取样点：起点 + 步数×步长，再错开半格
+    cur = dfp(x)                      # 当前点的导数值
+    if prev * cur < 0:                # 符号翻转 = 扫过一个分界点（异号相乘才为负）
+        cuts.append(round(x, 1))      # 收下并保留一位小数：这才是给人看的分界点
+    prev = cur                        # 滚动：这一轮的"当前"成为下一轮的"上一个"
+    i = i + 1                         # 步数自增，漏写就死循环
 
-print(f"a = {round(a, 1)}: 分界点 {cuts}")
-if len(cuts) == 0:
-    print("全区间递增")
-else:
-    print(f"增 (-∞, {cuts[0]}) 与 ({cuts[1]}, +∞)，减 ({cuts[0]}, {cuts[1]})")
+print(f"a = {round(a, 1)}: 分界点 {cuts}")   # 列表直接塞进 f-string 也能打印，形如 [1.0, 2.0]
+if len(cuts) == 0:                    # len() 取列表长度：一个都没有就是退化情形
+    print("全区间递增")                # 退化：两根重合，没有减区间
+else:                                 # 否则按"增—减—增"三段报告
+    print(f"增 (-∞, {cuts[0]}) 与 ({cuts[1]}, +∞)，减 ({cuts[0]}, {cuts[1]})")   # cuts[0] 是较小根（左端点），cuts[1] 是较大根（右端点）
 ```
 
 怎么玩：$a = 2$ 时输出 `分界点 [1.0, 2.0]`；拖到 $a = 1$，输出变成 `分界点 []` 并给出"全区间递增"——机器自己撞上了那个必须单独成层的退化情形；再拖到 $a = -1$，分界点变成 `[-1.0, 1.0]`，左右端点自动换了位置。
@@ -210,11 +210,11 @@ $$f(-0.1) = 1.969 \quad>\quad f(2.1) = -1.969$$
 def interval(a):
     lo = 1        # ← 写死了：总把 1 当左端点
     hi = a        # ← 写死了：总把 a 当右端点
-    return lo, hi
+    return lo, hi # return 可以一次交回多个值（实际是一个元组），调用方按位置接收
 
-for a in [2, 0]:
-    lo, hi = interval(a)
-    print(f"a={a}: 减区间 ({lo}, {hi})")
+for a in [2, 0]:                 # 两个参数各试一次：一个 a>1，一个 a<1
+    lo, hi = interval(a)         # 解包：函数交回两个值，一行同时接进两个变量
+    print(f"a={a}: 减区间 ({lo}, {hi})")   # f-string：花括号里写变量名，打印时填当前值
 ```
 
 现在第二行会输出 `a=0: 减区间 (1, 0)`——左端点比右端点还大，一看就不对。
@@ -226,13 +226,13 @@ for a in [2, 0]:
 
 ```python
 def interval(a):
-    if a < 1:
+    if a < 1:        # 分两种情况：两根谁小谁当左端点
         lo = a
         hi = 1
-    else:
+    else:            # 含 a == 1：两根重合，此时 lo 与 hi 相同
         lo = 1
         hi = a
-    return lo, hi
+    return lo, hi    # 交回 (左端点, 右端点) 这一对
 
 for a in [2, 0]:
     lo, hi = interval(a)

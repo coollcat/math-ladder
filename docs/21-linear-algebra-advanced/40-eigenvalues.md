@@ -103,15 +103,16 @@ $$\det(A-\lambda I)=0.$$
 ### 实验 3：验证特征对
 
 ```python title="检查 A v 是否等于 lambda v"
-A = [[4, 1], [2, 3]]
-v = [1, 1]
-lambda_value = 5
+A = [[4, 1], [2, 3]]      # 嵌套列表当矩阵：A[行][列]
+v = [1, 1]                # 待验证的特征向量
+lambda_value = 5          # 待验证的特征值（lambda 是 Python 关键字，只能换个名字）
 
+# 矩阵乘向量：每一行和整个 v 做点积
 av = [A[0][0] * v[0] + A[0][1] * v[1],
       A[1][0] * v[0] + A[1][1] * v[1]]
-lv = [lambda_value * v[0], lambda_value * v[1]]
-print(av)
-print(lv)
+lv = [lambda_value * v[0], lambda_value * v[1]]   # λv：把 v 整体拉长 λ 倍
+print(av)   # [5, 5]
+print(lv)   # [5, 5]：两行相同，说明 Av = λv
 ```
 
 两行都输出 `[5, 5]`。验证比求解容易；求解用特征方程。
@@ -123,14 +124,14 @@ print(lv)
 # @check: [5, 5]
 # @check: [5, 5]
 # @hint: 矩阵乘向量要按“行 × 整个向量”算：av[0]=A[0][0]*v[0]+A[0][1]*v[1]，av[1]=A[1][0]*v[0]+A[1][1]*v[1]。
-A = [[4, 1], [2, 3]]
-v = [1, 1]
-lambda_value = 5
+A = [[4, 1], [2, 3]]   # 矩阵：A[行][列]
+v = [1, 1]             # 待验证的特征向量
+lambda_value = 5       # 待验证的特征值
 
-av = [A[0][0] * v[0], A[1][1] * v[1]]
-lv = [lambda_value * v[0], lambda_value * v[1]]
-print(av)
-print(lv)
+av = [A[0][0] * v[0], A[1][1] * v[1]]   # ← 只用了对角元：矩阵乘向量的每一项该由几个乘积相加？
+lv = [lambda_value * v[0], lambda_value * v[1]]   # λv 的算法是对的，用作对照
+print(av)   # 打出来的这一行
+print(lv)   # 应当与上一行相等
 ```
 
 <details>
@@ -142,8 +143,8 @@ print(lv)
 A = [[4, 1], [2, 3]]
 v = [1, 1]
 lambda_value = 5
-av = [A[0][0] * v[0] + A[0][1] * v[1],
-      A[1][0] * v[0] + A[1][1] * v[1]]
+av = [A[0][0] * v[0] + A[0][1] * v[1],   # 第一行：a·v₀ + b·v₁
+      A[1][0] * v[0] + A[1][1] * v[1]]   # 第二行：c·v₀ + d·v₁（跨行写成两行只是排版）
 lv = [lambda_value * v[0], lambda_value * v[1]]
 print(av)   # [5, 5]
 print(lv)   # [5, 5]

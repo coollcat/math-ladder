@@ -96,12 +96,12 @@ $\kappa\approx10^k$ 常意味着可能损失约 $k$ 位有效数字。
 ### 实验 3：Python 分类条件数
 
 ```python title="由奇异值计算条件数"
-sigma1 = 10.0
-sigma2 = 0.1
-kappa = sigma1 / sigma2
-status = "pathological" if kappa > 20 else "stable"
-print(kappa)
-print(status)
+sigma1 = 10.0    # 最大奇异值
+sigma2 = 0.1     # 最小奇异值
+kappa = sigma1 / sigma2   # 条件数 = 最大 ÷ 最小：衡量"方向上的不平衡"
+status = "pathological" if kappa > 20 else "stable"   # 条件表达式：按阈值二选一
+print(kappa)     # 100.0
+print(status)    # pathological
 ```
 
 输出 `100.0` 和 `pathological`。
@@ -113,10 +113,10 @@ print(status)
 # @check: 100.0
 # @check: pathological
 # @hint: 条件数是最大奇异值除以最小奇异值；大于 20 标记 pathological。
-sigma1 = 10.0
-sigma2 = 0.1
-kappa = sigma1 - sigma2
-status = "stable"
+sigma1 = 10.0    # 最大奇异值
+sigma2 = 0.1     # 最小奇异值
+kappa = sigma1 - sigma2   # ← 条件数该用什么运算？
+status = "stable"         # ← 结论先写死了，它该由 kappa 决定
 print(kappa)
 print(status)
 ```
@@ -127,10 +127,10 @@ print(status)
 条件数用除法，不是减法：
 
 ```python
-sigma1 = 10.0
-sigma2 = 0.1
-kappa = sigma1 / sigma2
-status = "pathological" if kappa > 20 else "stable"
+sigma1 = 10.0    # 最大奇异值
+sigma2 = 0.1     # 最小奇异值
+kappa = sigma1 / sigma2   # 100.0
+status = "pathological" if kappa > 20 else "stable"   # 100 > 20 → pathological
 print(kappa)
 print(status)
 ```

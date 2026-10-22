@@ -129,12 +129,12 @@ print(f"检查总数：{total}")
 # @title: 练习：计算编程社团占比
 # @check: 20.0
 # @hint: 编程有 4 人，总人数是四类之和；先算 4/20，再乘 100。题目要求打印百分数的数值，不要带 % 号。
-basketball = 6
+basketball = 6   # 四类各自的报名人数，一个类别一个变量，免得回头认错
 art = 7
-coding = 4
+coding = 4        # 本次要统计的那一类
 singing = 3
-total = basketball + art + coding + singing
-print(coding * 100)
+total = basketball + art + coding + singing   # 四个加数相加＝总人数；分母备好
+print(coding * 100)   # 先看看现在打印出来的是不是题目要的那个数
 ```
 
 <details>
@@ -143,12 +143,12 @@ print(coding * 100)
 总人数是 $6+7+4+3=20$。占比要拿编程人数除以总数，再乘 100：
 
 ```python
-basketball = 6
+basketball = 6   # 四类人数
 art = 7
 coding = 4
 singing = 3
-total = basketball + art + coding + singing
-print(coding / total * 100)
+total = basketball + art + coding + singing   # 总人数：占比的分母
+print(coding / total * 100)   # 先除再乘 100：先除得到比例（0 到 1 之间），乘 100 才是指百分数
 ```
 
 </details>

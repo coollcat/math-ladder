@@ -180,19 +180,18 @@ A = [[2,1],[0,3]] 的特征多项式是 λ²-5λ+6。用 Cayley-Hamilton 求 A�
 
 ```exercise
 # @title: Cayley-Hamilton 求逆
-# @check: A^{-1} = [[-2, 1], [1.5, -0.5]]
-# @hint: p(λ) = λ^2 - 5λ - 2，所以 A^2 - 5A - 2I = 0
+# @check: A^-1 = [[-2.0, 1.0], [1.5, -0.5]]
+# @check: 验证 A @ A^-1 = [[1.0, 0.0], [0.0, 1.0]]
+# @hint: 特征多项式 p(λ)=λ²-5λ-2 给出 A²=5A+2I，两边左乘 A⁻¹ 就能把 A⁻¹ 解出来——先推公式，再判断系数是 A 减 5I 还是 5I 减 A。
 import numpy as np
 
 A = np.array([[1, 2], [3, 4]], dtype=float)
-# p(λ) = λ^2 - 5λ - 2，所以 A^2 = 5A + 2I
-# A(5I + 2A^{-1})... 不对，直接用：A(A - 5I) = 2I
-# A^{-1} = (A - 5I) / (-2)
 
-A_inv = (A - 5 * np.eye(2)) / (-2)   # ← 验证这个公式对不对
+# 由 A² - 5A - 2I = 0 推 A^{-1} = (5I - A) / 2
+A_inv = (5 * np.eye(2) - A) / 2   # ← 是 5I 减 A，还是 A 减 5I？
 
-print(f"A_inv = {A_inv}")
-print(f"验证 A @ A_inv = {A @ A_inv}")
+print(f"A^-1 = {A_inv.tolist()}")
+print(f"验证 A @ A^-1 = {(A @ A_inv).round(10).tolist()}")   # round(10) 抹掉浮点尾巴
 ```
 
 **练习 2**：$A = \begin{pmatrix} 0 & 1 \\ -2 & -3 \end{pmatrix}$，用 Cayley-Hamilton 计算 $A^5$。

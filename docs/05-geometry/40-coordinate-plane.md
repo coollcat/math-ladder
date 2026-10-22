@@ -149,7 +149,7 @@ bx, by = 6.0, 6.0                 # B 的门牌号
 dx = bx - ax                      # 横向差：4 格
 dy = by - ay                      # 纵向差：3 格
 dist = dx * dx + dy * dy          # ← 这是距离的平方，还没开方
-print(round(dist, 1))
+print(round(dist, 1))  # round(x, 1) 保留一位小数，只影响打印形式
 ```
 
 $\Delta x=4$、$\Delta y=3$，距离 $=\sqrt{4^2+3^2}=\sqrt{25}=5.0$。错版打印的是 $25.0$——勾股定理只到"斜边的平方"，最后一步开方把它交给 `math.hypot(dx, dy)`（它直接返回 $\sqrt{dx^2+dy^2}$，本章算直角三角形时用过）。也可以手写 `math.sqrt(dx * dx + dy * dy)`，一码事。

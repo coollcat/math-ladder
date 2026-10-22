@@ -29,7 +29,7 @@
   --ml-t-slow: 0.32s; /* 面板展开、大块位移 */
   --ml-t-enter: 0.6s; /* 入场描画/逐层展开 */
   --ml-ease: cubic-bezier(0.2, 0.8, 0.3, 1);
-  --ml-ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.5); /* 只给同心环节点入场：那点回弹是刻意的 */
+  --ml-ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.5); /* 带回弹的入场；原使用者同心环已退役，暂无引用，留作备用 */
   --ml-lift: -1px; /* hover 抬起量，全站统一一档 */
   --ml-tap: 40px; /* 触控命中区下限（原先 ~30 处控件只有 24–34px） */
 
@@ -3084,10 +3084,7 @@ a:hover .ml-chapter.is-done {
 .ml-prereq__list a,
 .ml-notebook__hbtn,
 .ml-nb__mini,
-.ml-formula__sym,
-.ml-tr__clear,
-.ml-rg__vol,
-.ml-rg__ringchip {
+.ml-formula__sym {
   transition: background var(--ml-t-fast) var(--ml-ease),
     color var(--ml-t-fast) var(--ml-ease),
     border-color var(--ml-t-fast) var(--ml-ease),

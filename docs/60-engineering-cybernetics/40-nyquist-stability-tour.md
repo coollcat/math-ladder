@@ -109,10 +109,10 @@ print(f"距临界点最近平方={closest:.4f}")
 # @check: 0
 # @check: stable
 # @hint: 开环没有右半平面极点且轨迹不包围 -1 时，P=0 且 N=0。
-open_loop_unstable_poles = 0
-clockwise_encirclements = 1
-closing_poles = open_loop_unstable_poles + clockwise_encirclements
-verdict = "unstable" if closing_poles > 0 else "stable"
+open_loop_unstable_poles = 0  # open_loop_unstable_poles 对应 Nyquist 判据里的 P，这里由题面给定
+clockwise_encirclements = 1  # clockwise_encirclements 对应判据里的 N，顺时针为正
+closing_poles = open_loop_unstable_poles + clockwise_encirclements  # Z = P + N 是闭环右半平面极点数；当前 N 填 1，所以判据给出不稳定，与 @check 不一致
+verdict = "unstable" if closing_poles > 0 else "stable"  # 条件表达式（三元式）首现：条件为真取前面那个值，否则取 else 后面的
 print(closing_poles)
 print(verdict)
 ```

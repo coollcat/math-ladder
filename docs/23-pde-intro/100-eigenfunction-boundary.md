@@ -87,21 +87,21 @@ exits:
 ### 实验 2：三种边界的特征值表
 
 ```python title="把三套特征值并排打印出来"
-import math
+import math      # 标准库 math：pi 与幂运算要用
 
-L = 1.0
+L = 1.0          # 杆长：特征值里除以它再平方
 
-def lam_dirichlet(n):        # 两端固定：ω = nπ/L
-    return (n * math.pi / L) ** 2
+def lam_dirichlet(n):        # def 定义函数：两端固定，ω = nπ/L，λ = ω²
+    return (n * math.pi / L) ** 2   # ** 是幂运算
 
-def lam_neumann(n):          # 两端绝热：ω = (n-1)π/L
-    return ((n - 1) * math.pi / L) ** 2
+def lam_neumann(n):          # 两端绝热：ω = (n-1)π/L，n=1 时特征值为 0（常数模态）
+    return ((n - 1) * math.pi / L) ** 2   # 减 1 是绝热边界带来的平移
 
 def lam_mixed(n):            # 左固定右绝热：ω = (n-0.5)π/L
-    return ((n - 0.5) * math.pi / L) ** 2
+    return ((n - 0.5) * math.pi / L) ** 2   # 半整数偏移：两种边界各贡献一半
 
-for n in range(1, 4):        # range(1,4) 依次生成 1、2、3
-    print(n, round(lam_dirichlet(n), 3), round(lam_neumann(n), 3), round(lam_mixed(n), 3))
+for n in range(1, 4):        # range(1, 4) 依次生成 1、2、3
+    print(n, round(lam_dirichlet(n), 3), round(lam_neumann(n), 3), round(lam_mixed(n), 3))   # 一行打印四列：编号 + 三种边界的特征值
 ```
 
 输出 `1 9.87 0.0 2.467`、`2 39.478 9.87 22.207`、`3 88.826 39.478 61.685`。三列并排看，绝热列整体右移一格——它的第 1 号是零，其余与固定列错开一位。
@@ -109,25 +109,25 @@ for n in range(1, 4):        # range(1,4) 依次生成 1、2、3
 ### 实验 3：绝热杆的常数模态就是守恒的平均温度
 
 ```python title="绝热边界下，总热量守恒、最终趋向平均值"
-u = [0.0, 0.5, 1.0, 0.5, 0.0, 0.2, 0.4]   # 七个格点的初始温度
-r = 0.2                                   # 差分比 r = k*dt/h^2，须不超过 0.5
+u = [0.0, 0.5, 1.0, 0.5, 0.0, 0.2, 0.4]   # 七个格点的初始温度（列表）
+r = 0.2                                   # 差分比 r = k·dt/h²；一维显式格式要求不超过 0.5
 
-def step(v):                              # def 定义函数：做一次显式时间推进
-    out = v[:]                            # 切片复制：得到一份互不影响的副本
-    for i in range(1, len(v) - 1):        # 内部点：与左右两邻交换热量
-        out[i] = v[i] + r * (v[i - 1] - 2 * v[i] + v[i + 1])
+def step(v):                              # def 定义函数：做一次显式时间推进，输入旧状态、返回新状态
+    out = v[:]                            # 切片 [:] 复制整张列表：新值必须基于同一批旧值
+    for i in range(1, len(v) - 1):        # len(v) 取长度；去掉首尾两个边界点，只算内部点
+        out[i] = v[i] + r * (v[i - 1] - 2 * v[i] + v[i + 1])   # 显式格式：中心加 r 倍的二阶差分
     out[0] = v[0] + r * (v[1] - v[0])     # 左端绝热：边界通量为零，只与右邻交换
-    out[-1] = v[-1] + r * (v[-2] - v[-1]) # 右端绝热，同理；-1 表示最后一个元素
+    out[-1] = v[-1] + r * (v[-2] - v[-1]) # 右端绝热；-1 表示最后一个元素
     return out
 
-def mean(v):
-    return sum(v) / len(v)
+def mean(v):                              # def 定义函数：算平均值
+    return sum(v) / len(v)                # sum 把列表全部元素累加；除以个数就是均值
 
 print(round(mean(u), 4))                  # 初始平均温度
 for _ in range(80):                       # 下划线变量名：这个计数用不到，只是占位
     u = step(u)
 print(round(mean(u), 4))                  # 八十步之后的平均温度
-print(round(max(u) - min(u), 4))          # 极差：衡量还剩多少"形状"
+print(round(max(u) - min(u), 4))          # max/min 取最大最小；差值衡量还剩多少「形状」
 ```
 
 输出 `0.3714`、`0.3714`、`0.0061`。平均值纹丝不动（守恒律），极差从 1.0 缩到千分之六——所有衰减模态都死掉了，只剩那个 $\lambda=0$ 的常数模态站在原地。**这就是"绝热杆最终变成一潭温吞水平均温度"的模态解释。**
@@ -141,19 +141,19 @@ print(round(max(u) - min(u), 4))          # 极差：衡量还剩多少"形状"
 # @check: [2.467, 22.207, 61.685]
 # @check: [0, 1, 2]
 # @hint: 左固定右绝热的 ω 是 (n - 0.5)*π/L，不是 n*π/L；节点数是 n-1，与边界类型无关。
-import math
+import math      # 标准库 math：pi
 
-L = 1.0
-lams = []
-for n in range(1, 4):
-    lam = (n * math.pi / L) ** 2          # ← 有错：混合边界应为 ((n - 0.5) * pi / L) ** 2
+L = 1.0          # 杆长
+lams = []        # 空列表当账本，稍后 append 逐个攒
+for n in range(1, 4):   # 只取前三个模态
+    lam = (n * math.pi / L) ** 2          # ← 这是两端固定（Dirichlet）的特征值，不是混合边界
     lams.append(round(lam, 3))            # append 往列表尾部追加一个元素
-print(lams)
+print(lams)      # 第一行与 @check 对位
 
-nodes = []
+nodes = []       # 节点账本
 for n in range(1, 4):
-    nodes.append(n - 1)
-print(nodes)
+    nodes.append(n - 1)   # 节点数 = n-1，与边界类型无关
+print(nodes)     # 第二行与 @check 对位
 ```
 
 <details>
@@ -162,18 +162,18 @@ print(nodes)
 修正版：
 
 ```python
-import math
+import math      # 标准库 math：pi
 
-L = 1.0
-lams = []
+L = 1.0          # 杆长
+lams = []        # 特征值账本
 for n in range(1, 4):
-    lam = ((n - 0.5) * math.pi / L) ** 2
+    lam = ((n - 0.5) * math.pi / L) ** 2   # 混合边界：ω = (n-0.5)π/L
     lams.append(round(lam, 3))
 print(lams)      # [2.467, 22.207, 61.685]
 
-nodes = []
+nodes = []       # 节点账本
 for n in range(1, 4):
-    nodes.append(n - 1)
+    nodes.append(n - 1)   # 节点数仍是 n-1
 print(nodes)     # [0, 1, 2]
 ```
 

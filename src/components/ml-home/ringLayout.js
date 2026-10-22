@@ -1,7 +1,12 @@
 /* =========================================================================
- * 知识图谱（/graph）纯布局引擎：「阶梯星系」同心环
+ * 章级「层级」算法：/graph 阶梯版图的列（层级口径的唯一事实来源）
  * -------------------------------------------------------------------------
- * 无 React 依赖，可用 node 直接单测（与 treeLayout.js 同一套路数）。
+ * 无 React 依赖，可用 node 直接单测。
+ *
+ * 2026-10：同心环画法退役（/graph 改为 atlasModel.js + KnowledgeAtlas.js 的
+ * 「阶梯版图」），但**层级算法一字未改**——同心环的「第 k 环」就是版图的
+ * 「第 k 列台阶」。环几何（半径、角度、标签字数预算）随画法一起删除；
+ * 文件名保留，是因为协作规则与 UNIT_GUIDES 都把这里登记为层级口径的出处。
  *
  * 口径（2026-09-29 重构，改之前先读完这一段）：
  *
@@ -20,13 +25,13 @@
  *   27–38 **单调递增**，且强边一条都不朝内（弱边朝内的还有，那正是它们的性质：
  *   交叉引用，不是层级）。
  *
- *   同环内的顺序：按卷 → 难度排，同色的章连成一段弧，一眼看出这一环里
- *   哪一段属于哪个领域。每环整体旋转半个间隔，使正上方（12 点方向）永远是
- *   两章之间的空隙——环名标签写在那条轴上不会压住节点。
+ *   （已退役的同心环画法：同环按卷 → 难度排成弧。版图里格内顺序见 atlasModel.js。）
  *
- * 连线的两个档位：
- *   strong（w ≥ 2）——**默认显示**，章与章的从属关系，一律朝外；
- *   weak  （w = 1）——默认隐藏，可切换显示（教学上的交叉引用）。
+ * 章级边的两个档位（edges[].strong）：
+ *
+ *   版图上强边画实线、弱边画虚线，只在悬停 / 钉住一章时画它自己的边。
+ *   strong（w ≥ 2）——章与章的从属关系，层级上修只认它；
+ *   weak  （w = 1）——只有一门课的跨章引用（教学上的交叉引用）。
  * ========================================================================= */
 
 /** 环数。6 环是实测下来规模与可读性的平衡点（12/13/12/13/10/14 章）。 */
@@ -34,11 +39,6 @@ export const RING_COUNT = 6;
 
 /** 环名。前五环按难度阶梯命名，最外环是「还没被托起多久」的前沿。 */
 export const RING_NAMES = ['地基', '主干', '进阶', '高等', '深水', '前沿'];
-
-const R0 = 96; /* 最内环半径 */
-const DR = 74; /* 环间距下限（实际取 max(DR 累加, 弧长需求)） */
-const MIN_ARC = 88; /* 同环相邻两章的最小弧长（要放得下章名标签） */
-const LABEL_PAD = 92; /* 最外环之外留给标签的余量 */
 
 /* -------------------------------------------------------------------------
  * 一、章级模型
@@ -183,68 +183,8 @@ export function chapterModel(NODES, EDGES, DEPTH, chapterList, opts = {}) {
 }
 
 /* -------------------------------------------------------------------------
- * 二、几何：环半径与章坐标
+ * 二、（已删除）环几何：同心环画法 2026-10 退役，版图格位由 atlasModel.js 排
  * ------------------------------------------------------------------------- */
-
-/**
- * 摆位。
- * @returns {{size, ringR, hubR, pos: Map<number,{x,y,angle,r,ring,diff}>}}
- */
-export function layoutRings(model, opts = {}) {
-  const r0 = opts.r0 ?? R0;
-  const dr = opts.dr ?? DR;
-  const minArc = opts.minArc ?? MIN_ARC;
-  const labelPad = opts.labelPad ?? LABEL_PAD;
-  const startAngle = opts.startAngle ?? -Math.PI / 2;
-
-  /* 环半径：既要比上一环大 DR，又要容得下环内每一章的弧长 */
-  const ringR = [];
-  model.rings.forEach((ring, ri) => {
-    const need = (Math.max(ring.count, 1) * minArc) / (2 * Math.PI);
-    const prev = ri === 0 ? r0 : ringR[ri - 1] + dr;
-    ringR.push(Math.max(prev, need));
-  });
-
-  /* 摆位：同环内按「卷 → 难度」排，同色的连成一段弧；
-     相位加半个间隔，让正上方那条轴落在两章之间的空隙上（环名写在那儿）。 */
-  const pos = new Map();
-  model.rings.forEach((ring, ri) => {
-    const list = ring.chapters
-      .map((n) => model.byN.get(n))
-      .sort((a, b) => a.vi - b.vi || a.diff - b.diff || a.n - b.n);
-    const n = list.length || 1;
-    const step = (2 * Math.PI) / n;
-    const r = ringR[ri];
-    list.forEach((c, k) => {
-      const angle = startAngle + step / 2 + k * step;
-      pos.set(c.n, {
-        x: Math.cos(angle) * r,
-        y: Math.sin(angle) * r,
-        angle,
-        r,
-        ring: ri,
-        diff: c.diff,
-      });
-    });
-  });
-
-  const maxR = ringR[ringR.length - 1] || r0;
-  const size = Math.ceil((maxR + labelPad) * 2);
-  const hubR = Math.max(30, ringR[0] - 54);
-
-  /* 每环的章名能写几个字：由这一环的**弦长**（相邻两章的直线距离）决定，
-     扣掉圆点直径与两侧留白，再按中文字宽（≈12.5px）折算。
-     写死字数两头都会出错：写 4 字时有 11 章被截成「多元微积…」，
-     写 6 字时最内环的标签会互相压住（那一环的可用弦长只有 55px 左右）。 */
-  const labelBudget = model.rings.map((ring, ri) => {
-    const n = Math.max(ring.count, 1);
-    const chord = n > 1 ? 2 * ringR[ri] * Math.sin(Math.PI / n) : 999;
-    const room = chord - 2 * 10 - 14;
-    return Math.max(3, Math.min(12, Math.floor(room / 12.5)));
-  });
-
-  return { size, ringR, hubR, pos, labelBudget };
-}
 
 /* -------------------------------------------------------------------------
  * 三、图上的查询（面板与高亮都用它，别在组件里各写一份）

@@ -76,16 +76,16 @@ $$\chi(K)=V-E+F=c_0-c_1+c_2$$
 横轴扫的是 $V-E$（这里 $V=3$ 固定，$E$ 随 $x$ 变化），滑块 `f` 是面数：`f=0` 表示空心三角形，`f=1` 表示填入一个面。两条曲线的形状完全相同、只差一个竖直位移——正是「加一个面只把账本整体加 1」的几何直观。顶点、边和面的增减最终汇入同一个不变量。
 
 ```python title="给几个网格算 Euler 示性数"
-shapes = {
+shapes = {  # 嵌套字典首现：外层名字 → 内层计数，形如 键: {键: 值}
     "tetrahedron": {"vertices": 4, "edges": 6, "faces": 4},
     "square_pyramid": {"vertices": 5, "edges": 8, "faces": 5},
     "triangular_prism": {"vertices": 6, "edges": 9, "faces": 5},
     "torus_mesh": {"vertices": 9, "edges": 27, "faces": 18},
 }
 
-for name, counts in shapes.items():
-    chi = counts["vertices"] - counts["edges"] + counts["faces"]
-    print(f"{name}: {chi}")
+for name, counts in shapes.items():  # items() 首现：一次取出「键 + 值」的配对，比先取键再查表省一步
+    chi = counts["vertices"] - counts["edges"] + counts["faces"]  # 欧拉示性数 χ = V − E + F，任何剖分方式都得到同一个数
+    print(f"{name}: {chi}")  # f-string 首现：引号前的 f 让 {name} 这类花括号直接替换成变量值
 ```
 
 前三个都应输出 2，表示球面型；示例轮胎网格输出 0，表示一个环柄。

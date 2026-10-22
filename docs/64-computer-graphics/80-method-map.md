@@ -92,7 +92,7 @@ exits:
 ```python title="按需求关键词推荐工具"
 
 def recommend(task):                       # 只做关键词分诊，够用就好
-    if '挡' in task or '前后' in task or '遮挡' in task:
+    if '挡' in task or '前后' in task or '遮挡' in task:  # 子串 in 判断：用户的话很长，只抓关键词，不要求完全相等
         return 'z-buffer'                  # 遮挡问题 → 深度测试
     if '光滑' in task or '圆角' in task or '曲线' in task:
         return 'bezier'                    # 轮廓问题 → Bezier/细分
@@ -102,10 +102,10 @@ def recommend(task):                       # 只做关键词分诊，够用就�
         return 'raytracing'                # 镜面效果 → 光线追踪
     return 'ask-more'                      # 描述太模糊，追问细节
 
-print(recommend('让物体转起来'))
-print(recommend('判断两个物体谁挡住谁'))
-print(recommend('给 Logo 加光滑圆角'))
-print(recommend('镜面地板的倒影'))
+print(recommend('让物体转起来'))  # 「转起来」是运动问题，落到仿射变换
+print(recommend('判断两个物体谁挡住谁'))  # 「谁挡住谁」是可见性，落到 z-buffer
+print(recommend('给 Logo 加光滑圆角'))  # 「光滑圆角」是轮廓生成，落到 Bezier / 细分
+print(recommend('镜面地板的倒影'))  # 「镜面倒影」要模拟光的反弹，落到光线追踪
 ```
 
 输出 `affine-transform`、`z-buffer`、`bezier`、`raytracing`。注意分诊顺序：遮挡与轮廓的关键词先查——它们比"运动"更具体，先匹配specific的再兜底通用的，是写分类器的通用次序。
@@ -156,14 +156,14 @@ print(recommend('给 Logo 加光滑圆角'))
 修正版：
 
 ```python
-def recommend(task):
-    if '挡' in task or '前后' in task or '遮挡' in task:
+def recommend(task):  # 完整版分诊函数：四条规则 + 一个追问兜底
+    if '挡' in task or '前后' in task or '遮挡' in task:  # 遮挡类关键词排第一，避免被「前后」这类泛词抢先
         return 'z-buffer'
-    if '光滑' in task or '圆角' in task or '曲线' in task:
+    if '光滑' in task or '圆角' in task or '曲线' in task:  # 轮廓问题统一交给曲线细分，比逐个补多边形省事
         return 'bezier'
-    if '转' in task or '平移' in task or '缩放' in task:
+    if '转' in task or '平移' in task or '缩放' in task:  # 运动问题一律先写矩阵，再谈别的
         return 'affine-transform'
-    if '镜子' in task or '倒影' in task or '反射' in task:
+    if '镜子' in task or '倒影' in task or '反射' in task:  # 反射、倒影这类要沿光线求交，只有光线追踪做得到
         return 'raytracing'
     return 'ask-more'
 

@@ -96,18 +96,18 @@ $$S=\lbrace x\in\mathbb R:0\le x,\ x^2<2\rbrace.$$
 ### 实验 3：Python 二分
 
 ```python title="二分夹逼 √2"
-low = 0.0
-high = 2.0
-for step in range(14):
-    middle = (low + high) / 2
-    if middle < 1.4142135623730951:
-        low = middle
-    else:
-        high = middle
+low = 0.0                     # 区间的左端点：已知它平方小于 2
+high = 2.0                    # 区间的右端点：已知它平方大于 2
+for step in range(14):        # 二分 14 次：每切一刀区间长度减半，14 次后约为 2/2^14
+    middle = (low + high) / 2  # 取中点（/ 是真除法，结果是浮点数）
+    if middle < 1.4142135623730951:   # 中点还在 √2 左边
+        low = middle                  # 保住右半区：把左端点抬到中点
+    else:                             # 中点已经越过 √2
+        high = middle                 # 保住左半区：把右端点压到中点
 
-print(round(low, 6))
+print(round(low, 6))          # round(x, 6)：保留 6 位小数（银行家舍入），只为了打印好看
 print(round(high, 6))
-print(round(high - low, 6))
+print(round(high - low, 6))   # 区间宽度：两个端点的差，验证它确实在缩小
 ```
 
 输出 `1.414185`、`1.414307`、`0.000122`。
@@ -120,18 +120,18 @@ print(round(high - low, 6))
 # @check: 1.414307
 # @check: 0.000122
 # @hint: 把二分次数从 4 增加到 14；每次保留包含 √2 的半边。
-low = 0.0
-high = 2.0
-for step in range(4):
-    middle = (low + high) / 2
-    if middle < 1.4142135623730951:
+low = 0.0                     # 区间左端点
+high = 2.0                    # 区间右端点
+for step in range(4):         # 现在只二分 4 次——切得够细吗？
+    middle = (low + high) / 2  # 中点
+    if middle < 1.4142135623730951:   # 与 √2 比大小，决定保留哪半边
         low = middle
     else:
         high = middle
 
-print(round(low, 6))
-print(round(high, 6))
-print(round(high - low, 6))
+print(round(low, 6))          # 打印左端点（保留 6 位小数）
+print(round(high, 6))         # 打印右端点
+print(round(high - low, 6))   # 打印区间宽度
 ```
 
 <details>

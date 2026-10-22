@@ -124,25 +124,25 @@ print(len(groups))
 从后往前合并最安全，因为删除编号不会影响还没处理的较大编号：
 
 ```python
-points = [[0, 0], [1.8, 0], [0.9, 0], [9, 9]]
-threshold = 1.0
-groups = []
-for point in points:
-    near = []
-    for group_id, group in enumerate(groups):
-        center = group[0]
-        distance = ((point[0] - center[0]) ** 2 + (point[1] - center[1]) ** 2) ** 0.5
+points = [[0, 0], [1.8, 0], [0.9, 0], [9, 9]]  # 点云首现：每个点写成 [x, y] 两元列表，点之间没有先后意义
+threshold = 1.0  # 阈值即「多近算相邻」；它一变，连通分支的个数也跟着变
+groups = []  # groups 是「列表的列表」：外层每个元素代表一个连通分支
+for point in points:  # for point in points 依次把点插进已有的组，或新开一组
+    near = []  # near 存下「当前点能接上的所有旧组编号」
+    for group_id, group in enumerate(groups):  # enumerate 首现：同时拿到下标 group_id 与元素 group，省去再写一次 groups[k]
+        center = group[0]  # 用每组的第一个点当代表算距离，是小规模点云里常用的近似
+        distance = ((point[0] - center[0]) ** 2 + (point[1] - center[1]) ** 2) ** 0.5  # 欧氏距离：先平方和再开 0.5 次方，避免引入 math.sqrt
         if distance <= threshold:
             near.append(group_id)
-    if not near:
+    if not near:  # not near 首现：空列表在布尔语境下为假，所以 not near 等价于 len(near) == 0
         groups.append([point])
     else:
         first = near[0]
         groups[first].append(point)
-        for other in reversed(near):
+        for other in reversed(near):  # reversed 首现：倒序删下标，前面的元素下标才不会因为 pop 而错位
             if other != first:
-                groups[first].extend(groups[other])
-                groups.pop(other)
+                groups[first].extend(groups[other])  # extend 首现：把一个列表的全部元素逐个接到目标列表末尾，比 += 更直白
+                groups.pop(other)  # pop 首现：按下标删掉被合并掉的组，groups 长度随之减一
 print(len(groups))
 ```
 

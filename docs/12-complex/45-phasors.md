@@ -79,8 +79,8 @@ $$\dot{U} = A\angle\varphi = A(\cos\varphi + j\sin\varphi)$$
 import math
 # sliders: a=3 [0:8:1], b=4 [0:8:1]
 
-a = 3                                    # 甲路振幅（滑杆可调）
-b = 4                                    # 乙路振幅（滑杆可调）
+# a、b 由滑块给定（默认 a=3、b=4；拖到 a=b=1 可验证峰值 √2 ≈ 1.414）。
+# 不要再写 a = 3 / b = 4 —— 那会把滑块值整个盖掉。
 px = a * math.cos(0) + b * math.cos(math.pi / 2)   # 相量和的实部
 py = a * math.sin(0) + b * math.sin(math.pi / 2)   # 相量和的虚部
 peak = math.sqrt(px ** 2 + py ** 2)                 # 勾股定理读回合成振幅

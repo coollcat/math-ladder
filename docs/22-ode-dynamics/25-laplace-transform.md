@@ -101,7 +101,10 @@ def laplace_numerical(f, s, T=100):
     t = np.linspace(0, T, 10000)    # 从 0 到 T 的时间点
     dt = t[1] - t[0]                # 时间步长
     integrand = np.exp(-s * t) * f(t)  # 被积函数 e^{-st} f(t)
-    return np.trapz(integrand, t)   # np.trapz：梯形法数值积分
+    # 梯形法数值积分。np.trapz 在 NumPy 1.x 是正名，2.0 起改叫 np.trapezoid；
+    # 站点锁的是 numpy 1.26，两个名字里只有 trapz 存在，所以这里用兼容写法。
+    trap = getattr(np, 'trapezoid', None) or np.trapz
+    return trap(integrand, t)
 
 # 验证 L{e^{2t}} = 1/(s-2)，对 s > 2
 f = lambda t: np.exp(2 * t)

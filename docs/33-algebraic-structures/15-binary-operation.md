@@ -82,35 +82,35 @@ $$a*e=e*a=a,$$
 先点行标题选第一个动作，再点列标题选第二个动作；中间格子会显示接龙结果。绿色对角线正好说明 $e$ 是单位元，每个元素都可逆。
 
 ```python title="检查一张运算表是否封闭并找单位元"
-names = ["e", "r"]
-table = [
+names = ["e", "r"]   # 元素的名字清单；后面查表都按下标访问
+table = [            # 二元运算表：table[i][j] 是第 i 个与第 j 个运算的结果
     ["e", "r"],
     ["r", "e"]
 ]
 
-closed = True
-for row in table:
-    for value in row:
-        found = False
-        for name in names:
-            if name == value:
+closed = True        # 先假定封闭，找到表外的结果再翻成 False
+for row in table:    # 逐行遍历二维列表：row 是内层列表
+    for value in row:    # 再逐格遍历
+        found = False    # 这一格的结果是否在名字表里
+        for name in names:   # 逐个名字比对
+            if name == value:   # == 是相等比较
                 found = True
-        if found == False:
+        if found == False:   # 结果落在表外 → 运算不封闭
             closed = False
 
-identity = None   # None 表示“还没有找到候选值”
-for candidate_index in range(len(names)):
-    good = True
+identity = None   # None 表示「还没有找到候选值」
+for candidate_index in range(len(names)):   # len 取元素个数；逐个下标当候选单位元
+    good = True      # 先假定这个候选合格
     for i in range(len(names)):
-        if table[i][candidate_index] != names[i]:
+        if table[i][candidate_index] != names[i]:   # 左乘：候选 × 元素
             good = False
-        if table[candidate_index][i] != names[i]:
+        if table[candidate_index][i] != names[i]:   # 右乘：元素 × 候选；两侧都要对才算单位元
             good = False
     if good:
-        identity = names[candidate_index]
+        identity = names[candidate_index]   # 记下这个合格候选
 
-print("closed:", closed)
-print("identity:", identity)
+print("closed:", closed)     # 逗号分隔打印
+print("identity:", identity)   # 应得 1
 ```
 
 第一个双重循环查封闭性；第二个循环轮流假设某个元素是单位元，并从行、列两侧验证。
@@ -122,25 +122,25 @@ print("identity:", identity)
 # @check: closed=True
 # @check: identity=1
 # @hint: 集合本身已经乘法封闭；单位元必须让每个 a 左乘、右乘都保持不变。当前代码误把“结果等于 e”当成了恒等条件。
-values = [-1, 0, 1]
+values = [-1, 0, 1]   # 候选集合
 
-closed = True
-for a in values:
+closed = True      # 封闭性检查的初值
+for a in values:   # 双重循环：所有 (a, b) 组合
     for b in values:
-        if (a * b) not in values:
+        if (a * b) not in values:   # in 判断元素是否在列表里
             closed = False
 
-identity = None
-for e in values:
-    keeps_e = True
-    for a in values:
-        if e * a != e:
+identity = None         # None 表示还没找到
+for e in values:        # 逐个候选单位元
+    keeps_e = True      # 先假定合格
+    for a in values:    # 与每个元素都试一遍
+        if e * a != e:   # ← 判据错了：单位元的要求是 e*a == a，不是 e*a == e
             keeps_e = False
     if keeps_e:
         identity = e
 
-print("closed=" + str(closed))
-print("identity=" + str(identity))
+print("closed=" + str(closed))     # 第一行与 @check 对位
+print("identity=" + str(identity))   # 第二行与 @check 对位
 ```
 
 <details>
@@ -151,24 +151,24 @@ print("identity=" + str(identity))
 单位元要检查两个方向：
 
 ```python
-values = [-1, 0, 1]
-closed = True
+values = [-1, 0, 1]   # 候选集合
+closed = True      # 封闭性初值
 for a in values:
     for b in values:
         if (a * b) not in values:
             closed = False
 
-identity = None
-for e in values:
-    keeps_all = True
-    for a in values:
-        if a * e != a or e * a != a:
+identity = None         # 还没找到时的占位值
+for e in values:        # 逐个候选
+    keeps_all = True    # 先假定合格
+    for a in values:    # 与每个元素都试
+        if a * e != a or e * a != a:   # or 表示「只要一侧不满足就否定」
             keeps_all = False
-    if keeps_all:
+    if keeps_all:       # 全部通过才是单位元
         identity = e
 
-print("closed=" + str(closed))
-print("identity=" + str(identity))
+print("closed=" + str(closed))     # closed=True
+print("identity=" + str(identity))   # identity=1
 ```
 
 只有 $e=1$ 对每个 $a$ 都满足

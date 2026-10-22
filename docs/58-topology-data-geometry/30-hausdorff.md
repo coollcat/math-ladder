@@ -67,12 +67,12 @@ $$p\in U,\quad q\in V,\quad U\cap V=\varnothing$$
 拖动两点时，数轴显示有向差 `a-b`；真正的距离是它的绝对值。只要两点不相等，就能各取小于一半距离的小邻域。若允许两点完全重叠，分离就会失败。
 
 ```python title="计算两个不相交开区间"
-def separate(p, q):
-    middle = (p + q) / 2
-    return (p - 1, middle), (middle, q + 1)
+def separate(p, q):  # def separate 把「找两个不相交开邻域」写成一个可复用函数
+    middle = (p + q) / 2  # 取中点当分界线：p 与 q 不同时，中点严格落在两者之间
+    return (p - 1, middle), (middle, q + 1)  # 返回两个开区间：中点左侧留 1 的余量、右侧留 1 的余量，保证互不重叠
 
-left, right = separate(0, 2)
-print(left)
+left, right = separate(0, 2)  # 元组解包首现：函数一次返回两个值，左边用逗号直接拆成 left、right
+print(left)  # 打印的是区间端点组成的元组 (p-1, 中点)
 print(right)
 ```
 
@@ -98,9 +98,9 @@ for p, q in pairs:
 Hausdorff 分离要求两个点是不同的：
 
 ```python
-pairs = [(0, 2), (1, 1)]
-for p, q in pairs:
-    can_separate = p != q
+pairs = [(0, 2), (1, 1)]  # 两组点对：后一组 p 与 q 重合，是分离公理的临界情形
+for p, q in pairs:  # for p, q in pairs 首现：元组在循环头就地解包成两个变量
+    can_separate = p != q  # 只在 p≠q 时才能用中点把两者隔开；相等时任何开邻域都会相交
     print(can_separate)
 ```
 

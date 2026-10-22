@@ -94,8 +94,8 @@ $$d = \frac{|\overrightarrow{AP}\cdot\vec{n}|}{|\vec{n}|}$$
 {
   "type": "plot",
   "title": "cos θ 随点积/模长乘积变化（θ 越小 cos 越接近 1）",
-  "expr": "x/sqrt(1+x^2)",
-  "label": "cos θ（设 |a||b| 归一）",
+  "expr": "x/sqrt(k^2+x^2)",
+  "label": "cos θ（k = |b|，可调）",
   "xmin": 0,
   "xmax": 10,
   "sliders": [

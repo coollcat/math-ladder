@@ -63,10 +63,10 @@ $$f+g\in F,\qquad kf\in F,$$
 
 ```python title="用坐标表写一个函数向量"
 # coeffs 是函数 1*cos(1x)+0.6*sin(2x) 的两组坐标
-coeff_cos = [1.0, 0.0]
-coeff_sin = [0.0, 0.6]
-print("cos 方向:", coeff_cos)
-print("sin 方向:", coeff_sin)
+coeff_cos = [1.0, 0.0]   # 方括号造列表：这两个数就是这组基下的坐标
+coeff_sin = [0.0, 0.6]   # 另一组的坐标，位置对齐同一组基
+print("cos 方向:", coeff_cos)   # 逗号分隔打印：字符串后面直接跟列表
+print("sin 方向:", coeff_sin)   # 打印时列表带方括号，一眼看出是向量
 ```
 
 改小第二个数，相当于把函数在 $\sin 2x$ 方向上的分量缩短；改符号则翻转方向。
@@ -90,12 +90,12 @@ print("sin 方向:", coeff_sin)
 # @check: [4, -2]
 # @check: [-2.0, 1.0]
 # @hint: 先逐项相加得到 (4,-2)；再对结果乘以 -0.5。
-p = [1, 2]
-q = [3, -4]
-total = [p[0] + q[0], p[1] + q[1]]
-scaled = [total[0], total[1]]
-print(total)
-print(scaled)
+p = [1, 2]        # 第一个向量：列表就是坐标
+q = [3, -4]       # 第二个向量
+total = [p[0] + q[0], p[1] + q[1]]   # p[0] 是下标取值：逐项相加才是向量加法
+scaled = [total[0], total[1]]   # ← 这里只是原样抄了一份，数乘还没做
+print(total)      # 第一行与 @check 对位
+print(scaled)     # 第二行与 @check 对位
 ```
 
 <details>
@@ -104,12 +104,12 @@ print(scaled)
 两个一次函数 $1+2x$ 与 $3-4x$ 相加得 $4-2x$。再乘以 $-0.5$ 得 $-2+x$，Python 会显示第二行 `[-2.0, 1.0]`。
 
 ```python
-p = [1, 2]
-q = [3, -4]
-total = [p[0] + q[0], p[1] + q[1]]
-scaled = [total[0] * (-0.5), total[1] * (-0.5)]
-print(total)
-print(scaled)
+p = [1, 2]        # 第一个向量
+q = [3, -4]       # 第二个向量
+total = [p[0] + q[0], p[1] + q[1]]   # 逐项相加
+scaled = [total[0] * (-0.5), total[1] * (-0.5)]   # 数乘：每个分量都乘同一个标量
+print(total)      # [4, -2]
+print(scaled)     # [-2.0, 1.0]
 ```
 </details>
 

@@ -75,15 +75,15 @@ $$\left(\sum_i a_ix^i\right)\left(\sum_j b_jx^j\right)=\sum_k\left(\sum_{i+j=k}a
 这里展示最简单的一次多项式相乘：$(x+p)(x+q)$。拖动滑块时，一次项系数来自 $p+q$，常数项来自 $pq$。
 
 ```python title="用系数表做多项式乘法"
-a = [1, 1]
+a = [1, 1]  # 系数表首现：列表下标 = 次数，a = [1, 1] 读作 1 + x
 b = [2, 1]
-product = [0] * (len(a) + len(b) - 1)
+product = [0] * (len(a) + len(b) - 1)  # 结果多项式次数最多是两因子次数之和，所以长度取 len(a)+len(b)-1，先全填 0
 
-for i in range(len(a)):
+for i in range(len(a)):  # range(n) 首现：生成 0..n-1 的下标序列，逐个取出次数 i
     for j in range(len(b)):
-        product[i + j] = product[i + j] + a[i] * b[j]
+        product[i + j] = product[i + j] + a[i] * b[j]  # 首现关键一步：i 次项乘 j 次项落到 i+j 位上（这就是多项式乘法＝卷积）
 
-print(product)
+print(product)  # print 首现：把结果列表直接打印成 [2, 3, 1]，对应 2 + 3x + x²
 ```
 
 列表第 0 位是常数项，第 1 位是一次项，第 2 位是二次项。输出 `[2, 3, 1]` 正是 $2+3x+x^2$。
@@ -95,19 +95,19 @@ print(product)
 # @check: product=[2, 3, 1]
 # @check: degree=2
 # @hint: i 次项乘 j 次项应放到 i+j 位；最高非零位置就是次数。
-a = [2, 1]
+a = [2, 1]  # 练习里的 a = 2 + x：下标 0 是常数项，下标 1 是一次项系数
 b = [1, 1]
-product = [0] * (len(a) + len(b) - 1)
+product = [0] * (len(a) + len(b) - 1)  # len(a) 取长度；先把乘积的槽位按最大可能次数备齐
 
-for i in range(len(a)):
-    product[i] = product[i] + a[i] * b[i]
+for i in range(len(a)):  # 外层循环走遍 a 的每一个次数 i
+    product[i] = product[i] + a[i] * b[i]  # 现在只把同次项自乘累加，交叉项还没落位，结果与 @check 对不上
 
-degree = 0
+degree = 0  # 次数 = 最高非零系数的下标，先假设结果不为 0 时的下界是 0
 for k in range(len(product)):
     if product[k] != 0:
         degree = k
 
-print("product=" + str(product))
+print("product=" + str(product))  # str 首现：把列表转成字符串才能用 + 与前缀拼接
 print("degree=" + str(degree))
 ```
 
@@ -119,18 +119,18 @@ print("degree=" + str(degree))
 ```python
 a = [2, 1]
 b = [1, 1]
-product = [0] * (len(a) + len(b) - 1)
+product = [0] * (len(a) + len(b) - 1)  # 长度按 len(a)+len(b)-1 取，是卷积结果能出现的最高次数加一
 
-for i in range(len(a)):
+for i in range(len(a)):  # 双层 for 枚举所有 (i, j) 组合，一个都不能漏
     for j in range(len(b)):
-        product[i + j] = product[i + j] + a[i] * b[j]
+        product[i + j] = product[i + j] + a[i] * b[j]  # i 次项 × j 次项 → 写进 i+j 位，累加而不是直接赋值
 
 degree = 0
-for k in range(len(product)):
+for k in range(len(product)):  # 扫一遍系数表，每见到非零系数就把 degree 更新成它的下标
     if product[k] != 0:
         degree = k
 
-print("product=" + str(product))
+print("product=" + str(product))  # 两行输出分别对应 @check 的 product= 与 degree=
 print("degree=" + str(degree))
 ```
 

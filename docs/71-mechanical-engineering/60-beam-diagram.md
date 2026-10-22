@@ -133,7 +133,7 @@ $$M(3) = 25\times 3 - \frac{5\times 3^2}{2} = 75 - 22.5 = 52.5\ \text{kN·m}$$
 ```python title="积分链：载荷 → 剪力 → 弯矩"
 # sliders: a=3.0 [0.2:5.8:0.1]
 L, P, w = 6.0, 20000.0, 5000.0   # 跨度（m）、集中力（N）、均布载荷（N/m）
-a = 3.0                          # 集中力位置（m）
+# a 由滑块给定（默认 3.0 m）——不要再写 a = 3.0，那会把滑块值整个盖掉
 n = 600                          # 把梁切成 600 段
 dx = L / n
 
@@ -156,7 +156,7 @@ for i in range(1, n + 1):        # 找弯矩最大的截面
     if M[i] > M[iM]:
         iM = i
 ana = R0 * a - w * a * a / 2     # 解析值：截面左侧所有力对该截面取矩
-print(f"反力 R左 = {R0 / 1000:.2f} kN, R右 = {RL / 1000:.2f} kN")
+print(f"集中力在 a = {a} m：反力 R左 = {R0 / 1000:.2f} kN, R右 = {RL / 1000:.2f} kN")
 print(f"Mmax = {M[iM] / 1000:.2f} kN·m 位于 x = {iM * dx:.2f} m")
 print(f"该处剪力 V = {V[iM] / 1000:.3f} kN，紧邻其左侧 V = {V[iM - 1] / 1000:.3f} kN")
 print(f"解析值 M(3 m) = {ana / 1000:.2f} kN·m，累和偏高 {100 * (M[iM] - ana) / ana:.2f}%")

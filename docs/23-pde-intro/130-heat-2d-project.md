@@ -91,28 +91,28 @@ $$u^{n+1}_{i,j}=u^{n}_{i,j}+r\left(u^{n}_{i-1,j}+u^{n}_{i+1,j}+u^{n}_{i,j-1}+u^{
 ### 实验 2：把 r 推过 0.25，看它炸开
 
 ```python title="同一份初始温度，两种 r 的三十步对照"
-N = 7
+N = 7                                         # 网格边长：7×7，小到能一眼看穿
 
-def step(v, r):                               # 做一次二维显式推进
-    new = [row[:] for row in v]               # 整表复制：新值必须基于同一批旧值
-    for j in range(1, N - 1):
+def step(v, r):                               # def 定义函数：做一次二维显式推进；r 由调用方传入
+    new = [row[:] for row in v]               # 逐行切片复制整张表：新值必须基于同一批旧值
+    for j in range(1, N - 1):                 # 从 1 到 N-2：跳过上下边界行
         for i in range(1, N - 1):
-            nb = v[j - 1][i] + v[j + 1][i] + v[j][i - 1] + v[j][i + 1]
-            new[j][i] = v[j][i] + r * (nb - 4 * v[j][i])
+            nb = v[j - 1][i] + v[j + 1][i] + v[j][i - 1] + v[j][i + 1]   # nb = 四邻之和
+            new[j][i] = v[j][i] + r * (nb - 4 * v[j][i])   # 二维显式格式
     for i in range(1, N - 1):                 # 上下绝热：边界行抄内侧一行
         new[0][i] = new[1][i]
         new[N - 1][i] = new[N - 2][i]
     return new
 
-for r in [0.2, 0.3]:                          # 一个在线内，一个在线外
-    v = [[0.0] * N for _ in range(N)]         # 列表推导：造一张全零表格
-    for j in range(N):
+for r in [0.2, 0.3]:                          # 两档差分比：一个在线内，一个在线外
+    v = [[0.0] * N for _ in range(N)]         # 列表推导：每次循环都造一张新的全零表格
+    for j in range(N):                        # 逐行设边界
         v[j][0] = 1.0                         # 左边界 = 1
         v[j][N - 1] = 0.0                     # 右边界 = 0
     v[3][3] = 2.0                             # 中心放一个尖峰，最容易诱发抖动
     for _ in range(30):                       # 下划线变量名：计数用不到，只是占位
-        v = step(v, r)
-    print(r, round(max(max(row) for row in v), 3), round(min(min(row) for row in v), 4))
+        v = step(v, r)                        # 用返回值覆盖原表，进入下一步
+    print(r, round(max(max(row) for row in v), 3), round(min(min(row) for row in v), 4))   # max 套 min 逐行扫：看整表的极值有没有爆掉
 ```
 
 输出 `0.2 1.0 0.0` 与 `0.3 72.216 -61.843`。安全那一档跑完，全场始终待在 0 与 1 之间（最高 1.0、最低 0.0 恰好落在被钉住的边界上）；超线那一档三十步就冲到了 ±70，负值温度在物理上根本不存在——**它炸了**。
@@ -120,15 +120,15 @@ for r in [0.2, 0.3]:                          # 一个在线内，一个在线�
 ### 实验 3：均值性质是一条越收越紧的绳
 
 ```python title="中心点与四邻平均的差距随步数收敛"
-N = 7
-v = [[0.0] * N for _ in range(N)]
-for j in range(N):
-    v[j][0] = 1.0
-    v[j][N - 1] = 0.0
+N = 7                                         # 网格边长
+v = [[0.0] * N for _ in range(N)]             # 全零表格
+for j in range(N):                            # 逐行设边界
+    v[j][0] = 1.0                             # 左边界 = 1
+    v[j][N - 1] = 0.0                         # 右边界 = 0
 v[3][3] = 2.0                                 # 中心尖峰
 
-def step(v, r):
-    new = [row[:] for row in v]
+def step(v, r):                               # 同前：一次显式推进
+    new = [row[:] for row in v]               # 整表复制
     for j in range(1, N - 1):
         for i in range(1, N - 1):
             nb = v[j - 1][i] + v[j + 1][i] + v[j][i - 1] + v[j][i + 1]
@@ -139,10 +139,10 @@ def step(v, r):
     return new
 
 for s in range(1, 61):                        # 推进六十步
-    v = step(v, 0.2)
+    v = step(v, 0.2)                          # 固定的安全差分比
     if s in (1, 5, 20, 60):                   # in 判断成员资格：只看这四个时刻
-        nb = v[2][3] + v[4][3] + v[3][2] + v[3][4]
-        print(s, round(v[3][3], 4), round(abs(v[3][3] - nb / 4), 4))
+        nb = v[2][3] + v[4][3] + v[3][2] + v[3][4]   # 中心格的四邻之和
+        print(s, round(v[3][3], 4), round(abs(v[3][3] - nb / 4), 4))   # 看中心值离四邻平均还差多少：稳态差距趋于 0
 ```
 
 输出 `1 0.4 0.0`、`5 0.1834 0.0086`、`20 0.3377 0.0108`、`60 0.4821 0.0012`。第二列是中心温度：尖峰先被四个邻居抽低（第 5 步约 0.18），随后才一路回升，趋向稳态的 0.5。第三列是"中心 − 四邻平均"的差距：开头十来步先有一段起伏（第 20 步的 0.0108 反而比第 5 步的 0.0086 略大），之后才单调地缩小，到第 60 步只剩 0.0012。**上一课的均值性质在这里是动态版本**：扩散终究把差距拉向零，稳态正是差距归零的那一刻。
@@ -158,24 +158,24 @@ for s in range(1, 61):                        # 推进六十步
 # @check: 0.48
 # @hint: 二维有四个邻居，稳定上限是 1/4 而不是一维的 1/2；更新公式是「中心加 r 倍（四邻之和减四倍中心）」。
 k = 0.5           # 热扩散率
-h = 0.1           # 网格步长
+h = 0.1           # 网格步长：分母要除以 h²
 
-dt1 = 0.02
-dt2 = 0.006
-r1 = k * dt1 / (h * h)
-r2 = k * dt2 / (h * h)
+dt1 = 0.02        # 第一个候选时间步长
+dt2 = 0.006       # 第二个候选时间步长
+r1 = k * dt1 / (h * h)   # 差分比 r = k·dt/h²
+r2 = k * dt2 / (h * h)   # 第二个候选的差分比
 
-limit = 0.5       # ← 有错：二维的安全线是 0.25，这里沿用了一维的 0.5
-print(round(r1, 3))
-print(r1 <= limit)
-print(round(r2, 3))
-print(r2 <= limit)
+limit = 0.5       # ← 二维的安全线是 0.25，这里沿用了一维的 0.5
+print(round(r1, 3))   # 第一行与 @check 对位
+print(r1 <= limit)    # 比较结果是布尔值，直接打印 True / False
+print(round(r2, 3))   # 第三行与 @check 对位
+print(r2 <= limit)    # 第四行与 @check 对位
 
 r = 0.2           # 换用安全档做更新演示
-u_center = 0.8
-nb = [0.4, 0.4, 0.4, 0.4]
-u_new = u_center + r * (nb[0] + nb[1] + nb[2] + nb[3] - 4 * u_center)
-print(round(u_new, 3))
+u_center = 0.8    # 中心格点的当前温度
+nb = [0.4, 0.4, 0.4, 0.4]   # 四个邻居的温度，装进列表方便逐个下标取用
+u_new = u_center + r * (nb[0] + nb[1] + nb[2] + nb[3] - 4 * u_center)   # nb[k] 是下标取值
+print(round(u_new, 3))   # 第五行与 @check 对位
 ```
 
 <details>
@@ -184,15 +184,15 @@ print(round(u_new, 3))
 修正版：
 
 ```python
-k = 0.5
-h = 0.1
+k = 0.5           # 热扩散率
+h = 0.1           # 网格步长
 
 dt1 = 0.02
 dt2 = 0.006
 r1 = k * dt1 / (h * h)
 r2 = k * dt2 / (h * h)
 
-limit = 0.25
+limit = 0.25      # 二维的安全线：1/4，比一维的 1/2 更严
 print(round(r1, 3))      # 1.0
 print(r1 <= limit)       # False
 print(round(r2, 3))      # 0.3
@@ -201,7 +201,7 @@ print(r2 <= limit)       # False
 r = 0.2
 u_center = 0.8
 nb = [0.4, 0.4, 0.4, 0.4]
-u_new = u_center + r * (nb[0] + nb[1] + nb[2] + nb[3] - 4 * u_center)
+u_new = u_center + r * (nb[0] + nb[1] + nb[2] + nb[3] - 4 * u_center)   # 二维更新式
 print(round(u_new, 3))   # 0.48
 ```
 

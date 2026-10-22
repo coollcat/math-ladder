@@ -96,15 +96,15 @@ $$f(x,y)=x^2+y^2.$$
 ### 实验 3：Python 检查同高点
 
 ```python title="判断两点是否同高"
-def f(x, y):
-    return x * x + y * y
+def f(x, y):              # 二元函数：形参写成 x, y 两个，调用时按位置一一对应
+    return x * x + y * y  # 返回"两个分量的平方和"——这里就是等高线地图的那座碗
 
-height1 = f(1, 2)
-height2 = f(2, 1)
+height1 = f(1, 2)         # 调用时给两个实参：x=1、y=2
+height2 = f(2, 1)         # 交换顺序再算一次
 same_level = height1 == height2   # == 判断相等，结果是 True 或 False
-print(height1)
-print(height2)
-print(same_level)
+print(height1)            # 5
+print(height2)            # 5
+print(same_level)         # True：两点同高，落在同一条等高线上
 ```
 
 输出 `5`、`5`、`True`。
@@ -117,15 +117,15 @@ print(same_level)
 # @check: 5
 # @check: True
 # @hint: 目标函数的高度是两个分量的平方和，不要把第二项写成减法。
-def f(x, y):
-    return x * x - y * y
+def f(x, y):              # 二元函数：两个形参，调用时按位置代入
+    return x * x - y * y  # ← 这个式子的符号对吗？目标函数是"平方和"
 
-height1 = f(1, 2)
-height2 = f(2, 1)
-same_level = height1 == height2
-print(height1)
-print(height2)
-print(same_level)
+height1 = f(1, 2)         # 代入 (x, y) = (1, 2)
+height2 = f(2, 1)         # 代入交换后的点
+same_level = height1 == height2   # == 比较两个高度是否相等
+print(height1)            # 输出第一个高度
+print(height2)            # 输出第二个高度
+print(same_level)         # 输出 True / False
 ```
 
 <details>
@@ -151,12 +151,12 @@ same_level=True
 可执行复查：
 
 ```python
-def f(x, y):
-    return x * x + y * y
+def f(x, y):              # 二元函数
+    return x * x + y * y  # 平方和：对 x、y 对称
 
-height1 = f(1, 2)
-height2 = f(2, 1)
-same_level = height1 == height2
+height1 = f(1, 2)         # f(1,2)
+height2 = f(2, 1)         # f(2,1)
+same_level = height1 == height2   # 相等判断
 print(height1)
 print(height2)
 print(same_level)

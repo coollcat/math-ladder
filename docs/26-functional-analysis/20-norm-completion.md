@@ -72,13 +72,13 @@ $p=1$ 是直线段的一部分，对应菱形；$p=2$ 是圆弧；$p$ 很大时�
 
 ```python title="同一个信号的三个长度"
 # samples 是某传感器在四个时刻的误差
-samples = [0.2, -0.8, 0.6, -0.1]
-l1 = abs(samples[0]) + abs(samples[1]) + abs(samples[2]) + abs(samples[3])
+samples = [0.2, -0.8, 0.6, -0.1]   # 列表装四个误差样本，正负都有
+l1 = abs(samples[0]) + abs(samples[1]) + abs(samples[2]) + abs(samples[3])   # abs 取绝对值：L1 范数是绝对值之和
 l2 = (l1 * 0)  # 学生可改为平方和开方的完整式
 linf = 0       # 学生可改为最大绝对误差
-print("L1=", l1)
-print("L2=", l2)
-print("Linf=", linf)
+print("L1=", l1)   # 逗号分隔打印
+print("L2=", l2)   # 现在还是占位的 0
+print("Linf=", linf)   # 同样是占位值
 ```
 
 把 `l2` 改成各绝对值平方相加后开平方，把 `linf` 改成最大绝对值，观察三种误差的排序。
@@ -101,9 +101,9 @@ print("Linf=", linf)
 # @title: 练习：计算最大误差范数
 # @check: Linf=0.9
 # @hint: L_inf 不做平方，也不求和；先取绝对值，再找最大数。
-errors = [0.3, -0.9, 0.2]
-value = abs(errors[0]) + abs(errors[1])
-print("Linf=" + str(value))
+errors = [0.3, -0.9, 0.2]   # 三个误差样本
+value = abs(errors[0]) + abs(errors[1])   # ← 这是求和，不是取最大
+print("Linf=" + str(value))   # str 把数字转成字符串才能用 + 拼接
 ```
 
 <details>
@@ -112,13 +112,13 @@ print("Linf=" + str(value))
 三个绝对值分别是 $0.3,0.9,0.2$，最大者是 $0.9$。所以输出应为 `Linf=0.9`。
 
 ```python
-errors = [0.3, -0.9, 0.2]
-value = abs(errors[0])
-if abs(errors[1]) > value:
-    value = abs(errors[1])
-if abs(errors[2]) > value:
-    value = abs(errors[2])
-print("Linf=" + str(value))
+errors = [0.3, -0.9, 0.2]   # 三个误差样本
+value = abs(errors[0])   # 擂主先放第一个的绝对值
+if abs(errors[1]) > value:   # if 比较：比擂主大才换
+    value = abs(errors[1])   # 换擂主
+if abs(errors[2]) > value:   # 第三个同样比一遍
+    value = abs(errors[2])   # 换擂主
+print("Linf=" + str(value))   # 0.9
 ```
 </details>
 

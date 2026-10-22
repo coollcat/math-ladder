@@ -142,22 +142,22 @@ print(f"|MLE - 真实| = {abs(theta_mle - true_theta):.3f}")
 ### 实验 3（python）：矩估计的渐近性质
 
 ```python title="增大样本量，矩估计收敛"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # matplotlib 首现：之后所有绘图都走 plt 这套接口，浮窗里会自动关掉弹窗
 
-np.random.seed(42)
+np.random.seed(42)  # 固定随机种子：同一种子每次采样相同，输出的估计值才可复现
 true_mu = 5.0
-sample_sizes = [10, 20, 50, 100, 200, 500, 1000]
+sample_sizes = [10, 20, 50, 100, 200, 500, 1000]  # 样本量按几何级数增长，方便在横轴上看出收敛趋势
 
-estimates = []
-for n in sample_sizes:
+estimates = []  # 空列表收集每个样本量对应的估计值，与 sample_sizes 一一对应
+for n in sample_sizes:  # n 就是本轮样本量；样本量越大，样本均值越贴近真值
     sample = np.random.normal(true_mu, 2.0, n)
-    estimates.append(np.mean(sample))
+    estimates.append(np.mean(sample))  # append 首现：把本轮估计值接到列表末尾
 
-plt.plot(sample_sizes, estimates, "bo-", label="矩估计")
-plt.axhline(true_mu, color="r", linestyle="--", label=f"真实值 {true_mu}")
-plt.xlabel("样本量")
+plt.plot(sample_sizes, estimates, "bo-", label="矩估计")  # "bo-" 是格式串：b 蓝色、o 圆点、- 实线连起来
+plt.axhline(true_mu, color="r", linestyle="--", label=f"真实值 {true_mu}")  # axhline 首现：横贯全图的水平参考线，用来对照真实 μ；linestyle="--" 画虚线
+plt.xlabel("样本量")  # xlabel / ylabel / title 只是给图加中文说明，不影响数值
 plt.ylabel("估计值")
-plt.title("矩估计随样本量收敛到真实值")
+plt.title("矩估计随样本量收敛到真实值")  # legend 首现：显示出各条线的 label 文字，必须先有 label= 才有内容可显示
 plt.legend()
 ```
 

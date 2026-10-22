@@ -120,15 +120,15 @@ print(outside)
 正确条件是严格不等式：
 
 ```python
-samples = [0, 0.001, 0.999, 1]
-low = 0
+samples = [0, 0.001, 0.999, 1]  # 样本点首现：0 与 1 是两个端点，0.001 与 0.999 是紧贴端点的内点
+low = 0  # 区间左端点 low=0，下面用严格不等式判内点
 high = 1
-outside = []
+outside = []  # outside 收集「不满足严格介于 0 与 1 之间」的点
 for value in samples:
-    inside = low < value < high
+    inside = low < value < high  # 链式比较 low < value < high 首现：Python 允许写成数学里的连写不等式
     if not inside:
-        outside.append(str(value))
-print("boundary")
+        outside.append(str(value))  # str 首现：把端点数字转成字符串，输出里才出现带引号的 '0' 与 '1'
+print("boundary")  # 两行输出分别是 @check 的 boundary 与端点列表
 print(outside)
 ```
 

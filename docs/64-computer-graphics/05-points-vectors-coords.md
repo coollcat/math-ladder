@@ -148,14 +148,14 @@ print(round(norm, 2))
 修正版：
 
 ```python
-import math
+import math  # import math 只为 sqrt；向量本身用 Python 列表表示
 
-a = [2, 1]
+a = [2, 1]  # a 的坐标写成 [x, y]：下标 0 是 x 分量，下标 1 是 y 分量
 b = [1, 3]
 
-s = [a[0] + b[0], a[1] + b[1]]
-dot = a[0] * b[0] + a[1] * b[1]
-norm = math.sqrt(a[0] ** 2 + a[1] ** 2)
+s = [a[0] + b[0], a[1] + b[1]]  # 向量加法逐分量进行，结果还是二维列表
+dot = a[0] * b[0] + a[1] * b[1]  # 点积得到的是一个标量（数），不是向量
+norm = math.sqrt(a[0] ** 2 + a[1] ** 2)  # 模长 = 勾股定理，先平方再开方；round 只影响打印不影响结果
 print(s)               # [3, 4]
 print(dot)             # 5
 print(round(norm, 2))  # 2.24

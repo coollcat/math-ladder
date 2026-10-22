@@ -97,17 +97,17 @@ $$\frac{dy}{dt}=f(t,y),\qquad y(t_0)=y_0.$$
 ### 实验 3：Python 验证解
 
 ```python title="验证 y=2e^t"
-import math
+import math                                    # 导入标准库 math：exp / sqrt / pi 都从这里取
 
-def solution(t):
-    return 2 * math.exp(t)
+def solution(t):                                # def 定义函数：给定时刻 t，返回该时刻的 y 值
+    return 2 * math.exp(t)                     # math.exp 就是 e 的幂；系数 2 由初值 y(0)=2 定下
 
-def derivative(t):
-    return 2 * math.exp(t)
+def derivative(t):                              # 第二个函数：候选解的变化率 y'(t)
+    return 2 * math.exp(t)                     # 对 2e^t 求导仍是 2e^t——这正是 y'=y 成立的原因
 
-residual = derivative(1) - solution(1)
-print(round(residual, 3))
-print(round(solution(1), 3))
+residual = derivative(1) - solution(1)          # 残差 = 左边(导数) − 右边(规则)；应当为 0
+print(round(residual, 3))                       # round(值, 3) 保留 3 位小数，把浮点噪音收干净
+print(round(solution(1), 3))                    # 顺便报出 t=1 时的解值，供与正文的 5.437 对照
 ```
 
 残差是“左边的导数减右边的规则”。输出 `0.0` 和 `5.437`，说明解在 $t=1$ 处成立。
@@ -121,10 +121,10 @@ print(round(solution(1), 3))
 # @hint: 初值是 y(0)=2，而方程 y'=y 的解应写成 2e^t；检查代码里的指数系数。
 import math
 
-def solution(t):
-    return math.exp(t)
+def solution(t):                  # 候选解：待修正，让 y(0) 与初值吻合
+    return math.exp(t)           # ← 这里的系数还没对上初值（见提示）
 
-def derivative(t):
+def derivative(t):                # 候选解的导数：跟着 solution 一起改
     return math.exp(t)
 
 residual = derivative(1) - solution(1)
@@ -138,17 +138,17 @@ print(round(solution(1), 3))
 初值要求 $y(0)=2$。若只写 $e^t$，则 $y(0)=1$。
 
 ```python
-import math
+import math                 # 标准库 math
 
-def solution(t):
-    return 2 * math.exp(t)
+def solution(t):            # 修正后的解：系数补上 2
+    return 2 * math.exp(t)  # 2e^t，满足 y(0)=2
 
-def derivative(t):
-    return 2 * math.exp(t)
+def derivative(t):          # 它的导数
+    return 2 * math.exp(t)  # 2e^t 求导还是 2e^t
 
-residual = derivative(1) - solution(1)
-print(round(residual, 3))
-print(round(solution(1), 3))
+residual = derivative(1) - solution(1)   # 残差应为 0
+print(round(residual, 3))   # 0.0
+print(round(solution(1), 3))   # 5.437
 ```
 
 所以残差为 0，且 $y(1)=2e\approx5.437$。

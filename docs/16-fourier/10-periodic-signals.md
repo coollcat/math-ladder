@@ -160,19 +160,19 @@ plt.title("两种周期信号（横轴是采样序号）")
 # @check: True
 # @check: False
 # @hint: 浮点数不能直接用 != 比较（第 2 章的 0.1 + 0.2！）；用 abs(差) > 1e-9 判断"不同"
-import math
-def g(t):
+import math  # import math 只为 sin 与 pi；下面的检验完全靠它
+def g(t):  # g 是两个正弦叠加：周期 2 与周期 2/2.6 的成分，合起来的周期要看两者
     return math.sin(math.pi * t) + math.sin(2.6 * math.pi * t)
 
-same10 = True
+same10 = True  # 两个布尔标志位：假设两个候选周期都成立，下面找反例推翻它们
 same99 = True
-for k in range(100):
-    t = k / 10
-    if g(t + 10) != g(t):
+for k in range(100):  # 取 100 个采样点当证人，一个反例就足以否定周期性
+    t = k / 10  # t 从 0 走到 9.9，步长 0.1，覆盖好几个候选周期
+    if g(t + 10) != g(t):  # 直接写 != 比浮点是不稳的，应该用 abs(差) > 1e-9；这里先示范错误做法
         same10 = False
     if g(t + 9.9) != g(t):
         same99 = False
-print(same10)
+print(same10)  # 两行输出就是两个 @check：周期 10 成立，周期 9.9 不成立
 print(same99)
 ```
 

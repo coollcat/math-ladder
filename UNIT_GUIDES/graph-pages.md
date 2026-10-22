@@ -1,68 +1,83 @@
-# 图谱双页 · 实现细节（/tree 与 /graph）,,> 从 `AGENTS.md` 下沉而来（2026-09-30 文档瘦身）。**改 `src/components/ml-home/` 的,> 图谱组件之前先读这份。** 两页的分工与筛选口径一句话版仍在 `AGENTS.md`。
+# 图谱双页 · 实现细节（/graph 阶梯版图 与 /tree 课程家谱）
 
-- **两个图谱页的分工（2026-09-29 第五回路：/chapters 章簇详图已退役删除，课级细节收进 /graph 的钻取）：/tree 画树、/graph 画同心环**
-  | 页面 | 组件 | 画法 | 交互 |
-  | --- | --- | --- | --- |
-  | `/tree` 知识树 | `KnowledgeGraphTree` | 树（块布局），章节模式 / 单元模式 | 点击只看连通路径并重排 |
-  | `/graph` 知识图谱 | `KnowledgeGraphRadial` | 同心环：**半径＝层级、颜色＝卷**，一章一颗圆点 | 悬停看先修/托起、点击章→从服务器拉本章课数据**在图上原位展开课点**、点空白收起 |
+> **改 `src/components/ml-home/` 的图谱组件之前先读这份。** 2026-10 两页整体重做：
+> /graph 的「同心环」与 /tree 的「千余节点整棵树」都已退役删除（`KnowledgeGraphRadial.js`、
+> `KnowledgeGraphTree.js`、`treeLayout.js`、`PageIntro.js` 以及 `home.css` 里 `.ml-rg` / `.ml-tr` /
+> `.ml-fg` 的全部样式）。旧版的踩坑史（双坐标系 `toElem`、`fitSel` 下限、筛选重排 vs 压暗）随之作废。
 
-  **/graph 怎么读**：圆心是地基，越往外越高级。环不是按固定难度阈值切的，而是
-  「难度等分位分 6 环 + 强先修边（≥2 门课支撑的章级边）单调上修」，于是每环章数相近、
-  难度区间单调递增、且没有一条强先修边朝内。**算法与理由全在 `src/components/ml-home/ringLayout.js`
-  的头部注释里，那份是唯一事实来源**；改环先读它，别在组件里另写一套分环。
-  章难度口径：本章所有课程**平均先修深度**取整（别换算法，换了整张图会重排）。
+## 三张图的分工（刻意错开，别做成三张一样的图）
 
-  **/graph 的课级钻取（2026-09-29 第五回路新增）**：数据按章拆在 `static/graph-chapters/NN.json`
-  （`npm run gen:chapters` 从 full-graph-data.js 生成，`npm run build` 自动重生成，无课章也出空 JSON
-  保证任何章号 fetch 都 200）。点击章圆点 → `fetch` 该章 JSON → 该章每门课绕章点排成一圈小课点
-  （章间连线不动），其余章按焦点逻辑退隐；点画布空白或再点同一章收起；课点单击直接进课页；
-  面板课表在钻取数据到手后改用服务器口径渲染。**展示数据必须走服务器 JSON**——这是「点击时
-  从服务器加载」的语义本体（断网/404 要可见），缓存只做会话内去重。
-  （曾经试过「全部炸开」一键铺开全部课点，用户裁决效果不行已回退——别再做全景课点铺开，
-  课级细节的入口就是「点击单章」。）
-  ⚠ 边界如实说：`full-graph-data.js` 的全量 `NODES/EDGES/DEPTH` 目前仍被
-  `ringLayout.chapterModel()`（章级布局）与课名搜索 import，bundle 没有因此减重；拆分 JSON 的
-  收益是①钻取展示与服务器同源、②课级数据有了独立入口——将来若把章级布局挪去构建期
-  （预计算 chapterModel），`NODES` 才能整体甩出 bundle。别在组件里绕过 drill 数据直接画课。
-- **`KnowledgeGraphFull.js`（旧泳道图）已退役**：文件保留作对照，不再被任何页面引用。
-  退役原因：泳道按「卷」分行，而卷的先后顺序 ≠ 难度顺序，读者看得见「排得下」、看不出「谁托着谁」。
-  它记录过的那套「章档/课档 `VIEWS`、`laneKeys`/`laneKeyOf`/`layout`/`shownIn`/`laneName` 六处联动」
-  的踩坑史随之作废，别再按那套去改新组件。确认无用后可整份删除。
-- **筛选口径（2026-09-28 修订）：/tree 重排，/graph 压暗——这是刻意的分歧，不是漏改。**
-  旧口径「筛选 = 重排，不是擦淡留在原位」是对**泳道/树**说的：那里重排只是撤空行、压实槽位，
-  读者的空间感不受损。同心环不一样——重排等于把环半径和角度全部重算，
-  「谁在里圈谁在外圈」这个唯一的读图依据会当场消失。所以 /graph 的卷筛选与层筛选
-  只压暗无关节点（`.is-muted`），环与位置一动不动。
-  - /graph：`inScope(i)` 同时判卷与层，命中之外加 `is-muted`（透明度 0.12 + 禁点击）。
-    点选节点后走的是**闭包高亮**（`closure(focus, pred/succ)`），无关项压暗到 0.16，同样不重排。
-  - /tree：`treeLayout.compactLayout(L, visible, opts)`（纯函数，可 node 单测）——撤空层、
-    层内压成连续槽位、层内多行（单元模式章块网格）按 y 分簇且行距收一档，
-    收尾再整体挪一次把内容框回原 viewBox（原布局的层带中位数松弛的平移量、不绕 0 居中，
-    直接按中轴摆会被 SVG 裁掉一排胶囊）。
-  - ⚠️ **CSS 特异性陷阱**：`.is-off`（隐藏）与靠后的 `.xxx.is-in`（入场淡入）同为「两个类」，
-    按源码顺序后来者胜——知识树就因为 `.ml-tr__edge--branch.is-in` 写在后面，
-    选中后无关连线擦不掉。隐藏类一律加 `.ml-tr__svg` 提权到三档（0,3,0），顺序不再影响结果。
-    同心环的入场类写在 `.ml-rg__node` 上、压暗类写在 `.is-muted`，同为两档且 `.is-muted` 在后，
-    当前顺序是对的；改这两处的先后要连 CSS 一起看。
+| 页面 | 组件 | 回答的问题 | 粒度 |
+| --- | --- | --- | --- |
+| 首页 | `HomeTree.js` + `homeTreeLayout.js` | 章与章一代代怎么托起（依赖结构） | 章 |
+| `/graph` 知识图谱 | `KnowledgeAtlas.js` + `atlasModel.js` | 全站版图：每章属于哪个领域、在多高的台阶、我走到哪儿了 | 章卡 + 课方格 |
+| `/tree` 课程家谱 | `LessonLineage.js` + `lineageLayout.js` | 一门课站在谁的肩上、它又解锁了谁 | 课 |
 
-### 知识树页 /tree v3（2026-08-31 重做：紧凑块布局 + 渲染直改 DOM；v2 为 08-29 双模式）
+两页共用：`learnState.js`（课级四态，纯函数）、`useLearnState.js`（React hook）、
+`src/css/graph-pages.css`（两页全部样式，类名前缀 `.ml-gp`（页面壳）/ `.ml-atlas`（版图）/ `.ml-lin`（家谱），在两个页面文件里 import）。
 
-- **排除第 0 章**：`treeLayout.js` 的 `filterCh0()` 在模块加载时把 `NODES` 里 `ch === 0`（Python 工具箱）整章剔除，并重映射 `EDGES`/`USE_AGG` 索引——第 0 章不再作为旁支挂根。注意这是**树页的视图层过滤**，不改 `full-graph-data.js` 源数据（/graph 与首页仍含第 0 章）。
-- **单元模式 = 章节块布局（`blockLayout()`）**：章 DAG 决定约 20 个「带」（章粒度最长路径，`chapterLevels()`），每章的课在带内排成 ≤6 列的紧凑网格块（2026-09-02 由 5 列放宽到 6 列，块更接近正方形、横向占地更小）——**同章课程永远收在一个矩形块里**（v2 逐课最长路径会把一章拆到 5~8 层）。带内块按章 DAG 重心消叉排序 + 块级中位数对齐松弛（钳位防重叠）。章内边在块内走短弧线（同层弧深度随水平距离缩放、封顶 sagCap）。
-- **章节模式 = `layeredLayout()`**：坐标分配已改为「层内紧凑槽位（绕中轴居中）+ 层间中位数对齐松弛」——层内零空洞（v2 旧算法「继承父 x + 逐层居中」实测占用率仅 65%、空洞 429 个）。曾试过 Buchheim 紧凑树：本图深窄（46 层、叶子多），占用率反跌到 20%，弃用。
-- **渲染性能**：SVG 结构按模式 `useMemo` 静态化（805 节点 + 1125 边不随悬停/选中重渲染）；悬停/选中/搜索高亮与选中位移全部直改 DOM（`classList` 带 `__cls` 变更缓存、`transform`、`path d`）；React 只管工具栏与信息面板。挂载期事件监听（[] 依赖）经 `fnRef` 调最新闭包；`sel/hot` 在模式切换过渡渲染里可能越界，统一先夹紧（`selS/hotS`）再用。
-- **布局与位图都在模块加载时算一次**（块布局 ~14ms），不随悬停重算；`aggregateChapters()`/`chainOf()`/`popcount()` 照旧。
-- **搜索**：实时高亮命中（`is-search`），回车定位并循环轮询（`jumpTo(i, 1)` 同步平移缩放 + 聚焦筛选）；点击胶囊 `jumpTo(i)` 保留当前缩放只居中。
-- **视图坐标有两套，混用就会「不居中」（2026-09-02 修）**：
-  | | 世界坐标 | SVG 元素坐标 |
-  | --- | --- | --- |
-  | 来源 | 布局算的 `p.x / p.y`，x 以 0 为中轴，故 `L.minX` 是负的（单元模式 −2462） | `viewBox="minX 0 width height"` 平移后，`[0,width]×[0,height]`，画布的 CSS transform 作用在这一层 |
-  | 换算 | 元素 x = 世界 x − `L.minX`；元素 y = 世界 y（viewBox 的 y 起点是 0） |
+## 文件地图
 
-  坑位三处，都在 `applyView` / `fitSel` / `jumpTo` 里，已统一由 `toElem(b)` + `applyView(b, {center, noClamp})` 处理：
-  1. `shiftPositions` 给的 `bounds` 是**世界坐标**，直接拿它算中心会偏出去 `|L.minX| × k` 像素（根节点选中最夸张：节点落在屏幕 x=4086，视口才 1200 宽）；
-  2. 垂直居中原本写 `(vh − H)/2`，等于假设 `minY = 0`，选中内容一深就整体下移出屏；
-  3. 拖到边的夹取上界写的是 `pad`，正确值是 `pad − e.minX × k`（内容在元素坐标里未必从 0 开始）。
-  另：`fitSel` 的缩放下限从 0.15 提到 **0.42**——连通路径常纵贯全树，缩到 0.16 字都看不清；装不下时改为把**选中节点**摆到视口正中（装得下才整块居中）。`noClamp` 只给 fitSel / jumpTo 用，拖动与滚轮仍要夹住，否则一拖就把画布甩没了。
-- 排坑：调试截图时 React 的 `onMouseEnter` 只认 `mouseover` 事件（`mouseenter` 不冒泡、React 不合成）；测 localhost 用 node fetch。
-- 样式在 `home.css` 末尾「知识树 v2」段（`.ml-tr__modes`/`.ml-tr__searchwrap`/`.ml-tr__legend`/`.ml-tr__edge--branch` 等）。
+| 文件 | 性质 | 职责 |
+| --- | --- | --- |
+| `ringLayout.js` | 纯函数 | **层级口径的唯一事实来源**：`chapterModel()`（难度等分位分 6 级 + 强先修单调上修）、`chainTo` / `closure` / `ringLabel`、`RING_NAMES`。同心环几何已删，文件名保留是因为各处文档登记的就是它 |
+| `atlasModel.js` | 纯函数 | 版图矩阵：`buildAtlas()`（列＝层级、行＝七卷、格内按章难度→章号）、`chainOf` / `ancestorsOf` / `descendantsOf` / `searchChapters` |
+| `learnState.js` | 纯函数 | `lessonStates(prog, last)` → 每课 `LOCKED/READY/CURRENT/DONE`；`PRED/SUCC` 课级邻接、`INDEX_BY_ID/INDEX_BY_TO`、`tally` |
+| `lineageLayout.js` | 纯函数 | 家谱布局：`buildLineage(focus, {back, fwd})`、`suggestNext`、`pathToFocus`、`searchLessons`；常量 `CARD_W 196 / CARD_H 68 / COL_GAP 68 / MAX_PER_COL 14` |
+| `useLearnState.js` | hook | SSR 返回 `null`；挂载后读 `progress.js`，`onProgressChange` 时重算 |
+| `KnowledgeAtlas.js` | 组件 | /graph 的画与交互 |
+| `LessonLineage.js` | 组件 | /tree 的画与交互（页面用 `BrowserOnly` + `require` 包，因为要读地址栏与 localStorage） |
+
+纯函数模块都能 `node` 直接 import 单测；口径变更先改纯函数，组件只管画。
+
+## /graph · 阶梯版图
+
+- **怎么读**：往右是台阶（地基 / 主干 / 进阶 / 高等 / 深水 / 前沿），往下是领域（七卷）。一章一张卡，卡里一格一门课。
+  整张图天然呈阶梯形——这就是本站的形状，不是排版失误。
+- **层级算法没变**：版图的「第 k 列」就是旧同心环的「第 k 环」，口径全在 `ringLayout.js` 头注释
+  （章难度＝本章课程平均先修深度，**别换算法**；只按强边 w≥2 上修）。别在组件里另写一套分级。
+- **平时不画连线**（77 章三百多条章级边画全就是毛线）。悬停 / 键盘聚焦一章：直接先修卡绿（`is-up`）、直接后续卡橙（`is-down`），
+  只画这几条线（强边实线、弱边虚线）；工具条「直接关系 / 全部来路与去向」切换闭包点亮。
+  连线坐标在挂载后**量 DOM** 算（卡片尺寸随视口流动），`ResizeObserver` 触发重量。
+- **点击 = 钉住**：右侧面板给最长先修链（`chainOf`）、按权重排的先修 / 后续 chip、本章课表、「看课程家谱」链接（`/tree?l=课id`）。
+  Esc / 点版图空白取消。`?ch=N` 直达并钉住某章（家谱页「在版图里看本章」就跳这里）。
+- **课表必须走服务器 JSON**：`fetch(${baseUrl}graph-chapters/NN.json)`（`npm run gen:chapters` 生成，`build` 自动重生成，
+  无课章也出空 JSON 保证任何章号都 200）。这是「点击时从服务器加载」的语义本体——断网 / 404 在面板里**可见**，
+  缓存只做会话内去重。别绕过它直接用 bundle 里的 `NODES` 画课表。
+- **进度着色**：方格按 `learnState` 四态上色；`hasData=false`（一门没学）时切中性配色，不要把全站画成一片「未解锁」灰。
+  无钉住时的 Overview 面板给进度、上次停在、「现在就能学」前 5 门。
+- **⚠ bundle 未减重**：`full-graph-data.js` 的 `NODES/EDGES/DEPTH` 仍被 `chapterModel()` 与搜索 import。
+  将来把章级模型挪到构建期预计算，`NODES` 才能甩出 bundle。
+
+## /tree · 课程家谱
+
+- **一次只看一门课**：`[更早根基·按章折叠] … 先修第 2 层 | 直接先修 | ★本课 | 直接后续 | 后续第 2 层 …`。
+  数据依据（实测）：直接先修中位数 1、最多 4；3 步内祖先中位数 5、90 分位 10；整个祖先闭包中位数 39、最多 184——
+  所以近处逐课画、远处按章折叠只报数。
+- **布局口径**（全在 `lineageLayout.js` 头注释）：纳入按 BFS 最短步数（直接先修永远在图上）；分列按纳入子图内**最长路**（每条边严格朝右，无同列边 / 回头边）；
+  列内（章号, 目录序）初排 + 两轮重心消叉；列超过 `MAX_PER_COL` 收成「还有 N 门」；焦点不在第 0 章时不往第 0 章走。
+- **焦点与地址栏**：`?l=课程id`（如 `calculus%2Fchain`）。单击卡片换焦点走 `history.push`，可分享、可后退。
+  默认焦点：`?l=` → 上次停留的课（`ml-last`）→ `arithmetic/addition`。
+- 交互：Stepper 调「先修 / 后续 N 步内」；已学课淡化；悬停一张卡点亮它到焦点的路径（`pathToFocus`）；
+  搜索下拉支持 ↑↓ 回车；有进度时摘要卡给「先补最底下的砖」（`suggestNext`，排除焦点自身）。
+- **≤620px 改分层列表**（`LineageList`，不画连线），手机上横向画布不好用。
+
+## 样式与断点（`graph-pages.css`）
+
+- ≥1200：版图列头吸顶；≤1199：/graph 面板变右侧抽屉（z-index 300）；≤996：章卡改卡片流；≤620：面板变底部抽屉、家谱变列表；
+  另有 `pointer: coarse` 与 `prefers-reduced-motion` 段。入场动画 `animation-fill-mode: backwards`（不用 `both`：结束后不保留动画终态，免得压住悬停 / 状态类的样式）。
+- **⚠ Infima 的元素级规则带双 ID 尾巴**：`p / ul / ol / a / h1–h6 / table` 等规则写成 `:not(#\#):not(#\#)`（特异性 0,2,0,1 起），
+  普通类选择器压不过。所以：
+  1. 落在这些元素上的类选择器一律补尾巴：`.ml-atlas__xxx:not(#\#):not(#\#)`（伪元素要写在尾巴**之后**：`.x:not(#\#):not(#\#)::before`）；
+  2. 面板 / 家谱里的小标题**不用 h2–h4**，写 `<p role="heading" aria-level="3">`——Infima 标题字号只能走 `--ifm-h*-font-size` 变量，类选择器改不动；
+  3. 页面级的 h1 字号靠在页面作用域里改 `--ifm-h1-font-size`。
+- 暗色下主按钮文字用 `var(--ml-paper)`；七卷配色只用 `--ml-vol1…7`（`custom.css`），这里不写 hex。
+
+## 验收
+
+`node scripts/check-graph-drill.mjs`（先 `npm run build`；或 `BASE=http://127.0.0.1:端口` 指向已起的服务；
+playwright 是可选依赖，没装就打印「跳过」退出 0）。断言覆盖：版图章卡数 / 6 列 × 7 行 / 初始零连线 / 方格总数、
+悬停画线 + 压暗、点击 fetch 200 且课表行数＝课数、再点与 Esc 取消、`?ch=` 直达并点课进 `/docs/`；
+/tree 的 `?l=` 定焦、卡与线数量、单击换焦点写地址栏、`goBack` 回退；全程页面零报错。
+
+调试注意：React 的 `onMouseEnter` 只认 `mouseover`（`mouseenter` 不冒泡）；node 测 dev server 带 `Accept: text/html`。

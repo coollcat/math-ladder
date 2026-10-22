@@ -129,16 +129,16 @@ for note, a, b, c, d in cases:
 ### 实验 2（python）：把"为什么要压缩"算成数字
 
 ```python title="裸码流与成品码流的数量级"
-W, H, FPS = 1920, 1080, 30
+W, H, FPS = 1920, 1080, 30  # 一帧的宽、高、帧率，三个数都是后面码率估算的基础
 raw = W * H * 3 * 8 * FPS            # RGB 每像素 3 字节 24 bit
 target = 4_000_000                    # 流媒体典型码率 4 Mbps
-print(f"裸码流：{raw/1e9:.2f} Gbps")
+print(f"裸码流：{raw/1e9:.2f} Gbps")  # :.2f 保留两位小数，Gbps 后面不用再手写单位换算
 print(f"成品码流：{target/1e6:.0f} Mbps")
-print(f"压缩率：约 {raw/target:.0f} 倍")
+print(f"压缩率：约 {raw/target:.0f} 倍")  # 压缩率 = 裸码流 / 目标码流，数量级差了两个多数量级
 print("其中：")
-print("  色度子采样先省一半   —— 30-color-space")
-print("  帧间预测再省一个量级 —— 120-inter-predict")
-print("  DCT+量化把余下能量装进少数系数 —— 70-dct-block / 80-jpeg-quant")
+print("  色度子采样先省一半   —— 30-color-space")  # 色度子采样先把 4:4:4 降到 4:2:0，直接省一半数据量
+print("  帧间预测再省一个量级 —— 120-inter-predict")  # 帧间预测只编码与参考帧的差值，重复背景几乎不花钱
+print("  DCT+量化把余下能量装进少数系数 —— 70-dct-block / 80-jpeg-quant")  # DCT + 量化把能量集中到少数低频系数，其余直接抹成 0
 print("  熵编码按 40 章的分布定价 —— 每一步都在给残差挤水")
 ```
 

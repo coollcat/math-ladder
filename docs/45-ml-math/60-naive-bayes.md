@@ -190,13 +190,14 @@ print(f"判定: {'垃圾' if log_p_spam > log_p_ham else '正常'}")
 先验 $P(\text{垃圾})=5/105\approx0.048$——除非证据非常强烈，否则分类器倾向于判为正常。类别不平衡时可能漏检垃圾邮件。解决办法：调整先验或降低判垃圾的阈值。
 </details>
 
-**练习 2**（判题）：下面的代码想计算似然但忘了加拉普拉斯平滑。它**一跑就抛 `ValueError: math domain error`**——这正是本题要修的地方：没平滑时 $P(\text{会议}\mid\text{垃圾})=0$，`math.log(0)` 当场炸掉。修好它让预测正确，输出 `0.094` 和 `正常`。
+**练习 2**（判题）：下面的代码想计算似然但忘了加拉普拉斯平滑。它**一跑就抛 `ValueError`**（Python 3.14 的原文是 `expected a positive input, got 0.0`，更早版本写 `math domain error`）——这正是本题要修的地方：没平滑时 $P(\text{会议}\mid\text{垃圾})=0$，`math.log(0)` 当场炸掉。修好它让预测正确。
 
 ```exercise
 # @title: 练习：加上拉普拉斯平滑
 # @check: 0.094
 # @check: 正常
-# @hint: 分母应该加 alpha*vocab_size（即 1*2=2），分子加 alpha（即 1）。改对之后 log 里不再有 0，两行输出分别是 0.094 和 正常
+# @expect-error: 本题的教学点就是「没平滑 → math.log(0) 当场抛 ValueError」，抛错是题干的一部分
+# @hint: 拉普拉斯平滑的做法是「给每个计数都虚构一次观测」——分子和分母各该加什么、分母要按哪个规模加？改对后 math.log 不会再收到 0。
 import math  # 下面要用 math.log 把概率的连乘换成对数相加，避免下溢
 
 X_train = [[1, 0], [1, 0], [0, 1], [0, 1]]
@@ -207,7 +208,7 @@ def likelihood(feat_idx, feat_val, label):
     count = sum(1 for x, y in zip(X_train, y_train)
                 if x[feat_idx] == feat_val and y == label)
     total = sum(1 for y in y_train if y == label)
-    return count / total                    # ← 错了：没有加平滑
+    return count / total                    # ← 错了：没有加平滑（分母该补什么？）
 
 p_spam = 0.5
 p_ham = 0.5

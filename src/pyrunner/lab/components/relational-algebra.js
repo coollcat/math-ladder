@@ -95,7 +95,9 @@ export default function render(host) {
       const rows = [];
       t.rows.forEach((r) => {
         const row = idx.map((i) => r[i]);
-        const k = row.join('');
+        // 用「单元组」当分隔符：\u0001 是控制字符，直接写进源码会让 HTML 压缩器
+        // 报 "Control character in input stream"，所以写成转义形式。
+        const k = row.join('\u0001');
         if (!seen[k]) { seen[k] = 1; rows.push(row); }
       });
       return { res: { cols: idx.map((i) => t.cols[i]), rows }, sqlText: `SELECT DISTINCT ${idx.map((i) => t.cols[i]).join(', ')}\n FROM ${t.name};`, note: `π 是垂直裁剪：列数变、行数可能变少（关系要自动去重，${t.rows.length} → ${rows.length}）` };

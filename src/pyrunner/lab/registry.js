@@ -21,6 +21,12 @@ import ch15 from './registries/ch15.js';
 /* ch16 是傅里叶章（卷一）的分册：旋转探针等频率叙事组件 */
 import ch16 from './registries/ch16.js';
 
+/* 卷三、卷四的分册：图论 / 自动机 / 编码 / 随机过程 */
+import ch29 from './registries/ch29.js';
+import ch31 from './registries/ch31.js';
+import ch35 from './registries/ch35.js';
+import ch37 from './registries/ch37.js';
+
 /* ch47 是 Transformer 章（卷五）的分册：MoE 门控等组件 */
 import ch47 from './registries/ch47.js';
 import ch50 from './registries/ch50.js';
@@ -57,6 +63,10 @@ export const RENDERERS = Object.assign(
   ch15,
   ch16,
   ch47,
+  ch29,
+  ch31,
+  ch35,
+  ch37,
   ch50,
   ch53,
   ch61,

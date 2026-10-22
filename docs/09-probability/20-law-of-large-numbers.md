@@ -74,8 +74,8 @@ $$P(A) = \frac{m}{n}$$
 上面的掷币机已经看过收敛，代码版能换骰子玩。拖动滑块改变实验规模 $n$，观察条形图如何被压平到理论线：
 
 ```python title="掷骰子：实验频率 vs 理论概率 1/6"
-import random
-import matplotlib.pyplot as plt
+import random                 # 随机数模块：替我们"掷骰子"
+import matplotlib.pyplot as plt   # 画图库
 
 # sliders: n=600 [60:60000:60]
 
@@ -87,12 +87,12 @@ for trial in range(n):             # n 由滑块注入，拖动即改掷骰子�
     counts[face - 1] = counts[face - 1] + 1
 
 freqs = []                         # 频率表：出现次数 ÷ 总次数
-for c in counts:
-    freqs.append(c / n)
+for c in counts:                   # 直接遍历列表元素（不用下标），每个 c 是一个点数被掷中的次数
+    freqs.append(c / n)            # 除以总次数：次数变比例，才能和理论概率 1/6 同尺度比较
 
 plt.bar([1, 2, 3, 4, 5, 6], freqs, color="steelblue", label="experiment")  # bar：条形图（首现）
-plt.plot([0, 7], [1 / 6, 1 / 6], linestyle="--", color="tomato", label="theory 1/6")
-plt.ylim(0, 0.35)                  # ylim：固定纵轴范围，方便不同 n 直接对比
+plt.plot([0, 7], [1 / 6, 1 / 6], linestyle="--", color="tomato", label="theory 1/6")   # 只给两个点（起点、终点）就是一条水平参考线：理论概率 1/6
+plt.ylim(0, 0.35)                  # ylim：固定纵轴范围，方便不同 n 直接对比（不固定的话纵轴会自动缩放，看不出收敛）
 plt.legend()
 ```
 
@@ -126,11 +126,11 @@ $n=600$ 时六根柱子参差不齐；拖到几万次，它们齐刷刷压到红
 # @title: 练习：数出和为 7 的组合
 # @check: 6
 # @hint: 两颗骰子互不相干：内层循环也要让第二颗从 1 跑到 6 全部掷一遍，而不是接着第一颗往后数
-count = 0
-for a in range(1, 7):
-    for b in range(a, 7):      # ← 这里真的枚举了第二颗骰子的全部结果吗？
-        if a + b == 7:
-            count = count + 1
+count = 0                        # 计数器：数一数有多少个 (a, b) 组合满足条件
+for a in range(1, 7):            # 第一颗骰子：1…6（range 含头不含尾，所以写到 7）
+    for b in range(a, 7):      # ← 这里真的枚举了第二颗骰子的全部结果吗？（内层循环的起点是 a，这条下界值得怀疑）
+        if a + b == 7:           # 只统计和为 7 的组合
+            count = count + 1    # 命中就加一
 print(count)
 ```
 
@@ -142,9 +142,9 @@ print(count)
 两颗骰子是两步独立抽取。第二颗也要从 1 到 6 全部枚举：
 
 ```python
-count = 0
-for a in range(1, 7):
-    for b in range(1, 7):
+count = 0                 # 计数：满足 a+b=7 的组合个数
+for a in range(1, 7):     # 第一颗骰子的 6 种结果
+    for b in range(1, 7): # 第二颗骰子的 6 种结果，同样从头枚举：6×6 = 36 种组合一个不漏
         if a + b == 7:
             count = count + 1
 print(count)

@@ -31,7 +31,7 @@ exits:
 
 设幂级数在中心 $A$ 的圆盘内等于 $f$。若在圆盘边缘附近选一个新中心 $B$，用已有值造出新的泰勒级数，新级数可能越过旧边界。重复这个过程，就得到一串相邻圆盘；重叠区像接力棒，保证新展开不是另一个函数。
 
-## 3. 正式事实
+## 3. 正式定义与唯一性定理
 
 若 $f$ 和 $g$ 都在连通开集 $D$ 内解析，并且在一个有聚点的子集上相等，则
 
@@ -75,13 +75,13 @@ $$\log(1+z)=z-\frac{z^2}{2}+\frac{z^3}{3}-\cdots,\qquad |z|<1.$$
 ### 实验 2（python）：比较新旧中心的收敛半径
 
 ```python title="log(1+z) 从中心 0 移到 0.5"
-old_center = 0
-new_center = 0.5
-singular_point = -1
-old_radius = abs(old_center - singular_point)
-new_radius = abs(new_center - singular_point)
-print(old_radius)
-print(new_radius)
+old_center = 0                 # 原展开中心
+new_center = 0.5               # 挪到的新中心
+singular_point = -1            # log(1+z) 的奇点：z=−1
+old_radius = abs(old_center - singular_point)   # 收敛半径 = 中心到最近奇点的距离
+new_radius = abs(new_center - singular_point)   # 挪中心之后重算一遍
+print(old_radius)              # 原半径
+print(new_radius)              # 新半径：变大了，说明挪中心能扩大有效范围
 ```
 
 旧半径为 1，新半径为 1.5。新圆盘与旧圆盘重叠，因此可以把旧数据合法地递给新展开。
@@ -89,22 +89,22 @@ print(new_radius)
 ### 实验 3（python）：重叠区的近似值抽查
 
 ```python title="旧展开在重叠点附近接近真值"
-import math
+import math                     # 标准库 math：log 是自然对数
 
-x = 0.75
-n = 12
-true_value = math.log(1 + x)
-old_partial = 0.0
-term = x
-power = 1
-for k in range(n):
+x = 0.75                        # 考察点
+n = 12                          # 只取前 12 项：部分和
+true_value = math.log(1 + x)    # 真值，用来对照
+old_partial = 0.0               # 部分和的累加器
+term = x                        # 当前幂次 x^k，从 k=1 开始
+power = 1                       # 当前分母 k
+for k in range(n):              # 逐项累加
     # 条件表达式：k 为偶数时取正号，k 为奇数时取负号
-    sign = 1 if k % 2 == 0 else -1
-    old_partial += sign * term / power
-    term *= x
-    power += 1
-print(round(true_value, 6))
-print(round(old_partial, 6))
+    sign = 1 if k % 2 == 0 else -1   # % 是取余：偶次项取正、奇次项取负
+    old_partial += sign * term / power   # 累加 ±x^k/k
+    term *= x                   # 幂次自增：x^k → x^{k+1}
+    power += 1                  # 分母跟着加一
+print(round(true_value, 6))     # round 保留六位，才能看出部分和的误差
+print(round(old_partial, 6))    # 部分和：与上一行越接近越好
 ```
 
 在旧圆盘内部且离边界不太近的位置，部分和已经贴近真值。这个共同值就是传给下一块圆盘的接力棒。
@@ -125,10 +125,10 @@ print(round(old_partial, 6))
 # @title: 练习：移动中心后的最大半径
 # @check: 1.5
 # @hint: log(1+z) 的最近奇点在 z=-1；半径是新中心到奇点的距离。
-new_center = 0.25       # 请改成例题中的新中心
-singular_point = -1
-radius = abs(new_center - singular_point)
-print(radius)
+new_center = 0.25       # ← 请改成例题中的新中心
+singular_point = -1     # 奇点位置
+radius = abs(new_center - singular_point)   # 半径 = 中心到奇点的距离
+print(radius)           # 与 @check 对位
 ```
 
 <details>

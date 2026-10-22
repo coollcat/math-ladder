@@ -95,20 +95,21 @@ PCA 投影最小化**垂直残差**；最小二乘回归最小化**竖直残差*
 ### 实验 3：Python 正规方程
 
 ```python title="三步算斜率和截距"
-points = [[1, 1], [2, 2], [3, 4]]
+points = [[1, 1], [2, 2], [3, 4]]   # 每个点是 [x, y]
 n = len(points)   # len() 返回列表长度
 
-sx = sum(point[0] for point in points)
-sy = sum(point[1] for point in points)
-sxx = sum(point[0] * point[0] for point in points)
-sxy = sum(point[0] * point[1] for point in points)
+# sum(... for ... in ...) 是生成器求和：一边遍历一边累加，不必先造列表
+sx = sum(point[0] for point in points)             # Σx
+sy = sum(point[1] for point in points)             # Σy
+sxx = sum(point[0] * point[0] for point in points) # Σx²
+sxy = sum(point[0] * point[1] for point in points) # Σxy
 
-m = (n * sxy - sx * sy) / (n * sxx - sx * sx)
-b = (sy - m * sx) / n
-print(round(m, 3))
+m = (n * sxy - sx * sy) / (n * sxx - sx * sx)   # 正规方程解出的斜率；分母是两个乘积相减
+b = (sy - m * sx) / n                            # 截距：y 的平均减去 m 乘 x 的平均
+print(round(m, 3))                               # 保留 3 位小数
 print(round(b, 3))
-residuals = [point[1] - (m * point[0] + b) for point in points]
-sse = sum(residual * residual for residual in residuals)
+residuals = [point[1] - (m * point[0] + b) for point in points]   # 列表推导式：逐点算"实测 − 预测"
+sse = sum(residual * residual for residual in residuals)          # 残差平方和（正负不能抵消）
 print(round(sse, 3))
 ```
 
@@ -122,19 +123,19 @@ print(round(sse, 3))
 # @check: -0.667
 # @check: 0.167
 # @hint: 斜率分母是 n*Sxx-Sx²，不是加法；残差平方和要先用直线算三个预测值。
-points = [[1, 1], [2, 2], [3, 4]]
-n = len(points)
-sx = 6
-sy = 7
-sxx = 14
-sxy = 17
+points = [[1, 1], [2, 2], [3, 4]]   # 三个样本点
+n = len(points)    # 样本个数
+sx = 6             # Σx：四个统计量已算好
+sy = 7             # Σy
+sxx = 14           # Σx²
+sxy = 17           # Σxy
 
-m = (n * sxy - sx * sy) / (n * sxx + sx * sx)
-b = (sy - m * sx) / n
-sse = 5.5
-print(round(m, 3))
-print(round(b, 3))
-print(round(sse, 3))
+m = (n * sxy - sx * sy) / (n * sxx + sx * sx)   # ← 分母该用减号还是加号？
+b = (sy - m * sx) / n                          # 截距公式（这行没问题）
+sse = 5.5                                      # ← 残差平方和是写死的，还是该算出来？
+print(round(m, 3))    # 打印斜率（保留 3 位）
+print(round(b, 3))    # 打印截距
+print(round(sse, 3))  # 打印残差平方和
 ```
 
 <details>
@@ -143,20 +144,21 @@ print(round(sse, 3))
 分母应为：
 
 ```python
-points = [[1, 1], [2, 2], [3, 4]]
-n = len(points)
-sx = sum(x for x, _ in points)
-sy = sum(y for _, y in points)
-sxx = sum(x * x for x, _ in points)
-sxy = sum(x * y for x, y in points)
+points = [[1, 1], [2, 2], [3, 4]]   # 每个点 [x, y]
+n = len(points)                     # 样本个数
+# "for x, _ in points" 是元组解包：直接把每个 [x, y] 拆成两个变量，_ 表示这个值用不上
+sx = sum(x for x, _ in points)              # Σx
+sy = sum(y for _, y in points)              # Σy
+sxx = sum(x * x for x, _ in points)         # Σx²
+sxy = sum(x * y for x, y in points)         # Σxy
 
-m = (n * sxy - sx * sy) / (n * sxx - sx * sx)
-b = (sy - m * sx) / n
-predictions = [m * x + b for x, _ in points]
-sse = sum((y - prediction) ** 2 for (_, y), prediction in zip(points, predictions))
-print(round(m, 3))
-print(round(b, 3))
-print(round(sse, 3))
+m = (n * sxy - sx * sy) / (n * sxx - sx * sx)   # 斜率：分母是相减，不是相加
+b = (sy - m * sx) / n                            # 截距：过样本均值点
+predictions = [m * x + b for x, _ in points]     # 列表推导式算出三个预测值
+sse = sum((y - prediction) ** 2 for (_, y), prediction in zip(points, predictions))   # zip 把两组数据配对；** 是乘方，残差平方后求和
+print(round(m, 3))    # 1.5
+print(round(b, 3))    # -0.667
+print(round(sse, 3))  # 0.167
 ```
 
 得 $m=1.5$，$b=-2/3$。预测值：

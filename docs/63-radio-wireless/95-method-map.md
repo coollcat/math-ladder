@@ -89,7 +89,7 @@ exits:
 ```python title="按需求关键词推荐方法"
 
 def recommend(task):                       # 关键词分诊：先具体后一般
-    if '打架' in task or '同频' in task or '频率' in task:
+    if '打架' in task or '同频' in task or '频率' in task:  # 子串判断用 in 而不是 ==：用户的话很长，只抓关键词
         return 'reuse-plan'                # 频率规划问题 → 蜂窝复用
     if '忽强忽弱' in task or '卡' in task or '抖动' in task:
         return 'small-scale-fading'        # 秒级起伏 → 多径/分集/OFDM
@@ -99,9 +99,9 @@ def recommend(task):                       # 关键词分诊：先具体后一�
         return 'noise-cascade'             # 信噪比逐级恶化 → 噪声级联
     return 'ask-measurement'               # 都不像？先去现场测
 
-print(recommend('新基站覆盖半径能不能到 5 公里'))
-print(recommend('地铁里视频一进隧道就卡'))
-print(recommend('两个小区为什么互相打架'))
+print(recommend('新基站覆盖半径能不能到 5 公里'))  # 覆盖半径属于平均信号预算问题，走链路预算
+print(recommend('地铁里视频一进隧道就卡'))  # 进隧道就卡是秒级起伏，属于小尺度衰落
+print(recommend('两个小区为什么互相打架'))  # 两个小区互相打架是频率复用规划问题
 ```
 
 输出 `link-budget`、`small-scale-fading`、`reuse-plan`。兜底分支是 `ask-measurement`：方法地图不替代测量，描述不清的问题先去现场拿数据。
@@ -150,15 +150,15 @@ print(recommend('两个小区为什么互相打架'))
 
 修正版：
 
-```python
-def recommend(task):
-    if '打架' in task or '同频' in task or '频率' in task:
+```python  # 把三条最常用的分诊规则写成完整函数，返回方法名字符串
+def recommend(task):  # 参数 task 是用户原话，函数内部逐条匹配关键词
+    if '打架' in task or '同频' in task or '频率' in task:  # 先具体后一般：频率打架排在最前，避免被后面的通用词抢走
         return 'reuse-plan'
-    if '忽强忽弱' in task or '卡' in task or '抖动' in task:
+    if '忽强忽弱' in task or '卡' in task or '抖动' in task:  # 忽强忽弱、卡顿、抖动都指向多径造成的小尺度衰落
         return 'small-scale-fading'
-    if '覆盖' in task or '半径' in task or '预算' in task:
+    if '覆盖' in task or '半径' in task or '预算' in task:  # 覆盖 / 半径 / 预算三个词指向链路预算那条线
         return 'link-budget'
-    return 'ask-measurement'
+    return 'ask-measurement'  # 兜底分支：没有命中任何关键词就不硬答
 
 print(recommend('新基站覆盖半径能不能到 5 公里'))   # link-budget
 print(recommend('地铁里视频一进隧道就卡'))          # small-scale-fading

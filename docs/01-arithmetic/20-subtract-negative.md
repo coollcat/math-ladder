@@ -69,14 +69,14 @@ $$a - (-b) = a + b \qquad (\text{负负得正})$$
 ### 实验 1：定义就是定理
 
 ```python title="验证 a-b 永远等于 a+(-b)"
-import random
+import random  # 标准库的 random：用来抽随机整数，替我们"撞"出一万组 a、b 去试定义
 
-ok_count = 0
-for trial in range(10000):
-    a = random.randint(-50, 50)
+ok_count = 0  # 计数器：数一数一万组里有多少组满足这条定义
+for trial in range(10000):  # range(10000)：生成 0…9999 共一万个整数，逐个赋给 trial；这里只当"重复一万次"用
+    a = random.randint(-50, 50)  # randint(下限, 上限) 闭区间取随机整数——两端都能取到，与 range 的右开区间不同
     b = random.randint(-50, 50)
     if a - b == a + (-b):
-        ok_count = ok_count + 1
+        ok_count = ok_count + 1  # 相等就记一分；一万组都记上了，才说明定义处处成立
 
 print(f"a-b 与 a+(-b) 在一万组随机数中相等 {ok_count} 次")
 ```
@@ -84,30 +84,30 @@ print(f"a-b 与 a+(-b) 在一万组随机数中相等 {ok_count} 次")
 ### 实验 2：负负得正
 
 ```python title="减去负数=加上正数"
-a, b = 4, 9
-print(f"{a} - (-{b}) = {a - (-b)}")
+a, b = 4, 9  # 一行同时赋两个变量（按位置一一对应），比写两行省事
+print(f"{a} - (-{b}) = {a - (-b)}")  # f-string：字符串前加 f，花括号里直接写式子，运行时求值再填进去
 print(f"{a} + {b}    = {a + b}")
 ```
 
 ### 实验 3：一周气温折线
 
 ```python title="用负数记录温差并画图"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # matplotlib 画图库；只取 pyplot 并改名 plt，后面写 plt.xxx 就是这个模块
 
-temps = [3, -2, -6, -4, 1, 5, 2]
-days = list(range(1, 8))
+temps = [3, -2, -6, -4, 1, 5, 2]  # 列表：方括号内按位置排列，正数表示比前一天暖、负数表示冷
+days = list(range(1, 8))  # range(1, 8) 是 1…7（右端不含 8）；list 把它摊开成真正的列表好画图
 
-diffs = []
-for i in range(1, len(temps)):
-    diffs.append(temps[i] - temps[i - 1])
+diffs = []  # 累加用的空列表，等下 append 逐个补温差
+for i in range(1, len(temps)):  # 从 1 起跳到末尾：i 当天、i-1 前一天的配对下标；len(temps) 是元素个数
+    diffs.append(temps[i] - temps[i - 1])  # append：把新元素接在列表末尾（原地加长，不返回值）
 print(f"相邻两日温差: {diffs}")
 
-plt.plot(days, temps, marker="o", label="temperature")
+plt.plot(days, temps, marker="o", label="temperature")  # plot(横坐标, 纵坐标)：连点成线；marker 指定点形，label 是图例文字（要 plt.legend() 才显示）
 plt.axhline(0, color="gray", linestyle="--")  # axhline：水平参考线（画在 y=0，负温区一眼可见）
-plt.xlabel("day")
-plt.ylabel("degrees C")
-plt.grid(True)
-plt.legend()
+plt.xlabel("day")  # xlabel：给横轴写名字
+plt.ylabel("degrees C")  # ylabel：给纵轴写名字
+plt.grid(True)  # grid：铺浅色网格线，方便肉眼读数值
+plt.legend()  # legend：把各条线自报的 label 画成图例，没这句 label 白写
 ```
 
 看 `diffs` 列表：升温的日子是正数、降温是负数——**差值的正负自动记录了方向**。这就是负数最大的功劳：把"方向"变成了可以参与运算的数。
@@ -150,22 +150,22 @@ ax.set_yticks([])
 ### 实验 5：相反数是一面镜子
 
 ```python title="n 与 -n 关于 0 对称"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # 这一课已经画过图，此处同样是"取画图模块并改名 plt"
 
-ns = list(range(1, 8))
-fig, ax = plt.subplots(figsize=(6, 2.2))
+ns = list(range(1, 8))  # 1…7：等下每一对 n 与 -n 各画一个点
+fig, ax = plt.subplots(figsize=(6, 2.2))  # 一次拿到"画布 fig + 画笔 ax"两件东西；figsize 是画布宽高（英寸）
 
 ax.axvline(0, color="gray", linestyle="--")  # axvline：竖直参考线（x=0，正负数的分界）
 for n in ns:
-    ax.scatter([n], [1], s=60, color="steelblue")
+    ax.scatter([n], [1], s=60, color="steelblue")  # scatter(横坐标列表, 纵坐标列表)：画一批点；s 是点面积、color 是颜色
     ax.scatter([-n], [1], s=60, color="tomato")
     ax.text(n, 1.22, str(n), ha="center", fontsize=8)  # str()：把数字变成字符串好当标签写进图；ha="center" 水平居中对齐
     ax.text(-n, 1.22, str(-n), ha="center", fontsize=8)
 
-ax.text(0, 0.35, "镜面: 0", ha="center", fontsize=9)
-ax.set_xlim(-9, 9)
-ax.set_ylim(0, 1.8)
-ax.set_yticks([])
+ax.text(0, 0.35, "镜面: 0", ha="center", fontsize=9)  # text(横, 纵, 内容)：在指定位置写一行字
+ax.set_xlim(-9, 9)  # set_xlim：手动定横轴范围
+ax.set_ylim(0, 1.8)  # set_ylim：手动定纵轴范围
+ax.set_yticks([])  # set_yticks([])：给纵轴一个空刻度表——这图纵轴无意义，就别画刻度
 ```
 
 每对蓝红点到中央虚线的距离都相等——$n$ 与 $-n$ 互为相反数，"$-(-n)=n$" 就是照两次镜子回到原处。
@@ -203,7 +203,7 @@ ax.set_yticks([])
 # @check: -5
 # @check: 8
 # @hint: (2) 写一道"小减大"的减法，落点会进负数区（参考：4 - 9）；(3) 用"减去一个负数 = 加上它的相反数"（参考：-3 - (-11)）
-print(-7 + 12)
+print(-7 + 12)  # 示范：先写算式再交给 print，它把结果按十进制打印成一行
 print()  # (2)：自己出一道结果为负数的减法
 print()  # (3)：自己出一道"减去负数"、结果为正数的算式
 ```
@@ -214,11 +214,11 @@ print()  # (3)：自己出一道"减去负数"、结果为正数的算式
 <summary>点开查看逐步解答</summary>
 
 ```python
-price = 20
-changes = [2, -5, 3]
-for c in changes:
-    price = price + c
-    print(price)
+price = 20  # 起始股价；变量名要能被后面的代码反复读改
+changes = [2, -5, 3]  # 三天的涨跌（元），正负号就是方向
+for c in changes:  # for 变量 in 列表：挨个把元素取出来交给 c，列表走完循环自动结束
+    price = price + c  # 用等号把"旧价 + 当日涨跌"写回 price，一行就完成更新
+    print(price)  # 每更新一次打印一次：循环体缩进决定哪几行被重复执行
 ```
 
 收盘价序列：22, 17, 20；最终回到 20。注意涨跌互抵正是"相反数相加得 0"的现实版本。
@@ -232,8 +232,8 @@ for c in changes:
 $a-b=b-a$ 移项（两边同加 $a+b$）得 $2a=2b$……严格解需要等式性质，第 4 章正式讲。先动手试：
 
 ```python
-for a, b in [(3, 3), (3, 5), (7, 7), (0, 0)]:
-    print(a - b == b - a)
+for a, b in [(3, 3), (3, 5), (7, 7), (0, 0)]:  # 列表里放的是元组 (a, b)；for 里写 a, b 就能一次拆开解包
+    print(a - b == b - a)  # == 比较两边是否相等，返回 True / False 再打印出来
 ```
 
 规律：只有 $a=b$ 时成立。直觉：交换减数被减数还想相等，除非两者相同。

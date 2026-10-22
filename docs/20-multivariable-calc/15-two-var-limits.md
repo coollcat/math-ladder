@@ -121,22 +121,22 @@ $f$ 负责演示"路径一变命运就变"；$g$ 更狡猾——它能把整族�
 ### 实验 3：路径探针
 
 ```python title="路径探针：同一点，不同方向的读数"
-import math
+import math   # math.cos / math.sin / math.radians 都在这里
 
 def f(x, y):
-    return x * y / (x * x + y * y)    # 主角 f：原点处没定义
+    return x * y / (x * x + y * y)    # 主角 f：原点处没定义（分母为 0）
 
 for r in [0.1, 0.01, 0.001]:          # 半径一路缩小：三路齐发逼近原点
-    row = []
+    row = []                          # 每换一个半径就备一个新列表
     for deg in [0, 45, 90]:           # 三条射线：横轴、对角线、纵轴
-        rad = math.radians(deg)       # 角度转弧度
-        row.append(round(f(r * math.cos(rad), r * math.sin(rad)), 3))
+        rad = math.radians(deg)       # 角度转弧度（三角函数吃弧度不吃角度）
+        row.append(round(f(r * math.cos(rad), r * math.sin(rad)), 3))   # 极坐标换成直角坐标再代入；round(x, 3) 保留 3 位
     print(r, row)                     # 每行报：同一半径上三个方向的读数
 
 def g(x, y):
-    return x * x * y / (x ** 4 + y * y)   # 主角 g：直线族测谎仪的漏网之鱼
+    return x * x * y / (x ** 4 + y * y)   # 主角 g：直线族测谎仪的漏网之鱼（** 是乘方，x**4 即 x⁴）
 
-print(round(g(0.1, 0.01), 3))         # 沿抛物线 y = x^2 的读数
+print(round(g(0.1, 0.01), 3))         # 沿抛物线 y = x^2 的读数（y 取 x²）
 print(round(g(0.01, 0.0001), 3))      # 半径再小十倍，读数纹丝不动
 ```
 
@@ -151,9 +151,9 @@ print(round(g(0.01, 0.0001), 3))      # 半径再小十倍，读数纹丝不动
 # @check: 0.4
 # @hint: 分子是两个坐标的乘积 x*y，不是相加；分母 x*x + y*y 没问题。
 def f(x, y):
-    return x + y / (x * x + y * y)    # ← 有错：分子把乘法写成了加法
+    return x + y / (x * x + y * y)    # ← 有错：分子把乘法写成了加法（运算符优先级也要留意）
 
-h = 0.001
+h = 0.001                             # 统一用一个小步长 h 当"离原点多近"
 print(round(f(h, 0), 3))              # 沿横轴 y=0 的读数
 print(round(f(h, h), 3))              # 沿对角线 y=x 的读数
 print(round(f(h, 2 * h), 3))          # 沿 y=2x 的读数
@@ -177,12 +177,12 @@ def f(x, y):
 
 ```python
 def f(x, y):
-    return x * y / (x * x + y * y)
+    return x * y / (x * x + y * y)    # 分子改成乘积：三条路才各奔前程
 
 h = 0.001
-print(round(f(h, 0), 3))
-print(round(f(h, h), 3))
-print(round(f(h, 2 * h), 3))
+print(round(f(h, 0), 3))              # 0.0
+print(round(f(h, h), 3))              # 0.5
+print(round(f(h, 2 * h), 3))          # 0.4
 ```
 
 </details>

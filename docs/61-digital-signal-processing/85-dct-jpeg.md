@@ -93,20 +93,21 @@ $$F[u] = \alpha(u) \sum_{n=0}^{N-1} x[n]\, \cos\left(\frac{(2n+1)\,u\,\pi}{2N}\r
 import math                              # sqrt / cos / pi 都靠它
 
 P = []                                   # 一行行搭出 8×8 的假想照片
-for r in range(8):
+for r in range(8):  # 外层循环走行号 r，内层走列号 c；Python 用缩进表示嵌套层级
     row = []                             # 当前行拼装中
     for c in range(8):
         stripe = 25 if c % 4 == 0 else 0 # 每 4 列加一道 +25 的竖亮条
-        row.append(30 + r * 12 + stripe)
+        row.append(30 + r * 12 + stripe)  # 像素值 = 基础亮度 30 + 随行递增的梯度 12r + 条纹，造出有结构的图案
     P.append(row)
 
 def alpha(u):                            # 归一化因子：DC 用 sqrt(1/8)，其余 sqrt(2/8)
-    return math.sqrt(1 / 8) if u == 0 else math.sqrt(2 / 8)
+    return math.sqrt(1 / 8) if u == 0 else math.sqrt(2 / 8)  # 条件表达式直接 return，省掉 if/else 四行
 
 def dct_cell(u, v):                      # 二维 DCT 的一个格子：行与列各乘一条余弦
     s = 0.0
     for r in range(8):
         for c in range(8):
+            # 行尾的反斜杠 \ 是续行符：一条语句拆成两行写，语义不变
             s = s + P[r][c] * math.cos((2 * r + 1) * u * math.pi / 16) \
                       * math.cos((2 * c + 1) * v * math.pi / 16)
     return s * alpha(u) * alpha(v)
@@ -118,7 +119,7 @@ for u in range(8):
         cells.append((abs(val), val, u, v))   # 首位存绝对值当排序键，原值随身携带
 
 total = 0.0                              # 总能量 = 所有系数的平方和
-for m, val, u, v in cells:
+for m, val, u, v in cells:  # for m, val, u, v in cells 一次解包四元组，m 就是那个绝对值
     total = total + val * val
 cells.sort(reverse=True)                 # 元组排序：按首位（绝对值）从大到小
 
@@ -135,6 +136,7 @@ rec = [[0.0] * 8 for r in range(8)]      # 空画布：只用保留条纹重建�
 for m, val, u, v in keep:
     for r in range(8):
         for c in range(8):
+            # 重建只叠加保留下来的系数——被丢掉的条纹不再出现，这就是 JPEG 的损失来源
             rec[r][c] = rec[r][c] + val \
                 * math.cos((2 * r + 1) * u * math.pi / 16) \
                 * math.cos((2 * c + 1) * v * math.pi / 16)
@@ -146,7 +148,7 @@ for r in range(8):
         d = abs(rec[r][c] - P[r][c])
         mae = mae + d
         worst = max(worst, d)
-mae = mae / 64
+mae = mae / 64  # 平均绝对误差 = 总误差 / 64 个像素
 
 print("最强格子能量占比:", round(cells[0][1] ** 2 / total * 100), "%")
 print("保留", len(keep), "/ 64 格，合计能量", round(kept_energy / total * 100), "%")

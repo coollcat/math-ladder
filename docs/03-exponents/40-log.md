@@ -67,11 +67,12 @@ $$\log_b(b^x) = x \qquad b^{\log_b N} = N$$
 不用任何对数工具，只靠除法和计数，回答"2 的几次方等于 1024"：
 
 ```python title="减半计数器"
-N = 1024
+N = 1024                      # 要找"2 的几次方"的那个目标数
 count = 0                     # 计数器：记录除了几次
 m = N                         # 用副本 m 动手，保留原值 N
-while m > 1:                  # while 循环：条件成立就一直重复
-    m = m / 2                 # 每轮减半一次
+while m > 1:                  # while 循环：每轮开头先判条件，成立才进循环体；条件一旦不成立就退出
+                              # （和 for 不同，while 的圈数不预先给定，由数据自己决定）
+    m = m / 2                 # 每轮减半一次；/ 是真除法，除不尽会带小数
     count = count + 1         # 数一次
 print(f"{N} 需要翻倍 {count} 次才能从 1 到达")
 ```
@@ -83,7 +84,7 @@ print(f"{N} 需要翻倍 {count} 次才能从 1 到达")
 换 N=10 再跑一遍：计数器报 4。可 $2^4=16$ 早超过 10 了！真相是：$2^3=8$ 不够、$2^4=16$ 太多，**真正的答案在 3 和 4 之间的某个小数**。整数世界装不下它——就像 $\sqrt2$ 当年装不进分数。
 
 ```python title="精确答案需要新工具"
-import math
+import math  # 导入标准库 math：里面装着 log、sqrt 这些现成数学函数，导入一次整段程序都能用
 
 print(math.log(10, 2))        # math.log(N, b)：以 b 为底 N 的对数，第二个参数是底数
 print(math.log(1024, 2))
@@ -170,8 +171,8 @@ Python 里只给一个参数时，底是自然常数 e ≈ 2.718（第 12 章欧
 # @title: 练习：指数的反问句
 # @check: 3
 # @hint: math.log(N, b) 读作"b 的几次方等于 N"——大数字在前，底数在后
-import math
-print(int(math.log(2, 8)))
+import math   # 导入 math 模块，才能用 math.log
+print(int(math.log(2, 8)))   # int(...)：把带小数的结果截断成整数——log 常算出 2.9999… 这类浮点尾巴，取整前先想清楚该取哪一个参数
 ```
 
 **练习 2**：验证"减半计数器"与 math.log 在更多数字上一致（整数场合）。
@@ -180,15 +181,15 @@ print(int(math.log(2, 8)))
 <summary>点开查看逐步解答</summary>
 
 ```python
-import math
+import math   # 标准库模块：log 就在里面
 
-for N in [8, 256, 4096]:
-    count = 0
-    m = N
-    while m > 1:
-        m = m / 2
-        count = count + 1
-    print(f"N={N}: 计数器 {count}, math.log {int(math.log(N, 2))}")
+for N in [8, 256, 4096]:   # for 直接遍历列表：把三个待测数字依次取出来，省得手写三遍
+    count = 0              # 每个 N 都重新开始计数（写在循环体内＝每轮清零）
+    m = N                  # 动手用的副本
+    while m > 1:           # 一直减半，直到 m 不再大于 1
+        m = m / 2          # 减半一次
+        count = count + 1  # 记一次
+    print(f"N={N}: 计数器 {count}, math.log {int(math.log(N, 2))}")  # f-string 里可以塞表达式，int(...) 用来去掉浮点尾巴
 ```
 
 两边完全一致。手写的循环给出理解，官方函数给出效率——本站一贯的两条腿走路。
@@ -200,13 +201,13 @@ for N in [8, 256, 4096]:
 <summary>点开查看逐步解答</summary>
 
 ```python
-cells = 1
-rounds = 0
-while cells <= 1000000000:
-    cells = cells * 2
-    rounds = rounds + 1
+cells = 1                        # 起初只有 1 个细胞
+rounds = 0                       # 已经分裂了几轮
+while cells <= 1000000000:       # 条件用 <=：还没越过十亿就继续分裂
+    cells = cells * 2            # 每轮全体翻倍
+    rounds = rounds + 1          # 轮数加一
 print(rounds)                    # 30 轮
-print(rounds * 20 / 60)          # 10 小时
+print(rounds * 20 / 60)          # 每轮 20 分钟，先乘出分钟再除以 60 换成小时
 ```
 
 30 轮 × 20 分钟 = 600 分钟 = 10 小时。注意 math.log 给的是 29.9——理论交点；而细胞只能整轮整轮地翻，第 30 轮才真正越过线。"连续答案"与"离散步数"差一步，正是练习里 while 循环与 log 函数的分工。

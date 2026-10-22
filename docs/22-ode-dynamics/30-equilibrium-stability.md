@@ -96,18 +96,18 @@ $$\frac{dy}{dt}=y(2-y).$$
 ### 实验 3：Python 判断稳定性
 
 ```python title="用导数判断两个平衡点"
-def f(y):
-    return y * (2 - y)
+def f(y):                     # def 定义函数：自治方程的斜率规则 f(y)=y(2-y)
+    return y * (2 - y)        # 逻辑斯蒂型：y=0 与 y=2 两处斜率为零，即两个平衡点
 
-def f_prime(y):
-    return 2 - 2 * y
+def f_prime(y):               # 一阶导 f'(y)=2-2y：判稳定性的工具
+    return 2 - 2 * y          # 对 y(2-y) 求导；代入平衡点看正负号即可定型
 
-equilibria = [0, 2]
-status0 = "stable" if f_prime(equilibria[0]) < 0 else "unstable"
-status2 = "stable" if f_prime(equilibria[1]) < 0 else "unstable"
-print(equilibria)
-print(status0)
-print(status2)
+equilibria = [0, 2]           # 列表装下两个平衡点，下面逐个判决
+status0 = "stable" if f_prime(equilibria[0]) < 0 else "unstable"   # 条件表达式：导数为负才被吸回，记 stable
+status2 = "stable" if f_prime(equilibria[1]) < 0 else "unstable"   # 同一判据用在 y=2 那个平衡点上
+print(equilibria)             # 打印列表本身会带方括号：[0, 2]
+print(status0)                # 逐行打印判决，顺序就是 @check 的顺序
+print(status2)                # 第二个平衡点的结论
 ```
 
 输出 `[0, 2]`、`unstable`、`stable`。
@@ -120,15 +120,15 @@ print(status2)
 # @check: unstable
 # @check: stable
 # @hint: f'(y)=2-2y。导数小于零才是稳定。
-def f_prime(y):
-    return 2 + 2 * y
+def f_prime(y):                        # 待修正的导数公式
+    return 2 + 2 * y                   # ← 符号抄错了：代入 y=0 与 y=2 会得出相反的结论
 
-equilibria = [0, 2]
-status0 = "stable" if f_prime(equilibria[0]) < 0 else "unstable"
-status2 = "stable" if f_prime(equilibria[1]) < 0 else "unstable"
-print(equilibria)
-print(status0)
-print(status2)
+equilibria = [0, 2]                    # 平衡点本身没写错，问题出在导数
+status0 = "stable" if f_prime(equilibria[0]) < 0 else "unstable"   # 判据：导数为负 → 稳定
+status2 = "stable" if f_prime(equilibria[1]) < 0 else "unstable"   # 同一判据，用第二个平衡点
+print(equilibria)                      # 第一行：打印平衡点列表
+print(status0)                         # 第二行：第一个平衡点的判决
+print(status2)                         # 第三行：第二个平衡点的判决
 ```
 
 <details>
@@ -137,15 +137,15 @@ print(status2)
 由 $f(y)=y(2-y)$ 展开得 $f(y)=2y-y^2$，所以：
 
 ```python
-def f_prime(y):
-    return 2 - 2 * y
+def f_prime(y):              # f'(y)=2−2y：负数表示稳定，正数表示不稳定
+    return 2 - 2 * y         # 平衡点 y=0 处 f'=2>0（不稳），y=2 处 f'=−2<0（稳）
 
-equilibria = [0, 2]
-status0 = "stable" if f_prime(equilibria[0]) < 0 else "unstable"
-status2 = "stable" if f_prime(equilibria[1]) < 0 else "unstable"
-print(equilibria)
-print(status0)
-print(status2)
+equilibria = [0, 2]          # 列表装两个平衡值，下面按下标取
+status0 = "stable" if f_prime(equilibria[0]) < 0 else "unstable"   # 条件表达式：斜率负则判稳
+status2 = "stable" if f_prime(equilibria[1]) < 0 else "unstable"   # 对第二个平衡值同样判断
+print(equilibria)            # 打印列表
+print(status0)               # 第一个平衡点的判决
+print(status2)               # 第二个平衡点的判决
 ```
 
 代入：

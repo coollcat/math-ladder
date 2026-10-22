@@ -75,16 +75,16 @@ $$D_k=\lbrace (b_i,d_i)\rbrace_i\cup\Delta$$
 蓝色对角线是“出生=死亡”的零持久线；橙色水平线是死亡值 $d$。竖拖 `d` 移动橙线；橙线的高度就是持久度的读数——它到蓝对角线的竖直距离正是 $d-b$（出生值 $b$ 图上不可见，只用于心算）。橙线拖到贴近对角线时，应降低解释强度。
 
 ```python title="从区间列表筛选长寿特征"
-features = [
+features = [  # 持久特征首现：dim 是维数，birth / death 是它出现与消失的尺度
     {"dim": 0, "birth": 0.0, "death": 1.0},
     {"dim": 1, "birth": 1.0, "death": 1.41},
     {"dim": 1, "birth": 0.2, "death": 0.25},
 ]
-minimum_life = 0.3
+minimum_life = 0.3  # 寿命阈值：短于它的特征被视为噪声丢弃
 
-for item in features:
+for item in features:  # 寿命 = 死亡尺度 − 出生尺度，越大越「结实」
     life = item["death"] - item["birth"]
-    print(item["dim"], round(life, 2), life >= minimum_life)
+    print(item["dim"], round(life, 2), life >= minimum_life)  # 比较结果是布尔值，直接打印 True / False 就是筛选结论
 ```
 
 输出提醒我们：第二行 $H_1$ 寿命约 0.41，第三行只有 0.05。
@@ -111,11 +111,11 @@ for bar in bars:
 用格式化输出统一小数位：
 
 ```python
-bars = [
+bars = [  # 两根条形：H0 是连通分支，H1 是环路
     {"dimension": 0, "start": 0.00, "end": 1.00},
     {"dimension": 1, "start": 1.00, "end": 1.41},
 ]
-for bar in bars:
+for bar in bars:  # 字段名是 dimension / start / end，与上面示例的 dim / birth / death 不同名，别混用
     life = bar["end"] - bar["start"]
     # :.2f 强制两位小数，避免 1.41 这类值被打印成一位
     print(f'H{bar["dimension"]} {bar["start"]:.2f} {bar["end"]:.2f} {life:.2f}')

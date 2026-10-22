@@ -164,12 +164,12 @@ received= 1 1 1 1 1
 `pattern` 里有两个 1，所以错误数为 2。正确代码可写成：
 
 ```python
-message = [1, 0, 1, 1, 0]
-pattern = [0, 1, 0, 0, 1]
-received = []
-for i in range(5):
-    received.append((message[i] + pattern[i]) % 2)
-count = sum(pattern)
+message = [1, 0, 1, 1, 0]   # 发送的消息，逐位列出
+pattern = [0, 1, 0, 0, 1]   # 错误图样：1 表示这一位被信道翻转
+received = []               # 收集接收到的五位
+for i in range(5):          # range(5) 给出 0 到 4 这五个下标
+    received.append((message[i] + pattern[i]) % 2)   # 加完再 % 2，效果就是异或
+count = sum(pattern)        # sum 对错误图样求和，得到翻转的位数
 print(f"received={received}")
 print(f"count={count}")
 ```

@@ -14,7 +14,9 @@
     "gen:chapters": "node scripts/gen-chapters-data.mjs",
     "audit": "node mechanical-audit.cjs",
     "audit:guides": "node scripts/audit-unit-guides.mjs",
-    "clear": "docusaurus clear"
+    "clear": "docusaurus clear",
+    "check:py-run": "node scripts/check-py-run.mjs docs",
+    "setup:pyodide-runtime": "node scripts/setup-pyodide-runtime.mjs"
   },
   "dependencies": {
     "@docusaurus/core": "^3.8.0",
@@ -31,6 +33,7 @@
     "katex": "^0.16.47",
     "marked": "^18.0.11",
     "prism-react-renderer": "^2.4.1",
+    "pyodide": "^0.26.4",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0"
   },

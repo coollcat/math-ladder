@@ -95,10 +95,10 @@ $a$ 对应极点横坐标的相反数；$b$ 对应虚部。增大 $a$ 波包更�
 ```python title="e^(s*t) 在三个 s 地址的行为"
 import cmath   # cmath 支持复数的数学函数；cmath.exp 可接受复指数
 
-for s in [-1 + 6j, 0 + 6j, 1 + 6j]:
-    t = 2
-    value = cmath.exp(s * t)   # 复指数：模长由 exp(sigma*t) 控制
-    print(f"s={s}, value={round(value.real, 3)} + {round(value.imag, 3)}i")
+for s in [-1 + 6j, 0 + 6j, 1 + 6j]:   # 遍历列表：三个 s 分别落在左半平面、虚轴、右半平面
+    t = 2                              # 统一取 t=2，只看 s 的位置如何影响结果
+    value = cmath.exp(s * t)           # 复指数：模长由 exp(σt) 控制，σ 就是 s 的实部
+    print(f"s={s}, value={round(value.real, 3)} + {round(value.imag, 3)}i")   # f-string 把变量直接嵌进字符串
 ```
 
 左半平面的点变小，纯虚轴上的点只转圈不增减，右半平面的点迅速放大。
@@ -114,17 +114,17 @@ for s in [-1 + 6j, 0 + 6j, 1 + 6j]:
 ### 实验 3（python）：数值验证 L{1}=1/s
 
 ```python title="从 0 到 T 截断积分近似"
-import cmath
+import cmath                     # cmath：支持复数的数学函数库
 
-s = 1 + 2j
-N = 20000
-T = 30
-h = T / N
-total = 0 + 0j
-for k in range(N):
-    t = (k + 0.5) * h
-    total += cmath.exp(-s * t) * h
-print(round(total.real, 5), round(total.imag, 5))
+s = 1 + 2j                       # 极点或考察点；1j 是虚数单位
+N = 20000                        # 分段数：越多越接近真实积分
+T = 30                           # 积分上限：拉氏变换积到无穷，这里截断到 30
+h = T / N                        # 每段宽度
+total = 0 + 0j                   # 复数累加器，从 0 开始
+for k in range(N):               # 逐段累加
+    t = (k + 0.5) * h            # 取每段中点，比取端点准
+    total += cmath.exp(-s * t) * h   # 累加 e^{-st}·h，就是拉氏变换的黎曼和
+print(round(total.real, 5), round(total.imag, 5))   # .real / .imag 取实部虚部，应得 1/(s)
 ```
 
 输出接近理论值
@@ -148,11 +148,11 @@ $$\frac{1}{1+2i}=0.2-0.4i.$$
 # @check: -3.0
 # @check: 0.2
 # @hint: 极点让分母为零；频率响应取 s=i*omega，模长是复数分母的长度。
-pole_real = 3.0          # 请检查符号
-omega = 4.0
-gain = 1 / abs(pole_real + omega)    # 请把 s=i*omega 代入分母后再取模长
-print(round(pole_real, 1))
-print(round(gain, 1))
+pole_real = 3.0          # ← 极点让 s+3=0，实部应是 −3
+omega = 4.0              # 频率响应的考察频率 ω
+gain = 1 / abs(pole_real + omega)   # ← 分母应是复数 s+3 在 s=iω 处的模长，不是两个实数相加
+print(round(pole_real, 1))   # 第一行与 @check 对位
+print(round(gain, 1))        # 第二行与 @check 对位
 ```
 
 <details>

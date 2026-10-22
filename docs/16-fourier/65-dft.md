@@ -84,7 +84,7 @@ $$\lvert X[k]\rvert = \sqrt{\mathrm{Re}^2 + \mathrm{Im}^2}$$
 ```python title="手搓 O(N²) 的 DFT：拖动 f1 / f2，看谱峰搬家"
 import math                      # 数学工具库：用 pi、sin、cos 和 hypot
 
-# sliders: f1=5 [1:12:0.5], f2=12 [13:31:1]
+# sliders: f1=5 [1:12:0.5], f2=20 [13:31:1]
 
 N = 64                           # 采样点个数
 fs = 64                          # 采样率：每秒 64 个点，正好记录 1 秒
@@ -154,9 +154,9 @@ print("次强峰: 桶 k =", second, "幅度", round(mags[second], 3),
 # @title: 练习：找到纯音的频率桶
 # @check: 3
 # @hint: 实信号的频谱以中点为镜对称——前半段与后半段各立着一根等高的峰。想报出「正主」而不是倒影，扫描该从哪半边开始？
-import math
+import math  # import math 取 pi / cos / sin / hypot
 
-N = 16
+N = 16  # N=16 个采样点，对应 16 个频率桶
 xs = []
 for n in range(N):
     xs.append(math.cos(2 * math.pi * 3 * n / 16))   # 纯余弦：藏在某个整数桶上
@@ -164,11 +164,11 @@ for n in range(N):
 def mag(k):                      # 第 k 桶的幅度
     re = 0.0
     im = 0.0
-    for n in range(N):
+    for n in range(N):  # 角度按 2πkn/N 递增；N 是总点数而不是采样率
         ang = 2 * math.pi * k * n / N
         re = re + xs[n] * math.cos(ang)
         im = im - xs[n] * math.sin(ang)
-    return math.hypot(re, im) / N
+    return math.hypot(re, im) / N  # hypot(re, im) 取复数模长，再除以 N 归一化成振幅
 
 best_k = 0                       # 目前最强桶的编号
 best_v = 0.0                     # 目前最强桶的幅度

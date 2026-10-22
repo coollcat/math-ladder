@@ -99,7 +99,7 @@ for xx in [0.0, 0.5, 2.0, 3.5]:                   # 多个抽查点逐一验证
     print(f"x={xx}: 原式 {round(lhs(xx), 6)} == 拆分 {round(rhs(xx), 6)}")
 
 # 用拆分结果结算 ∫₂³ dx/(x²-1)：原函数是 (1/2)·ln|(x-1)/(x+1)|
-val = 0.5 * math.log(abs((3 - 1) / (3 + 1))) - 0.5 * math.log(abs((2 - 1) / (2 + 1)))
+val = 0.5 * math.log(abs((3 - 1) / (3 + 1))) - 0.5 * math.log(abs((2 - 1) / (2 + 1)))  # 用原函数 F(x)=(1/2)ln|(x−1)/(x+1)| 结算定积分，两个端点各代一次相减
 print(f"∫₂³ dx/(x²-1) ≈ {round(val, 4)}")
 ```
 

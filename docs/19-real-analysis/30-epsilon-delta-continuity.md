@@ -98,20 +98,20 @@ $$f(x)=\frac{x^2-4}{x-2},\qquad a=2,\qquad L=4.$$
 
 ```python title="验证 delta=epsilon"
 def f(x):
-    return (x * x - 4) / (x - 2)
+    return (x * x - 4) / (x - 2)   # 注意 x=2 时这里会除零：所以扫描时要绕开它
 
-epsilon = 0.5
-delta = epsilon
-worst = 0.0
-for k in range(1, 1000):
-    x = 2 - delta + 2 * delta * k / 1000
+epsilon = 0.5           # 先给定输出误差上限（定义里 ε 是"任意给定"的那个）
+delta = epsilon         # 本函数的可行半径恰好可以取 δ = ε
+worst = 0.0             # 记录扫过的点里最大的误差，从 0 开始
+for k in range(1, 1000):   # 在输入半径里撒 999 个采样点
+    x = 2 - delta + 2 * delta * k / 1000   # 把 [2-δ, 2+δ] 均匀切成 1000 份，第 k 个点
     if x == 2:
         continue  # continue：跳过本轮循环，直接进入下一个 k
-    error = abs(f(x) - 4)
-    worst = max(worst, error)
+    error = abs(f(x) - 4)      # abs 取绝对值：误差只看距离，不看正负
+    worst = max(worst, error)  # 保留目前为止的最大值（max 内置函数）
 
-print(round(worst, 4))
-print("valid" if worst < epsilon else "invalid")
+print(round(worst, 4))                             # 保留 4 位小数看看最大误差是多少
+print("valid" if worst < epsilon else "invalid")   # 条件表达式：一个三元式，按条件二选一交给 print
 ```
 
 输出 `0.499` 和 `valid`。
@@ -124,19 +124,19 @@ print("valid" if worst < epsilon else "invalid")
 # @check: valid
 # @hint: 对这个函数，|f(x)-4|=|x-2|，所以 delta 可以取 epsilon。
 def f(x):
-    return (x * x - 4) / (x - 2)
+    return (x * x - 4) / (x - 2)   # x=2 处无定义，靠扫描时跳过
 
-epsilon = 0.5
-delta = epsilon ** 2
-worst = 0.0
-for k in range(1, 1000):
-    x = 2 - delta + 2 * delta * k / 1000
+epsilon = 0.5           # 给定的输出误差上限
+delta = epsilon ** 2    # δ 现在是这样取的——它和 ε 谁大？够不够用？
+worst = 0.0             # 记录最大误差
+for k in range(1, 1000):   # 999 个采样点
+    x = 2 - delta + 2 * delta * k / 1000   # 采样点公式：把 [2-δ, 2+δ] 均分
     if x == 2:
         continue  # continue：跳过本轮循环，直接进入下一个 k
-    worst = max(worst, abs(f(x) - 4))
+    worst = max(worst, abs(f(x) - 4))   # 一行同时取绝对值与更新最大值
 
-print(round(delta, 3))
-print("valid" if worst < epsilon else "invalid")
+print(round(delta, 3))                             # 打印 δ 本身（保留 3 位）
+print("valid" if worst < epsilon else "invalid")   # 条件表达式：worst < ε 才输出 valid
 ```
 
 <details>
@@ -152,18 +152,18 @@ print("valid" if worst < epsilon else "invalid")
 
 ```python
 def f(x):
-    return (x * x - 4) / (x - 2)
+    return (x * x - 4) / (x - 2)   # x=2 处会除零，下面用 if 把它挡掉
 
-epsilon = 0.5
-delta = epsilon
-worst = 0.0
-for k in range(1, 1000):
-    x = 2 - delta + 2 * delta * k / 1000
-    if x != 2:
-        worst = max(worst, abs(f(x) - 4))
+epsilon = 0.5           # 给定的输出误差上限
+delta = epsilon         # 由 |f(x)-4| = |x-2| 直接读出：δ 取 ε 就够
+worst = 0.0             # 最大误差，先置 0
+for k in range(1, 1000):   # 撒 999 个采样点
+    x = 2 - delta + 2 * delta * k / 1000   # 把 [2-δ, 2+δ] 均分后的第 k 个点
+    if x != 2:                             # 只处理有定义的点
+        worst = max(worst, abs(f(x) - 4))  # 取绝对值后更新最大值
 
-print(round(delta, 3))
-print("valid" if worst < epsilon else "invalid")
+print(round(delta, 3))                             # 输出所用 δ
+print("valid" if worst < epsilon else "invalid")   # 条件表达式：一行完成 if/else 的二选一
 ```
 
 当 $\epsilon=0.5$ 时，$\delta=0.5$。数值扫描的最大误差小于 0.5。

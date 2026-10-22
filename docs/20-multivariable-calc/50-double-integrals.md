@@ -106,23 +106,23 @@ $$\int_0^32y\,dy=\left[y^2\right]_0^3=9.$$
 
 ```python title="用中心点近似体积"
 def f(x, y):
-    return x * x * y * y
+    return x * x * y * y    # 被积函数：曲面的高度
 
-a = 0.0
+a = 0.0          # x 方向区间 [a, b]
 b = 2.0
-c = 0.0
+c = 0.0          # y 方向区间 [c, d]
 d = 3.0
-nx = 200
-ny = 200
-dx = (b - a) / nx
-dy = (d - c) / ny
-total = 0.0
-for i in range(nx):
-    for j in range(ny):
-        x = a + (i + 0.5) * dx
+nx = 200         # x 方向切几格
+ny = 200         # y 方向切几格
+dx = (b - a) / nx   # 每格宽度 Δx
+dy = (d - c) / ny   # 每格高度 Δy
+total = 0.0         # 体积累加器
+for i in range(nx):         # 外层扫 x
+    for j in range(ny):     # 内层扫 y：嵌套 for 得到 nx×ny 块地砖
+        x = a + (i + 0.5) * dx   # + 0.5 取格子中心：中心点采样比端点更准
         y = c + (j + 0.5) * dy
-        total = total + f(x, y) * dx * dy
-print(round(total, 3))
+        total = total + f(x, y) * dx * dy   # 高度 × 地砖面积，块块相加
+print(round(total, 3))      # 保留 3 位小数
 ```
 
 输出 `24.0`。
@@ -133,18 +133,18 @@ print(round(total, 3))
 
 ```python title="用中心点近似三角形上的总量"
 def f(x, y):
-    return x * x * y * y
+    return x * x * y * y    # 同一个被积函数，只换区域形状
 
 a = 0.0
 b = 2.0
-n = 200
-dy = (b - a) / n
+n = 200                  # 两个方向各切 n 份
+dy = (b - a) / n         # y 方向的条带厚度（y 总是跑满 0…2）
 total = 0.0
-for j in range(n):
-    y = a + (j + 0.5) * dy
-    dx = (b - y) / n
-    for i in range(n):
-        x = y + (i + 0.5) * dx
+for j in range(n):       # 外层按 y 切条带
+    y = a + (j + 0.5) * dy      # 这一条带的中心高度
+    dx = (b - y) / n            # 条带长度跟着 y 变：x 只跑到 2，所以这层比矩形区域短
+    for i in range(n):          # 内层在这个条带里扫 x
+        x = y + (i + 0.5) * dx  # 起点是斜边 x = y，不是常数 0
         total = total + f(x, y) * dx * dy
 print(round(total, 3))
 ```
@@ -160,14 +160,14 @@ print(round(total, 3))
 # @check: 9.0
 # @hint: 先算内层 ∫xy dx；再把它作为 y 的函数从 0 积到 3。
 def inner_integral(y):
-    return y
+    return y       # ← 内层 ∫xy dx 的结果是 y 的几倍？
 
 def outer_integral(y):
-    return inner_integral(y)
+    return inner_integral(y)   # ← 这里要的是"再对 y 积一次"的结果，不是照抄
 
-print(round(inner_integral(2), 3))
-print(round(outer_integral(3), 3))
-print(round(outer_integral(3), 3))
+print(round(inner_integral(2), 3))   # 内层在 y=2 处的值
+print(round(outer_integral(3), 3))   # 外层在 y=3 处的值
+print(round(outer_integral(3), 3))   # 最终体积（本题与上一行同值）
 ```
 
 <details>
@@ -200,14 +200,14 @@ outer_integral(3)=9
 
 ```python
 def inner_integral(y):
-    return 2.0 * y
+    return 2.0 * y    # ∫₀² xy dx = y·[x²/2]₀² = 2y
 
 def outer_integral(limit):
-    return 1.0 * limit * limit
+    return 1.0 * limit * limit   # ∫₀³ 2y dy = y²，上限代入即上限的平方
 
-print(round(inner_integral(2), 3))
-print(round(outer_integral(3), 3))
-print(round(outer_integral(3), 3))
+print(round(inner_integral(2), 3))   # 4.0
+print(round(outer_integral(3), 3))   # 9.0
+print(round(outer_integral(3), 3))   # 9.0：最终体积
 ```
 
 </details>

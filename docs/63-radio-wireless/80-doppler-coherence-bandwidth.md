@@ -113,13 +113,18 @@ $$T_c \approx \frac{0.423}{f_{d,\max}}$$
 lam = 0.3 / f_ghz          # 波长（米）：3e8 / (f_ghz × 1e9) 化简即 0.3/f_ghz
 v = v_kmh / 3.6            # km/h 换 m/s：除以 3.6
 fd = v / lam               # 最大多普勒频移（Hz）
-tc_ms = 0.423 / fd * 1000  # 相干时间（毫秒）：0.423/fd 再换算单位
 
-print(f"fd_max = {round(fd)} Hz, Tc = {round(tc_ms, 2)} ms")
-if tc_ms < 1:
-    print("Tc 短于 1 ms 子帧：高铁快衰落，需密集导频")
+if fd < 1e-9:
+    # v=0 是滑块的合法取值，而静止时 fd=0、相干时间在数学上是无穷大。
+    # 不拦这一下，拖到 0 会直接 ZeroDivisionError。
+    print("fd_max ≈ 0 Hz：静止信道，相干时间无穷大（永不衰落）")
 else:
-    print("Tc 长于 1 ms 子帧：慢衰落，常规设计可用")
+    tc_ms = 0.423 / fd * 1000   # 相干时间（毫秒）：0.423/fd 再换算单位
+    print(f"fd_max = {round(fd)} Hz, Tc = {round(tc_ms, 2)} ms")
+    if tc_ms < 1:
+        print("Tc 短于 1 ms 子帧：高铁快衰落，需密集导频")
+    else:
+        print("Tc 长于 1 ms 子帧：慢衰落，常规设计可用")
 ```
 
 怎么玩：默认复现例 1 的 843 Hz 与 0.50 ms。速度拧到 0：频移消失、相干时间无穷大——静止世界没有时间轴的烦恼；拧到 15 km/h（骑行）：$T_c$ 约 15 毫秒，信道对 1 ms 子帧而言近乎永恒不变。**快慢不是绝对速度，是信道变脸与符号节奏的赛跑**。

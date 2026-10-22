@@ -95,20 +95,20 @@ $u(x,t)=f(x-ct)$ 是一族解。代入后 $u_t=-c f'$，$u_x=f'$，所以 $u_t+c
 ### 实验 3：用小差分检查偏导数
 
 ```python title="数值验证 u=sin(x-t)"
-import math
+import math                            # 标准库 math：sin 用来算 u=sin(x-t)
 
-h = 0.001
-x = 1.0
-t = 0.5
+h = 0.001                              # 差分步长：越小越接近真实导数，但不能小到被浮点误差淹没
+x = 1.0                                # 观察点位置
+t = 0.5                                # 观察时刻
 
 # 中心差分：用左右两个函数值的斜率近似导数
-ut = (math.sin(x - (t + h)) - math.sin(x - (t - h))) / (2 * h)
-ux = (math.sin((x + h) - t) - math.sin((x - h) - t)) / (2 * h)
-residual = ut + ux
+ut = (math.sin(x - (t + h)) - math.sin(x - (t - h))) / (2 * h)   # 中心差分：左右各取一点，除以两倍步长
+ux = (math.sin((x + h) - t) - math.sin((x - h) - t)) / (2 * h)   # 同样的招式，只是这次扰动 x
+residual = ut + ux                     # 残差：把两个偏导代进 u_t + c·u_x（这里 c=1），应得 0
 residual = round(residual, 3) + 0.0   # 加 0.0 是小技巧：把可能出现的负零 -0.0 变回 0.0
-print(round(ut, 3))
-print(round(ux, 3))
-print(residual)
+print(round(ut, 3))                    # round(x, 3)：保留三位小数，压掉差分带来的浮点尾巴
+print(round(ux, 3))                    # 第二行输出 u_x 的近似值
+print(residual)                        # 第三行输出残差，应当正好是 0.0
 ```
 
 输出约为 `-0.878`、`0.878`、`0.0`。两个偏导数方向不同，但它们必须共同服从同一个 PDE。
@@ -121,18 +121,18 @@ print(residual)
 # @check: 0.878
 # @check: 0.0
 # @hint: 方程是 u_t + c*u_x=0，当前波速为 1。注意第二项的符号。
-import math
+import math                            # 标准库 math：sin
 
-h = 0.001
-x = 1.0
-t = 0.5
-c = 1.0
-ut = (math.sin(x - (t + h)) - math.sin(x - (t - h))) / (2 * h)
-ux = -(math.sin((x + h) - t) - math.sin((x - h) - t)) / (2 * h)
-print(round(ut, 3))
-print(round(ux, 3))
-residual = round(ut + c * ux, 3) + 0.0   # 加 0.0：把可能的 -0.0 变回 0.0 再比对
-print(residual)
+h = 0.001                              # 差分步长
+x = 1.0                                # 观察点
+t = 0.5                                # 观察时刻
+c = 1.0                                # 波速：方程是 u_t + c·u_x = 0
+ut = (math.sin(x - (t + h)) - math.sin(x - (t - h))) / (2 * h)   # 时间方向中心差分
+ux = -(math.sin((x + h) - t) - math.sin((x - h) - t)) / (2 * h)  # ← 前面的负号让这一项与真值反号
+print(round(ut, 3))                    # 第一行与 @check 对应
+print(round(ux, 3))                    # 第二行与 @check 对应
+residual = round(ut + c * ux, 3) + 0.0   # 加 0.0：把可能的负零变回正零再比对
+print(residual)                        # 第三行与 @check 对应
 ```
 
 <details>
@@ -145,20 +145,20 @@ $$u_t=-\cos(x-t),\qquad u_x=\cos(x-t).$$
 所以代码里的 $u_x$ 不能再加负号。修正为：
 
 ```python
-import math
+import math     # 标准库 math：sin
 
-h = 0.001
-x = 1.0
-t = 0.5
-c = 1.0
+h = 0.001       # 差分步长
+x = 1.0         # 观察点
+t = 0.5         # 观察时刻
+c = 1.0         # 波速
 
-ut = (math.sin(x - (t + h)) - math.sin(x - (t - h))) / (2 * h)
-ux = (math.sin((x + h) - t) - math.sin((x - h) - t)) / (2 * h)
-residual = ut + c * ux
+ut = (math.sin(x - (t + h)) - math.sin(x - (t - h))) / (2 * h)   # 时间方向中心差分
+ux = (math.sin((x + h) - t) - math.sin((x - h) - t)) / (2 * h)   # 空间方向中心差分
+residual = ut + c * ux   # 残差：修正后应为 0
 residual = round(residual, 3) + 0.0
-print(round(ut, 3))
-print(round(ux, 3))
-print(residual)
+print(round(ut, 3))   # -0.878
+print(round(ux, 3))   # 0.878
+print(residual)       # 0.0
 ```
 
 于是残差 $u_t+c u_x$ 接近零。

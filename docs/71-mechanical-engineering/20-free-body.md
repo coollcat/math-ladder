@@ -135,7 +135,7 @@ $$\sum M_A = R_{By}\cdot L - P\cdot a = 0 \ \Rightarrow\ R_{By} = \frac{Pa}{L} =
 # sliders: a=2.0 [0.2:5.8:0.1]
 P = 800.0                  # 外载荷（N）
 L = 6.0                    # 跨度（m）
-a = 2.0                    # 载荷到左支座的距离（m）
+# a 由滑块给定（默认 2.0 m）——不要再写 a = 2.0，那会把滑块值整个盖掉
 
 Rb = P * a / L             # 对左支座取矩：Rb × L = P × a
 Ra = P - Rb                # 竖向平衡：Ra + Rb = P

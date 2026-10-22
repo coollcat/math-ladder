@@ -71,20 +71,20 @@ exits:
 ### 实验 2：Python 检查双射采样
 
 ```python title="检查线性变形是否一一对应"
-def stretch(point, factor):
+def stretch(point, factor):  # 连续拉伸：x 坐标乘 factor、y 坐标不动
     return [point[0] * factor, point[1]]
 
-samples = [[0, 0], [1, 0], [2, 0]]
-factor = 1.5
-images = []
+samples = [[0, 0], [1, 0], [2, 0]]  # 三个共线样本点，拉伸后应当仍然互不相同
+factor = 1.5  # factor=1.5 说明拉伸是单射的必要条件：factor 不能取 0
+images = []  # images 收集每个点的像，顺序与 samples 一一对应
 
 for point in samples:
     image = stretch(point, factor)
     images.append(image)
     print(image)
 
-unique_images = set(tuple(item) for item in images)
-print(len(samples) == len(unique_images))
+unique_images = set(tuple(item) for item in images)  # set(tuple(...)) 首现：列表不可哈希，先转成元组才能放进集合去重
+print(len(samples) == len(unique_images))  # 像的个数等于原像的个数，说明这个拉伸没有把两点粘在一起（单射）
 ```
 
 有限采样只能发现明显重复，不能证明连续同胚；但它提醒我们，同胚的第一道门槛是一一对应。
@@ -155,15 +155,15 @@ for x in [-1, 0, 2]:
 logistic 函数的逆是对数几率：
 
 ```python
-import math
+import math  # math 模块首现：exp 与 log 都在这里，import 一次全课可用
 
-def f(x):
+def f(x):  # logistic 函数把整条实轴连续地映进 (0,1)，且严格单调
     return 1 / (1 + math.exp(-x))
 
-def g(y):
-    return math.log(y / (1 - y))
+def g(y):  # logit 是 logistic 的反函数：y/(1-y) 把 (0,1) 拉回全实轴
+    return math.log(y / (1 - y))  # g(f(x)) 应当原样返回 x，这正是互逆的检验
 
-for x in [-1, 0, 2]:
+for x in [-1, 0, 2]:  # round(x, 6) 保留 6 位小数，把浮点误差抹掉后才好与 @check 对齐
     print(round(g(f(x)), 6))
 ```
 

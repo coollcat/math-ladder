@@ -108,19 +108,19 @@ $$Z = \frac{1}{N}\sum_{n=1}^{N-1} \frac{|\operatorname{sgn}(s[n]) - \operatornam
 ### 实验 2（python）：两把尺子亲手量
 
 ```python title="对三种典型帧各量一遍：能量与过零率"
-import math
+import math  # math 只为 sin 与 log10；正弦帧与对数能量都要它
 
-fs = 16000
-N = 400
+fs = 16000  # 采样率 16 kHz：语音场景的常用标准，一帧 400 点就是 25 ms
+N = 400  # 帧长 400 个样点；下面所有统计都在这 400 点上做
 
-def measure(freq, amp):
-    frame = [amp * math.sin(2 * math.pi * freq * n / fs) for n in range(N)]
-    energy = 10 * math.log10(sum(x ** 2 for x in frame) / N)
-    zcr = sum(1 for n in range(1, N)
-              if (frame[n] >= 0) != (frame[n - 1] >= 0)) / N
+def measure(freq, amp):  # measure 一次给出两个特征：短时能量（dB）与过零率
+    frame = [amp * math.sin(2 * math.pi * freq * n / fs) for n in range(N)]  # 用正弦波模拟一个音高：freq 是基频，amp 是振幅，n/fs 把样点序号换成秒
+    energy = 10 * math.log10(sum(x ** 2 for x in frame) / N)  # 短时能量 = 全帧均方值取 10log10；除 N 是求平均，不是求峰值
+    zcr = sum(1 for n in range(1, N)  # 过零率：相邻样点符号变号就计 1，跨行写法是为了一行别太长
+              if (frame[n] >= 0) != (frame[n - 1] >= 0)) / N  # 符号比较用 >= 0 判正负，避免 0 被算两次
     return round(energy, 1), round(zcr, 4)
 
-for name, f, a in [("浊音 a", 140, 0.3), ("清音 s", 4000, 0.08), ("静音", 60, 0.004)]:
+for name, f, a in [("浊音 a", 140, 0.3), ("清音 s", 4000, 0.08), ("静音", 60, 0.004)]:  # 三类样本：浊音（低频强）、清音（高频弱）、静音（极弱）
     e, z = measure(f, a)
     if e < -30 and z < 0.25:
         kind = "静音"

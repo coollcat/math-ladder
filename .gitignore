@@ -94,3 +94,12 @@ _tmp_*
 # 一次性分析脚本的中间产物（与 _c75b 同类）：
 py_blocks.json
 py_ex.json
+
+
+# ── 本地 AI / 工具链 scratch（与 _ai-workspace/ 同理，一律不入库）────────────
+# .sd        某个 IDE 插件写的实例 uuid（纯本机标识，换机器就变）
+# .stabledge 终端日志缓存
+# undefined/ 脚本里把未定义的临时根目录当字符串拼路径时漏出来的目录（labverify 的产物）
+.sd
+.stabledge/
+/undefined/

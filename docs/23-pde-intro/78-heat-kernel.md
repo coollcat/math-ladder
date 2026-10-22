@@ -89,25 +89,25 @@ $$G(x,t)=\frac{e^{-x^2/(4t)}}{2\sqrt{\pi t}}, \qquad t>0.$$
 ### 实验 2：峰高与面积的守恒读数
 
 ```python title="三个时刻：峰高变矮，面积恒为 1"
-import math
+import math          # 标准库 math：exp / sqrt / pi 都在这里
 
 def kernel(x, t):    # def 定义函数：热核在位置 x、时刻 t 的取值
-    return math.exp(-x * x / (4 * t)) / (2 * math.sqrt(math.pi * t))
+    return math.exp(-x * x / (4 * t)) / (2 * math.sqrt(math.pi * t))   # math.exp 算 e 的幂，math.sqrt 开根号
 
 def area(t):         # 梯形法算曲线下面积：把 [-20, 20] 切 2000 片
-    n = 2000
-    dx = 40.0 / n
-    total = 0.0
-    for i in range(n + 1):
-        yi = kernel(-20.0 + i * dx, t)
+    n = 2000             # 切片数：片数越多，梯形法越接近真实面积
+    dx = 40.0 / n        # 每片宽度：区间 [-20, 20] 总长 40
+    total = 0.0          # 累加器：面积从 0 开始一片片加
+    for i in range(n + 1):   # range(n+1) 含两端点，共 n+1 个采样位置
+        yi = kernel(-20.0 + i * dx, t)   # 第 i 个采样点上的曲线高度
         if i == 0 or i == n:            # 两端各算半片
             total = total + yi * dx / 2
         else:
             total = total + yi * dx
     return total
 
-for t in [0.25, 1.0, 4.0]:        # 依次检查三个时刻
-    print(round(kernel(0.0, t), 3))   # 峰高读数
+for t in [0.25, 1.0, 4.0]:        # 直接遍历列表：依次检查三个时刻
+    print(round(kernel(0.0, t), 3))   # 峰高读数（x=0 处最高）
     print(round(area(t), 3))          # 面积读数：守恒检查
 ```
 
@@ -116,7 +116,7 @@ for t in [0.25, 1.0, 4.0]:        # 依次检查三个时刻
 ### 实验 3：逐点验算 G_t = G_xx
 
 ```python title="中心差分验证热核满足热方程"
-import math
+import math          # 标准库 math
 
 def kernel(x, t):
     return math.exp(-x * x / (4 * t)) / (2 * math.sqrt(math.pi * t))
@@ -127,8 +127,8 @@ h = 0.0001      # 差分步长
 
 g_t = (kernel(x, t + h) - kernel(x, t - h)) / (2 * h)      # 时间方向的中心差分
 g_xx = (kernel(x + h, t) - 2 * kernel(x, t) + kernel(x - h, t)) / (h * h)   # 空间二阶差分
-print(round(g_t, 4))
-print(round(g_xx, 4))
+print(round(g_t, 4))     # round(值, 4)：保留四位小数，差分误差需要更细的读数
+print(round(g_xx, 4))    # 第二行：空间二阶导
 print(round(g_t - g_xx, 4) + 0.0)   # 两者之差，应为 0
 ```
 
@@ -141,26 +141,26 @@ print(round(g_t - g_xx, 4) + 0.0)   # 两者之差，应为 0
 # @check: 0.242
 # @check: 1.0
 # @hint: 峰高是 1 除以 2*sqrt(pi*t)；指数分母是 4*t。面积算出来不是 1，就说明公式还没写对。
-import math
+import math      # 标准库 math：sqrt / pi / exp
 t = 0.5         # 时刻
 x = 1.0         # 位置
 
 pref = 2 * math.sqrt(math.pi * t)        # ← 有错一：2*sqrt(pi*t) 是分母，峰高是 1 除以它
 u = pref * math.exp(-x * x / (2 * t))    # ← 有错二：指数分母是 4*t，不是 2*t
-print(round(u, 3))
+print(round(u, 3))   # 第一行与 @check 对位
 
 # 数值积分：[-6, 6] 切 1200 片，逐片累加曲高乘宽
 n = 1200        # 切片数
-dx = 12.0 / n   # 每片宽度
-total = 0.0
-for i in range(n + 1):
-    xi = -6.0 + i * dx
+dx = 12.0 / n   # 每片宽度：积分区间 [-6, 6] 总长 12
+total = 0.0     # 面积累加器
+for i in range(n + 1):   # 含两端点
+    xi = -6.0 + i * dx   # 第 i 个采样位置
     yi = 2 * math.sqrt(math.pi * t) * math.exp(-xi * xi / (2 * t))   # ← 错随上：公式一起改
     if i == 0 or i == n:
         total = total + yi * dx / 2
     else:
         total = total + yi * dx
-print(round(total, 3))
+print(round(total, 3))   # 第二行与 @check 对位
 ```
 
 <details>
@@ -169,20 +169,20 @@ print(round(total, 3))
 修正后的面积账：
 
 ```python
-import math
-t = 0.5
-x = 1.0
+import math     # 标准库 math：sqrt / pi / exp
+t = 0.5         # 时刻
+x = 1.0         # 位置
 
-pref = 1 / (2 * math.sqrt(math.pi * t))
-u = pref * math.exp(-x * x / (4 * t))
+pref = 1 / (2 * math.sqrt(math.pi * t))   # 归一化系数：保证整条曲线下的面积恒为 1
+u = pref * math.exp(-x * x / (4 * t))     # 热核：高斯钟形，宽度随 sqrt(t) 变宽
 print(round(u, 3))     # 0.242
 
-n = 1200
-dx = 12.0 / n
+n = 1200        # 切片数
+dx = 12.0 / n   # 每片宽度
 total = 0.0
-for i in range(n + 1):
+for i in range(n + 1):   # 含两端点
     xi = -6.0 + i * dx
-    yi = math.exp(-xi * xi / (4 * t)) / (2 * math.sqrt(math.pi * t))
+    yi = math.exp(-xi * xi / (4 * t)) / (2 * math.sqrt(math.pi * t))   # 每个采样点的曲线高度
     if i == 0 or i == n:
         total = total + yi * dx / 2
     else:

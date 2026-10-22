@@ -148,15 +148,15 @@ for degree in [1, 2, 3, 4, 5]:
 ### 实验 2：两条曲线的岔路口
 
 ```python title="训练/验证误差随容量变化的示意曲线"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # 同一张图对比两条误差曲线：训练误差与验证误差随模型容量怎么变
 
-degrees = [1, 2, 3, 4, 5]
-train_err = [0.20, 0.045, 0.040, 0.040, 0.0]
+degrees = [1, 2, 3, 4, 5]  # degrees 只是横轴刻度，与上面真实拟合用的 [1..5] 一一对应
+train_err = [0.20, 0.045, 0.040, 0.040, 0.0]  # train_err 与 val_err 是上一块实测结果抄过来的，别按心算改数
 val_err = [0.093, 0.000, 0.003, 0.003, 0.189]
 
-plt.plot(degrees, train_err, marker="o", label="train")
+plt.plot(degrees, train_err, marker="o", label="train")  # marker="o" / marker="s" 让两条线用不同点形，黑白打印也分得清
 plt.plot(degrees, val_err, marker="s", label="validation")
-plt.axvline(2, color="gray", linestyle="--")
+plt.axvline(2, color="gray", linestyle="--")  # axvline 首现：竖一条参考线在 degree=2 处，标出验证误差最低的容量
 plt.xlabel("model capacity (degree)")
 plt.ylabel("mse")
 plt.legend()

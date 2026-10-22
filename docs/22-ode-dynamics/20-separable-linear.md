@@ -109,20 +109,20 @@ $$e^{2t}y'+2e^{2t}y=4e^{2t},\qquad (e^{2t}y)'=4e^{2t}.$$
 ### 实验 3：Python 验证解
 
 ```python title="验证 y=2+e^(-2t)"
-import math
+import math                          # 标准库 math：exp 用来算自然指数 e 的幂
 
-def solution(t):
-    return 2 + math.exp(-2 * t)
+def solution(t):                     # def 定义函数：候选解 y(t)
+    return 2 + math.exp(-2 * t)      # 平衡值 2 加上按 e^(-2t) 衰减的偏差，系数由初值 y(0)=3 定
 
-def derivative(t):
-    return -2 * math.exp(-2 * t)
+def derivative(t):                   # 候选解的导数 y'(t)
+    return -2 * math.exp(-2 * t)     # 常数 2 求导消掉，指数每求一次导就乘一个 -2
 
-def rule(t, y):
-    return -2 * y + 4
+def rule(t, y):                      # 方程右端 -2y+4：给定 (t, y) 就给出该点的斜率
+    return -2 * y + 4                # 4 是驱动力：它把平衡点从 0 推到 y=2
 
-residual = derivative(1) - rule(1, solution(1))
-print(round(residual, 3))
-print(round(solution(1), 3))
+residual = derivative(1) - rule(1, solution(1))   # 残差：左边导数减右边规则，应为 0
+print(round(residual, 3))            # round(x, 3)：保留三位小数，压掉浮点误差
+print(round(solution(1), 3))         # 顺带报出 t=1 时的解值，与正文的 2.135 对照
 ```
 
 残差为 0，且 $y(1)\approx2.135$。
@@ -136,16 +136,16 @@ print(round(solution(1), 3))
 # @hint: 方程是 y'=-2y+4，不是 y'=-2y；验证时 rule 里不要漏掉 +4。
 import math
 
-def solution(t):
+def solution(t):           # 候选解：待修正
     return 2 + math.exp(-2 * t)
 
 def derivative(t):
     return -2 * math.exp(-2 * t)
 
-def rule(t, y):
-    return -2 * y
+def rule(t, y):            # 方程的斜率规则：照着 y'=-2y+4 写
+    return -2 * y          # ← 这条规则和题目里的方程对不上
 
-residual = derivative(1) - rule(1, solution(1))
+residual = derivative(1) - rule(1, solution(1))   # 残差为零才说明解与方程一致
 print(round(residual, 3))
 print(round(solution(1), 3))
 ```
@@ -156,20 +156,20 @@ print(round(solution(1), 3))
 把规则补全：
 
 ```python
-import math
+import math       # 标准库 math
 
-def solution(t):
-    return 2 + math.exp(-2 * t)
+def solution(t):  # 候选解
+    return 2 + math.exp(-2 * t)   # 平衡值 2 加衰减偏差
 
-def derivative(t):
+def derivative(t):   # 它的导数
     return -2 * math.exp(-2 * t)
 
-def rule(t, y):
-    return -2 * y + 4
+def rule(t, y):   # 方程右端
+    return -2 * y + 4   # 补回驱动力 +4
 
-residual = derivative(1) - rule(1, solution(1))
-print(round(residual, 3))
-print(round(solution(1), 3))
+residual = derivative(1) - rule(1, solution(1))   # 残差应为 0
+print(round(residual, 3))   # 0.0
+print(round(solution(1), 3))   # 2.135
 ```
 
 代入 $y=2+e^{-2t}$：

@@ -1,0 +1,1414 @@
+/* =========================================================================
+ * 图谱双页样式：/graph「阶梯版图」(.ml-atlas) 与 /tree「课程家谱」(.ml-lin)
+ * -------------------------------------------------------------------------
+ * 2026-10 重做时独立成文件（由 src/pages/graph.js、tree.js import；构建后与全站
+ * 同表，所以每条规则都带 .ml-gp / .ml-atlas / .ml-lin 前缀）。
+ * 颜色一律走 custom.css 的 token（--ml-ink / --ml-card / --ml-vol1…7 / --ml-up /
+ * --ml-down …），暗色自动跟随；这里只派生几档「墨色透明度」局部变量。
+ * 课的四态（learnState.js）：is-done 已学 / is-current 在学 / is-ready 可学 /
+ * is-locked 未解锁；没有学习记录时不挂状态类，方格走中性的卷色淡底。
+ * ========================================================================= */
+
+.ml-gp {
+  --gp-line: color-mix(in srgb, var(--ml-ink) 14%, transparent);
+  --gp-line-soft: color-mix(in srgb, var(--ml-ink) 7%, transparent);
+  --gp-edge: color-mix(in srgb, var(--ml-ink) 26%, transparent);
+  --gp-locked: color-mix(in srgb, var(--ml-ink) 13%, transparent);
+  --gp-nav: var(--ifm-navbar-height, 60px);
+  --gp-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.28);
+  /* 标题字号只能走 Infima 变量（h1 规则是双 ID 特异性）；图谱页标题收一档，把首屏让给图 */
+  --ifm-h1-font-size: clamp(1.5rem, 2.6vw, 2rem);
+  --ifm-heading-margin-bottom: 0.35rem;
+}
+.ml-gp.container:not(#\#):not(#\#) {
+  max-width: 1440px;
+}
+
+/* ---- 页头：标题 + 一句话导语（原来两大段导语把图挤到了第二屏） ---- */
+.ml-gp-head {
+  margin-bottom: 14px;
+}
+.ml-gp-lede:not(#\#):not(#\#) {
+  max-width: 64rem;
+  margin: 0;
+  color: var(--ml-ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+.ml-gp-kicker:not(#\#):not(#\#) {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ml-vermilion);
+}
+
+/* Infima 的元素级规则（p / ul / ol / a / h1–h6 / .container）全带 :not(#\#):not(#\#)，
+   特异性 (2,0,1)，纯类选择器压不过（实测：列表多出 32px 缩进、按钮字被染成链接色）。
+   所以落在这些元素上的类选择器统一补同样的双 ID 尾巴；标题字号则走 Infima 变量或干脆不用 h 元素。 */
+
+/* ---- 共用控件 ---- */
+.ml-gp-search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 1 300px;
+  min-width: 200px;
+  height: var(--ml-tap);
+  padding: 0 10px;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-ctl);
+  background: var(--ml-card);
+  transition: border-color var(--ml-t-fast) var(--ml-ease);
+}
+.ml-gp-search:focus-within {
+  border-color: var(--ml-vermilion);
+}
+.ml-gp-search__icon {
+  color: var(--ml-ink-soft);
+  margin-right: 6px;
+  font-size: 1.05rem;
+}
+.ml-gp-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ml-ink);
+  font: inherit;
+  font-size: 0.9rem;
+}
+.ml-gp-search__count {
+  font-size: 0.75rem;
+  color: var(--ml-search);
+  white-space: nowrap;
+}
+
+.ml-gp-seg {
+  display: inline-flex;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-ctl);
+  overflow: hidden;
+  background: var(--ml-card);
+}
+.ml-gp-seg button,
+.ml-gp-stepper button {
+  border: 0;
+  background: transparent;
+  color: var(--ml-ink-soft);
+  font: inherit;
+  font-size: 0.85rem;
+  min-height: var(--ml-tap);
+  padding: 0 12px;
+  cursor: pointer;
+  transition: background var(--ml-t-fast) var(--ml-ease), color var(--ml-t-fast) var(--ml-ease);
+}
+.ml-gp-seg button + button {
+  border-left: 1px solid var(--gp-line);
+}
+.ml-gp-seg button[aria-pressed='true'] {
+  background: var(--ml-ink);
+  color: var(--ml-paper);
+}
+
+.ml-gp-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-ctl);
+  background: var(--ml-card);
+  font-size: 0.85rem;
+  color: var(--ml-ink-soft);
+}
+.ml-gp-stepper > span {
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.ml-gp-stepper b {
+  color: var(--ml-ink);
+  font-family: var(--pyr-mono);
+}
+.ml-gp-stepper button {
+  padding: 0 11px;
+  font-size: 1rem;
+}
+.ml-gp-stepper button:hover:not(:disabled),
+.ml-gp-seg button:hover:not([aria-pressed='true']) {
+  background: var(--gp-line-soft);
+  color: var(--ml-ink);
+}
+.ml-gp-stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ml-gp-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--ml-tap);
+  font-size: 0.85rem;
+  color: var(--ml-ink-soft);
+  cursor: pointer;
+}
+
+.ml-gp-btn:not(#\#):not(#\#) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-ctl);
+  background: var(--ml-card);
+  color: var(--ml-ink);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--ml-t-base) var(--ml-ease), border-color var(--ml-t-fast) var(--ml-ease),
+    background var(--ml-t-fast) var(--ml-ease);
+}
+.ml-gp-btn:hover:not(#\#):not(#\#) {
+  text-decoration: none;
+  color: var(--ml-ink);
+  border-color: var(--ml-ink-soft);
+  transform: translateY(var(--ml-lift));
+}
+.ml-gp-btn--primary:not(#\#):not(#\#) {
+  background: var(--ml-vermilion);
+  border-color: var(--ml-vermilion);
+  color: #fff;
+}
+.ml-gp-btn--primary:hover:not(#\#):not(#\#) {
+  color: #fff;
+  border-color: var(--ml-vermilion);
+  filter: brightness(1.06);
+}
+/* 暗色下朱砂提亮成 #e8734f，白字只有 2.9:1；改用纸色深字（约 6:1） */
+[data-theme='dark'] .ml-gp-btn--primary:not(#\#):not(#\#),
+[data-theme='dark'] .ml-gp-btn--primary:hover:not(#\#):not(#\#) {
+  color: var(--ml-paper);
+}
+.ml-gp-btn--ghost:not(#\#):not(#\#) {
+  background: transparent;
+}
+
+.ml-gp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ml-gp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 2px 10px 2px 4px;
+  border: 1px solid var(--gp-line);
+  border-left: 3px solid var(--vol, var(--gp-line));
+  border-radius: var(--ml-radius-ctl);
+  background: var(--ml-card);
+  color: var(--ml-ink);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: transform var(--ml-t-base) var(--ml-ease), background var(--ml-t-fast) var(--ml-ease);
+}
+.ml-gp-chip:hover {
+  transform: translateY(var(--ml-lift));
+}
+.ml-gp-chip small {
+  color: var(--ml-ink-soft);
+  font-family: var(--pyr-mono);
+  font-size: 0.7rem;
+}
+.ml-gp-chip__n {
+  min-width: 1.6em;
+  text-align: center;
+  font-family: var(--pyr-mono);
+  font-size: 0.7rem;
+  color: var(--ml-ink-soft);
+}
+.ml-gp-chip.is-up {
+  background: var(--ml-up-bg);
+}
+.ml-gp-chip.is-down {
+  background: var(--ml-down-bg);
+}
+.ml-gp-chip.is-weak {
+  background: var(--ml-card);
+  border-style: dashed;
+  border-left-style: solid;
+}
+.ml-gp-chip.is-next {
+  padding-left: 10px;
+  border-color: var(--ml-vermilion);
+  border-left-color: var(--ml-vermilion);
+}
+
+.ml-gp-meter {
+  height: 6px;
+  border-radius: var(--ml-radius-pill);
+  background: var(--gp-locked);
+  overflow: hidden;
+  margin: 8px 0 6px;
+}
+.ml-gp-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--vol, var(--ml-up));
+  transition: width var(--ml-t-slow) var(--ml-ease);
+}
+
+/* 课表行：状态点 + 课名 + 「家谱」小链接 */
+.ml-gp-lessons:not(#\#):not(#\#) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ml-gp-lessons li:not(#\#):not(#\#) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--gp-line-soft);
+  font-size: 0.86rem;
+}
+.ml-gp-lessons li > a:first-of-type:not(#\#):not(#\#) {
+  flex: 1;
+  min-width: 0;
+  color: var(--ml-ink);
+}
+.ml-gp-lessons--numbered:not(#\#):not(#\#) {
+  counter-reset: gp;
+}
+.ml-gp-lessons--numbered li:not(#\#):not(#\#)::before {
+  counter-increment: gp;
+  content: counter(gp);
+  min-width: 1.4em;
+  font-family: var(--pyr-mono);
+  font-size: 0.7rem;
+  color: var(--ml-ink-soft);
+  text-align: right;
+}
+.ml-gp-lessons__tree:not(#\#):not(#\#) {
+  font-size: 0.72rem;
+  color: var(--ml-ink-soft);
+  white-space: nowrap;
+}
+.ml-gp-lessons li.is-done > a:first-of-type:not(#\#):not(#\#) {
+  color: var(--ml-ink-soft);
+}
+
+/* 状态点 / 状态方格 —— 两页共用一套四态配色 */
+.ml-gp-dot,
+.ml-gp-cell {
+  flex: none;
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gp-locked);
+}
+.ml-gp-cell {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ml-vol1) 38%, transparent);
+}
+.is-done > .ml-gp-dot,
+.ml-gp-cell.is-done {
+  background: var(--ml-up);
+}
+.is-current > .ml-gp-dot,
+.ml-gp-cell.is-current {
+  background: var(--ml-vermilion);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ml-vermilion) 30%, transparent);
+}
+.is-ready > .ml-gp-dot,
+.ml-gp-cell.is-ready {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ml-up);
+}
+.ml-gp-cell.is-locked {
+  background: var(--gp-locked);
+}
+
+.ml-gp-line {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border-top: 2px solid var(--gp-edge);
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.ml-gp-line.is-up {
+  border-top-color: var(--ml-up);
+}
+.ml-gp-line.is-down {
+  border-top-color: var(--ml-down);
+}
+.ml-gp-line.is-weak {
+  border-top-style: dashed;
+}
+
+.ml-gp-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--gp-line-soft);
+  font-size: 0.76rem;
+  color: var(--ml-ink-soft);
+}
+.ml-gp-legend__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.ml-gp-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* =========================================================================
+ * /graph · 阶梯版图
+ * ========================================================================= */
+.ml-atlas__bar,
+.ml-lin__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.ml-atlas__stat {
+  margin-left: auto;
+  font-family: var(--pyr-mono);
+  font-size: 0.78rem;
+  color: var(--ml-ink-soft);
+}
+
+.ml-atlas__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(272px, 24vw, 340px);
+  gap: 18px;
+  align-items: start;
+}
+.ml-atlas__scroll {
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.ml-atlas__board {
+  position: relative;
+  min-width: 760px;
+  padding: 6px 8px 8px;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-surface);
+  background: var(--ml-card);
+}
+
+/* 每一行（表头 + 七卷）是同一套列模板的独立网格：窄屏时可以各自改成流式 */
+.ml-atlas__row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 96px repeat(6, minmax(0, 1fr));
+  gap: 5px;
+  padding: 6px 0;
+}
+.ml-atlas__row + .ml-atlas__row {
+  border-top: 1px dashed var(--gp-line-soft);
+}
+.ml-atlas__row--head {
+  align-items: end;
+  padding-bottom: 8px;
+}
+/* 宽屏版图不需要横向滚动：去掉滚动容器，列头才能对视口吸顶（版图约 2000px 高） */
+@media (min-width: 1200px) {
+  .ml-atlas__scroll {
+    overflow: visible;
+  }
+  .ml-atlas__row--head {
+    position: sticky;
+    top: var(--gp-nav);
+    z-index: 3;
+    margin: -6px -8px 0;
+    padding: 8px 8px 8px;
+    border-radius: var(--ml-radius-surface) var(--ml-radius-surface) 0 0;
+    background: color-mix(in srgb, var(--ml-card) 92%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--gp-line-soft);
+  }
+}
+.ml-atlas__corner {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7rem;
+  color: var(--ml-ink-soft);
+  line-height: 1.5;
+}
+/* 列头的小台阶：一级比一级高，「往右是台阶」不用读字也看得出 */
+.ml-atlas__colhead {
+  position: relative;
+  padding: 0 4px 0 2px;
+  line-height: 1.3;
+}
+.ml-atlas__colhead::before {
+  content: '';
+  display: block;
+  width: 26px;
+  height: calc(4px + var(--lv) * 3px);
+  margin-bottom: 5px;
+  border-radius: 2px 2px 0 0;
+  background: color-mix(in srgb, var(--ml-vermilion) calc(30% + var(--lv) * 12%), transparent);
+}
+.ml-atlas__colhead b {
+  display: block;
+  font-family: var(--ml-display);
+  font-size: 1rem;
+  color: var(--ml-ink);
+}
+.ml-atlas__colhead small {
+  font-size: 0.7rem;
+  color: var(--ml-ink-soft);
+}
+
+.ml-atlas__rowhead {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 6px 4px 9px;
+  border-left: 3px solid var(--vol);
+  line-height: 1.25;
+}
+.ml-atlas__voln {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--vol);
+  letter-spacing: 0.06em;
+}
+.ml-atlas__volt {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ml-ink);
+}
+.ml-atlas__volm {
+  font-size: 0.68rem;
+  font-family: var(--pyr-mono);
+  color: var(--ml-ink-soft);
+}
+.ml-atlas__volbar {
+  display: block;
+  height: 3px;
+  margin-top: 3px;
+  border-radius: 2px;
+  background: var(--gp-locked);
+  overflow: hidden;
+}
+.ml-atlas__volbar > span {
+  display: block;
+  height: 100%;
+  background: var(--vol);
+}
+
+.ml-atlas__cell {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--ml-radius-block);
+  background: color-mix(in srgb, var(--vol) 7%, transparent);
+}
+.ml-atlas__cell.is-empty {
+  background: transparent;
+}
+
+/* ---- 章卡 ---- */
+.ml-atlas__tile {
+  display: block;
+  min-width: 0;
+  padding: 4px 6px 5px 7px;
+  border: 1px solid var(--gp-line);
+  border-left: 3px solid var(--vol);
+  border-radius: 6px;
+  background: var(--ml-card);
+  cursor: pointer;
+  outline: none;
+  transition: opacity var(--ml-t-base) var(--ml-ease), transform var(--ml-t-base) var(--ml-ease),
+    box-shadow var(--ml-t-fast) var(--ml-ease), background var(--ml-t-fast) var(--ml-ease);
+  animation: ml-atlas-in var(--ml-t-enter) var(--ml-ease) backwards;
+  animation-delay: calc(var(--lv, 0) * 60ms);
+}
+@keyframes ml-atlas-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+.ml-atlas__tile:hover {
+  transform: translateY(var(--ml-lift));
+  box-shadow: var(--ml-shadow-soft);
+}
+.ml-atlas__tile:focus-visible {
+  outline: 2px solid var(--ml-vermilion);
+  outline-offset: 2px;
+}
+.ml-atlas__thead {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+.ml-atlas__tnum {
+  flex: none;
+  font-family: var(--pyr-mono);
+  font-size: 0.68rem;
+  color: var(--vol);
+}
+.ml-atlas__tname {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ml-ink);
+}
+.ml-atlas__tcount {
+  flex: none;
+  margin-left: auto;
+  padding-left: 4px;
+  font-family: var(--pyr-mono);
+  font-size: 0.62rem;
+  line-height: 6px;
+  color: var(--ml-ink-soft);
+}
+.ml-atlas__tlevel {
+  display: none;
+}
+/* 课方格：一格一门课（无记录时是卷色淡底；有记录时按四态） */
+.ml-atlas__waffle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 4px;
+}
+.ml-atlas__waffle i {
+  width: 6px;
+  height: 6px;
+  border-radius: 1.5px;
+  background: color-mix(in srgb, var(--vol) 34%, transparent);
+}
+.ml-atlas__waffle i.is-locked {
+  background: var(--gp-locked);
+}
+.ml-atlas__waffle i.is-ready {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.3px var(--ml-up);
+}
+.ml-atlas__waffle i.is-done {
+  background: var(--ml-up);
+}
+.ml-atlas__waffle i.is-current {
+  background: var(--ml-vermilion);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--ml-vermilion) 35%, transparent);
+}
+
+/* 关系态：焦点朱砂、先修绿、后续橙，其余压暗（不重排，位置就是读图依据） */
+.ml-atlas__tile.is-dim {
+  opacity: 0.22;
+}
+.ml-atlas__tile.is-pred {
+  background: var(--ml-up-bg);
+  box-shadow: 0 0 0 2px var(--ml-up);
+}
+.ml-atlas__tile.is-succ {
+  background: var(--ml-down-bg);
+  box-shadow: 0 0 0 2px var(--ml-down);
+}
+.ml-atlas__tile.is-anc {
+  background: var(--ml-up-bg);
+}
+.ml-atlas__tile.is-desc {
+  background: var(--ml-down-bg);
+}
+.ml-atlas__tile.is-match {
+  box-shadow: 0 0 0 2px var(--ml-search);
+}
+.ml-atlas__tile.is-focus,
+.ml-atlas__tile.is-picked {
+  box-shadow: 0 0 0 2px var(--ml-vermilion), var(--gp-shadow);
+  transform: translateY(var(--ml-lift));
+}
+.ml-atlas__tile.is-picked.is-dim {
+  opacity: 0.5;
+}
+
+/* ---- 连线层：压在行之下，被不透明的章卡遮住，只在卡与卡之间露出来 ---- */
+.ml-atlas__links {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.ml-atlas__link {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.9;
+  animation: ml-gp-fade var(--ml-t-slow) var(--ml-ease) backwards;
+}
+.ml-atlas__link.is-up {
+  stroke: var(--ml-up);
+}
+.ml-atlas__link.is-down {
+  stroke: var(--ml-down);
+}
+.ml-atlas__link.is-weak {
+  stroke-dasharray: 4 4;
+  opacity: 0.7;
+}
+@keyframes ml-gp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- 面板 ---- */
+.ml-atlas__panel {
+  position: sticky;
+  top: calc(var(--gp-nav) + 12px);
+  max-height: calc(100vh - var(--gp-nav) - 24px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-surface);
+  background: var(--ml-card);
+}
+.ml-atlas__pbody {
+  position: relative;
+  padding: 16px 18px 18px;
+  animation: ml-gp-fade var(--ml-t-base) var(--ml-ease) backwards;
+}
+.ml-atlas__pbody > .ml-gp-kicker:not(#\#):not(#\#) {
+  padding-right: 30px;
+}
+.ml-atlas__ptitle:not(#\#):not(#\#) {
+  margin: 4px 0 2px;
+  font-weight: 700;
+  color: var(--ml-ink);
+  font-family: var(--ml-display);
+  font-size: 1.32rem;
+  line-height: 1.3;
+}
+.ml-atlas__pvol {
+  color: var(--vol);
+}
+.ml-atlas__pmeta:not(#\#):not(#\#) {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  color: var(--ml-ink-soft);
+}
+.ml-atlas__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ml-atlas__ph:not(#\#):not(#\#) {
+  margin: 16px 0 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ml-ink-soft);
+  letter-spacing: 0.04em;
+}
+.ml-atlas__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--ml-radius-ctl);
+  background: transparent;
+  color: var(--ml-ink-soft);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.ml-atlas__close:hover {
+  background: var(--gp-line-soft);
+  color: var(--ml-ink);
+}
+.ml-atlas__chain:not(#\#):not(#\#) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+}
+.ml-atlas__chain li:not(#\#):not(#\#) {
+  display: inline-flex;
+  align-items: center;
+}
+.ml-atlas__chain li + li:not(#\#):not(#\#)::before {
+  content: '→';
+  margin: 0 4px;
+  color: var(--ml-ink-soft);
+  font-size: 0.7rem;
+}
+.ml-atlas__chain button:not(#\#):not(#\#),
+.ml-atlas__chain b:not(#\#):not(#\#) {
+  padding: 2px 6px;
+  border: 0;
+  border-bottom: 2px solid var(--vol);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ml-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.ml-atlas__chain button:hover:not(#\#):not(#\#) {
+  background: var(--gp-line-soft);
+}
+.ml-atlas__chain b:not(#\#):not(#\#) {
+  background: color-mix(in srgb, var(--vol) 14%, transparent);
+  cursor: default;
+}
+.ml-atlas__how:not(#\#):not(#\#) {
+  margin: 10px 0;
+  padding-left: 1.1em;
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+.ml-atlas__how li + li:not(#\#):not(#\#) {
+  margin-top: 4px;
+}
+.ml-atlas__hint:not(#\#):not(#\#),
+.ml-atlas__loading:not(#\#):not(#\#) {
+  font-size: 0.8rem;
+  color: var(--ml-ink-soft);
+}
+.ml-atlas__error:not(#\#):not(#\#) {
+  font-size: 0.82rem;
+  color: var(--ml-danger);
+}
+.ml-atlas__resume:not(#\#):not(#\#) {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  margin: 10px 0 4px;
+  padding: 9px 12px;
+  border: 1px solid var(--gp-line);
+  border-left: 3px solid var(--ml-vermilion);
+  border-radius: var(--ml-radius-block);
+  color: var(--ml-ink);
+  text-decoration: none;
+  transition: transform var(--ml-t-base) var(--ml-ease);
+}
+.ml-atlas__resume:hover:not(#\#):not(#\#) {
+  text-decoration: none;
+  color: var(--ml-ink);
+  transform: translateY(var(--ml-lift));
+}
+.ml-atlas__resume small:not(#\#):not(#\#) {
+  grid-column: 1;
+  font-size: 0.7rem;
+  color: var(--ml-ink-soft);
+}
+.ml-atlas__resume b:not(#\#):not(#\#) {
+  grid-column: 1;
+  font-size: 0.9rem;
+}
+.ml-atlas__resume span:not(#\#):not(#\#) {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--ml-vermilion);
+}
+
+/* =========================================================================
+ * /tree · 课程家谱
+ * ========================================================================= */
+.ml-lin--loading {
+  display: grid;
+  place-items: center;
+  min-height: 420px;
+  border: 1px dashed var(--gp-line);
+  border-radius: var(--ml-radius-surface);
+  color: var(--ml-ink-soft);
+}
+.ml-lin__search {
+  flex: 0 1 360px;
+}
+.ml-lin__hits:not(#\#):not(#\#) {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-block);
+  background: var(--ml-card);
+  box-shadow: var(--gp-shadow);
+}
+.ml-lin__hits button:not(#\#):not(#\#) {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  border: 0;
+  border-left: 3px solid var(--vol);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ml-ink);
+  font: inherit;
+  font-size: 0.86rem;
+  text-align: left;
+  cursor: pointer;
+}
+.ml-lin__hits button small:not(#\#):not(#\#) {
+  flex: none;
+  color: var(--ml-ink-soft);
+  font-size: 0.72rem;
+}
+.ml-lin__hits button.is-active:not(#\#):not(#\#),
+.ml-lin__hits button:hover:not(#\#):not(#\#) {
+  background: var(--gp-line-soft);
+}
+
+/* ---- 焦点课的摘要卡 ---- */
+.ml-lin__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 18px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  border: 1px solid var(--gp-line);
+  border-left: 4px solid var(--vol);
+  border-radius: var(--ml-radius-surface);
+  background: var(--ml-card);
+}
+.ml-lin__title:not(#\#):not(#\#) {
+  margin: 2px 0 4px;
+  font-weight: 700;
+  color: var(--ml-ink);
+  font-family: var(--ml-display);
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.3;
+}
+.ml-lin__facts:not(#\#):not(#\#) {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--ml-ink-soft);
+}
+.ml-lin__facts b:not(#\#):not(#\#) {
+  color: var(--ml-ink);
+  font-family: var(--pyr-mono);
+}
+.ml-lin__heroside {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.ml-lin__next {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--gp-line-soft);
+  font-size: 0.84rem;
+}
+.ml-lin__badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: var(--ml-radius-pill);
+  font-size: 0.7rem;
+  letter-spacing: 0;
+  background: var(--gp-locked);
+  color: var(--ml-ink);
+}
+.ml-lin__badge.is-done {
+  background: var(--ml-up-bg);
+  color: var(--ml-up-ink);
+}
+.ml-lin__badge.is-ready {
+  background: var(--ml-up-bg);
+  color: var(--ml-up-ink);
+}
+.ml-lin__badge.is-current {
+  background: color-mix(in srgb, var(--ml-vermilion) 16%, transparent);
+  color: var(--ml-vermilion);
+}
+
+/* ---- 画布 ---- */
+.ml-lin__frame {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.ml-lin__scroll {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  height: clamp(440px, calc(100vh - var(--gp-nav) - 40px), 820px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-surface);
+  background-color: var(--ml-paper);
+  background-image: radial-gradient(var(--gp-line-soft) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+/* margin:auto 在溢出时退为 0（安全居中）：小图居中、大图从左上角起滚 */
+.ml-lin__stage {
+  position: relative;
+  margin: auto;
+}
+.ml-lin__colhead {
+  position: absolute;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--ml-ink-soft);
+}
+.ml-lin__colhead small {
+  padding: 0 6px;
+  border-radius: var(--ml-radius-pill);
+  background: var(--gp-line-soft);
+  font-family: var(--pyr-mono);
+  font-weight: 400;
+}
+.ml-lin__colhead.is-focus {
+  color: var(--ml-vermilion);
+}
+.ml-lin__edges {
+  position: absolute;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.ml-lin__edge {
+  fill: none;
+  stroke: var(--gp-edge);
+  stroke-width: 1.5;
+  transition: d var(--ml-t-slow) var(--ml-ease), opacity var(--ml-t-fast) var(--ml-ease),
+    stroke-width var(--ml-t-fast) var(--ml-ease);
+  animation: ml-gp-fade var(--ml-t-slow) var(--ml-ease) backwards;
+}
+.ml-lin__edge.is-up {
+  stroke: color-mix(in srgb, var(--ml-up) 55%, transparent);
+}
+.ml-lin__edge.is-down {
+  stroke: color-mix(in srgb, var(--ml-down) 60%, transparent);
+}
+.ml-lin__edge.is-lit {
+  stroke-width: 2.6;
+}
+.ml-lin__edge.is-lit.is-up {
+  stroke: var(--ml-up);
+}
+.ml-lin__edge.is-lit.is-down {
+  stroke: var(--ml-down);
+}
+.ml-lin__edge.is-dim {
+  opacity: 0.15;
+}
+
+/* 课卡：绝对定位 + transform，换焦点时同一门课平移到新位置 */
+.ml-lin__card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 24px 6px 9px;
+  border: 1px solid var(--gp-line);
+  border-left: 3px solid var(--vol);
+  border-radius: var(--ml-radius-block);
+  background: var(--ml-card);
+  color: var(--ml-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--ml-t-slow) var(--ml-ease), opacity var(--ml-t-base) var(--ml-ease),
+    box-shadow var(--ml-t-fast) var(--ml-ease), background var(--ml-t-fast) var(--ml-ease);
+  animation: ml-lin-in var(--ml-t-slow) var(--ml-ease) backwards;
+}
+@keyframes ml-lin-in {
+  from {
+    opacity: 0;
+  }
+}
+.ml-lin__card:hover {
+  box-shadow: var(--gp-shadow);
+}
+.ml-lin__cch {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.68rem;
+  color: var(--vol);
+}
+.ml-lin__cch b {
+  margin-right: 4px;
+  font-family: var(--pyr-mono);
+}
+.ml-lin__ctitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.83rem;
+  font-weight: 600;
+  line-height: 1.28;
+}
+.ml-lin__cstate {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.ml-lin__card.is-locked .ml-lin__cstate {
+  background: var(--gp-locked);
+}
+.ml-lin__card.is-ready .ml-lin__cstate {
+  box-shadow: inset 0 0 0 1.5px var(--ml-up);
+}
+.ml-lin__card.is-current .ml-lin__cstate {
+  background: var(--ml-vermilion);
+}
+.ml-lin__card.is-done .ml-lin__cstate {
+  background: var(--ml-up);
+}
+.ml-lin__card.is-done {
+  background: color-mix(in srgb, var(--ml-up) 7%, var(--ml-card));
+}
+.ml-lin__card.is-focus {
+  z-index: 2;
+  cursor: default;
+  border: 2px solid var(--ml-vermilion);
+  border-left-width: 4px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ml-vermilion) 14%, transparent), var(--gp-shadow);
+}
+.ml-lin__card.is-faded {
+  opacity: 0.45;
+}
+.ml-lin__card.is-dim {
+  opacity: 0.3;
+}
+.ml-lin__card.is-lit:not(.is-focus) {
+  box-shadow: 0 0 0 2px var(--vol), var(--gp-shadow);
+}
+.ml-lin__more {
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--gp-line);
+  border-radius: var(--ml-radius-block);
+  color: var(--ml-ink-soft);
+  font-size: 0.8rem;
+  transition: transform var(--ml-t-slow) var(--ml-ease);
+  cursor: help;
+}
+
+/* ---- 更早的根基（按章折叠） ---- */
+.ml-lin__roots {
+  flex: none;
+  width: 196px;
+  height: clamp(440px, calc(100vh - var(--gp-nav) - 40px), 820px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 10px;
+  border: 1px solid var(--gp-line);
+  border-radius: var(--ml-radius-surface);
+  background: var(--ml-card);
+}
+.ml-lin__rootshead:not(#\#):not(#\#) {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ml-ink-soft);
+}
+.ml-lin__rootshead small:not(#\#):not(#\#) {
+  font-family: var(--pyr-mono);
+  font-weight: 400;
+}
+.ml-lin__roots ul:not(#\#):not(#\#) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ml-lin__roots li + li {
+  margin-top: 5px;
+}
+.ml-lin__roots li button {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 2px 6px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--gp-line-soft);
+  border-left: 3px solid var(--vol);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ml-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--ml-t-fast) var(--ml-ease);
+}
+.ml-lin__roots li button:hover {
+  background: var(--gp-line-soft);
+}
+.ml-lin__rootn {
+  font-family: var(--pyr-mono);
+  font-size: 0.68rem;
+  color: var(--vol);
+}
+.ml-lin__roott {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+.ml-lin__rootc {
+  font-family: var(--pyr-mono);
+  font-size: 0.68rem;
+  color: var(--ml-ink-soft);
+}
+.ml-lin__rootbar {
+  grid-column: 1 / -1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gp-locked);
+  overflow: hidden;
+}
+.ml-lin__rootbar > span {
+  display: block;
+  height: 100%;
+  background: var(--ml-up);
+}
+.ml-lin__rootsmore {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.ml-lin__foot:not(#\#):not(#\#) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 10px 2px 0;
+  font-size: 0.76rem;
+  color: var(--ml-ink-soft);
+}
+
+/* ---- 窄屏列表 ---- */
+.ml-lin__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ml-lin__lgroup .ml-lin__lh:not(#\#):not(#\#),
+.ml-lin__lgroup summary:not(#\#):not(#\#) {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ml-ink-soft);
+}
+.ml-lin__lgroup.is-focus .ml-lin__lh:not(#\#):not(#\#) {
+  color: var(--ml-vermilion);
+}
+.ml-lin__lgroup ul:not(#\#):not(#\#) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+details.ml-lin__lgroup ul:not(#\#):not(#\#) {
+  font-size: 0.82rem;
+  padding-left: 4px;
+}
+.ml-lin__list .ml-lin__card {
+  position: relative;
+  width: 100%;
+  min-height: 52px;
+  animation: none;
+}
+.ml-lin__lstate {
+  position: absolute;
+  top: 6px;
+  right: 9px;
+  font-size: 0.75rem;
+  color: var(--ml-up-ink);
+}
+.ml-lin__lmore {
+  font-size: 0.8rem;
+  color: var(--ml-ink-soft);
+}
+
+/* =========================================================================
+ * 断点（996 / 620 是 Infima 口径，见 PROJECT_DOCS/04）
+ * ========================================================================= */
+
+/* 1200 以下：面板不再常驻右栏。没钉住时排在版图下方；钉住一章时浮成右侧抽屉。
+   z-index 300：压在侧栏把手(400)与浮窗(1055+)之下，不进 zorder 的派号区。 */
+@media (max-width: 1199px) {
+  .ml-atlas__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ml-atlas__panel {
+    position: static;
+    max-height: none;
+  }
+  .ml-atlas.has-pick .ml-atlas__panel {
+    position: fixed;
+    z-index: 300;
+    top: calc(var(--gp-nav) + 10px);
+    right: 12px;
+    bottom: 12px;
+    width: min(360px, calc(100vw - 24px));
+    max-height: none;
+    box-shadow: var(--gp-shadow), 0 0 0 1px var(--gp-line);
+  }
+}
+
+/* 996 以下：版图从矩阵改成「按卷分段的卡片流」，台阶名写进每张卡 */
+@media (max-width: 996px) {
+  .ml-atlas__stat {
+    margin-left: 0;
+  }
+  .ml-atlas__board {
+    min-width: 0;
+    padding: 4px 8px 8px;
+  }
+  .ml-atlas__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 0;
+  }
+  .ml-atlas__row--head {
+    display: none;
+  }
+  .ml-atlas__row + .ml-atlas__row {
+    border-top: 0;
+  }
+  .ml-atlas__rowhead {
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .ml-atlas__volbar {
+    flex: 1;
+    max-width: 120px;
+  }
+  .ml-atlas__cell {
+    display: contents;
+  }
+  .ml-atlas__tile {
+    flex: 1 1 150px;
+    max-width: calc(50% - 3px);
+  }
+  .ml-atlas__tlevel {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.64rem;
+    color: var(--ml-ink-soft);
+  }
+  .ml-atlas__links {
+    display: none;
+  }
+
+  .ml-lin__roots {
+    display: none;
+  }
+  .ml-lin__hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ml-lin__heroside {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .ml-gp-search {
+    flex: 1 1 100%;
+  }
+  .ml-atlas__tile {
+    max-width: none;
+  }
+  .ml-atlas.has-pick .ml-atlas__panel {
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    max-height: 64vh;
+  }
+}
+
+@media (pointer: coarse) {
+  .ml-atlas__tile {
+    padding-top: 8px;
+    padding-bottom: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-atlas__tile,
+  .ml-atlas__link,
+  .ml-atlas__pbody,
+  .ml-lin__card,
+  .ml-lin__edge,
+  .ml-lin__more,
+  .ml-gp-btn:not(#\#):not(#\#),
+  .ml-gp-chip {
+    animation: none;
+    transition-duration: 0s;
+  }
+}

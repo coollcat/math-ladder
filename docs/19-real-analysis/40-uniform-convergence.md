@@ -97,15 +97,15 @@ $$\sup_{x\in D}|f_n(x)-f(x)|\to0.$$
 ### 实验 3：Python 比较两种误差
 
 ```python title="逐点误差和上确界误差"
-import math
+import math                                  # math 模块：这里有 pi 和 sin
 
-n = 10
-probe_x = math.pi / (2 * n)
-point_error = abs(math.sin(n * probe_x) / n)
-sup_error = 1 / n
-print(round(point_error, 4))
+n = 10                                       # 函数列的编号
+probe_x = math.pi / (2 * n)                  # 精心挑的探针位置：这里的误差恰好取到最大值
+point_error = abs(math.sin(n * probe_x) / n) # abs 取绝对值：误差只看距离
+sup_error = 1 / n                            # 全域上确界误差的理论值（本列恰好是 1/n）
+print(round(point_error, 4))                 # 保留 4 位小数
 print(round(sup_error, 4))
-print("uniform" if sup_error < 0.2 else "not uniform yet")
+print("uniform" if sup_error < 0.2 else "not uniform yet")   # 条件表达式：按判断二选一输出
 ```
 
 输出 `0.1`、`0.1`、`uniform`。
@@ -118,16 +118,16 @@ print("uniform" if sup_error < 0.2 else "not uniform yet")
 # @check: 0.1
 # @check: uniform
 # @hint: sin(nx)/n 的全域最大绝对值是 1/n；取 n=10，sup_error 用 1/n 算；尾幅小于 0.2 时把 verdict 从 "pointwise only" 改成 "uniform"。
-import math
+import math          # math.pi 与 math.sin 都住在这里
 
-n = 5
-probe_x = math.pi / (2 * n)
-point_error = abs(math.sin(n * probe_x) / n)
-sup_error = point_error
-verdict = "pointwise only"
-print(round(point_error, 4))
+n = 5                # 函数列的编号（题目要求换成几？）
+probe_x = math.pi / (2 * n)                  # 误差取到最大值的位置
+point_error = abs(math.sin(n * probe_x) / n) # 单个点上的绝对误差
+sup_error = point_error                      # sup 误差现在直接照抄逐点误差——它该等于什么？
+verdict = "pointwise only"                   # 结论先写死成一个字符串
+print(round(point_error, 4))   # 保留 4 位小数输出
 print(round(sup_error, 4))
-print(verdict)
+print(verdict)                 # 打印结论字符串
 ```
 
 <details>
@@ -136,13 +136,13 @@ print(verdict)
 把 $n$ 改成 10，并把 sup 误差与结论一起接上：
 
 ```python
-import math
+import math   # pi、sin 都在 math 里
 
-n = 10
-probe_x = math.pi / (2 * n)
-point_error = abs(math.sin(n * probe_x) / n)
+n = 10       # 换成 10：误差随 n 下降
+probe_x = math.pi / (2 * n)                  # 最大化误差的探针位置
+point_error = abs(math.sin(n * probe_x) / n) # 该点上的绝对误差
 sup_error = 1 / n                                        # 全域最大误差：1/n
-verdict = "uniform" if sup_error < 0.2 else "not uniform yet"
+verdict = "uniform" if sup_error < 0.2 else "not uniform yet"   # 条件表达式：结论跟着误差走，不再写死
 
 print(round(point_error, 4))   # 0.1
 print(round(sup_error, 4))     # 0.1

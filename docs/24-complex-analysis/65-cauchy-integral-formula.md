@@ -84,17 +84,17 @@ $$\oint_{|z|=2}\frac{e^z}{z-1}\,dz.$$
 ### 实验 2（python）：验证基本积分
 
 ```python title="单位圆上 1/z 的围道积分"
-import math
+import math                          # 标准库 math：cos / sin / pi
 
-N = 20000
-total = 0 + 0j
-for k in range(N):
-    t1 = 2 * math.pi * k / N
-    t2 = 2 * math.pi * (k + 1) / N
-    z1 = math.cos(t1) + 1j * math.sin(t1)
-    dz = (math.cos(t2) - math.cos(t1)) + 1j * (math.sin(t2) - math.sin(t1))
-    total += dz / z1
-print(round(total.real, 3), round(total.imag, 3))
+N = 20000                            # 把圆周切成 20000 小段，段越多积分越准
+total = 0 + 0j                       # 0j 表示复数零：复数用 j 结尾，不是 i
+for k in range(N):                   # 逐段累加
+    t1 = 2 * math.pi * k / N         # 第 k 段的起点角度
+    t2 = 2 * math.pi * (k + 1) / N   # 该段的终点角度
+    z1 = math.cos(t1) + 1j * math.sin(t1)   # 单位圆上的点：1j 是虚数单位字面量
+    dz = (math.cos(t2) - math.cos(t1)) + 1j * (math.sin(t2) - math.sin(t1))   # 该段的复数增量 dz
+    total += dz / z1                 # 累加 dz/z；围道绕原点一圈，积分应得 2πi
+print(round(total.real, 3), round(total.imag, 3))   # .real / .imag 取复数的实部与虚部
 ```
 
 数值结果为 `-0.001 6.283`（实部是离散化噪声，本质为 0），除以 $2\pi i$ 后等于 1。
@@ -102,20 +102,20 @@ print(round(total.real, 3), round(total.imag, 3))
 ### 实验 3（python）：用边界值还原 e^z 在 z=1 的值
 
 ```python title="边界积分近似 f(1)"
-import math
+import math                          # 标准库 math：exp / cos / sin
 
-N = 20000
-acc = 0 + 0j
-for k in range(N):
+N = 20000                            # 分段数
+acc = 0 + 0j                         # 复数累加器
+for k in range(N):                   # 逐段累加
     t1 = 2 * math.pi * k / N
     t2 = 2 * math.pi * (k + 1) / N
-    z1 = 2 * (math.cos(t1) + 1j * math.sin(t1))
-    dz = 2 * ((math.cos(t2) - math.cos(t1)) + 1j * (math.sin(t2) - math.sin(t1)))
+    z1 = 2 * (math.cos(t1) + 1j * math.sin(t1))   # 半径 2 的圆：比单位圆放大一倍
+    dz = 2 * ((math.cos(t2) - math.cos(t1)) + 1j * (math.sin(t2) - math.sin(t1)))   # 增量同样放大一倍
     # 复指数公式：e^(a+bi)=e^a(cos b+i sin b)，不能用 cos(a)+i sin(a) 代替
-    exp_z1 = math.exp(z1.real) * (math.cos(z1.imag) + 1j * math.sin(z1.imag))
-    acc += exp_z1 / (z1 - 1) * dz
-value = acc / (2 * math.pi * 1j)
-print(round(value.real, 3), round(value.imag, 3))
+    exp_z1 = math.exp(z1.real) * (math.cos(z1.imag) + 1j * math.sin(z1.imag))   # 按欧拉公式展开 e^z
+    acc += exp_z1 / (z1 - 1) * dz    # 被积函数 e^z/(z−1)：奇点 z=1 在圆内
+value = acc / (2 * math.pi * 1j)     # 除以 2πi，把积分还原成 f(1)
+print(round(value.real, 3), round(value.imag, 3))   # 应得 e ≈ 2.718
 ```
 
 结果接近 $e\approx2.718$，输出坐标为 `2.718 0.0`。
@@ -144,13 +144,13 @@ print(round(value.real, 3), round(value.imag, 3))
 # @title: 练习：选择正确的 Cauchy 公式因子
 # @check: 25.133
 # @hint: 积分等于 2*pi*f(2) 的虚部系数；先用复数形式算，再取模长。
-import math
+import math      # 标准库 math（本题其实用不到，保留导入是为了和正文一致）
 
-z0 = 2
-f_value = z0 ** 2
-integral = 1j * f_value            # 请补上缺失的基本因子
-magnitude = abs(integral)
-print(round(magnitude, 3))
+z0 = 2           # 奇点位置；圆把它围在里面
+f_value = z0 ** 2   # 被积函数 f(z)=z² 在奇点处的值
+integral = 1j * f_value   # ← 基本因子 2π 漏了：公式是 2πi·f(z₀)
+magnitude = abs(integral)   # abs 对复数取模长
+print(round(magnitude, 3))   # 与 @check 对位
 ```
 
 <details>

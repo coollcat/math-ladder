@@ -68,13 +68,13 @@ $$\langle f,g\rangle=\int_a^b f(x)g(x)\,dx.$$
 
 ```python title="离散近似函数内积"
 # xs 均匀采样；h 是矩形法的宽度
-xs = [0.0, 0.25, 0.5, 0.75]
-h = 0.25
-f = [x * x for x in xs]
-g = [x for x in xs]
-terms = [f[i] * g[i] for i in range(len(xs))]
-inner = h * (terms[0] + terms[1] + terms[2] + terms[3])
-print("inner≈", inner)
+xs = [0.0, 0.25, 0.5, 0.75]   # 采样点：等距取的四个位置
+h = 0.25                      # 矩形法里每一格的宽度
+f = [x * x for x in xs]       # 列表推导：对 xs 里每个 x 算出 x²，组成新列表
+g = [x for x in xs]           # 同理造出 g(x)=x 的采样值
+terms = [f[i] * g[i] for i in range(len(xs))]   # len 取长度；两个列表按下标一一相乘
+inner = h * (terms[0] + terms[1] + terms[2] + terms[3])   # 求和再乘宽度：这是内积的数值近似
+print("inner≈", inner)   # 逗号分隔打印，数字自动转成字符串
 ```
 
 这是连续积分 $\int_0^1 x^3 dx$ 的左端点近似；增加采样点会逼近 $0.25$。
@@ -97,12 +97,12 @@ print("inner≈", inner)
 # @title: 练习：找出正交向量
 # @check: inner=0.0
 # @hint: 对 (a,b) 与 (b,-a)，内积为 ab+b*(-a)。
-a = 3.0
-b = 4.0
-u = [a, b]
-v = [b, a]
-inner = u[0] * v[0] + u[1] * v[1]
-print("inner=" + str(inner))
+a = 3.0        # 向量的第一个分量
+b = 4.0        # 第二个分量
+u = [a, b]     # 列表就是向量 u=(3,4)
+v = [b, a]     # ← 候选的 v 分量顺序还没换对
+inner = u[0] * v[0] + u[1] * v[1]   # 内积 = 对应分量相乘再相加
+print("inner=" + str(inner))   # str 把数字转成字符串才能用 + 拼接
 ```
 
 <details>
@@ -111,12 +111,12 @@ print("inner=" + str(inner))
 要把 $(3,4)$ 变成法向或垂直方向，可交换分量并改变一个符号，得到 $(4,-3)$。于是内积 $12-12=0$。
 
 ```python
-a = 3.0
-b = 4.0
-u = [a, b]
-v = [b, -a]
-inner = u[0] * v[0] + u[1] * v[1]
-print("inner=" + str(inner))
+a = 3.0        # 第一个分量
+b = 4.0        # 第二个分量
+u = [a, b]     # u=(3,4)
+v = [b, -a]    # v=(4,−3)：把第二个分量取反，内积就归零
+inner = u[0] * v[0] + u[1] * v[1]   # 内积公式
+print("inner=" + str(inner))   # 0.0
 ```
 </details>
 

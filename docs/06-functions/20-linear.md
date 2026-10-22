@@ -86,15 +86,15 @@ $$a = \frac{y_2 - y_1}{x_2 - x_1}$$
 ### 实验 2（python）：一族直线同框
 
 ```python title="只换 a：一族直线"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt   # 画图库 pyplot 改名 plt
 
-xs = list(range(-5, 6))
+xs = list(range(-5, 6))   # range(-5, 6) 是 -5…5（右端 6 不含）；list 把它摊成真列表，好当横坐标
 
-for a in [0.5, 1, 2, -1]:
-    ys = []
-    for x in xs:
-        ys.append(a * x + 1)
-    plt.plot(xs, ys, label=f"a={a}")
+for a in [0.5, 1, 2, -1]:   # 外层循环换斜率：每转一圈就画一条新直线
+    ys = []                 # 每条线都重新备一个空列表——写在循环体内就是每轮清零
+    for x in xs:            # 内层循环：对同一个 x 算出这条线对应的 y
+        ys.append(a * x + 1)   # 把 y 接在列表末尾，与 xs 逐个对齐（位置一一对应才好画图）
+    plt.plot(xs, ys, label=f"a={a}")   # f-string 把当前 a 的值写进图例文字，四条线才分得清
 
 plt.axhline(0, color="gray", linestyle="--")
 plt.axvline(0, color="gray", linestyle="--")
@@ -109,10 +109,10 @@ plt.grid(True)
 ```python title="任取两点，斜率都一样"
 x1, y1 = 0, 3    # 同时给两个变量赋值（第 1 章见过）
 x2, y2 = 2, 7
-slope_a = (y2 - y1) / (x2 - x1)
+slope_a = (y2 - y1) / (x2 - x1)   # 斜率公式照抄：纵差除以横差；/ 是真除法，结果是浮点数（所以后面打印出 2.0）
 
 x3, y3 = 5, 13
-slope_b = (y3 - y1) / (x3 - x1)
+slope_b = (y3 - y1) / (x3 - x1)   # 换一对点再算一次：两次一样才说明这条线真的是"直"的
 
 print(f"用 (0,3) 与 (2,7) 算: 斜率 = {slope_a}")
 print(f"用 (0,3) 与 (5,13) 算: 斜率 = {slope_b}")
@@ -173,9 +173,9 @@ print(2*5)
 <summary>点开查看逐步解答</summary>
 
 ```python
-s1 = (5 - 1) / (2 - 0)
-s2 = (9 - 1) / (4 - 0)
-print(s1 == s2)
+s1 = (5 - 1) / (2 - 0)   # 前两点算出的斜率：Δy / Δx
+s2 = (9 - 1) / (4 - 0)   # 首尾两点算出的斜率
+print(s1 == s2)          # 两个斜率相等 → 返回 True，说明三点共线
 ```
 
 两个斜率都是 2，所以三点共线（都在 $y=2x+1$ 上）。共线的判定就是"斜率处处相等"。

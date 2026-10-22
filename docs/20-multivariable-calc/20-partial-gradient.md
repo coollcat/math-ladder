@@ -102,16 +102,16 @@ $$f(x,y)=x^2+xy+y^2.$$
 
 ```python title="用小步长近似偏导"
 def f(x, y):
-    return x * x + x * y + y * y
+    return x * x + x * y + y * y   # 被求偏导的二元函数
 
-h = 0.0001
-x = 1.0
+h = 0.0001    # 步长：太小会撞上浮点误差，太大会让近似变粗
+x = 1.0       # 求梯度的那个点
 y = 2.0
-fx = (f(x + h, y) - f(x - h, y)) / (2 * h)
-fy = (f(x, y + h) - f(x, y - h)) / (2 * h)
-print(round(fx, 3))
+fx = (f(x + h, y) - f(x - h, y)) / (2 * h)   # 中心差分近似 f_x：y 完全不动，只让 x 前后各挪半步
+fy = (f(x, y + h) - f(x, y - h)) / (2 * h)   # 同理固定 x，只让 y 动
+print(round(fx, 3))                          # round(数, 3)：保留 3 位小数
 print(round(fy, 3))
-print([round(fx, 3), round(fy, 3)])
+print([round(fx, 3), round(fy, 3)])          # 方括号就地造一个列表：把两个分量排成梯度向量的样子
 ```
 
 输出 `4.0`、`5.0`、`[4.0, 5.0]`。Python 的 `round(4.0, 3)` 仍保留浮点数形式。
@@ -125,15 +125,15 @@ print([round(fx, 3), round(fy, 3)])
 # @check: [4.0, 5.0]
 # @hint: 对 y 求偏导时 x 是常数：xy 求导得 x（这没错），但 y² 求导得 2y，别丢系数 2。
 def f(x, y):
-    return x * x + x * y + y * y
+    return x * x + x * y + y * y   # 原函数
 
-x = 1.0
+x = 1.0       # 求梯度的点
 y = 2.0
-fx = 2 * x + y
-fy = x + y
-print(round(fx, 3))
+fx = 2 * x + y   # f_x = 2x + y：固定 y，对 x 求导
+fy = x + y       # ← 这一项对 y 求导时，系数似乎丢了一点东西
+print(round(fx, 3))   # 保留 3 位小数打印
 print(round(fy, 3))
-print([round(fx, 3), round(fy, 3)])
+print([round(fx, 3), round(fy, 3)])   # 拼成列表 [fx, fy]，即梯度向量
 ```
 
 <details>
@@ -142,10 +142,10 @@ print([round(fx, 3), round(fy, 3)])
 这段初始代码的函数定义和 `x,y` 都没问题；真正错在 $f_y$ 的公式：$x$ 对 $y$ 是常数，$xy$ 对 $y$ 求导得 $x$（这项没问题），错在 $y^2$ 对 $y$ 求导应得 $2y$，代码里漏了系数 $2$。完整数值版：
 
 ```python
-x = 1.0
+x = 1.0          # 求梯度的点
 y = 2.0
-fx = 2 * x + y
-fy = x + 2 * y
+fx = 2 * x + y   # f_x = 2x + y：固定 y，把 x 当变量求导
+fy = x + 2 * y   # f_y = x + 2y：固定 x 后 y² 求导得 2y，系数不能丢
 ```
 
 所以：
@@ -161,13 +161,13 @@ gradient=[4.0, 5.0]
 可执行复查：
 
 ```python
-x = 1.0
+x = 1.0          # 求梯度的点
 y = 2.0
-fx = 2 * x + y
-fy = x + 2 * y
-print(round(fx, 3))
-print(round(fy, 3))
-print([round(fx, 3), round(fy, 3)])
+fx = 2 * x + y   # 代入 f_x
+fy = x + 2 * y   # 代入 f_y
+print(round(fx, 3))                   # 4.0
+print(round(fy, 3))                   # 5.0
+print([round(fx, 3), round(fy, 3)])   # [4.0, 5.0]：方括号就地把两个分量排成梯度向量
 ```
 
 </details>

@@ -94,25 +94,25 @@ $$G=1-r(1-e^{-i\theta})=1-r+r e^{-i\theta}.$$
 ### 实验 3：扫描最坏相位
 
 ```python title="找出最大的放大倍数"
-import math
+import math                  # 标准库 math：cos / sin / sqrt / pi
 
-r = 0.8
-largest = 0
+r = 0.8                      # 对流迎风格式的库朗数 r = c·dt/dx，稳定区间是 0 ≤ r ≤ 1（上一课热方程那个 r = k·dt/h²、门槛 0.5，是扩散的判据，别记串）
+largest = 0                  # 擂台变量：记住扫到现在出现的最大放大倍数
 
 # range(0,101) 给出 0 到 100 共 101 个相位样本
-for n in range(0, 101):
-    theta = math.pi * n / 100
-    real_part = 1 - r + r * math.cos(theta)
-    imag_part = -r * math.sin(theta)
-    growth = math.sqrt(real_part * real_part + imag_part * imag_part)
+for n in range(0, 101):      # range(0, 101) 给出 0 到 100 共 101 个相位样本
+    theta = math.pi * n / 100   # 把 [0, π] 均匀铺开：每个相位都查一遍
+    real_part = 1 - r + r * math.cos(theta)   # 放大系数的实部
+    imag_part = -r * math.sin(theta)          # 放大系数的虚部
+    growth = math.sqrt(real_part * real_part + imag_part * imag_part)   # 复数模长：这个相位的放大倍数
     # if 比较：只有发现更大的放大倍数时才替换 largest
-    if growth > largest:
+    if growth > largest:      # if 比较：只有发现更大才换擂主
         largest = growth
 
-stable = largest <= 1
-print(round(r, 3))
-print(round(largest, 3))
-print(stable)
+stable = largest <= 1        # 所有相位的放大倍数都不超过 1，格式才稳
+print(round(r, 3))           # 第一行：差分比
+print(round(largest, 3))     # 第二行：最大放大倍数
+print(stable)                # 第三行：稳定性判决
 ```
 
 输出 `0.8`、`1.0`、`True`。把 `r` 改成 `1.2` 再运行，最大放大倍数会大于 1。
@@ -125,16 +125,16 @@ print(stable)
 # @check: 1.4
 # @check: False
 # @hint: CFL 数等于 c*dt/dx；迎风格式的稳定条件是 0<=r<=1。
-c = 2.0
-dt = 0.06
-dx = 0.1
+c = 2.0                      # 波速
+dt = 0.06                    # 时间步长
+dx = 0.1                     # 空间步长
 
-r = dx / dt
-growth = 2 * r - 1
-stable = r <= 1
-print(round(r, 3))
-print(round(growth, 3))
-print(stable)
+r = dx / dt                  # ← 公式反了：CFL 数应是 c·dt/dx
+growth = 2 * r - 1           # 迎风格式放大系数的实部形式（r 修正后才有意义）
+stable = r <= 1              # 迎风格式的稳定区间：0 <= r <= 1
+print(round(r, 3))           # 第一行与 @check 对位
+print(round(growth, 3))      # 第二行与 @check 对位
+print(stable)                # 第三行与 @check 对位
 ```
 
 <details>
@@ -143,16 +143,16 @@ print(stable)
 CFL 数应按定义计算：
 
 ```python
-c = 2.0
-dt = 0.06
-dx = 0.1
+c = 2.0          # 波速
+dt = 0.06        # 时间步长
+dx = 0.1         # 空间步长
 
-r = c * dt / dx
-growth = 2 * r - 1
-stable = r <= 1
-print(round(r, 3))
-print(round(growth, 3))
-print(stable)
+r = c * dt / dx  # 修正后：CFL 数是 c·dt/dx
+growth = 2 * r - 1   # 迎风格式放大系数的一个极值
+stable = r <= 1      # 0 <= r <= 1 才稳
+print(round(r, 3))      # 1.2
+print(round(growth, 3)) # 1.4
+print(stable)           # False
 ```
 
 于是：

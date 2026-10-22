@@ -144,11 +144,12 @@ K = 1.0                      # 两端铰支
 P_yield = sy * A             # 压到屈服所需的载荷
 lam_p = 3.141592653589793 * (E / sy) ** 0.5
 
+print(f"滑块跨度 L = {L} m")
 print(f"截面积 A = {A * 1e6:.1f} mm²   回转半径 r = {r * 1000:.2f} mm")
 print(f"屈服载荷 = {P_yield / 1000:.1f} kN   转折长细比 λp = {lam_p:.1f}")
 print()
 print(" L(m)   λ      Pcr(kN)   σcr(MPa)  判定")
-for L in [0.5, 1.0, 1.5, 2.0, 3.0, 4.0]:
+for L in [0.5, 1.0, 1.5, 2.0, 3.0, 4.0, L]:   # 末尾补上滑块当前值，拖动能看到它自己那一行
     lam = K * L / r
     Pcr = 3.141592653589793 ** 2 * E * I / (K * L) ** 2
     scr = Pcr / A

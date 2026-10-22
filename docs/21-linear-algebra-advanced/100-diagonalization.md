@@ -95,16 +95,17 @@ $$A=\begin{pmatrix}4&1\\2&3\end{pmatrix}.$$
 ### 实验 3：Python 验证特征对
 
 ```python title="对角化的原料是特征对"
-A = [[4, 1], [2, 3]]
-v = [1, 1]
-lambda_value = 5
+A = [[4, 1], [2, 3]]    # 待对角化的矩阵：A[行][列]
+v = [1, 1]              # 候选特征向量
+lambda_value = 5        # 候选特征值（lambda 是关键字，变量名只能改）
 
+# Av：每行与整个 v 做点积
 av = [A[0][0] * v[0] + A[0][1] * v[1],
       A[1][0] * v[0] + A[1][1] * v[1]]
-lv = [lambda_value * v[0], lambda_value * v[1]]
-print(av)
-print(lv)
-print("diagonalizable")
+lv = [lambda_value * v[0], lambda_value * v[1]]   # λv：整体拉伸 λ 倍
+print(av)   # [5, 5]
+print(lv)   # [5, 5]：相等说明抓到一组特征对
+print("diagonalizable")   # 有足够多的独立特征向量才可对角化
 ```
 
 两行都输出 `[5, 5]`；两个独立特征向量存在，所以可对角化。
@@ -117,20 +118,21 @@ print("diagonalizable")
 # @check: [[4.0, 1.0], [2.0, 3.0]]
 # @check: diagonalization verified
 # @hint: P 的两列分别对应特征值 5 和 2；把这两个数放进 D 的对角线，再把 status 改成验证成功的文本。
-A = [[4, 1], [2, 3]]
-P = [[1, -1], [1, 2]]
-P_inv = [[2 / 3, 1 / 3], [-1 / 3, 1 / 3]]
-D00 = 4
-D11 = 3
-status = "not assembled"
+A = [[4, 1], [2, 3]]                  # 原矩阵
+P = [[1, -1], [1, 2]]                 # 两列是两个特征向量
+P_inv = [[2 / 3, 1 / 3], [-1 / 3, 1 / 3]]   # P 的逆（/ 是真除法，结果带小数）
+D00 = 4                               # ← 对角元该填哪个数？它得是 P 第一列对应的特征值
+D11 = 3                               # ← 第二个对角元同理
+status = "not assembled"              # 结论先写死
+# 下面手动展开 P·D·P⁻¹：外层列表是"行"，每行两个 round(...) 对应矩阵的两个元素
 PD = [
     [round(P[0][0] * D00 * P_inv[0][0] + P[0][1] * D11 * P_inv[1][0], 3),
      round(P[0][0] * D00 * P_inv[0][1] + P[0][1] * D11 * P_inv[1][1], 3)],
     [round(P[1][0] * D00 * P_inv[0][0] + P[1][1] * D11 * P_inv[1][0], 3),
      round(P[1][0] * D00 * P_inv[0][1] + P[1][1] * D11 * P_inv[1][1], 3)],
 ]
-print(f"D=[[{D00}, 0], [0, {D11}]]")
-print(PD)
+print(f"D=[[{D00}, 0], [0, {D11}]]")   # f-string 里也能直接写方括号
+print(PD)                             # 拼回原矩阵才算验证成功
 print(status)
 ```
 

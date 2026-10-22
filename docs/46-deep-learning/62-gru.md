@@ -11,8 +11,7 @@ stage: university-core
 difficulty: 4
 introduces_math: []
 introduces_builtin: []
-introduces_import:
-  - torch
+introduces_import: []
 introduces_concepts:
   - gru-gate
   - reset-gate
@@ -105,58 +104,61 @@ $$h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$
 
 ### 实验 1：GRU vs LSTM 参数量对比
 
+不装 PyTorch 也能把这笔账算清——参数量就是矩阵尺寸相乘求和。组数不同是唯一的差别：
+
 ```python title="参数量对比：GRU vs LSTM"
-import torch  # PyTorch 深度学习框架
-import torch.nn as nn  # nn 模块包含神经网络层
+d_in, d_h = 128, 256                 # 输入维度、隐层维度
 
-input_size = 128
-hidden_size = 256
-
-# LSTM：3 个门 + 候选值 = 4 组权重
-lstm = nn.LSTM(input_size, hidden_size, batch_first=True)  # batch_first：输入维度顺序为 (batch, seq, feature)
-lstm_params = sum(p.numel() for p in lstm.parameters())  # numel：参数元素总数
-
-# GRU：2 个门 + 候选值 = 3 组权重
-gru = nn.GRU(input_size, hidden_size, batch_first=True)
-gru_params = sum(p.numel() for p in gru.parameters())
+# 一组门 = 输入权重(d_in×d_h) + 隐层权重(d_h×d_h) + 两个偏置(各 d_h)
+per_gate = d_in * d_h + d_h * d_h + 2 * d_h
+lstm_params = 4 * per_gate           # LSTM：遗忘/输入/输出门 + 候选态 = 4 组
+gru_params  = 3 * per_gate           # GRU：更新门/重置门 + 候选态 = 3 组
 
 print(f"LSTM 参数量: {lstm_params:,}")
 print(f"GRU  参数量: {gru_params:,}")
 print(f"GRU 节省: {(1 - gru_params/lstm_params)*100:.1f}%")
 ```
 
-GRU 大约节省 25% 的参数——少了一组门的权重矩阵。
+实测输出 `395,264` 与 `296,448`，GRU 省下正好 25%——因为它少了一整组门的权重矩阵。这与 `nn.GRU(128, 256)` / `nn.LSTM(128, 256)` 在 PyTorch 里数出来的数逐位一致，所以这份手算可以当真。
 
-### 实验 2：门值的可视化
+### 实验 2：手算一步 GRU 前向
 
-```python title="观察 GRU 门值如何随训练变化"
-import torch
-import torch.nn as nn
-import matplotlib.pyplot as plt
+§4 的例题只走了标量版。把隐层维度加到 2、三组权重都给成具体矩阵，就能看清每个门各自算了什么：
 
-torch.manual_seed(0)
-seq_len, input_size, hidden_size = 20, 10, 32
+```python title="一步 GRU 前向：三个量逐个落地"
+import math
 
-gru = nn.GRU(input_size, hidden_size, batch_first=True)
-x = torch.randn(1, seq_len, input_size)  # 1 个样本，20 步序列
-output, hn = gru(x)  # output: 所有时间步的隐藏状态
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
 
-# 手动计算各时间步的门值（需要访问内部权重）
-W_z, U_z, b_z = gru.weight_ih_l0[hidden_size:2*hidden_size], gru.weight_hh_l0[hidden_size:2*hidden_size], gru.bias_ih_l0[hidden_size:2*hidden_size] + gru.bias_hh_l0[hidden_size:2*hidden_size]
+def mat_vec(M, v):                   # 矩阵乘向量：M 的每一行与 v 点积
+    return [sum(m * x for m, x in zip(row, v)) for row in M]
 
-h = torch.zeros(1, hidden_size)
-z_values = []
-for t in range(seq_len):
-    z = torch.sigmoid(x[0, t] @ W_z.T + h @ U_z.T + b_z)  # @：矩阵乘法运算符
-    z_values.append(z.mean().item())  # item：取标量值
-    _, h = gru(x[:, t:t+1, :], h.unsqueeze(0))  # unsqueeze：在指定维度增加一个维度
+def vadd(a, b):                      # 向量相加
+    return [x + y for x, y in zip(a, b)]
 
-plt.plot(z_values, marker="o")
-plt.xlabel("Time Step")
-plt.ylabel("Mean Update Gate Value")
-plt.title("GRU Update Gate Activation Over Time")
-plt.grid(True)
+def vmul(a, b):                      # 向量逐元素相乘（Hadamard 积）
+    return [x * y for x, y in zip(a, b)]
+# 单变量输入、隐层维度 2：三组权重都按 2 行写
+W_z, U_z, b_z = [[0.40], [-0.10]], [[0.25, 0.15], [0.05, -0.35]], [0.10, -0.05]
+W_r, U_r, b_r = [[0.60], [0.30]], [[-0.20, 0.45], [0.10, 0.25]], [0.00, 0.05]
+W_h, U_h, b_h = [[0.70], [-0.45]], [[0.35, 0.10], [-0.25, 0.55]], [0.05, 0.00]
+
+x_t = [1.0]                          # 当前输入
+h_prev = [0.5, -0.3]                 # 上一步的隐藏状态
+
+z_t = [sigmoid(v) for v in vadd(vadd(mat_vec(W_z, x_t), mat_vec(U_z, h_prev)), b_z)]
+r_t = [sigmoid(v) for v in vadd(vadd(mat_vec(W_r, x_t), mat_vec(U_r, h_prev)), b_r)]
+# 候选态里旧状态要先被重置门 vmul 一遍，再进隐层权重
+h_cand = [math.tanh(v) for v in vadd(vadd(mat_vec(W_h, x_t), mat_vec(U_h, vmul(r_t, h_prev))), b_h)]
+
+h_new = vadd(vmul([1 - z for z in z_t], h_prev), vmul(z_t, h_cand))
+print("重置门 r =", [round(v, 3) for v in r_t])
+print("更新门 z =", [round(v, 3) for v in z_t])
+print("新状态 h =", [round(v, 3) for v in h_new])
 ```
+
+读账：更新门第一维 $z_1=0.641$ 偏大，说明这个维度更愿意换成候选值；把 $z$ 改成全 0 再跑，`h` 会原封不动等于 `h_prev`——这正是下一节「更新门为 0 时完全保持旧状态」那句话的实测版。
 
 :::warning[常见误区]
 
@@ -180,41 +182,54 @@ GRU 缓解但**不能完全消除**梯度消失。极端长序列仍然需要 Tr
 
 每组门有：$W$ 矩阵 $d_{in} \times d = 128 \times 256$，$U$ 矩阵 $d \times d = 256 \times 256$，偏置 $d = 256$。
 
-每组参数 = $128 \times 256 + 256 \times 256 + 256 = 32768 + 65536 + 256 = 98560$
+每组参数 = $128 \times 256 + 256 \times 256 + 2 \times 256 = 32768 + 65536 + 512 = 98816$
 
-3 组（$z, r, \tilde{h}$）= $3 \times 98560 = 295680$
+3 组（$z, r, \tilde{h}$）= $3 \times 98816 = 296448$
 
-验证：`nn.GRU(128, 256).parameters()` 总计约 295,680。
+验证：`nn.GRU(128, 256)` 的参数总数正是 296,448 —— 注意偏置有两份（`bias_ih` 与 `bias_hh`），漏掉一份就会少算 768。
 </details>
 
 **练习 2**：补全 GRU 前向传播代码。
 
 ```exercise
 # @title: 手写 GRU 单步前向
-# @check: h_new shape: torch.Size([1, 32])
-# @hint: 用 sigmoid 和 tanh，注意三组权重的切分方式
-import torch
+# @check: 重置门 r = [0.59, 0.581]
+# @check: 更新门 z = [0.641, 0.495]
+# @check: 新状态 h = [0.618, -0.424]
+# @hint: 回到 §3 最后一个公式：谁是 h_{t-1} 的系数、谁是候选态的系数？想清楚 z 大时更信谁。
+import math
 
-d_in, d_h = 16, 32
-W = torch.randn(3 * d_h, d_in)   # 三组合并的输入权重
-U = torch.randn(3 * d_h, d_h)     # 三组合并的隐藏权重
-b = torch.zeros(3 * d_h)          # 合并偏置
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
 
-x_t = torch.randn(1, d_in)
-h_prev = torch.randn(1, d_h)
+def mat_vec(M, v):                   # 矩阵乘向量：M 的每一行与 v 点积
+    return [sum(m * x for m, x in zip(row, v)) for row in M]
 
-# 切分出三组权重
-W_z, W_r, W_h = W[:d_h], W[d_h:2*d_h], W[2*d_h:]
-U_z, U_r, U_h = U[:d_h], U[d_h:2*d_h], U[2*d_h:]
-b_z, b_r, b_h = b[:d_h], b[d_h:2*d_h], b[2*d_h:]
+def vadd(a, b):                      # 向量相加
+    return [x + y for x, y in zip(a, b)]
 
-# 请补全：计算 z_t, r_t, h_t_new
-z_t = torch.sigmoid(x_t @ W_z.T + h_prev @ U_z.T + b_z)
-r_t = torch.sigmoid(x_t @ W_r.T + h_prev @ U_r.T + b_r)
-h_candidate = torch.tanh(x_t @ W_h.T + (r_t * h_prev) @ U_h.T + b_h)
-h_new = (1 - z_t) * h_prev + z_t * h_candidate  # ← 修复这里
+def vmul(a, b):                      # 向量逐元素相乘（Hadamard 积）
+    return [x * y for x, y in zip(a, b)]
 
-print(f"h_new shape: {h_new.shape}")
+# 单变量输入、隐层维度 2
+W_z, U_z, b_z = [[0.40], [-0.10]], [[0.25, 0.15], [0.05, -0.35]], [0.10, -0.05]
+W_r, U_r, b_r = [[0.60], [0.30]], [[-0.20, 0.45], [0.10, 0.25]], [0.00, 0.05]
+W_h, U_h, b_h = [[0.70], [-0.45]], [[0.35, 0.10], [-0.25, 0.55]], [0.05, 0.00]
+
+x_t = [1.0]                          # 当前输入
+h_prev = [0.5, -0.3]                 # 上一步的隐藏状态
+
+# 三组门：先过 sigmoid 压到 (0,1)
+z_t = [sigmoid(v) for v in vadd(vadd(mat_vec(W_z, x_t), mat_vec(U_z, h_prev)), b_z)]
+r_t = [sigmoid(v) for v in vadd(vadd(mat_vec(W_r, x_t), mat_vec(U_r, h_prev)), b_r)]
+# 候选态里旧状态先被重置门 vmul 一遍，再进隐层权重
+h_cand = [math.tanh(v) for v in vadd(vadd(mat_vec(W_h, x_t), mat_vec(U_h, vmul(r_t, h_prev))), b_h)]
+
+h_new = vadd(vmul(z_t, h_prev), vmul([1 - z for z in z_t], h_cand))   # ← 问题在这：新旧各拿多少权重？
+
+print("重置门 r =", [round(v, 3) for v in r_t])
+print("更新门 z =", [round(v, 3) for v in z_t])
+print("新状态 h =", [round(v, 3) for v in h_new])
 ```
 
 ```quiz

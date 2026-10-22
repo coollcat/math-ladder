@@ -91,17 +91,17 @@ $$u_t=k u_{xx}.$$
 ### 实验 3：计算一点的弯曲效应
 
 ```python title="三点模板看出升降温"
-k = 0.2
-dx = 0.5
-u_left = 0.4
-u_center = 0.8
-u_right = 0.2
+k = 0.2                    # 热扩散率 k：材料让温度抹平的本领
+dx = 0.5                   # 相邻格点的间距：差分公式要除以它的平方
+u_left = 0.4               # 左邻居的温度
+u_center = 0.8             # 中心格点：这里是热点
+u_right = 0.2              # 右邻居的温度
 
 # 二阶中心差分近似 u_xx
-curvature = (u_left - 2 * u_center + u_right) / (dx * dx)
-change_rate = k * curvature
-print(round(curvature, 3))
-print(round(change_rate, 3))
+curvature = (u_left - 2 * u_center + u_right) / (dx * dx)   # 二阶中心差分：中心比两侧平均高多少
+change_rate = k * curvature   # 热方程 u_t = k·u_xx：曲率乘扩散率就是温度变化率
+print(round(curvature, 3))    # round 保留三位小数
+print(round(change_rate, 3))  # 负号说明热点正在降温
 ```
 
 输出 `-4.0` 和 `-0.8`。中心点比两侧平均更热，弯曲度为负，所以开始降温。
@@ -113,16 +113,16 @@ print(round(change_rate, 3))
 # @check: -4.0
 # @check: -0.8
 # @hint: 先算三点二阶差商，再乘扩散率 k。
-k = 0.2
-dx = 0.5
-u_left = 0.4
-u_center = 0.8
-u_right = 0.2
+k = 0.2                     # 热扩散率
+dx = 0.5                    # 格点间距，分母要除以 dx²
+u_left = 0.4                # 左邻居
+u_center = 0.8              # 中心
+u_right = 0.2               # 右邻居
 
-curvature = u_left + u_right
-change_rate = curvature
-print(round(curvature, 3))
-print(round(change_rate, 3))
+curvature = u_left + u_right   # ← 只把邻居相加，少了 −2·u_center 和除以 dx²
+change_rate = curvature        # ← 也漏了热扩散率 k
+print(round(curvature, 3))     # 第一行与 @check 对位
+print(round(change_rate, 3))   # 第二行与 @check 对位
 ```
 
 <details>
@@ -131,16 +131,16 @@ print(round(change_rate, 3))
 三点模板是：
 
 ```python
-k = 0.2
-dx = 0.5
-u_left = 0.4
-u_center = 0.8
-u_right = 0.2
+k = 0.2          # 热扩散率
+dx = 0.5         # 格点间距
+u_left = 0.4     # 左邻居
+u_center = 0.8   # 中心
+u_right = 0.2    # 右邻居
 
-curvature = (u_left - 2 * u_center + u_right) / (dx * dx)
-change_rate = k * curvature
-print(round(curvature, 3))
-print(round(change_rate, 3))
+curvature = (u_left - 2 * u_center + u_right) / (dx * dx)   # 修正后：完整的二阶中心差分
+change_rate = k * curvature   # 乘上热扩散率
+print(round(curvature, 3))    # -4.0
+print(round(change_rate, 3))  # -0.8
 ```
 
 代入：

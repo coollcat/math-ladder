@@ -119,7 +119,7 @@ $$a = b \times q$$
 ### 实验 3：因数收集器
 
 ```python title="把 36 的因数一网打尽"
-n = 36
+n = 36                         # 要找因数的那个数：换掉它，整段程序就在给另一个数点名
 divisors = []                  # 空列表：备好一个空桶，准备装因数
 count = 0                      # 计数器：顺便数一共几个
 
@@ -138,8 +138,8 @@ print(sum(divisors))           # sum：把因数全家加起来
 ### 实验 4：公因数收集器
 
 ```python title="两关连过：12 和 18 的公因数"
-a = 12
-b = 18
+a = 12                         # 第一个数：等下拿它的因数当候选名单
+b = 18                         # 第二个数：候选还要再过它这一关
 common = []                    # 公因数收集桶
 
 for d in range(1, a + 1):      # 公因数不会超过较小的 a
@@ -184,13 +184,13 @@ print(common)
 # @check: 8
 # @check: 24
 # @hint: range 含头不含尾——24 自己也是 24 的因数，扫描的上界得写到哪？
-n = 24
-count = 0
-biggest = 0
-for d in range(1, n):
-    if n % d == 0:
-        count = count + 1
-        biggest = d
+n = 24            # 要点名的那个数
+count = 0         # 计数器：见一个因数就加一
+biggest = 0       # 记"目前为止见到最大的因数"——初值 0 保证任何因数都能顶替它
+for d in range(1, n):        # d 挨个当候选搭档；range 含头不含尾，上界写得对不对会直接改变名册
+    if n % d == 0:           # % 取余：余数为 0 才说明 d 真能整除 n
+        count = count + 1    # 命中一次，计数加一
+        biggest = d          # d 是从小到大来的，所以后命中的一定比先前的大，直接覆盖即可
 print(count)
 print(biggest)
 ```
@@ -201,9 +201,9 @@ print(biggest)
 <summary>点开查看逐步解答</summary>
 
 ```python
-n = 24
-count = 0
-biggest = 0
+n = 24                         # 被点名的数
+count = 0                      # 因数个数
+biggest = 0                    # 最大的那个因数
 for d in range(1, n + 1):      # 上界 +1：把 24 自己也算进候选
     if n % d == 0:
         count = count + 1
@@ -224,13 +224,13 @@ $24 = 1\times24 = 2\times12 = 3\times8 = 4\times6$，四对搭档共 8 个因数
 30 的因数：1, 2, 3, 5, 6, 10, 15, 30；45 的因数：1, 3, 5, 9, 15, 45。两边都有的：1, 3, 5, 15——最大公因数 **15**。
 
 ```python
-a = 30
-b = 45
-common = []
-for d in range(1, a + 1):
-    if a % d == 0:
-        if b % d == 0:
-            common.append(d)
+a = 30                              # 第一个数
+b = 45                              # 第二个数
+common = []                         # 公因数收集桶
+for d in range(1, a + 1):           # 公因数不可能比 a 还大，扫到 a 就够了
+    if a % d == 0:                  # 第一关：d 得先整除 a
+        if b % d == 0:              # 第二关：还得整除 b，两关都过才算"共同语言"
+            common.append(d)        # 过关的收进桶里
 print(common)    # [1, 3, 5, 15]
 ```
 

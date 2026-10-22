@@ -169,8 +169,8 @@ print(answers[2])
 <summary>点开查看逐步解答</summary>
 
 ```python
-answers = ["F", "B", "F"]
-print(answers[0])
+answers = ["F", "B", "F"]  # 三个字母对应三句话的流派：F = 频率派，B = 贝叶斯派
+print(answers[0])  # 下标 0/1/2 依次是甲、乙、丙；python 下标从 0 起
 print(answers[1])
 print(answers[2])
 ```
@@ -221,13 +221,13 @@ print(lift)
 <summary>点开查看逐步解答</summary>
 
 ```python
-a_success, a_fail = 120, 280
-c_success, c_fail = 96, 304
-print(1 + a_success)
-print(1 + a_fail)
-print(1 + c_success)
-print(1 + c_fail)
-print(round(a_success / 400 - c_success / 400, 2))
+a_success, a_fail = 120, 280  # 新版 A/B 测试的原始计数：成功 120、失败 280，合计 400 人
+c_success, c_fail = 96, 304  # 旧版同样 400 人：成功 96、失败 304
+print(1 + a_success)  # 后验 a = 先验 1 + 成功数，Beta(1,1) 等价于「先假想各有 1 次成功与失败」
+print(1 + a_fail)  # 后验 b = 先验 1 + 失败数；a 与 b 的可读意义就是伪计数
+print(1 + c_success)  # 旧版成功后验同样要加 1，漏掉它就是本练习埋的坑
+print(1 + c_fail)  # 失败侧同理，两个 1 都要补上
+print(round(a_success / 400 - c_success / 400, 2))  # 裸频率只算点估计；round(x, 2) 的第二个参数是小数位数，不是有效数字位数
 ```
 
 两组都从 $\mathrm{Beta}(1,1)$ 出发，所以新版后验是 $\mathrm{Beta}(121,281)$，旧版后验是 $\mathrm{Beta}(97,305)$。观察提升为 $120/400-96/400=0.06$，也就是 6 个百分点。但这只是描述差异；要回答“新版更好的把握”，还必须比较两条完整后验分布。

@@ -232,14 +232,14 @@ sq = 0.0
 for x in w_even:
     sq = sq + x * x
 ess_even = 1.0 / sq                    # 这一行是对的
-print(round(ess_even, 1))              # 应当是 100.0
+print(round(ess_even, 1))              # 均匀权重下 ESS 等于什么？
 
 w_bad = [0.99] + [0.01 / (n - 1)] * (n - 1)   # 一个粒子独吞 99% 权重
 sq_bad = 0.0
 for x in w_bad:
     sq_bad = sq_bad + x * x
 ess_bad = sq_bad                       # ← 错了：ESS 是 1/Σw²
-print(round(ess_bad, 2))               # 应当是 1.02
+print(round(ess_bad, 2))               # 改对之后退化会非常明显
 ```
 
 <details>

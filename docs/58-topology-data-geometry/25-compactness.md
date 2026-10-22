@@ -114,12 +114,12 @@ for name in labels:
 `[-2,2]` 闭且有界，标签为 `compact`。`[-2,2)` 不含右端点，不闭。`[0,inf)` 无界。注意这段示意代码只是记录答案表；标准 Python 不能直接写半开区间数学记号，正式实现可用条件函数：
 
 ```python
-labels = {
+labels = {  # 字典字面量首现：名字 → 标签，花括号里是「键: 值」对
     "closed_box": "compact",
     "open_end": "not compact",
     "half_line": "not compact",
 }
-for name in labels:
+for name in labels:  # 直接 for name in labels 遍历的是键，再用 labels[name] 取值
     print(labels[name])
 ```
 

@@ -153,8 +153,8 @@ re = 0.0                         # 实部账本：cos 投影累加
 im = 0.0                         # 虚部账本：sin 投影累加（带负号）
 for n in range(N):
     ang = 2 * math.pi * 653 * n / fs   # 653 Hz 探针在第 n 个采样点的角度
-    re = re + a3 * math.sin(ang) * math.cos(ang)
-    im = im - a3 * math.sin(ang) * math.sin(ang)
+    re = re + a3 * math.sin(ang) * math.cos(ang)  # 投影到 cos 轴：信号乘基函数再逐点求和
+    im = im - a3 * math.sin(ang) * math.sin(ang)  # 投影到 sin 轴要带负号，与正文 DFT 的虚部口径一致
 print(round(math.hypot(re, im) / N, 2))
 ```
 

@@ -97,7 +97,7 @@ $$\text{逆变换：}\quad f(t)=\frac{1}{2\pi}\int_{-\infty}^{+\infty} F(\omega)
 ### 实验 1（python）：验证打包公式
 
 ```python title="e^(-iθ) 与 cosθ − i·sinθ 对照"
-import math
+import math  # import math 只为取 e 与三角函数；复数本身是 Python 内置类型
 
 # Python 原生支持复数：1j 就是虚数单位 i（第 12 章用过），不需要任何库
 for theta in [0.5, 1.0, 2.0, 3.0]:

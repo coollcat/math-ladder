@@ -202,9 +202,9 @@ print([round(x, 2) for x in out2[1:]])
 修正版：
 
 ```python
-import math
+import math  # import math 取 cos / sin / radians；四元数统一写成 [w, x, y, z] 四元列表
 
-def qmul(a, b):
+def qmul(a, b):  # qmul 是 Hamilton 积：先拆出两个四元数的四个分量
     w1, x1, y1, z1 = a
     w2, x2, y2, z2 = b
     return [w1*w2 - x1*x2 - y1*y2 - z1*z2,
@@ -213,17 +213,17 @@ def qmul(a, b):
             w1*z2 + x1*y2 - y1*x2 + z1*w2]
 
 def qconj(q):
-    return [q[0], -q[1], -q[2], -q[3]]
+    return [q[0], -q[1], -q[2], -q[3]]  # qconj 只把向量部分取负，实部不动；单位四元数的逆就是它的共轭
 
-half = math.cos(math.pi / 4)
-q = [half, 0.0, 0.0, math.sin(math.pi / 4)]
+half = math.cos(math.pi / 4)  # cos45° = sin45° = √2/2，先把同一个常数提出来，免得写两遍
+q = [half, 0.0, 0.0, math.sin(math.pi / 4)]  # 绕 z 轴转 90°：实部 cos(θ/2)、z 分量 sin(θ/2)，θ=90° 正是 45°
 
-v1 = [0.0, 1.0, 0.0, 0.0]
-out1 = qmul(qmul(q, v1), qconj(q))
+v1 = [0.0, 1.0, 0.0, 0.0]  # 纯四元数：实部 0，向量部分是要转的坐标 (1,0,0)
+out1 = qmul(qmul(q, v1), qconj(q))  # 三明治的左片：先 q 乘 v
 print([round(x, 2) for x in out1[1:]])    # [0.0, 1.0, 0.0]
 
-v2 = [0.0, 0.0, 1.0, 0.0]
-out2 = qmul(qmul(q, v2), qconj(q))
+v2 = [0.0, 0.0, 1.0, 0.0]  # 第二个测试向量是 y 轴 (0,1,0)，与 @check 第二行 [-1.0, 0.0, 0.0] 对应
+out2 = qmul(qmul(q, v2), qconj(q))  # 同样走 q·v·q*，把 y 轴转到 −x 轴，验证旋转方向
 print([round(x, 2) for x in out2[1:]])    # [-1.0, 0.0, 0.0]
 ```
 

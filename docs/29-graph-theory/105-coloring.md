@@ -45,14 +45,31 @@ exits:
 
 ## 5. 动手实验
 
+### 实验 1（lab）：上色、回溯、探色数
+
+```lab
+{
+  "type": "gt-coloring",
+  "title": "五边形加一条弦：贪心用 3 色，色数也是 3；切成 2 色，回溯会一路撤销",
+  "k": 3,
+  "height": 540
+}
+```
+
+**点任意顶点**循环换色，相邻两点一旦同色，那条边立刻变红并打一个 ✕——冲突不用你去找，画面自己喊。
+
+三种玩法对应三条结论：① **「自动回溯一步」**逐点上色，某色冲突就换一个，试遍就撤销上一个点的颜色（轨迹区能看到「撤销 X 的颜色」那一行）；② **「一次跑完」**直接给出一个合法 $k$-着色，或判定这个 $k$ 不够；③ **「探测色数 $\chi$」**把 $k=1,2,3,4$ 逐个试，第一个走通的 $k$ 就是色数。注意面板同时给出**贪心用色**：贪心按度数降序走，用色数常常大于等于 $\chi$——**贪心不保证最优**。切到「2 色」再跑一次，你会看到回溯反复撤销：这个图含奇三角，2 色无解。
+
+### 实验 2（python）：贪心着色一个小图
+
 ```python title="贪心着色一个小图"
-graph={"A":["B","C","D"],"B":["A","C"],"C":["A","B"],"D":["A"]}
-order=["A","B","C","D"]
+graph={"A":["B","C","D"],"B":["A","C"],"C":["A","B"],"D":["A"]}   # 邻接表
+order=["A","B","C","D"]      # 上色顺序：换顺序会改变用色数
 color={}
-for vertex in order:
-    forbidden=set(color[n] for n in graph[vertex] if n in color)
+for vertex in order:         # 逐点上色
+    forbidden=set(color[n] for n in graph[vertex] if n in color)   # 集合推导：邻居已占的颜色
     color_number=1
-    while color_number in forbidden:
+    while color_number in forbidden:   # 从 1 往上找第一个没被禁的颜色
         color_number+=1
     color[vertex]=color_number
 print(color)

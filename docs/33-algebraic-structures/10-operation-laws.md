@@ -72,20 +72,20 @@ exits:
 拖动紫点切分矩形。整个矩形就是 $7(10+3)$ 的总面积；紫点把它切成 $7\times10$ 与 $7\times3$ 两块，两块面积相加正好等于总面积。分配律不是背诵口诀，而是两种数面积的路径。
 
 ```python title="用小表格检查两条律"
-def check_laws(values):
-    ok_swap = True
-    ok_distributive = True
-    for a in values:
+def check_laws(values):    # def 定义函数：把一组数丢进去，逐条检验运算律
+    ok_swap = True         # 先假定交换律成立，找到反例再翻成 False
+    ok_distributive = True # 同理，先假定分配律成立
+    for a in values:       # 双重循环：把所有 (a, b) 组合都试一遍
         for b in values:
-            if a + b != b + a:
-                ok_swap = False
-            for c in values:
-                if a * (b + c) != a * b + a * c:
+            if a + b != b + a:   # != 是不等于：只要有一对不相等就推翻交换律
+                ok_swap = False  # 记下反例
+            for c in values:     # 第三层循环：分配律要三个数
+                if a * (b + c) != a * b + a * c:   # 分配律 a(b+c) = ab+ac 的逐项核对
                     ok_distributive = False
-    print("swap:", ok_swap)
+    print("swap:", ok_swap)   # 逗号分隔打印：字符串后面直接跟布尔值
     print("distributive:", ok_distributive)
 
-check_laws([0, 1, 2, 3])
+check_laws([0, 1, 2, 3])   # 传入列表；函数名后面跟括号才是调用
 ```
 
 代码用嵌套循环穷举小样本。它不能证明所有整数都满足运算律，但能训练“先检查结构”的习惯。
@@ -98,18 +98,18 @@ check_laws([0, 1, 2, 3])
 # @check: True
 # @check: False
 # @hint: 三条律都要用 shift_add_left 自己来检验。结合律比较的是同一运算的两种分组：f(f(a,b),c) 与 f(a,f(b,c))——这里的 f 该填普通加法还是 shift_add_left？
-def shift_add_left(a, b):
-    return a * 2 + b
+def shift_add_left(a, b):   # def 定义函数：自定义运算 a⊗b = 2a+b，拿它当「改造过的加法」
+    return a * 2 + b        # 注意这不是对称的：交换 a、b 结果会变
 
-a = 3
-b = 5
-c = 7
-swap = shift_add_left(a, b) == shift_add_left(b, a)
-right_increment = shift_add_left(a, b + c) == shift_add_left(a, b) + c
-associative = (a + b) + c == a + (b + c)
-print(swap)
-print(right_increment)
-print(associative)
+a = 3           # 第一个操作数
+b = 5           # 第二个操作数
+c = 7           # 第三个数，检验结合律要用
+swap = shift_add_left(a, b) == shift_add_left(b, a)   # == 比较两个结果是否相等
+right_increment = shift_add_left(a, b + c) == shift_add_left(a, b) + c   # 检验这条「分配」关系
+associative = (a + b) + c == a + (b + c)   # ← 这里用的是普通加法，不是 shift_add_left
+print(swap)               # 第一行与 @check 对位
+print(right_increment)    # 第二行与 @check 对位
+print(associative)        # 第三行与 @check 对位
 ```
 
 <details>

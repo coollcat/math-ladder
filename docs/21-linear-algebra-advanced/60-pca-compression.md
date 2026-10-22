@@ -95,14 +95,14 @@ PCA 只是把许多点同时投影到同一条过均值的方向线上；单点�
 ### 实验 3：Python 中心化
 
 ```python title="先去均值，再谈主成分"
-points = [[1, 1], [3, 3]]
-mean_x = (points[0][0] + points[1][0]) / 2
-mean_y = (points[0][1] + points[1][1]) / 2
+points = [[1, 1], [3, 3]]                     # 样本:嵌套列表，每个点是一个 [x, y]
+mean_x = (points[0][0] + points[1][0]) / 2    # 两个下标记:第一个选点，第二个选分量；/ 是真除法，结果是浮点
+mean_y = (points[0][1] + points[1][1]) / 2    # y 分量各自求平均
 
-for point in points:
-    centered_x = point[0] - mean_x
+for point in points:                          # 逐点处理，point 依次是 [1,1] 和 [3,3]
+    centered_x = point[0] - mean_x            # 中心化：减去均值，把重心搬到原点
     centered_y = point[1] - mean_y
-    print(centered_x, centered_y)
+    print(centered_x, centered_y)             # 逗号隔开两个值，print 用空格拼接输出
 ```
 
 输出 `-1.0 -1.0` 和 `1.0 1.0`。中心化后，原点变成数据的重心。
@@ -114,12 +114,12 @@ for point in points:
 # @check: -1.0 -1.0
 # @check: 1.0 1.0
 # @hint: 均值是每个分量分别求平均；中心化等于原坐标减去均值。
-points = [[1, 1], [3, 3]]
-mean_x = 0
+points = [[1, 1], [3, 3]]   # 两个二维样本点
+mean_x = 0                 # ← 均值该等于多少？这一步决定了中心化的结果
 mean_y = 0
 
-for point in points:
-    print(point[0], point[1])
+for point in points:       # 逐点打印（现在还是原坐标）
+    print(point[0], point[1])   # point[0] 是 x、point[1] 是 y
 ```
 
 <details>
@@ -135,11 +135,11 @@ mean_y = (1 + 3) / 2
 两者都是 2。中心化：
 
 ```python
-points = [[1, 1], [3, 3]]
-mean_x = (1 + 3) / 2
-mean_y = (1 + 3) / 2
-for point in points:
-    print(point[0] - mean_x, point[1] - mean_y)
+points = [[1, 1], [3, 3]]              # 样本点
+mean_x = (1 + 3) / 2                   # x 均值 = 2.0
+mean_y = (1 + 3) / 2                   # y 均值 = 2.0
+for point in points:                   # 逐点中心化
+    print(point[0] - mean_x, point[1] - mean_y)   # 减去均值后再打印
 ```
 
 输出 `-1.0 -1.0` 和 `1.0 1.0`。

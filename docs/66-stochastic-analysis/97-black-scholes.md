@@ -227,14 +227,14 @@ $C = 100\times0.6274 - 95.1229\times0.4701 = 62.74 - 44.72 = 18.02$。
 从 10.45 涨到 18.02——**不是翻倍，而是约 $1.72$ 倍**。价格对波动率单调递增（波动越大，"单向保护"越值钱），但增长快慢由 $\mathrm{Vega}$ 决定，而 $\mathrm{Vega}$ 本身也随 $\sigma$ 变化，所以不会精确成比例。原因在收益的形状：它被截断在 0——波动放大时上涨侧的好处全额保留，下跌侧最多亏到 0，这份不对称的保护让 $\sigma$ 直接变成了价格里的一个独立变量。
 
 ```python
-import math
-def Phi(z):
+import math  # import math 取 erf / exp / log / sqrt，BS 公式全靠这几个函数
+def Phi(z):  # Phi 用误差函数 erf 表示标准正态分布函数：Φ(z) = (1 + erf(z/√2)) / 2
     return 0.5 * (1 + math.erf(z / math.sqrt(2)))
-S0, K, r, T = 100, 100, 0.05, 1.0
-for sigma in [0.2, 0.4]:
-    d1 = (math.log(S0 / K) + (r + sigma ** 2 / 2) * T) / (sigma * math.sqrt(T))
-    d2 = d1 - sigma * math.sqrt(T)
-    print(sigma, round(S0 * Phi(d1) - K * math.exp(-r * T) * Phi(d2), 2))
+S0, K, r, T = 100, 100, 0.05, 1.0  # 只留四个参数：波动率 σ 放进循环里扫，方便对比两档
+for sigma in [0.2, 0.4]:  # 两次试算：σ 翻倍，看期权价格怎么变（σ 越大，价格越高）
+    d1 = (math.log(S0 / K) + (r + sigma ** 2 / 2) * T) / (sigma * math.sqrt(T))  # d1 里同时含 log(S0/K)、利率项与 σ²/2 修正，缺一项都会算错
+    d2 = d1 - sigma * math.sqrt(T)  # d2 = d1 − σ√T，是 BS 公式里第二个标准正态自变量
+    print(sigma, round(S0 * Phi(d1) - K * math.exp(-r * T) * Phi(d2), 2))  # 看涨价格 = S0·Φ(d1) − K·e^(−rT)·Φ(d2)，两个 Φ 不能对调
 ```
 
 </details>

@@ -120,18 +120,18 @@ $$A=\begin{pmatrix}0&1\\-2&-3\end{pmatrix}.$$
 ### 实验 4：Python 分类平衡点
 
 ```python title="由迹、行列式和判别式分类"
-a = 0.0
-b = 1.0
-c = -2.0
+a = 0.0                       # 线性系统矩阵 [[a, b], [c, d]] 的四个元素
+b = 1.0                       # 这组值的特征值是 -1 与 -2：两个负实数
+c = -2.0                      # c 与 b 一起决定行列式
 d = -3.0
-trace = a + d
-det = a * d - b * c
-disc = trace * trace - 4 * det
-status = "stable node" if disc > 0 and trace < 0 and det > 0 else "other"
-print(round(trace, 3))
-print(round(det, 3))
-print(round(disc, 3))
-print(status)
+trace = a + d                 # 迹 = 两特征值之和；符号决定整体吸引还是发散
+det = a * d - b * c           # 行列式 = 两特征值之积；正负决定是结点还是鞍点
+disc = trace * trace - 4 * det # 判别式 > 0 表示特征值是实根，轨迹不转圈
+status = "stable node" if disc > 0 and trace < 0 and det > 0 else "other"   # 三个条件分别管实根、收敛、不换号
+print(round(trace, 3))        # round(值, 3)：保留三位小数，便于与 @check 逐行比对
+print(round(det, 3))          # 第二行读数是行列式
+print(round(disc, 3))         # 第三行读数是判别式
+print(status)                 # 第四行是分类名，字符串原样打印、不带引号
 ```
 
 输出 `-3.0`、`2.0`、`1.0`、`stable node`。
@@ -145,18 +145,18 @@ print(status)
 # @check: 1.0
 # @check: stable node
 # @hint: 判别式是 trace²-4det，不要把减号写成加号；分类行也要改——det>0 且 trace<0 且 disc>0 才是 stable node。
-a = 0.0
+a = 0.0                       # 矩阵元素由题目给定，这四行不用改
 b = 1.0
 c = -2.0
 d = -3.0
 trace = a + d
 det = a * d - b * c
-disc = trace * trace + 4 * det
-status = "saddle" if det < 0 else "other"
-print(round(trace, 3))
+disc = trace * trace + 4 * det # ← 判别式写成了加号，实根与复根会判反
+status = "saddle" if det < 0 else "other"   # ← 分类条件也不全：stable node 要同时满足三条
+print(round(trace, 3))        # 第一行与 @check 对应
 print(round(det, 3))
 print(round(disc, 3))
-print(status)
+print(status)                 # 第四行输出分类名
 ```
 
 <details>

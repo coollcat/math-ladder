@@ -203,7 +203,7 @@ for x in Xs:
 # @check: 1.0
 # @check: 0.607
 # @check: 0.135
-# @hint: RBF 核 = exp(−(a−b)²/(2ℓ²))。a=b 时应当等于 1；相隔 0.8（正好一个 ℓ）时约为 0.607；相隔 1.6 时约为 0.135。初始代码忘了套 exp。
+# @hint: RBF 核 = exp(−(a−b)²/(2ℓ²))。初始代码算出了指数上的那一坨，却没把它送进 exp——核值本该随距离衰减到 1 以下，现在反而在增大。
 import math
 
 def rbf(a, b, length):

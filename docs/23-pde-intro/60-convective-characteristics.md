@@ -110,19 +110,19 @@ $$x-ct=\text{常数}$$
 ```python title="特征线上取值不变"
 import math   # 数学函数库：exp 是指数函数
 
-c = 2.0        # 流速
+c = 2.0        # 流速：特征线每秒往右走 2
 t = 1.5        # 当前时刻
 x0 = 1.0       # 特征线在 t=0 时的出发点
 
 # 特征线方程：x = x0 + c*t（从 x0 出发，以速度 c 前进）
-x_now = x0 + c * t
+x_now = x0 + c * t   # 特征线方程：从 x0 出发、以速度 c 前进
 
 # f(s)=exp(-s*s)：初始分布；特征线上的自变量恒为 x - c*t = x0
-u_here = math.exp(-x_now ** 2 + 2 * x_now * c * t - (c * t) ** 2)   # 展开 (x_now - c*t)^2 的直接计算
-u_start = math.exp(-x0 ** 2)
-drift = u_here - u_start   # 两处取值之差：应为 0
-print(round(u_here, 3))
-print(round(u_start, 3))
+u_here = math.exp(-x_now ** 2 + 2 * x_now * c * t - (c * t) ** 2)   # ** 是幂运算：这里把 (x_now − ct)² 展开后直接算
+u_start = math.exp(-x0 ** 2)   # 出发点 x0 处的初始浓度
+drift = u_here - u_start   # 沿特征线浓度不变，两者之差应为 0
+print(round(u_here, 3))        # round(值, 3)：保留三位小数
+print(round(u_start, 3))       # 第二行
 print(round(drift, 3) + 0.0)
 ```
 
@@ -138,19 +138,19 @@ print(round(drift, 3) + 0.0)
 # @hint: 特征线从 x0 出发按 x = x0 + c*t 前进；沿线的常数值是 x - c*t，它恒等于 x0。
 import math
 c = 2.0        # 流速
-x0 = 1.0       # 特征线在 t=0 的出发点
+x0 = 1.0       # 特征线的出发点
 t = 1.5        # 当前时刻
 
-x = x0 - c * t          # ← 有错一：特征线应往前跑，x = x0 + c*t
-print(round(x, 3))
+x = x0 - c * t          # ← 特征线该往前跑，符号反了
+print(round(x, 3))      # 第一行与 @check 对位
 
-lag = x + c * t         # ← 有错二：沿特征线的不变量是 x - c*t
-print(round(lag, 3))
+lag = x + c * t         # ← 沿特征线的不变量是 x − c·t，这里写成了加
+print(round(lag, 3))    # 第二行与 @check 对位
 
 u_now = math.exp(-lag ** 2)     # 特征线上此处的浓度
 u_then = math.exp(-x0 ** 2)     # 出发点当时的浓度
-drift = u_now - u_then
-print(round(drift, 3))
+drift = u_now - u_then   # 两者应相等
+print(round(drift, 3))   # 第三行与 @check 对位
 ```
 
 <details>
@@ -159,19 +159,19 @@ print(round(drift, 3))
 修正后的账本：
 
 ```python
-import math
-c = 2.0
-x0 = 1.0
-t = 1.5
+import math   # 标准库 math：exp
+c = 2.0        # 流速
+x0 = 1.0       # 出发点
+t = 1.5        # 时刻
 
-x = x0 + c * t
+x = x0 + c * t   # 修正：特征线往前跑
 print(round(x, 3))       # 4.0
 
-lag = x - c * t
+lag = x - c * t          # 修正：不变量是 x − c·t = x0
 print(round(lag, 3))     # 1.0
 
-u_now = math.exp(-lag ** 2)
-u_then = math.exp(-x0 ** 2)
+u_now = math.exp(-lag ** 2)   # 沿线浓度
+u_then = math.exp(-x0 ** 2)   # 出发时浓度
 print(round(u_now - u_then, 3))   # 0.0
 ```
 

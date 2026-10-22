@@ -102,19 +102,19 @@ $$P(n_0),P(n_0+1),\ldots,P(k) \Rightarrow P(k+1).$$
 ### 实验 2：找出较小的分解件
 
 ```python title="把 2 到 10 拆成两个更小因子"
-names = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-for n in range(2, 11):
-    factor = 0
+names = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]   # 建一张"下标 → 数字字符串"的对照表：names[6] 就是 "6"，省得再 str() 转换
+for n in range(2, 11):                     # 挨个检查 2…10（右端 11 不含）
+    factor = 0                              # 用 0 当"还没找到因子"的哨兵值（真因子最小也是 2）
     for d in range(2, n):                 # 从 2 试到 n-1，找第一个真因子
-        if factor == 0 and n % d == 0:
+        if factor == 0 and n % d == 0:      # and：两个条件同时成立才算；factor == 0 保证只记第一个
             factor = d
 
-    if factor == 0:
+    if factor == 0:                         # 一个真因子都没找到 → n 是素数
         label = "素数"
     else:
-        label = names[factor] + "×" + names[n // factor]   # n//factor 是另一个因子（n 除以 factor 的整数商）；+ 连接字符串
+        label = names[factor] + "×" + names[n // factor]   # n//factor 是另一个因子（n 除以 factor 的整数商，// 会向下取整丢掉小数）；+ 连接字符串
 
-    print(names[n] + "=" + label)
+    print(names[n] + "=" + label)           # 拼成 "6=2×3" 这样的等式打印
 ```
 
 输出里的每个合数都被拆成两个比自身小的因子，而且两者乘回去正好是原数（如 6=2×3、9=3×3）。这两个因子都落在强归纳假设覆盖的范围内；普通归纳只假设前一项成立，接不住这种任意小的引用。
@@ -130,12 +130,12 @@ for n in range(2, 11):
 # @check: 25
 # @check: 36
 # @hint: 数列从 a1=1 开始：初始列表不能先放 0；循环也要从 n=2 开始，否则 n=1 会多算一项。
-squares = [0]
-for n in range(1, 6):
-    next_value = squares[-1] + 2 * n - 1   # [-1] 取列表最后一项
-    squares.append(next_value)
+squares = [0]                          # 起始列表：已经攒好的项都留在这里（它该从哪一项开始？）
+for n in range(1, 6):                  # 一共要再追加几项、n 该从哪个数起？（递推里 2n-1 用的是第 n 个奇数）
+    next_value = squares[-1] + 2 * n - 1   # [-1] 负下标从列表末尾往前数：取最后一项当"前一项"
+    squares.append(next_value)         # 算好一项就接在末尾，列表越攒越长
 
-for value in squares:
+for value in squares:                  # 最后把攒下来的每一项依次打印
     print(value)
 ```
 
@@ -145,13 +145,13 @@ for value in squares:
 把起点改成 1，让循环生成到第 6 项：
 
 ```python
-squares = [1]
-for n in range(2, 7):
-    next_value = squares[-1] + 2 * n - 1
-    squares.append(next_value)
+squares = [1]                     # 基础步：a_1 = 1，列表从这里开始
+for n in range(2, 7):             # n = 2…6：每次由前一项加第 n 个奇数，推到 a_n
+    next_value = squares[-1] + 2 * n - 1   # squares[-1] 是上一项；2n-1 是第 n 个奇数
+    squares.append(next_value)    # 新增项接在末尾
 
 for value in squares:
-    print(value)
+    print(value)                  # 1, 4, 9, 16, 25, 36
 ```
 
 原代码漏掉的不是计算，而是基础步：$a_1$ 必须等于 $1$。这是普通归纳的边界练习；上面例 3 才展示强归纳假设为什么必要。

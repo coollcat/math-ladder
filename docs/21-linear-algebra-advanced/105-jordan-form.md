@@ -168,14 +168,14 @@ print([[1, k], [0, 1]])        # 公式预言：A^k = [[1, k], [0, 1]]
 # @check: [[1.0, 9.0], [0.0, 1.0]]
 # @check: [[1, 9], [0, 1]]
 # @hint: 连乘的出发点是单位矩阵 I——从 A 自己出发会把幂多乘一次；k=9 时右上角正是 9。
-A = [[1, 1], [0, 1]]
+A = [[1, 1], [0, 1]]      # λ=1 的 Jordan 块
 
-def matmul(M, N):
-    out = [[0.0, 0.0], [0.0, 0.0]]
-    for i in range(2):
-        for j in range(2):
-            s = 0.0
-            for t in range(2):
+def matmul(M, N):          # 手写 2×2 矩阵乘法
+    out = [[0.0, 0.0], [0.0, 0.0]]   # 全零结果矩阵
+    for i in range(2):              # 结果的行
+        for j in range(2):          # 结果的列
+            s = 0.0                 # 该格的累加器
+            for t in range(2):      # 中间维度：M 的行元素 × N 的列元素
                 s = s + M[i][t] * N[t][j]   # (i, j) 格 = M 第 i 行与 N 第 j 列对应相乘再相加
             out[i][j] = s
     return out
@@ -194,24 +194,24 @@ print([[1, k], [0, 1]])
 出发点应是单位矩阵——$I\cdot A^k=A^k$；从 $A$ 出发就变成 $A^{k+1}$，右上角会多记一笔。
 
 ```python
-A = [[1, 1], [0, 1]]
+A = [[1, 1], [0, 1]]      # λ=1 的 Jordan 块：对角全是 1，右上一个 1
 
-def matmul(M, N):
-    out = [[0.0, 0.0], [0.0, 0.0]]
-    for i in range(2):
-        for j in range(2):
-            s = 0.0
-            for t in range(2):
+def matmul(M, N):          # 手写 2×2 矩阵乘法（不借助 numpy）
+    out = [[0.0, 0.0], [0.0, 0.0]]   # 先造一个全零的结果矩阵
+    for i in range(2):              # 结果的行
+        for j in range(2):          # 结果的列
+            s = 0.0                 # 该格的累加器，每次换格都要重置
+            for t in range(2):      # 沿"中间的维度"扫：M 第 i 行 × N 第 j 列
                 s = s + M[i][t] * N[t][j]
-            out[i][j] = s
+            out[i][j] = s           # 算完一格就写回
     return out
 
-k = 9
-Ak = [[1.0, 0.0], [0.0, 1.0]]
-for _ in range(k):
-    Ak = matmul(Ak, A)
-print(Ak)
-print([[1, k], [0, 1]])
+k = 9                            # 幂次
+Ak = [[1.0, 0.0], [0.0, 1.0]]    # 出发点必须是单位矩阵：I·A^k = A^k
+for _ in range(k):               # _ 是占位名：循环体里用不到计数器的值
+    Ak = matmul(Ak, A)           # 每轮左乘一次 A，共 k 轮
+print(Ak)                        # [[1.0, 9.0], [0.0, 1.0]]
+print([[1, k], [0, 1]])          # 公式预言 A^k = [[1, k], [0, 1]]
 ```
 
 输出：

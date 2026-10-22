@@ -119,7 +119,7 @@ $$x = s + f(s)\,t,$$
 ### 实验 3：解出隐式方程，验算方程
 
 ```python title="不动点迭代解 u = sin(x - u t)，再验残差"
-import math
+import math                      # 标准库 math：sin 用来算隐式方程右端
 
 def solve_u(xx, tt):          # def 定义函数：解隐式方程 u = sin(xx - u*tt)
     u = 0.0
@@ -127,17 +127,17 @@ def solve_u(xx, tt):          # def 定义函数：解隐式方程 u = sin(xx - 
         u = math.sin(xx - u * tt)
     return u
 
-t = 0.5         # 时刻
-x = 1.0         # 位置
-h = 0.0001      # 差分步长
+t = 0.5         # 观察时刻：还在翻卷之前，解是光滑的
+x = 1.0         # 观察位置
+h = 0.0001      # 差分步长：比 1 小四个量级，中心差分才够准
 
-u_mid = solve_u(x, t)
+u_mid = solve_u(x, t)   # 用不动点迭代解出该点的 u 值
 u_t = (solve_u(x, t + h) - solve_u(x, t - h)) / (2 * h)   # 中心差分近似 u_t
 u_x = (solve_u(x + h, t) - solve_u(x - h, t)) / (2 * h)   # 中心差分近似 u_x
-print(round(u_mid, 3))
-print(round(u_t, 3))
-print(round(u_x, 3))
-print(round(u_t + u_mid * u_x, 4) + 0.0)   # 残差 u_t + u*u_x，应为 0
+print(round(u_mid, 3))   # round(值, 3)：保留三位小数
+print(round(u_t, 3))     # 第二行：时间偏导
+print(round(u_x, 3))     # 第三行：空间偏导
+print(round(u_t + u_mid * u_x, 4) + 0.0)   # 残差 u_t + u·u_x；加 0.0 把 -0.0 规范成 0.0
 ```
 
 输出 `0.632`、`-0.353`、`0.559`、`0.0`。隐式方程不会自己吐出公式，但数值上 $u_t + u\,u_x = 0$ 严丝合缝——例 2 的代数在数字里兑现。
@@ -145,21 +145,21 @@ print(round(u_t + u_mid * u_x, 4) + 0.0)   # 残差 u_t + u*u_x，应为 0
 ### 实验 4：把翻卷时刻量出来
 
 ```python title="扫描网格实测 t* = -1/min f'(s)"
-import math
+import math                  # 标准库 math：cos / pi
 
-best = 100.0                    # 擂台：先放一个巨大的"最陡时刻"
-s_best = 0.0
-n = 2000                        # 把 [-π, π] 切成 2000 份
-for i in range(n + 1):
-    s = -math.pi + 2 * math.pi * i / n
+best = 100.0                    # 擂台：先放一个巨大的"最陡时刻"，等着被更小的值刷新
+s_best = 0.0                    # 记住夺擂的那个起点位置
+n = 2000                        # 把 [-π, π] 切成 2000 份，逐段扫描
+for i in range(n + 1):          # 多取一格才扫到右端点 π
+    s = -math.pi + 2 * math.pi * i / n   # 第 i 个采样点的位置
     slope = math.cos(s)         # f'(s)=cos(s)：f(s)=sin(s) 的坡度
-    if slope < 0:               # 只看在收缩的坡（后面比前面快）
+    if slope < 0:               # 只看在收缩的坡（后面比前面快），那里才会翻卷
         t_here = -1.0 / slope   # 这一段的翻卷候选时刻
         if t_here < best:       # 更早翻卷就换擂主
             best = t_here
             s_best = s
-print(round(best, 3))
-print(round(s_best, 3))
+print(round(best, 3))   # 第一次翻卷的时刻
+print(round(s_best, 3)) # 翻卷发生的位置
 ```
 
 输出 `1.0` 和 `-3.142`：最陡的坡在 $s=\pm\pi$ 附近（那里 $f'=-1$），所以 $t^\ast = -1/(-1) = 1$——与实验 2 图上折返的时刻一致。
@@ -173,22 +173,22 @@ print(round(s_best, 3))
 # @check: 0.141
 # @check: 1.0
 # @hint: 一团流体带着出发时的速度上路：x = s0 + f(s0)*t；速度沿途不变，仍是 f(s0)；翻卷时刻 t* = -1/min f'，而 f'(s)=cos(s) 的最小值是 -1。
-import math
+import math               # 标准库 math：sin
 s0 = 3.0        # 某团流体的出发位置
-t = 0.5         # 经历的时间
+t = 0.5         # 已经过去的时间
 
-speed0 = math.sin(s0)     # 出发点携带的速度（初值 f(s)=sin(s)）
-print(round(speed0, 3))
+speed0 = math.sin(s0)     # 出发时携带的速度（初值 f(s)=sin(s)）
+print(round(speed0, 3))   # 第一行与 @check 对位
 
-x_now = s0 - speed0 * t   # ← 有错一：这团流体按 x = s0 + f(s0)*t 前进
-print(round(x_now, 3))
+x_now = s0 - speed0 * t   # ← 这团流体按 x = s0 + f(s0)·t 前进，符号反了
+print(round(x_now, 3))    # 第二行与 @check 对位
 
-u_now = math.sin(x_now)   # ← 有错二：非线性输运里速度不变，它仍是 speed0
-print(round(u_now, 3))
+u_now = math.sin(x_now)   # ← 非线性输运里速度不变，它仍是出发时的 speed0
+print(round(u_now, 3))    # 第三行与 @check 对位
 
-min_slope = -1.0          # f'(s)=cos(s) 的最小值
-t_star = 1 / min_slope    # ← 有错三：翻卷时刻 t* = -1/min f'，别丢了负号
-print(round(t_star, 3))
+min_slope = -1.0          # f'(s)=cos(s) 能取到的最小值
+t_star = 1 / min_slope    # ← 翻卷时刻 t* = -1/min f'，负号丢了
+print(round(t_star, 3))   # 第四行与 @check 对位
 ```
 
 <details>
@@ -197,21 +197,21 @@ print(round(t_star, 3))
 修正后的账本：
 
 ```python
-import math
-s0 = 3.0
-t = 0.5
+import math   # 标准库 math：sin
+s0 = 3.0        # 出发点
+t = 0.5         # 经过的时间
 
-speed0 = math.sin(s0)
+speed0 = math.sin(s0)     # 出发时携带的速度
 print(round(speed0, 3))     # 0.141
 
-x_now = s0 + speed0 * t
+x_now = s0 + speed0 * t   # 修正后：x = s0 + f(s0)·t
 print(round(x_now, 3))      # 3.071
 
-u_now = speed0
+u_now = speed0            # 修正后：非线性输运里速度沿途不变
 print(round(u_now, 3))      # 0.141
 
-min_slope = -1.0
-t_star = -1 / min_slope
+min_slope = -1.0          # f'(s) 的最小值
+t_star = -1 / min_slope   # 修正后：负号补回来
 print(round(t_star, 3))     # 1.0
 ```
 

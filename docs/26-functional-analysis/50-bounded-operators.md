@@ -70,19 +70,19 @@ $$\lVert T\rVert=\sup_{x\ne0}\frac{\lVert T(x)\rVert}{\lVert x\rVert}.$$
 ```python title="离散方向的最大增益"
 # math 是数学工具库，用来计算 cos 和 sin。
 import math
-angles = [0.0, 0.3927, math.pi / 4, 1.1781, math.pi / 2]
-best = 0.0
-for t in angles:
+angles = [0.0, 0.3927, math.pi / 4, 1.1781, math.pi / 2]   # 在 0 到 π/2 之间取五个角度试算
+best = 0.0                          # 擂台变量：记住扫到的最大增益
+for t in angles:                    # 直接遍历列表里的每个元素
     # cos/sin 把角度转为单位向量
-    x = math.cos(t)
-    y = math.sin(t)
-    out_x = 2 * x + y
-    out_y = x + 2 * y
-    out_len_sq = out_x * out_x + out_y * out_y
-    gain = out_len_sq ** 0.5
-    if gain > best:
-        best = gain
-print("norm≈", best)
+    x = math.cos(t)                 # 单位圆上的横坐标
+    y = math.sin(t)                 # 单位圆上的纵坐标：x²+y² 恒为 1
+    out_x = 2 * x + y               # 算子的第一行：[2, 1] 作用在 (x, y) 上
+    out_y = x + 2 * y               # 第二行：[1, 2]
+    out_len_sq = out_x * out_x + out_y * out_y   # 输出向量的长度平方
+    gain = out_len_sq ** 0.5        # ** 0.5 就是开平方
+    if gain > best:                 # if 比较：只有更大才换擂主
+        best = gain                 # 换擂主
+print("norm≈", best)                # 扫到的最大增益就是算子范数的近似
 ```
 
 加密 `angles` 会越来越接近真实算子范数 3。
@@ -105,9 +105,9 @@ print("norm≈", best)
 # @title: 练习：计算对角算子的范数
 # @check: norm=3.0
 # @hint: 对角矩阵在欧氏范数下的最大增益是各绝对特征值的最大者。
-scales = [-3.0, 1.0, 2.0]
-norm = abs(scales[1])
-print("norm=" + str(norm))
+scales = [-3.0, 1.0, 2.0]   # 对角算子的三个缩放因子
+norm = abs(scales[1])       # ← 擂主拿错了下标：应从第一个开始
+print("norm=" + str(norm))   # 与 @check 对位
 ```
 
 <details>
@@ -116,13 +116,13 @@ print("norm=" + str(norm))
 三个方向分别放大 $3,1,2$ 倍；符号表示翻转，不影响长度。最大绝对值是 3，所以应遍历三个数并保留最大绝对值。
 
 ```python
-scales = [-3.0, 1.0, 2.0]
-norm = abs(scales[0])
-if abs(scales[1]) > norm:
-    norm = abs(scales[1])
-if abs(scales[2]) > norm:
-    norm = abs(scales[2])
-print("norm=" + str(norm))
+scales = [-3.0, 1.0, 2.0]   # 三个缩放因子
+norm = abs(scales[0])       # 擂主从第一个开始：|−3| = 3
+if abs(scales[1]) > norm:   # 逐个比较，取绝对值最大的那个
+    norm = abs(scales[1])   # 换擂主
+if abs(scales[2]) > norm:   # 第三个再比一遍
+    norm = abs(scales[2])   # 换擂主
+print("norm=" + str(norm))   # norm=3.0
 ```
 </details>
 

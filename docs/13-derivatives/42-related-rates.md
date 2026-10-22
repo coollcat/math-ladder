@@ -125,7 +125,7 @@ print(round(formula, 4))
 # @title: 练习：气球半径此刻涨多快
 # @check: 1.0
 # @hint: 两边对 t 求导：dV/dt = 4πr²·dr/dt（球面积 4πr² 会在链环上现身）。分母是 4πr²，不是 4πr。
-import math
+import math  # import math 只为取 π；math.pi 比手写 3.14 精确
 
 r = 5.0                       # 此刻半径（厘米）
 dv = 100 * math.pi            # 充气速度 dV/dt（立方厘米/秒）

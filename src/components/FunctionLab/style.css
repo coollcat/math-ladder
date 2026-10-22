@@ -150,6 +150,12 @@
   opacity: 0.55;
 }
 
+/* 立体最多同时画 3 个：多出来的卡片留着（式子不丢），但标一下「先不画」 */
+.ml-fn__card.is-capped {
+  opacity: 0.62;
+  border-style: dashed;
+}
+
 .ml-fn__cardhead {
   display: flex;
   align-items: center;
@@ -694,6 +700,73 @@
   color: var(--ifm-color-emphasis-700);
 }
 
+/* ---- 右上角「此刻这张图」：跟着当前卡片的形态换，不是写死的说明 ---- */
+.ml-fnpage__now {
+  min-width: 0;
+  padding: 11px 14px 12px;
+  border: 1px solid var(--ml-fn-line);
+  border-left: 3px solid var(--ml-fn-vermilion);
+  border-radius: var(--ml-radius-card);
+  background: var(--ml-fn-paper);
+}
+
+.ml-fnpage__now-k {
+  margin-bottom: 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ml-fn-vermilion);
+}
+
+.ml-fnpage__now-h {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.ml-fnpage__now-p {
+  margin: 5px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.8;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-fnpage__now-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ml-fnpage__now-meta li {
+  padding: 0 8px;
+  border: 1px solid var(--ml-fn-line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  line-height: 1.75;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ml-fnpage__now-tip {
+  margin: 9px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--ml-fn-line);
+  font-size: 0.76rem;
+  line-height: 1.7;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.ml-fnpage__now.is-err {
+  border-left-color: var(--ml-danger);
+}
+
+.ml-fnpage__now.is-err .ml-fnpage__now-k,
+.ml-fnpage__now.is-err .ml-fnpage__now-h {
+  color: var(--ml-danger);
+}
+
 .ml-fnpage__help {
   margin-top: 28px;
   padding: 14px 18px;
@@ -797,6 +870,15 @@
 
   .ml-fnpage__intro:not(.is-open) .ml-fnpage__lead {
     display: none;
+  }
+
+  .ml-fnpage__intro:not(.is-open) .ml-fnpage__now {
+    display: none;
+  }
+
+  /* 展开时：介绍卡排在导语下面，字号收一档 */
+  .ml-fnpage__intro.is-open .ml-fnpage__now {
+    margin-top: 0.7rem;
   }
 
   /* 收起时留一行摘要：把第一段的第一句显示出来 */
@@ -971,6 +1053,196 @@
 
   .ml-fn__plot {
     height: 470px;
+  }
+}
+
+/* =========================================================================
+ * 多形态 + Python 联动（2026-10，见 UNIT_GUIDES/see-function.md）
+ * ========================================================================= */
+
+/* 「＋ 再叠一条」与形态模板同一行，模板是虚线小签：看得出是「新开一张带例子的卡」 */
+.ml-fn__addrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.ml-fn__kindrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ml-fn__kindchip {
+  padding: 3px 9px;
+  border: 1px dashed var(--ml-fn-line);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ml-fn-mute);
+  font: inherit;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.ml-fn__kindchip:hover:not(:disabled) {
+  border-style: solid;
+  border-color: var(--ml-fn-vermilion);
+  color: var(--ml-fn-vermilion);
+}
+
+.ml-fn__kindchip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 卡片标题旁的形态徽标：极坐标、参数曲线……（普通函数 / 曲面不挂） */
+.ml-fn__kind {
+  display: none;
+  padding: 0 6px;
+  border: 1px solid var(--ml-fn-vermilion);
+  border-radius: 4px;
+  color: var(--ml-fn-vermilion);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+.ml-fn__kind.is-show {
+  display: inline-block;
+}
+
+/* 导函数按钮只对 y = f(x) 有意义：其余形态直接收起 */
+.ml-fn__icon.is-off {
+  display: none;
+}
+
+/* 参数范围：t ∈ [0, 2π] */
+.ml-fn__ranges {
+  display: none;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 6px;
+}
+
+.ml-fn__ranges.is-show {
+  display: flex;
+}
+
+.ml-fn__range {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ml-fn-mute);
+}
+
+.ml-fn__rangename {
+  font-family: var(--ifm-font-family-monospace);
+  white-space: nowrap;
+}
+
+.ml-fn__rangeinp {
+  width: 4.6em;
+  padding: 1px 5px;
+  border: 1px solid var(--ml-fn-line);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ml-fn-ink);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.ml-fn__rangeinp:focus {
+  outline: none;
+  border-color: var(--ml-fn-vermilion);
+}
+
+.ml-fn__rangeinp:focus-visible {
+  outline: 2px solid var(--ml-fn-vermilion);
+  outline-offset: -2px;
+}
+
+.ml-fn__rangeinp.is-bad {
+  border-color: var(--ml-danger, #d1483f);
+  color: var(--ml-danger, #d1483f);
+}
+
+/* Python 函数的卡片：式子框只读，换一种底色说明「这条不在这里改」 */
+.ml-fn__card.is-py .ml-fn__src {
+  background: var(--ml-fn-soft);
+  color: var(--ml-fn-mute);
+  cursor: default;
+}
+
+.ml-fn__card.is-py .ml-fn__preview {
+  cursor: default;
+}
+
+/* 工具栏右端的 Python 组 */
+.ml-fn__tbpy {
+  margin-left: auto;
+}
+
+.ml-fn__btn--py {
+  border-color: var(--ml-fn-vermilion);
+  color: var(--ml-fn-vermilion);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.76rem;
+}
+
+.ml-fn__btn--py:hover:not(:disabled) {
+  background: var(--ml-fn-vermilion);
+  color: #fff;
+}
+
+.ml-fn__tbmsg {
+  flex-basis: 100%;
+  min-height: 0;
+  font-size: 0.74rem;
+  color: var(--ml-fn-mute);
+  text-align: right;
+}
+
+.ml-fn__tbmsg:empty {
+  display: none;
+}
+
+/* 内嵌（Py 浮窗的输出区里）：单栏、紧凑，不抢浮窗的地方 */
+.ml-fn.ml-fn--inline {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  font-size: 0.92rem;
+}
+
+.ml-fn--inline .ml-fn__keypadhost,
+.ml-fn--inline .ml-fn__presets {
+  display: none;
+}
+
+.ml-fn--inline .ml-fn__info {
+  max-height: 220px;
+  overflow: auto;
+}
+
+.ml-console__fn {
+  margin: 10px 0 4px;
+  padding: 10px;
+  border: 1px solid var(--ml-fn-line, rgba(38, 50, 75, 0.14));
+  border-radius: 10px;
+  background: var(--ml-fn-paper, #fdfbf6);
+}
+
+@media (max-width: 640px) {
+  .ml-fn__tbpy {
+    margin-left: 0;
+  }
+
+  .ml-fn__tbmsg {
+    text-align: left;
   }
 }
 

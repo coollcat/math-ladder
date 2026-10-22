@@ -84,11 +84,11 @@ $$u(x,t)=\sum_n c_ne^{-\mu_nt}e_n(x).$$
 ```python title="每个频率的冷却因子"
 # math 是数学工具库，math.exp 计算 e 的幂。
 import math
-coeffs = [1.0, 0.5, -0.25]
-t = 0.1
-for n in [1, 2, 3]:
-    factor = math.exp(-n * n * t)
-    print(n, coeffs[n - 1] * factor)
+coeffs = [1.0, 0.5, -0.25]   # 初始频谱的前三个坐标
+t = 0.1                      # 演化时间
+for n in [1, 2, 3]:          # 直接遍历列表：n 依次取 1、2、3
+    factor = math.exp(-n * n * t)   # 第 n 号模态的衰减因子，n 越大衰减越快
+    print(n, coeffs[n - 1] * factor)   # 列表下标从 0 开始，所以是 n-1
 ```
 
 把 `t` 从 0.1 改到 1，再改到 5，看高频坐标如何先归零。
@@ -113,11 +113,11 @@ for n in [1, 2, 3]:
 # @hint: 一号频率的因子是 exp(-1*t)。
 # math 是数学工具库，math.exp 计算 e 的幂。
 import math
-c1 = 1.0
-t = 1.0
-factor = math.exp(t)
-value = c1 * factor
-print("value=" + str(value))
+c1 = 1.0         # 一号频率的初始坐标
+t = 1.0          # 演化时间
+factor = math.exp(t)   # ← 衰减因子该带负号：exp(−t)
+value = c1 * factor    # 坐标乘衰减因子
+print("value=" + str(value))   # 与 @check 对位
 ```
 
 <details>
@@ -127,11 +127,11 @@ print("value=" + str(value))
 
 ```python
 import math
-c1 = 1.0
-t = 1.0
-factor = math.exp(-t)
-value = c1 * factor
-print("value=" + str(value))
+c1 = 1.0         # 一号频率的坐标
+t = 1.0          # 时间
+factor = math.exp(-t)   # 修正：负号回来了
+value = c1 * factor    # = e^{-1} ≈ 0.3679
+print("value=" + str(value))   # 0.36787944117144233
 ```
 </details>
 

@@ -82,17 +82,17 @@ $$\mathbb F_p=\mathbb Z_p=\lbrace0,1,\ldots,p-1\rbrace,$$
 横轴选 $a$，纵轴选 $b$；绿色格表示乘积回到 1。除 0 行外每一行都有一个绿格，这正是有限域的除法安全证词。
 
 ```python title="体检 Z_p 是否满足有限域条件"
-p = 7
-all_invertible = True
-inverse_table = []
+p = 7  # 模数 p = 7，是素数；下面在 1..p-1 这 6 个非零剩余类里找乘法逆元
+all_invertible = True  # 布尔标志位：只要有一个元素找不到逆元，就把它翻成 False
+inverse_table = []  # 空列表收集 (a, b) 逆元对，稍后一次性打印出来
 
-for a in range(1, p):
-    found = False
+for a in range(1, p):  # range(1, p) 首现：左闭右开，正好是 1..p-1，不含 0
+    found = False  # 每换一个 a 就重置一次「本元素找到逆元了吗」
     for b in range(1, p):
-        if (a * b) % p == 1:
-            inverse_table.append((a, b))
+        if (a * b) % p == 1:  # a·b ≡ 1 (mod p) 正是乘法逆元的定义，这里用 % 求余判断
+            inverse_table.append((a, b))  # append 首现：往列表末尾追加一个元组，列表长度自动增长
             found = True
-    if found == False:
+    if found == False:  # 内层 b 扫完仍没找到逆元，说明 a 在模 p 下不可逆
         all_invertible = False
 
 print("nonzero_count=", p - 1)
@@ -109,12 +109,12 @@ print("all_invertible=", all_invertible)
 # @check: characteristic=11
 # @check: nonzero_count=10
 # @hint: 特征是最少多少个 1 相加等于 0；非零元素个数是 q-1。
-q = 11
-sum_of_ones = 0
-count = 0
+q = 11  # 模数 q = 11，素数；下面要问「几个 1 相加才回到 0」
+sum_of_ones = 0  # 累加器：存 1+1+…+1 这个和本身
+count = 0  # 计数器：存已经加了多少个 1
 
-characteristic = 0
-nonzero_count = q
+characteristic = 0  # 特征 = 最少几个 1 相加才 ≡ 0，这里还只是初始值
+nonzero_count = q  # 非零元素个数，当前写的不是最终答案
 
 print("characteristic=" + str(characteristic))
 print("nonzero_count=" + str(nonzero_count))

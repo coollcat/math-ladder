@@ -107,18 +107,20 @@ $$0.2\cdot0.8+0.7\cdot0.2=0.16+0.14=0.30.$$
 ### 实验 3：Python 手算平方
 
 ```python title="不依赖库，算 P² 并乘初始分布"
-P = [[0.8, 0.3], [0.2, 0.7]]
+P = [[0.8, 0.3], [0.2, 0.7]]   # 转移矩阵：P[行][列]，每列加起来是 1
 
+# 手算 P² = P·P：每一格都是"第 i 行 × 第 j 列"的两项和，round(..., 3) 顺手收一下浮点尾巴
 p00 = round(P[0][0] * P[0][0] + P[0][1] * P[1][0], 3)
 p01 = round(P[0][0] * P[0][1] + P[0][1] * P[1][1], 3)
 p10 = round(P[1][0] * P[0][0] + P[1][1] * P[1][0], 3)
 p11 = round(P[1][0] * P[0][1] + P[1][1] * P[1][1], 3)
-P2 = [[p00, p01], [p10, p11]]
+P2 = [[p00, p01], [p10, p11]]   # 拼回二维列表
 
+# 取 P2 的第一列：这就是"从状态 A 出发、走两步之后"的概率分布
 state = [P2[0][0], P2[1][0]]
-print(state)
-print(round(state[0], 3))
-print(round(state[1], 3))
+print(state)                  # [0.7, 0.3]
+print(round(state[0], 3))     # 0.7
+print(round(state[1], 3))     # 0.3
 ```
 
 输出 `[0.7, 0.3]`、`0.7`、`0.3`。
@@ -131,11 +133,11 @@ print(round(state[1], 3))
 # @check: 0.7
 # @check: 0.3
 # @hint: 先算 P²，再用 P² 的第一列乘从 A 出发的初始分布。
-P = [[0.8, 0.3], [0.2, 0.7]]
-state = [P[0][0], P[1][0]]
-print([round(state[0], 3), round(state[1], 3)])
-print(round(state[0], 3))
-print(round(state[1], 3))
+P = [[0.8, 0.3], [0.2, 0.7]]   # 一步转移矩阵
+state = [P[0][0], P[1][0]]     # ← 这里取的是 P 的第一列：只走了一步，两步该用谁？
+print([round(state[0], 3), round(state[1], 3)])   # 方括号里顺便 round，打印成列表
+print(round(state[0], 3))      # 第一个分量
+print(round(state[1], 3))      # 第二个分量
 ```
 
 <details>
@@ -145,9 +147,9 @@ print(round(state[1], 3))
 
 ```python
 P = [[0.8, 0.3], [0.2, 0.7]]
-p00 = round(P[0][0] * P[0][0] + P[0][1] * P[1][0], 3)
-p10 = round(P[1][0] * P[0][0] + P[1][1] * P[1][0], 3)
-state = [p00, p10]
+p00 = round(P[0][0] * P[0][0] + P[0][1] * P[1][0], 3)   # P² 左上角
+p10 = round(P[1][0] * P[0][0] + P[1][1] * P[1][0], 3)   # P² 左下角
+state = [p00, p10]                  # 第一列就是"从 A 出发两步后"的分布
 print(state)                  # [0.7, 0.3]
 print(round(state[0], 3))     # 0.7
 print(round(state[1], 3))     # 0.3

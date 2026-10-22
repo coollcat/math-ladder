@@ -96,15 +96,15 @@ exits:
 ### 实验 3：机器找反例
 
 ```python title="在有限列表里找奇数反例"
-def hunt(numbers):
-    for n in numbers:
+def hunt(numbers):            # 参数 numbers：要搜查的列表（这里当成一个有限的论域）
+    for n in numbers:         # 逐个翻看；一旦命中就 return，函数立刻结束
         if n % 2 == 1:    # 余数是 1，说明 n 是奇数
-            return "counterexample"
-    return "no counterexample"
+            return "counterexample"   # 找到一个就够：全称命题被它否掉
+    return "no counterexample"   # 整列翻完都没命中，才走这一句（注意它不在循环体内）
 
-print(hunt([2, 4, 5]))
-print(hunt([2, 4, 6]))
-print("contradiction")
+print(hunt([2, 4, 5]))   # 列表里有奇数 → 有反例
+print(hunt([2, 4, 6]))   # 全是偶数 → 没找到反例
+print("contradiction")   # 单独打印一个字符串：这一行只是标签，不是列表算出来的结果
 ```
 
 前两行分别输出 `counterexample`、`no counterexample`。第三行只是标记另一种推理类型，不是由列表算出的结果。
@@ -117,24 +117,24 @@ print("contradiction")
 # @check: no counterexample
 # @check: contradiction
 # @hint: 前两问看列表里有没有奇数；第三问只有在推理步骤里出现「矛盾」时才输出 contradiction。
-def hunt(numbers):
-    for n in numbers:
-        if n % 2 == 0:
+def hunt(numbers):            # 在一列数里搜"反例"
+    for n in numbers:         # 逐个检查，命中就提前返回
+        if n % 2 == 0:        # ← 这里判的是哪一类数？题目的反例该是哪一类？
             return "counterexample"
-    return "no counterexample"
+    return "no counterexample"   # 全列扫完都没命中
 
-def has_contradiction(steps):
-    found = False
-    for step in steps:
-        if step == "矛盾":
-            found = True
-    return found
+def has_contradiction(steps):     # 检查推理步骤里有没有出现"矛盾"这一步
+    found = False             # 布尔量：先假定没找到
+    for step in steps:        # 逐个字符串比对
+        if step == "矛盾":    # 字符串比较用 ==（判断内容是否相同）
+            found = True      # 一旦找到就置真（这里不提前返回，反正循环很短）
+    return found              # 交回 True 或 False
 
-proof_steps = ["假设", "推导", "结论"]
+proof_steps = ["假设", "推导", "结论"]   # 一组推理步骤；列表里的元素是字符串
 
 print(hunt([2, 4, 5]))
 print(hunt([2, 4, 6]))
-if has_contradiction(proof_steps):
+if has_contradiction(proof_steps):   # 条件为 True 走 if 分支，否则走 else
     print("contradiction")
 else:
     print("counterexample")
@@ -153,13 +153,13 @@ def hunt(numbers):
     return "no counterexample"
 
 def has_contradiction(steps):
-    found = False
+    found = False            # 先假定没找到
     for step in steps:
         if step == "矛盾":
             found = True
     return found
 
-proof_steps = ["假设", "推导", "矛盾", "结论"]
+proof_steps = ["假设", "推导", "矛盾", "结论"]   # 补上"矛盾"这一步，结构检查才找得到它
 
 print(hunt([2, 4, 5]))
 print(hunt([2, 4, 6]))

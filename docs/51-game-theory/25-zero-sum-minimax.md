@@ -177,18 +177,18 @@ print(min(ceilings))
 修正版：
 
 ```python
-M = [[4, 1, 6], [2, 3, 5]]
+M = [[4, 1, 6], [2, 3, 5]]  # 支付矩阵首现：行是射手的选择，列是门将的选择，元素是射手进球率
 
-floors = []
-for row in M:
+floors = []  # 保底（maximin）：先求每行最小值，再在这些最小值里取最大
+for row in M:  # for row in M 首现：直接遍历嵌套列表的元素（这里每个 row 还是列表）
     floors.append(min(row))
 print(floors)
 print(max(floors))
 
-ceilings = []
-for i in range(len(M[0])):
-    col = [M[0][i], M[1][i]]
-    ceilings.append(max(col))
+ceilings = []  # 封顶（minimax）：先求每列最大值，再在这些最大值里取最小
+for i in range(len(M[0])):  # len(M[0]) 是列数 3；range(3) 依次给出列号 0、1、2
+    col = [M[0][i], M[1][i]]  # 列表字面量拼出一整列：M[0][i] 第一行第 i 列，M[1][i] 第二行第 i 列
+    ceilings.append(max(col))  # max(col) 就是门将针对这一列时封住的上限
 print(ceilings)
 print(min(ceilings))
 ```

@@ -98,17 +98,17 @@ $$A=\begin{pmatrix}2&1\\1&2\end{pmatrix}.$$
 ### 实验 3：Python 逐点验证
 
 ```python title="先算值，再分类"
-a = 2
-b = 1
-c = 2
+a = 2    # 对称矩阵 [[a, b], [b, c]] 的左上一个元素
+b = 1    # 交叉项（矩阵的两个非对角元）
+c = 2    # 右下元素
 
 def q(x, y):
-    return a * x * x + 2 * b * x * y + c * y * y
+    return a * x * x + 2 * b * x * y + c * y * y   # 二次型 Q(x,y)=ax²+2bxy+cy²；交叉项系数的 2 不能丢
 
-print(q(1, 1))
-print(q(-1, 1))
-det = a * c - b * b
-status = "positive definite" if a > 0 and det > 0 else "not positive definite"
+print(q(1, 1))     # 代入 (1,1)
+print(q(-1, 1))    # 代入 (-1,1)：交叉项变号，值才不同
+det = a * c - b * b   # 二阶顺序主子式 ac - b²
+status = "positive definite" if a > 0 and det > 0 else "not positive definite"   # 条件表达式 + and：两个主子式都为正才判正定
 print(status)
 ```
 
@@ -122,17 +122,17 @@ print(status)
 # @check: 2
 # @check: positive definite
 # @hint: 交叉项系数是 2b（减号要改回加号）；行列式用 ac-b²；再按 a>0 且 det>0 判定，输出 "positive definite"。
-a = 2
-b = 1
-c = 2
+a = 2    # 矩阵左上元
+b = 1    # 交叉项
+c = 2    # 右下元
 
 def q(x, y):
-    return a * x * x - 2 * b * x * y + c * y * y
+    return a * x * x - 2 * b * x * y + c * y * y   # ← 交叉项的符号对吗？
 
-print(q(1, 1))
-print(q(-1, 1))
-det = a * c - b * b
-status = "indefinite"
+print(q(1, 1))     # 代入 (1,1)
+print(q(-1, 1))    # 代入 (-1,1)
+det = a * c - b * b    # 顺序主子式
+status = "indefinite"  # ← 结论是先写死的：它该由上面的计算推出来
 print(status)
 ```
 
@@ -143,7 +143,7 @@ print(status)
 
 ```py
 def q(x, y):
-    return a * x * x + 2 * b * x * y + c * y * y
+    return a * x * x + 2 * b * x * y + c * y * y   # 交叉项改成加号
 ```
 
 于是：

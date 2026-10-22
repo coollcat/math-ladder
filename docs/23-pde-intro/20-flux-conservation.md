@@ -94,20 +94,20 @@ $$u_t+q_x=s.$$
 ### 实验 3：离散记账
 
 ```python title="用离散点算两端通量"
-h = 0.01
-x_left = 0.1
-x_right = 0.9
+h = 0.01                     # 网格步长；本块只做端点结算，暂不用它
+x_left = 0.1                 # 区间左端：通量从这里流入
+x_right = 0.9                # 区间右端：通量从这里流出
 
 # 定义一个示例通量函数 q(x)=x*x
-def q(x):
-    return x * x
+def q(x):                    # def 定义函数：通量 q(x)=x*x，描述每点每秒流多少
+    return x * x             # 通量随位置变化：右端比左端大得多
 
-q_in = q(x_left)
-q_out = q(x_right)
-net = q_in - q_out
-print(round(q_in, 3))
-print(round(q_out, 3))
-print(round(net, 3))
+q_in = q(x_left)             # 左端流入量
+q_out = q(x_right)           # 右端流出量
+net = q_in - q_out           # 净值 = 流入 − 流出；这里流出更多，所以是负数
+print(round(q_in, 3))        # round(值, 3)：保留三位小数
+print(round(q_out, 3))       # 第二行
+print(round(net, 3))         # 第三行：区间内库存的变化率
 ```
 
 输出 `0.01`、`0.81`、`-0.8`。负号说明这一段内部的总量正在减少。
@@ -120,15 +120,15 @@ print(round(net, 3))
 # @check: 0.81
 # @check: -0.8
 # @hint: 存量的变化率等于左端流入减去右端流出，不要把两项相加。
-def q(x):
+def q(x):                    # 通量函数 q(x)=x²
     return x * x
 
-q_in = q(0.1)
-q_out = q(0.9)
-net = q_in + q_out
-print(round(q_in, 3))
-print(round(q_out, 3))
-print(round(net, 3))
+q_in = q(0.1)                # 左端流入：把 0.1 代进通量函数
+q_out = q(0.9)               # 右端流出：把 0.9 代进通量函数
+net = q_in + q_out           # ← 这里把流入流出加在一起了；守恒算的是差
+print(round(q_in, 3))        # 第一行与 @check 对位
+print(round(q_out, 3))       # 第二行与 @check 对位
+print(round(net, 3))         # 第三行与 @check 对位
 ```
 
 <details>
@@ -137,15 +137,15 @@ print(round(net, 3))
 守恒律要求：
 
 ```python
-def q(x):
+def q(x):        # 通量函数 q(x)=x²
     return x * x
 
-q_in = q(0.1)
-q_out = q(0.9)
-net = q_in - q_out
-print(round(q_in, 3))
-print(round(q_out, 3))
-print(round(net, 3))
+q_in = q(0.1)    # 左端流入 0.01
+q_out = q(0.9)   # 右端流出 0.81
+net = q_in - q_out   # 修正后：净变化取差
+print(round(q_in, 3))    # 0.01
+print(round(q_out, 3))   # 0.81
+print(round(net, 3))     # -0.8
 ```
 
 代入得：

@@ -95,15 +95,15 @@ r=2 时把 n 拖到 11：最后一根柱子已是 1024，把画面顶得满满�
 Python 里怎么算乘方？按本站惯例，先不查资料，自己造一台"连乘机"：
 
 ```python title="用 for 循环手搓幂函数"
-def my_pow(a, n):            # 定义函数：算 a 的 n 次方
+def my_pow(a, n):            # def 定义函数，括号里是"先留空、调用时再填"的形参；a 是底数、n 是指数
     result = 1               # 从 1 出发：1 乘任何数不变（乘法的"白做起点"）
-    for i in range(n):       # 循环 n 次
-        result = result * a  # 累乘器：旧结果再乘一个 a，存回去
-    return result
+    for i in range(n):       # range(n) 生成 0…n-1 这 n 个整数，这里不关心它们的值，只借它把下面一行重复 n 次
+        result = result * a  # 累乘器：旧结果再乘一个 a，存回去（等号把新值覆盖进原名）
+    return result            # return：把 result 交回调用它的地方，函数到此结束
 
-print(my_pow(2, 10))
-print(my_pow(3, 4))
-print(my_pow(5, 3))
+print(my_pow(2, 10))  # print 把括号里的值打出来；my_pow(2, 10) 是调用函数，2 对上 a、10 对上 n，按位置一一对应
+print(my_pow(3, 4))  # 换一组实参，同一台机器再算一次
+print(my_pow(5, 3))  # 形参是"公式里的空位"，实参才是这次真正代入的数
 ```
 
 对照第 0 章的累加器：加法从 **0** 出发（加 0 不变），乘法从 **1** 出发（乘 1 不变）。每种运算都有自己的"不起眼的起点"，学新运算时找它是个好习惯。
@@ -120,9 +120,10 @@ def my_pow(a, n):
     return result
 
 print(2 ** 10)   # 两个星号 ** 是 Python 的乘方记号：2 的 10 次方
-print(my_pow(2, 10) == 2 ** 10)   # 手搓版和官方版一致吗？
+print(my_pow(2, 10) == 2 ** 10)   # == 是"比较是否相等"，返回 True 或 False；单个 = 是赋值，两者别混
+                                  # 手搓版和官方版一致吗？
 print((-2) ** 4) # 底数是 -2 时必须带括号
-print(-2 ** 4)   # 不带括号：先算 2 的 4 次方，再加负号 → -16
+print(-2 ** 4)   # 不带括号：先算 2 的 4 次方，再加负号 → -16；** 比一元负号结合得更紧
 ```
 
 `my_pow` 与 `**` 结果完全一致——因为它们本来就是同一件事。
@@ -139,7 +140,7 @@ def my_pow(a, n):
     return result
 
 print(pow(2, 10))    # pow(a, n)：内置函数，返回 a 的 n 次方，无需导入直接可用
-print(pow(2, 10) == 2 ** 10 == my_pow(2, 10))
+print(pow(2, 10) == 2 ** 10 == my_pow(2, 10))  # 链式比较：写成一个连等，三个值两两相等才给 True
 ```
 
 三种写法，同一个 1024。今后随手计算用 `**`；需要"把'算几次方'当作工具传来传去"时用 `pow`。
@@ -176,14 +177,14 @@ print(pow(2, 10) == 2 ** 10 == my_pow(2, 10))
 # @check: 1024
 # @check: 1024
 # @hint: 加法从 0 出发是因为加 0 不变；乘法里"乘了白乘"的数是谁？result 的初值抄错了
-def my_power(a, n):
-    result = 0
-    for i in range(n):
-        result = result * a
-    return result
+def my_power(a, n):      # 自建函数：把 a 连乘 n 次交回来
+    result = 0           # 累乘器的起点（它到底该是几，想想提示里"乘了白乘"的那个数）
+    for i in range(n):   # 重复 n 次，i 本身用不上
+        result = result * a   # 每轮把 a 再乘进去
+    return result        # 交回最终结果
 
-print(my_power(2, 10))
-print(pow(2, 10))
+print(my_power(2, 10))   # 自家机器的输出
+print(pow(2, 10))        # 内置 pow 的输出：可以拿它当对照的标准答案
 ```
 
 修好后再看第二行：`pow` 给出正确答案，正好当你修机器时的"标准答案"。
@@ -194,17 +195,17 @@ print(pow(2, 10))
 <summary>点开查看逐步解答</summary>
 
 ```python
-import random
+import random  # 标准库 random：随机抽数，专用来"撞"各种底数与指数
 
-ok_count = 0
-for trial in range(10000):
-    a = random.randint(2, 9)
-    m = random.randint(1, 6)
-    n = random.randint(1, 6)
-    if pow(a, m) * pow(a, n) == pow(a, m + n):
-        ok_count = ok_count + 1
+ok_count = 0  # 计数器：数一数有多少组满足这条指数律
+for trial in range(10000):  # 重复一万次；trial 只当计次用
+    a = random.randint(2, 9)  # randint 两端都取得到：底数落在 2…9
+    m = random.randint(1, 6)  # 指数取 1…6：太大数字会爆，验证规律没必要
+    n = random.randint(1, 6)  # 第二个指数同理
+    if pow(a, m) * pow(a, n) == pow(a, m + n):  # 左边同底数幂相乘，右边指数相加
+        ok_count = ok_count + 1  # 相等就记一分
 
-print(f"一万组中成立 {ok_count} 次")
+print(f"一万组中成立 {ok_count} 次")  # f-string：引号前加 f，花括号里可以直接写变量与算式，运行时替换成值
 ```
 
 全部成立。这不是实验凑巧，而是必然——左边是 m+n 个 a 连乘，右边也是。
@@ -216,8 +217,8 @@ print(f"一万组中成立 {ok_count} 次")
 <summary>点开查看逐步解答</summary>
 
 ```python
-thickness_mm = 0.1 * pow(2, 42)      # 总厚度（毫米）
-thickness_km = thickness_mm / 1000 / 1000
+thickness_mm = 0.1 * pow(2, 42)      # 每层 0.1 毫米，共 2 的 42 次方层；乘出来是总厚度（毫米）
+thickness_km = thickness_mm / 1000 / 1000   # 连除两次 1000：毫米→米→千米（左结合，先除第一次再除第二次）
 print(thickness_km)                  # 约 44 万千米
 ```
 

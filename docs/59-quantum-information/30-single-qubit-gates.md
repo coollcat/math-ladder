@@ -197,13 +197,13 @@ print(round(out[1], 4))
 <summary>练习 1 解法</summary>
 
 ```python
-import math
+import math  # import math 只为拿 sqrt；sqrt(2) 就是 √2
 
-H = [[1 / math.sqrt(2), 1 / math.sqrt(2)],
+H = [[1 / math.sqrt(2), 1 / math.sqrt(2)],  # H 门矩阵用「列表的列表」按行写，每行两个复数/实数
      [1 / math.sqrt(2), -1 / math.sqrt(2)]]
-ket1 = [0, 1]
-out = [H[0][0] * ket1[0] + H[0][1] * ket1[1],
-       H[1][0] * ket1[0] + H[1][1] * ket1[1]]
+ket1 = [0, 1]  # ket1 = |1> 的系数向量，顺序固定为 [0 号分量, 1 号分量]
+out = [H[0][0] * ket1[0] + H[0][1] * ket1[1],  # 矩阵乘向量：每一行都与整个向量做内积，第一行两项都要算
+       H[1][0] * ket1[0] + H[1][1] * ket1[1]]  # 第二行同理，负号藏在 H[1][1] 里，漏掉它结果就错
 print(round(out[0], 4))
 print(round(out[1], 4))
 ```
@@ -221,8 +221,8 @@ $$ZZ=\begin{pmatrix}1&0\\0&-1\end{pmatrix}\begin{pmatrix}1&0\\0&-1\end{pmatrix}=
 用代码验一遍：
 
 ```python
-print([[1, 0], [0, -1]][0])
-print([0 * 1 + (-1) * 0, 0 * 0 + (-1) * (-1)])
+print([[1, 0], [0, -1]][0])  # 内联字面量直接取下标：[[1,0],[0,-1]][0] 就是第一行 [1, 0]
+print([0 * 1 + (-1) * 0, 0 * 0 + (-1) * (-1)])  # 手写的 2×2 乘 2×1 展开：第 0 分量 = 第 0 行的两个乘积之和，第 1 分量同理
 ```
 </details>
 

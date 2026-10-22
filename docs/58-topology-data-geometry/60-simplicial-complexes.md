@@ -109,15 +109,15 @@ print(has_face_edges)
 统一方向后去重：
 
 ```python
-vertices = ["a", "b", "c"]
-edges = [("a", "b"), ("b", "a"), ("b", "c"), ("c", "a")]
-face = ("a", "b", "c")
-oriented_edges = set()
-for u, v in edges:
-    oriented_edges.add(tuple(sorted((u, v))))
-needed = {tuple(sorted(pair)) for pair in [(face[0], face[1]), (face[1], face[2]), (face[2], face[0])]}
-has_face_edges = needed <= oriented_edges
-print(len(vertices) - len(oriented_edges) + 1)
+vertices = ["a", "b", "c"]  # 顶点集首现：单形复形的 0 维骨架，用字符串给顶点命名
+edges = [("a", "b"), ("b", "a"), ("b", "c"), ("c", "a")]  # 边集用元组而不是集合，是为了暴露「同一条边可能被写成两个方向」这个坑
+face = ("a", "b", "c")  # 面是一个三元组；三角形要求三条边齐全才算合法
+oriented_edges = set()  # 空集合先备好，下面把每条边都规范成「小顶点在前」的形式丢进去
+for u, v in edges:  # for u, v in edges 直接在循环头解包元组的两个端点
+    oriented_edges.add(tuple(sorted((u, v))))  # sorted 首现：排序后 (b, a) 与 (a, b) 变成同一个元组，方向差异被抹平
+needed = {tuple(sorted(pair)) for pair in [(face[0], face[1]), (face[1], face[2]), (face[2], face[0])]}  # 集合推导式首现：花括号里写 for，一次生成三条边的规范形式
+has_face_edges = needed <= oriented_edges  # <= 用于集合表示「包含」：needed 的每条边都在 oriented_edges 里才为 True
+print(len(vertices) - len(oriented_edges) + 1)  # χ = V − E + F，这里只有一个面，所以 + 1
 print(has_face_edges)
 ```
 

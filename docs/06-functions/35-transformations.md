@@ -135,25 +135,25 @@ $a=2$ 时，原来走到 $x=1$ 才升高的台阶，现在 $x=0.5$ 就升高了�
 ### 实验 5（python）：三条曲线同框对照
 
 ```python title="原版、翻折版、瘦身版"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt   # 画图库 pyplot 改名为 plt
 
-xs = []
-for i in range(0, 61):
-    xs.append(-3 + i * 0.1)
+xs = []                  # 横坐标收集桶
+for i in range(0, 61):   # 61 个整数 0…60：步长 0.1 才能从 -3 一路铺到 3
+    xs.append(-3 + i * 0.1)   # 第 i 个横坐标 = 起点 + 步数×步长；浮点累加出来的点才够密、曲线才平滑
 
-base = []
-flipped = []
-slim = []
-for t in xs:
-    base.append(t * t)
-    flipped.append(-(t * t))
-    slim.append(0.25 * t * t)
+base = []      # 原版 y = x^2 的纵坐标
+flipped = []   # 上下翻折后的纵坐标
+slim = []      # 纵向压扁后的纵坐标
+for t in xs:                  # 对每个横坐标横着算一遍三条曲线的 y
+    base.append(t * t)        # 平方
+    flipped.append(-(t * t))  # 括号里先算平方，再整体取负——上下翻折
+    slim.append(0.25 * t * t) # 乘 0.25 把高度压到四分之一——变胖
 
-plt.plot(xs, base, label="y = x^2")
+plt.plot(xs, base, label="y = x^2")                 # plot(横坐标列表, 纵坐标列表)：两列按位置配对连成线
 plt.plot(xs, flipped, label="y = -x^2 (翻折)")
 plt.plot(xs, slim, label="y = 0.25*x^2 (变胖)")
-plt.axhline(0, color="gray", linestyle="--")
-plt.axvline(0, color="gray", linestyle="--")
+plt.axhline(0, color="gray", linestyle="--")   # axhline：画一条水平参考线（这里落在 y=0，即 x 轴）
+plt.axvline(0, color="gray", linestyle="--")   # axvline：画一条竖直参考线（这里落在 x=0，即 y 轴）
 plt.legend()
 plt.grid(True)
 ```

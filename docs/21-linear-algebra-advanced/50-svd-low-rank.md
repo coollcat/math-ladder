@@ -100,14 +100,14 @@ $$A=\begin{pmatrix}3&0\\0&2\end{pmatrix}.$$
 ### 实验 3：Python 算保留能量
 
 ```python title="由奇异值比较 rank-1 保留比例"
-sigma1 = 3.0
-sigma2 = 2.0
+sigma1 = 3.0     # 最大的奇异值
+sigma2 = 2.0     # 第二大的奇异值
 
-total_energy = sigma1 ** 2 + sigma2 ** 2   # ** 是乘方
-kept_energy = sigma1 ** 2
-ratio = kept_energy / total_energy
-print("rank-1")
-print(round(ratio, 3))
+total_energy = sigma1 ** 2 + sigma2 ** 2   # ** 是乘方；总能量按奇异值平方求和
+kept_energy = sigma1 ** 2                  # 保留第一项，只留下 σ₁²
+ratio = kept_energy / total_energy        # 保留比例：部分 ÷ 总量
+print("rank-1")                          # 打印策略标签
+print(round(ratio, 3))                    # 保留 3 位小数
 ```
 
 输出 `rank-1` 和 `0.692`。奇异值平方越大，对应方向携带的结构能量越多。
@@ -119,12 +119,12 @@ print(round(ratio, 3))
 # @check: rank-1
 # @check: 0.692
 # @hint: 最优 rank-1 只保留 sigma1，所以 best 改成 "rank-1"；保留能量比例是 sigma1**2 / (sigma1**2 + sigma2**2)。
-sigma1 = 3.0
-sigma2 = 2.0
-best = "rank-2"
-ratio = (sigma1 + sigma2) ** 2 / (sigma1 ** 2 + sigma2 ** 2)
-print(best)
-print(round(ratio, 3))
+sigma1 = 3.0            # 最大奇异值
+sigma2 = 2.0            # 次大奇异值
+best = "rank-2"         # ← 最优的低秩近似该留几项？
+ratio = (sigma1 + sigma2) ** 2 / (sigma1 ** 2 + sigma2 ** 2)   # ← 分子是"奇异值平方和"还是"和的平方"？
+print(best)             # 打印策略标签
+print(round(ratio, 3))  # 打印保留比例（3 位小数）
 ```
 
 <details>
@@ -133,12 +133,12 @@ print(round(ratio, 3))
 rank-1 近似只保留最大奇异项：
 
 ```python
-sigma1 = 3.0
-sigma2 = 2.0
-best = "rank-1"
-ratio = sigma1 ** 2 / (sigma1 ** 2 + sigma2 ** 2)
+sigma1 = 3.0    # 最大奇异值
+sigma2 = 2.0    # 次大奇异值
+best = "rank-1"  # 只保留第一项 = 最优 rank-1 近似
+ratio = sigma1 ** 2 / (sigma1 ** 2 + sigma2 ** 2)   # 能量按奇异值平方计：9/13
 print(best)
-print(round(ratio, 3))
+print(round(ratio, 3))   # 0.692
 ```
 
 代入得 $9/13=0.692307\ldots$，四舍五入为 `0.692`。

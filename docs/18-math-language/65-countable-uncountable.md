@@ -156,11 +156,9 @@ for i, (m, n) in enumerate(rationals):
 {
   "type": "plot",
   "title": "康托尔对角线论证示意",
-  "expr": "sin(pi*x)",
+  "expr": "sin(pi*(x+a)/10)",
   "xmin": 0,
   "xmax": 10,
-  "ymin": -1.5,
-  "ymax": 1.5,
   "sliders": [
     {"name": "a", "min": 1, "max": 9, "step": 1, "value": 5}
   ]
@@ -193,12 +191,14 @@ for i, (m, n) in enumerate(rationals):
 # @title: 奇数集可数
 # @check: f(0) = 1
 # @check: f(1) = 3
+# @check: f(2) = 5
+# @check: f(3) = 7
 # @check: f(4) = 9
 # @hint: 第 n 个奇数是什么？
 def f(n):
     return n + 1                # ← 试试改对公式
 
-for n in range(5):
+for n in range(5):  # 当前公式 n + 1 只给出 1,2,3…，不是第 n 个奇数
     print(f"f({n}) = {f(n)}")
 ```
 

@@ -96,10 +96,15 @@ for x in f:
     composed[x] = g[mid]        # 再走第二步：拿中间结果查 g
 print(composed)
 
+# 反过来"先 g 后 f"：这次 g 先跑，输出的是数字 0/1，再拿去查 f 的键
+# f 的键恰好是 1/2/3——看着像能接上，其实两端的对象根本不同类
 wrong_order = {}
-for x in g:                     # 反过来"先 g 后 f"试试
-    wrong_order[x] = f[g[x]]
-print(wrong_order)
+try:
+    for x in g:
+        wrong_order[x] = f[g[x]]
+    print(wrong_order)
+except KeyError as e:
+    print(f"不可复合：g 的输出里没有 f 的键 {e}")
 ```
 
 第二行代码能跑纯属侥幸——`g` 的键恰好都在 `f` 的值域里。顺序反了，终点对不上起点，范畴论管这叫"不可复合"；Python 用 KeyError 表达同一件事。

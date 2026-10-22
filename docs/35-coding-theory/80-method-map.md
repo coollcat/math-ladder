@@ -68,7 +68,21 @@ exits:
 
 ## 5. 动手实验
 
-### 实验：需求打分选择器
+### 实验 1（lab）：四根权重一拖，冠军就换人
+
+```lab
+{
+  "type": "code-method-map",
+  "title": "把「看重纠错力」拉满，Polar 与 Turbo 上桌；改拖「看重低复杂度」，冠军立刻变成奇偶校验",
+  "height": 540
+}
+```
+
+八种代表码被摆在同一张选取图上：横轴是码率 $R$，纵轴是纠错强度，绿色大点就是当前权重下的冠军。四根权重滑块分别代表你在乎什么——码率、纠错力、低延迟、低复杂度，得分公式直接印在标题下方：$S=w_R R+w_{\mathrm{s}}\,\text{强度}-w_d\,\text{延迟}-w_c\,\text{复杂度}$，后两项因为「越低越好」所以要取负。
+
+三个预设按钮值得各点一次：**「可靠性优先」**把纠错权重拉满，冠军落到 Polar，Turbo 紧随其后——两者都逼近香农极限；**「低成本优先」**则让奇偶校验这种「一位警报」的方案反超。**「清空权重」**之后所有得分归零，排序退化成并列——此时没有任何方案更「好」，因为没有任何需求。这就是这一章要说的那句话：不存在单一最优码，只有特定约束下的合适码。
+
+### 实验 2（python）：需求打分选择器
 
 ```python title="根据带宽、延迟和可靠性偏好排序"
 methods = {
@@ -144,13 +158,13 @@ print(f"reason={reason}")
 可靠性和带宽都重要，且系统能承担适度复杂度，因此 LDPC 是更好的起点：
 
 ```python
-need_reliability = 5
-bandwidth_scarce = True
-can_afford_complexity = True
-choice = "parity"
-reason = "lowest-complexity"
+need_reliability = 5           # 可靠性需求打分（1 到 5）
+bandwidth_scarce = True        # 带宽是否紧张（码率越高越好）
+can_afford_complexity = True   # 是否能承担复杂译码器
+choice = "parity"              # 默认从最省事的方案起步
+reason = "lowest-complexity"   # 记下选它的理由，便于复盘
 if need_reliability >= 4 and bandwidth_scarce and can_afford_complexity:
-    choice = "ldpc"
+    choice = "ldpc"            # 三个条件同时成立才升级到 LDPC
     reason = "high-reliability-and-good-rate"
 print(f"choice={choice}")
 print(f"reason={reason}")
@@ -179,7 +193,7 @@ print(f"reason={reason}")
 
 </details>
 
-## 10. 全章回望
+## 10. 下一站：全章回望
 
 从一条会翻转的信道开始，你已经走过：冗余、多数表决、奇偶校验、Hamming 距离、最近邻译码、线性码、生成与校验矩阵、Hamming(7,4)、最小距离、卷积记忆、多项式循环、稀疏图，直到熵和方法选择。下一站不再是“能不能纠”，而是“信息的极限在哪里”。
 

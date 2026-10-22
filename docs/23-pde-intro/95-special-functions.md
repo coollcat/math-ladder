@@ -135,25 +135,25 @@ $\dfrac{1}{\sqrt{1-2xt+t^2}}=\sum_n P_n(x)t^n$：把 $t$ 拖小，曲线越来�
 ```python
 import math                                   # 标准数学库
 
-def bessel(n, x, N=400):                      # def 定义函数：泊松积分算 J_n(x)
-    s, h = 0.0, math.pi / N                   # math.pi 是圆周率，h 是每段宽度
+def bessel(n, x, N=400):                      # def 定义函数；N=400 是默认参数：调用时不写就用 400 段，段数越多积分越准
+    s, h = 0.0, math.pi / N                   # 元组解包一次赋两个变量；h 是每段宽度，s 是累加器
     for k in range(N):                        # range(N)：0..N-1
         t = (k + 0.5) * h                     # 取每段中点
-        s += math.cos(n * t - x * math.sin(t))   # math.cos/math.sin：余弦与正弦
+        s += math.cos(n * t - x * math.sin(t))   # += 是在原值上累加；被积函数是余弦
     return s / N                              # s*h/π 化简后就是 s/N
 
-def first_zero(n, step=0.001):                # 找 J_n 的第一个正零点
+def first_zero(n, step=0.001):                # 找 J_n 的第一个正零点；step 是扫描步长
     prev, x = bessel(n, 0.05), 0.05           # 起点与上一格的值
-    for k in range(1, 8000):                  # 最多扫到 8.05
+    for k in range(1, 8000):                  # 最多扫 8000 格，防止死循环
         x = 0.05 + k * step
         if prev * bessel(n, x) < 0:           # 相邻两格变号 → 中间必有零点
             return round(x, 3)                # round(x, 3)：保留三位小数
         prev = bessel(n, x)
-    return None
+    return None                               # None 表示「没找到」：调用方要自己判断
 
-print(round(bessel(0, 1), 4))                 # J_0(1)
-z0, z1, z2 = first_zero(0), first_zero(1), first_zero(2)
-print(z0, z1, z2)                             # 前三个零点
+print(round(bessel(0, 1), 4))                 # J_0(1)，round 保留四位小数
+z0, z1, z2 = first_zero(0), first_zero(1), first_zero(2)   # 三个返回值一次分配给三个变量
+print(z0, z1, z2)                             # 逗号分隔打印多个值，中间自动加空格
 print(round(z1 / z0, 3), round(z2 / z0, 3))   # 与基音的比值
 ```
 
@@ -183,31 +183,31 @@ print(round(z1 / z0, 3), round(z2 / z0, 3))   # 与基音的比值
 # @check: 0.4
 # @check: 0.0
 # @hint: 递推式是 (k+1)P_{k+1} = (2k+1)xP_k − kP_{k−1}，系数是 2k+1 不是 2k−1；归一化常数应为 2/(2n+1) = 0.4。
-import math
+import math      # 标准库 math（本块其实只用到了常量，保留导入是为了和正文一致）
 
-def legendre(n, x):
-    if n == 0:
+def legendre(n, x):   # def 定义函数：用三项递推算 P_n(x)，避免高阶展开
+    if n == 0:        # 递归基：P_0 = 1
         return 1.0
-    p0, p1 = 1.0, x
-    for k in range(1, n):
+    p0, p1 = 1.0, x   # 递推的两个起点 P_0 与 P_1
+    for k in range(1, n):   # 从 1 递推到 n-1，得到 P_n
         p2 = ((2 * k - 1) * x * p1 - k * p0) / (k + 1)   # ← 有错：系数应是 2*k+1
-        p0, p1 = p1, p2
+        p0, p1 = p1, p2   # 同步赋值：把窗口往前挪一格（右边先全部算好再写左边）
     return p1
 
-print(round(legendre(2, 0.5), 3))
+print(round(legendre(2, 0.5), 3))   # P_2(0.5)，第一行与 @check 对位
 
-steps = 4000
-h = 2.0 / steps
-nrm = 0.0
-orth = 0.0
-for k in range(steps):
-    x = -1.0 + (k + 0.5) * h
-    nrm += legendre(2, x) ** 2
-    orth += legendre(1, x) * legendre(2, x)
-nrm *= h
-orth *= h
-print(round(nrm, 3))
-print(round(abs(orth), 3))
+steps = 4000          # 取样段数：太少了正交性检验会留下明显的数值残渣
+h = 2.0 / steps       # 每段宽度：积分区间是 [-1, 1]，总长 2
+nrm = 0.0             # 归一化积分的累加器
+orth = 0.0            # 正交性积分的累加器
+for k in range(steps):   # 逐段累加
+    x = -1.0 + (k + 0.5) * h   # 取每段中点，误差比端点小
+    nrm += legendre(2, x) ** 2   # ** 是幂：累加 P_2(x)²
+    orth += legendre(1, x) * legendre(2, x)   # 累加 P_1·P_2，正交的话这里应趋于 0
+nrm *= h              # *= 在原值上乘：乘上段宽才是积分值
+orth *= h             # 同理
+print(round(nrm, 3))   # 第二行与 @check 对位
+print(round(abs(orth), 3))   # abs 取绝对值：残差可能带负号，只看大小
 ```
 
 <details>
@@ -216,19 +216,19 @@ print(round(abs(orth), 3))
 修正版只改一个字符——系数 $2k-1$ 换回 $2k+1$：
 
 ```python
-def legendre(n, x):
+def legendre(n, x):   # 修正后的递推：系数用 2k+1
     if n == 0:
         return 1.0
     p0, p1 = 1.0, x
     for k in range(1, n):
-        p2 = ((2 * k + 1) * x * p1 - k * p0) / (k + 1)
+        p2 = ((2 * k + 1) * x * p1 - k * p0) / (k + 1)   # 三项递推的标准系数
         p0, p1 = p1, p2
     return p1
 
 print(round(legendre(2, 0.5), 3))       # -0.125
 
-steps, h = 4000, 2.0 / 4000
-nrm = orth = 0.0
+steps, h = 4000, 2.0 / 4000             # 一次给两个变量赋值
+nrm = orth = 0.0                        # 链式赋值：两个累加器都从 0 开始
 for k in range(steps):
     x = -1.0 + (k + 0.5) * h
     nrm += legendre(2, x) ** 2

@@ -41,7 +41,7 @@ exits:
 
 回答完这些，名词自然会归位。
 
-## 3. 结构速查表
+## 3. 正式定义：结构速查表
 
 | 系统 | 必备结构 | 典型例子 | 最常用问题 |
 | --- | --- | --- | --- |
@@ -53,7 +53,7 @@ exits:
 
 结构越强，能安全使用的工具越多。
 
-## 4. 分步诊断
+## 4. 分步例题：诊断流程
 
 拿到未知系统时：
 
@@ -91,35 +91,35 @@ exits:
 点击相邻卡重建推理链。若中间某步失败，后面的结论不能直接继承。
 
 ```python title="给小系统贴结构标签"
-values = [0, 1, 2, 3]
+values = [0, 1, 2, 3]  # 元素表首现：模 4 的剩余类 0,1,2,3，下面就在这 4 个元素上验证群公理
 
-def add_mod(a, b):
-    return (a + b) % 4
+def add_mod(a, b):  # def 首现：把「加法后对 4 取余」封成函数，后面反复调用，不必每处重写 % 4
+    return (a + b) % 4  # return 首现：函数把结果交回调用处，调用方拿到的就是 0..3 之间的数
 
-has_identity = False
-for candidate in values:
-    good = True
+has_identity = False  # 群公理之一：单位元是否存在，先假设没有
+for candidate in values:  # 候选单位元 e 必须满足 e+a = a+e = a 对全体 a 成立，所以每个候选都要全表扫一遍
+    good = True  # 局部标志位：本轮候选元素是否左右都过关
     for a in values:
-        if add_mod(a, candidate) != a or add_mod(candidate, a) != a:
+        if add_mod(a, candidate) != a or add_mod(candidate, a) != a:  # 注意左右两边都要查——群只要求交换律时这一步可省，这里为了让代码也适用于非交换情形就两边都写
             good = False
     if good:
         has_identity = True
 
-all_invertible = True
-for a in values:
+all_invertible = True  # 群公理之二：每个元素是否有逆元（即加法逆 −a）
+for a in values:  # 逐个 a 重置：本元素还没找到与它相加为 0 的搭档
     found = False
     for b in values:
-        if add_mod(a, b) == 0:
+        if add_mod(a, b) == 0:  # a+b ≡ 0 即 b 是 a 的加法逆元；模 4 下 0 的逆元就是 0 自己
             found = True
     if found == False:
         all_invertible = False
 
-if has_identity and all_invertible:
+if has_identity and all_invertible:  # if / else 首现：Python 用缩进而不是花括号划分分支体
     label = "abelian-group-under-addition"
 else:
     label = "not-yet-a-group"
 
-print(label)
+print(label)  # 打印的是「判定结论字符串」，读者一眼看出这个系统够不够群的资格
 ```
 
 模 4 加法是阿贝尔群。若换成乘法，0 无法可逆，标签就会变。
@@ -132,7 +132,7 @@ print(label)
 # @hint: 整数乘法没有逆；整数加减乘构成环；素数模系统构成域。
 # 三个系统：① 全体非零实数配乘法；② 全体整数配加法与乘法；③ 模 7 的系统配加法与乘法
 # 按顺序给出各自的最强结构名，用 "-" 连接
-labels = ""
+labels = ""  # labels 用连字符串起三个结构名，空串是待填的起点
 
 print("labels=" + labels)
 ```
@@ -178,7 +178,23 @@ labels = "group-" + "ring-" + "field"
 ? Z_p 同时有加法群、乘法单位和全体非零元的乘法逆，因此是有限域。
 ```
 
-## 9. 通向下一章
+## 9. 选读：结构表的边界
+
+<details>
+<summary>选读 · 为什么"最强结构"常常不是答案</summary>
+
+结构越强，能用的定理越多，但**验证成本也越高**。判定一个系统是不是群，只需检查封闭、单位、逆元三条；判定它是不是域，还要额外验证乘法交换、非零元可逆和分配律。当问题只需要"能不能累加"，标成域不会让结论更正确，只会让论证多三段。
+
+两张常见的越界例子：
+
+1. **矩阵环不是域**。$M_2(\mathbb R)$ 是环，但存在非零不可逆矩阵 $\begin{pmatrix}1&1\1&1\end{pmatrix}$；把它当域用，会在消元时除以零。
+2. **整数模 $n$ 不总是域**。$\mathbb Z_6$ 里 $2	imes 3=0$，非零元可以相乘得零，这类元素叫零因子；只有 $n$ 为素数时 $\mathbb Z_n$ 才升级为域。
+
+所以诊断的正确姿势是：**先定问题需要哪几条公理，再找刚好满足它的最弱结构**。手上有 $\mathbb Z_6$ 却只需要加法群时，标成"阿贝尔群"既够用又不会说错话。
+
+</details>
+
+## 10. 通向下一章
 
 <details>
 <summary>打开 · 本章之后的三条路</summary>
@@ -191,7 +207,7 @@ labels = "group-" + "ring-" + "field"
 
 </details>
 
-## 10. 下一站
+## 11. 下一站
 
 地图收拢了群、环、域与方法论，但还有一座桥值得亲自走一遍：为什么五次以上的方程没有求根公式？下一课看对称性如何判定可解性。
 

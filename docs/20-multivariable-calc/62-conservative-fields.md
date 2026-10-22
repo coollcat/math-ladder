@@ -154,12 +154,12 @@ print(round(formula, 3))
 # @title: 练习：请出势函数，一步算功
 # @check: 12.0
 # @hint: 候选 φ=x²+y² 要过两关：φ 对 x 的偏导 = 2xy 吗？φ 对 y 的偏导 = x² 吗？两关全过才是真势函数。
-x1 = 2.0
+x1 = 2.0  # 终点坐标 (2, 3)，起点固定为原点
 y1 = 3.0                        # 终点 (2, 3)，起点是原点
 
 phi = x1 ** 2 + y1 ** 2         # ← 猜的势函数？先验：它的两个偏导配得上 F 吗
-work = phi - 0.0
-print(round(work, 1))
+work = phi - 0.0  # 起点 φ(0,0)=0，所以功就是终点处的 φ 值
+print(round(work, 1))  # 保留一位小数，与 @check 的 12.0 对齐
 ```
 
 先验判据：$\frac{\partial Q}{\partial x}$ 对第二个分量 $x^2$ 求 $x$ 导，得 $2x$；$\frac{\partial P}{\partial y}$ 对第一个分量 $2xy$ 求 $y$ 导，得 $2x$——相等 ✓，全平面单连通，保守。凑势函数：由 $\frac{\partial\phi}{\partial x}=2xy$ 得 $\phi=x^2y+g(y)$；代回 $\frac{\partial\phi}{\partial y}=x^2+g'(y)=x^2$ 得 $g=0$。真势函数 $\phi=x^2y$，功 $=\phi(2,3)-0=12$。猜的 $x^2+y^2$ 倒在第二关：它对 $y$ 的偏导是 $2y$，不是 $x^2$。

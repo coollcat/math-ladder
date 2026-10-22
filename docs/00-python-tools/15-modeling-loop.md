@@ -94,7 +94,8 @@ $$y_A = \begin{cases} 30, & 0 \le x \le 5 \\ 30 + 5(x-5), & x > 5 \end{cases} \q
 
 ```python
 # sliders: usage=9 [1:30:1]
-usage = 9                   # usage：每月使用的流量（GB）；初值给一份，浮窗运行时由滑块覆盖
+# usage：每月使用的流量（GB），由滑块给定（默认 9）。
+# 不要再写 usage = 9 —— 那会把滑块值整个盖掉。
 
 def cost_a(gb):                 # def：把"套餐 A 怎么算钱"封进一个函数
     if gb <= 5:                 # if：条件成立才走这一支；<= 是"小于等于"比较，含等于本身

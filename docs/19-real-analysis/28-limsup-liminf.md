@@ -91,27 +91,28 @@ $$\lim a_n \text{ 存在} \iff \liminf a_n = \limsup a_n$$
 ### 实验 1：尾部上确界和下确界的收敛
 
 ```python title="画出 b_n = sup_{k≥n} a_k 和 c_n = inf_{k≥n} a_k"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt   # 画图库 pyplot 改名为 plt
 
 # a_n = (-1)^n * (1 + 1/n)
-N = 50
-a = [((-1)**n) * (1 + 1/n) for n in range(1, N+1)]
+N = 50                         # 取前 50 项
+# 列表推导式：方括号里 "表达式 for 变量 in 范围"，一次生成整列，等价于"空列表 + for + append"
+a = [((-1)**n) * (1 + 1/n) for n in range(1, N+1)]   # ** 是乘方，(-1)**n 让符号逐项翻转
 
 sup_tail = []                  # 尾部上确界序列
 inf_tail = []                  # 尾部下确界序列
-for n in range(N):
-    tail = a[n:]               # a[n:]：从第 n 项到末尾的切片
+for n in range(N):             # n 从 0 数到 N-1：对应"从第 n 项开始就算尾部"
+    tail = a[n:]               # a[n:]：从第 n 项到末尾的切片（含 n，不含右端点——这里右端点省略＝到末尾）
     sup_tail.append(max(tail)) # max()：内置函数，返回最大值
-    inf_tail.append(min(tail))
+    inf_tail.append(min(tail)) # min()：内置函数，返回最小值
 
-plt.plot(range(1, N+1), a, "o", markersize=3, alpha=0.4, label="a_n")
-plt.plot(range(1, N+1), sup_tail, "r-", linewidth=2, label="sup tail (→ limsup)")
-plt.plot(range(1, N+1), inf_tail, "b-", linewidth=2, label="inf tail (→ liminf)")
-plt.axhline(y=1, color="red", linestyle="--", alpha=0.3)
+plt.plot(range(1, N+1), a, "o", markersize=3, alpha=0.4, label="a_n")   # 第三个参数 "o" 是格式串：只画圆点不连线；markersize 点径、alpha 透明度
+plt.plot(range(1, N+1), sup_tail, "r-", linewidth=2, label="sup tail (→ limsup)")   # "r-"：红色实线；linewidth 线宽
+plt.plot(range(1, N+1), inf_tail, "b-", linewidth=2, label="inf tail (→ liminf)")   # "b-"：蓝色实线
+plt.axhline(y=1, color="red", linestyle="--", alpha=0.3)    # axhline：水平参考线，y 指定高度
 plt.axhline(y=-1, color="blue", linestyle="--", alpha=0.3)
-plt.legend()
-plt.xlabel("n")
-plt.title("尾部上下确界趋向 limsup / liminf")
+plt.legend()                   # 把各条线自报的 label 画成图例
+plt.xlabel("n")                # 横轴标签
+plt.title("尾部上下确界趋向 limsup / liminf")   # 整张图的标题
 plt.grid(True)
 ```
 
@@ -123,13 +124,14 @@ plt.grid(True)
 import matplotlib.pyplot as plt
 
 # sliders: r=0.9 [0.1:1.0:0.05]
-N = 60
-import math
+N = 60                  # 项数
+import math             # 需要 math.cos 与 math.pi
+# 列表推导式：r**n 让振幅逐项衰减，cos(nπ/3) 让它正负摆动
 a = [r**n * math.cos(n * math.pi / 3) for n in range(N)]
 
-plt.figure(figsize=(8, 3))
-plt.plot(a, "o-", markersize=4)
-plt.axhline(y=max(a[N//2:]), color="red", linestyle="--", label="后半段上界")
+plt.figure(figsize=(8, 3))   # 新开一张 8×3 英寸的画布
+plt.plot(a, "o-", markersize=4)   # 只给一列数据时，横坐标自动取 0,1,2,…；"o-" 是点+连线
+plt.axhline(y=max(a[N//2:]), color="red", linestyle="--", label="后半段上界")   # a[N//2:]：从中间切到末尾——"后半段"才是渐近行为该看的地方
 plt.axhline(y=min(a[N//2:]), color="blue", linestyle="--", label="后半段下界")
 plt.legend()
 plt.title(f"衰减振荡：r={r}")
@@ -144,14 +146,14 @@ plt.grid(True)
 import matplotlib.pyplot as plt
 import math
 
-N = 2000
-vals = [math.sin(n) for n in range(N)]
+N = 2000                                         # 取 2000 个点，密到能看出"填满区间"
+vals = [math.sin(n) for n in range(N)]           # 列表推导式：逐个算 sin(n)
 
 plt.figure(figsize=(8, 2))
-plt.scatter(range(N), vals, s=0.5, alpha=0.3)
-plt.axhline(y=1, color="red", linestyle="--")
-plt.axhline(y=-1, color="blue", linestyle="--")
-plt.ylim(-1.1, 1.1)
+plt.scatter(range(N), vals, s=0.5, alpha=0.3)    # scatter 画散点：s 是点的面积（很小），alpha 是透明度
+plt.axhline(y=1, color="red", linestyle="--")     # 上界参考线
+plt.axhline(y=-1, color="blue", linestyle="--")   # 下界参考线
+plt.ylim(-1.1, 1.1)                              # 手动定纵轴范围，留一点边距
 plt.title(f"sin(n), n=0..{N-1}：值在 [-1,1] 中稠密")
 plt.xlabel("n")
 ```
@@ -205,16 +207,16 @@ lim a_n 存在的充要条件是什么？
 # @check: (a) limsup = 2, liminf = 0
 # @check: (b) limsup = 1.0, liminf = 1.0
 # @hint: 画出前几项，找子列的极限
-import math
+import math   # 保留了导入（本题其实用不到，去掉也不影响运行）
 
 # (a) n mod 3
-a_seq = [n % 3 for n in range(30)]
-limsup_a = max(a_seq[-10:])     # 用最后 10 项近似
+a_seq = [n % 3 for n in range(30)]   # 列表推导式：% 是取余，n mod 3 按 0、1、2 循环出现
+limsup_a = max(a_seq[-10:])     # 用最后 10 项近似（a_seq[-10:] 是从末尾往前的切片）
 liminf_a = min(a_seq[-10:])
-print(f"(a) limsup = {limsup_a}, liminf = {liminf_a}")
+print(f"(a) limsup = {limsup_a}, liminf = {liminf_a}")   # f-string：花括号里的变量打印时换成当前值
 
 # (b) 1 + (-1)^n / n
-b_seq = [1 + ((-1)**n) / n for n in range(1, 30)]
+b_seq = [1 + ((-1)**n) / n for n in range(1, 30)]   # 从 n=1 起：n 当分母，取 0 会除零
 limsup_b = max(b_seq[-10:])
 liminf_b = min(b_seq[-10:])
 print(f"(b) limsup = {limsup_b}, liminf = {liminf_b}")
@@ -231,6 +233,19 @@ $\cos(n\pi/4)$ 按周期 8 循环：$\cos(0)=1$，$\cos(\pi/4)=\frac{\sqrt{2}}{2
 
 $\limsup = 1 \neq -1 = \liminf$，所以数列**不收敛**。
 </details>
+
+:::warning[常见误区]
+
+**误区一**："数列不收敛，就说明它没有规律，上下极限也不存在。"
+上下极限正是为"不收敛"准备的工具。有界数列的 $b_n=\sup_{k\ge n}a_k$ 单调递减且有下界，单调收敛定理保证它一定有极限——`1,0,1,0,…` 这种纯振荡数列照样有 $\limsup=1$、$\liminf=0$。**有界就够，收敛不是前提。**
+
+**误区二**："把 $\limsup$ 当成尾巴里某一段的最大值。"
+$\sup\lbrace a_k\mid k\ge n\rbrace$ 是尾部整体的上确界，不是某一项；而 $\limsup$ 又是这个上确界序列的极限，比每一个尾部上确界都不大于。用"最后十项的 $\max$"去近似它（就像本课代码那样）只是数值直觉，不是定义：近似值会随取多少项而变，真正的 $\limsup$ 不会。
+
+**误区三**："$\limsup=\liminf$ 只是看起来差不多，和真正收敛是两回事。"
+这是充要条件，不是近似。两者相等时，共同值就是 $\lim a_n$；两者不等时，数列至少有两条子列趋向不同的值，一定不收敛。判断收敛时先算这两个数，比直接凑 $\varepsilon$-$N$ 更快。
+
+:::
 
 ## 7. 选读：$\limsup$ 的子列刻画
 

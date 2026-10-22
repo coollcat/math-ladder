@@ -93,6 +93,7 @@ $$\vec r_u = \left( \frac{\partial x}{\partial u},\ \frac{\partial y}{\partial u
 
 ```python title="画出球面网格 + 北纬30°某点的切平面三角形"
 import math
+import numpy as np                       # np.array：plot_wireframe 只吃二维数组，纯列表会抛 ndim 错
 import matplotlib.pyplot as plt
 
 phis = [math.pi * k / 12 for k in range(13)]            # 极角从北到南取 13 条纬线
@@ -110,7 +111,8 @@ for phi in phis:
 
 fig = plt.figure(figsize=(5, 4))
 ax = fig.add_subplot(projection="3d")                   # 首现参数：projection="3d" 开三维画布
-ax.plot_wireframe(X, Y, Z, color="lightgray", linewidth=0.5)   # 线框图：只画网格线
+ax.plot_wireframe(np.array(X), np.array(Y), np.array(Z),
+                 color="lightgray", linewidth=0.5)          # 线框图：只画网格线
 
 phi0, lam0 = math.pi / 3, math.pi / 4                   # 考察点：北纬 60°、东经 45°
 p0 = [math.sin(phi0) * math.cos(lam0),

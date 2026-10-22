@@ -31,7 +31,7 @@ npm run build        :: validate → check:sync → gen:chapters → docusaurus 
 npm run validate     :: 课程闭环校验（front matter / 先修顺序 / 方法准入 / 围栏结构）
 npm run check:sync   :: 章节信息同步闸门（各章 index.md ↔ 生成物 CHAPTER_INFO）
 npm run gen:graph    :: 重生成 full-graph-data.js + static/prereqs/ + lesson-count.js（★ 不在 build 里）
-npm run gen:chapters :: 重生成 static/graph-chapters/（/graph 课级钻取）
+npm run gen:chapters :: 重生成 static/graph-chapters/（/graph 点章时按需加载的课表）
 npm run audit        :: 机械体检（h2 源/产物比对 + Python compile + MDX 塌陷扫描，需先有 build/）
 npm run clear        :: 清 Docusaurus 缓存（行为诡异时第一步）
 ```
@@ -67,7 +67,7 @@ docs/intro.md                       站内「怎么用本站」读者页
 
 src/pyrunner/enhancer.js            ★ 核心：按钮注入/浮窗控制台/判题/测验/文献卡/进度
 src/pyrunner/viz.js                 前五卷可视化单体（14,411 行 / 108 渲染器，冻结只读）
-src/pyrunner/lab/                   新交互唯一去处：core.js 底座 + 6 引擎 + 179 个注册组件（components/ 共 180 个文件，多出的是共用底座 algebra-stage.js） + 29 个 registries/
+src/pyrunner/lab/                   新交互唯一去处：core.js 底座 + 6 引擎 + 注册组件（components/ 文件数比注册组件多，多出来的是只被 import、不注册的共用底座，如 algebra-stage.js / rl-common.js / graph-kit.js / aut-graph-base.js） + 29 个 registries/
 src/pyrunner/notebook.js            数学笔记本（与浮窗共用 Python 命名空间）
 src/pyrunner/repo.js                代码仓库（浮窗代码的存档柜）
 src/pyrunner/backup.js              数据面板：导出/导入/空间搬家/快照
@@ -84,9 +84,9 @@ src/theme/Navbar/index.js           顶栏：swizzle 整体接管（改导航改
 src/theme/TOCItems/index.js         右栏挂件：前置知识面板 + 学习进度条
 src/theme/DocItem/Layout/index.js   文档页布局：正文横条前置知识 + 侧栏折叠把手
 src/pages/                          首页 / tree / graph / function / login
-src/components/ml-home/             首页组件 + full-graph-data.js(生成物) + ringLayout/treeLayout(布局引擎)
+src/components/ml-home/             首页组件 + full-graph-data.js(生成物) + 图谱双页（KnowledgeAtlas/LessonLineage + 纯函数 ringLayout/atlasModel/lineageLayout/learnState）
 src/components/FunctionLab/         看见函数页面壳
-src/css/                            custom.css(全站) home.css nav.css auth.css
+src/css/                            custom.css(全站) home.css nav.css auth.css graph-pages.css(/graph 与 /tree)
 static/                             fonts/ katex.min.css ml-pyodide-sw.js prereqs/(生成物) graph-chapters/(生成物)
 
 scripts/validate.mjs                课程闭环闸门
@@ -114,13 +114,13 @@ UNIT_GUIDES/                        45 份单章施工手册与子系统实现�
 | 数据与账号 | 命名空间 localStorage + 可选云同步 | `src/learning/` · `src/auth/` · `src/sync/` | [PROJECT_DOCS/05](./PROJECT_DOCS/05-data-and-accounts.md) |
 | 构建与部署 | 三道闸门 + 出包 + 两种形态 | `package.json` / 出包脚本 | [PROJECT_DOCS/06](./PROJECT_DOCS/06-build-and-deploy.md) |
 | 顶栏/首页/右栏 | swizzle 接管、首页视觉、挂件、侧栏折叠 | `src/theme/` | [UNIT_GUIDES/site-ui.md](./UNIT_GUIDES/site-ui.md) |
-| 图谱双页 | /tree 画树、/graph 画同心环，筛选口径刻意不同 | `src/components/ml-home/` | [UNIT_GUIDES/graph-pages.md](./UNIT_GUIDES/graph-pages.md) |
+| 图谱双页 | /graph 阶梯版图（六级台阶×七卷，一章一卡一格一课）、/tree 课程家谱（一次看一门课的先修与后续） | `src/components/ml-home/` | [UNIT_GUIDES/graph-pages.md](./UNIT_GUIDES/graph-pages.md) |
 | 浮窗/笔记本/仓库 | 滑块、槽位、层叠、模板库 | `src/pyrunner/` | [UNIT_GUIDES/console-notebook.md](./UNIT_GUIDES/console-notebook.md) |
 | 看见函数 | 拼式子出图，2D/3D，四条对数与反三角口径 | `src/pyrunner/func/` | [UNIT_GUIDES/see-function.md](./UNIT_GUIDES/see-function.md) |
 | 论文链接与归档 | 找源、验证、归档顺序 | `scripts/references-data.json` | [UNIT_GUIDES/paper-links.md](./UNIT_GUIDES/paper-links.md) |
 | 云同步运维 | nginx 反代、CORS、本地测登录 | `server/` | [UNIT_GUIDES/sync-backend.md](./UNIT_GUIDES/sync-backend.md) |
 
-图谱两页的分工是**刻意的分歧不是漏改**：`/tree` 筛选＝重排，`/graph` 筛选＝只压暗不重排。环算法的唯一事实来源是 `ringLayout.js` 的头注释。
+图谱两页的分工是**刻意的分歧不是漏改**：`/tree` 筛选＝重排，`/graph` 筛选＝只压暗不重排。层级算法的唯一事实来源是 `ringLayout.js` 的头注释（同心环画法已退役，算法保留给两层布局复用）。
 
 ## 写课：动手前必读
 
@@ -153,9 +153,9 @@ UNIT_GUIDES/                        45 份单章施工手册与子系统实现�
 
 **Infima 变量覆盖必须写在 `body` 上，不是 `:root`**：Infima 把变量声明在 `:root:not(#\#):not(#\#)` 上（特异性 2,1,0），普通 `:root`（0,1,0）无论排多后面都压不过（实测主按钮仍是 Infima 蓝）。标题字族要走 `--ifm-heading-font-family` 这类变量。
 
-**首页视觉**全部收在 `.ml-home` 作用域，不要写成全局规则。**七卷配色**只在 `custom.css` 的 `--ml-vol1…7`（亮/暗各一份）改，`.ml-rg` 只是别名，别在作用域里再写 hex。
+**首页视觉**全部收在 `.ml-home` 作用域，不要写成全局规则。**七卷配色**只在 `custom.css` 的 `--ml-vol1…7`（亮/暗各一份）改；各页面一律用 `var(--ml-volN)` 取色（`.ml-rg` 别名已删除）。
 
-**图谱坐标有两套**（世界坐标 / SVG 元素坐标），换算统一走 `toElem()` + `applyView(b, {center, noClamp})`，混用会「不居中」；`fitSel` 缩放下限 0.42。`treeLayout.js` 在模块加载时做 `filterCh0()`——那是**视图层过滤**，不动 `full-graph-data.js` 源数据（/graph 与首页仍含第 0 章）。
+**图谱三张图分工刻意错开**：首页章级树（`HomeTree.js`）、`/graph` 阶梯版图（全站版图与进度）、`/tree` 课程家谱（单课来路去向）。层级算法唯一事实来源仍是 `ringLayout.js` 头注释（同心环画法已退役，算法保留）。版图连线在挂载后量 DOM（ResizeObserver），平时不画线；`/graph` 课表必须 fetch `static/graph-chapters/NN.json`（失败要可见，不许静默白屏）；`/tree` 的焦点写地址栏 `?l=`（`history.push`，要能后退还原）。口径都在纯函数模块里（`atlasModel` / `lineageLayout` / `learnState`）。
 
 ## 改浮窗 / enhancer：动手前必读
 
@@ -195,15 +195,18 @@ node scripts/gen-references.mjs
 
 | 命令 | 查什么 |
 | --- | --- |
-| `node scripts/check-index-links.mjs [docs目录]` | 章首页是否漏收本章课 |
-| `node scripts/check-links.mjs [docs目录]` | 课内相对链接断链（**默认路径写死成旧机器绝对路径，务必传参**） |
+| `node scripts/check-index-links.mjs [docs目录]` | 章首页是否漏收本章课（有漏收退出码 1） |
+| `node scripts/check-links.mjs [docs目录]` | 课内相对链接断链（默认解析 `<仓库根>/docs`；有断链退出码 1，`--warn` 只报不拦） |
 | `node scripts/check-lab-syntax.mjs` | lab 组件语法（复制成 `.mjs` 后 `node --check`，绕开 CommonJS 误报） |
+| `node scripts/check-lab-registry.mjs` | lab 围栏 `type` ↔ 注册表交叉核对：**用了没登记 / 登记了没文件 / type 重复 / 围栏 JSON 坏死**四种静默失效（build 与 validate 都不拦） |
 | `node scripts/lab-engine-selftest.mjs` | 六个数值引擎的数学正确性 |
-| `node scripts/check-graph-drill.mjs` | `/graph` 课级钻取运行时验收（**先 `npm run build`**） |
+| `node scripts/check-graph-drill.mjs` | `/graph` 阶梯版图 + `/tree` 课程家谱运行时验收（**先 `npm run build`**；playwright 可选，`PLAYWRIGHT_DIR` 指包目录、`PW_CHANNEL=msedge` 用本机 Edge） |
 | `node scripts/audit-unit-guides.mjs` | `UNIT_GUIDES/` 里的章号引用审计（旧号段复活、章号越界） |
 | `python scripts/audit-py-syntax.py docs` | 全部 `python` / `exercise` 块 `compile()`（刻意不收 `py` 片段） |
 | `python scripts/audit-py-checks.py docs` | `@check` 期望值的小数位数分布（位数越多越脆） |
-| `python scripts/audit-py-solutions.py docs` | 抽参考答案实跑，验证 `@check` 真能跑出来 |
+| `python scripts/audit-py-solutions.py docs --run` | 抽参考答案实跑，验证 `@check` 真能跑出来（**不加 `--run` 只做静态抽取**） |
+| `node scripts/check-answer-leak.mjs docs` | 判题泄露体检（P0 清零才算过）：初始代码是否原样就能过 `@check`、**无条件** `print` 是否多于 `@check` 行数、初始代码是否自己就报错、hint 或打印字面量是否直接给答案。刻意的「一跑就抛错」题要在围栏里写 `# @expect-error: 原因` 才豁免 |
+| `npm run check:py-run` | **在浏览器同款运行时里真跑**每个 `python` 块（`compile()` 证明不了跑得起来）。运行时是 Pyodide v0.26.4 = CPython 3.12 / matplotlib 3.5.2 / numpy 1.26.4，首次先跑 `npm run setup:pyodide-runtime` 备齐。**别用本机 python 代替**：本机 3.14 + matplotlib 3.11 的口径会把浏览器里正常的课文报成缺陷（`boxplot(labels=…)` 就是活例，3.5.2 有这个参数、3.11 已删）。跨文件会清命名空间与 pyplot 状态，同页之内则按浏览器语义保留持久命名空间 |
 
 ## 提交前自测（改交互系统时）
 
@@ -242,12 +245,14 @@ node scripts/gen-references.mjs
 | `cmd 2>&1` 把 stdout 变成 CLIXML 噪音流 | 要读脚本输出就 `node x.mjs \| Out-File -Encoding utf8 _out.txt` 再 `Get-Content -Tail`；判断成败看 `$LASTEXITCODE` |
 | 正则批量改 `docs/**.md` 匹配不到（文件是 CRLF） | 模式里一律写 `\r?\n`；替换时把行尾捕获进分组回写，别把文件改成混合行尾 |
 | 块注释里出现 `*/` 会提前闭合注释 | 写 `docs/NN-*` 路径时换个说法，或把 `*` 与 `/` 拆开 |
+| dev server 多次热编译后 OOM / Rspack 缓存损坏 | 先 `NODE_OPTIONS=--max-old-space-size=8192`，再 `npx.cmd docusaurus clear` |
 
 ### 调试与 E2E
 
 - **node 探测 dev server 必须带 `Accept: text/html` 请求头**，否则所有非 `/` 页面返回 Express 风格 `Cannot GET /xxx` 404（history fallback 只对 `Accept: text/html` 生效）。浏览器正常但 node fetch 全 404 先查这个。
 - **站点路由剥数字前缀**：`/docs/arithmetic/division`，不是 `/docs/01-arithmetic/40-division`。路由 404 排查顺序：确认客户端 h1 是不是「找不到页面」（history fallback 让任何路径都 HTTP 200，node fetch 200 ≠ 路由存在）→ 查 `.docusaurus/routes.js` → `npm run clear`。
 - **`999-references.md` 的 git stat 假阳性**：被生成器重写后 git 全显示 M，实际内容一致。`git add -u; git reset -q` 刷新索引即可。
+- **站点没有 favicon**：`/favicon.ico` 404 会在控制台留一条无地址的错误，E2E 断言「零 console error」之前先拦掉它，否则每次都假红。
 
 ### 两个口径（最容易搞错）
 
@@ -278,9 +283,9 @@ node scripts/gen-references.mjs
 | 加参考资料 / PDF | `scripts/references-data.json` → `gen-references.mjs`；有 PDF 先 `fetch-papers.mjs`（顺序不能反） |
 | 改顶栏导航 | `src/theme/Navbar/index.js` 的 `LINKS`（**不是** `docusaurus.config.js` 的 `navbar.items`） |
 | 改七卷配色 | 只改 `src/css/custom.css` 的 `--ml-vol1…7`（亮/暗各一份） |
-| 改进度 / 练习存储 | `src/learning/progress.js`（唯一存储层）→ enhancer 与右栏挂件都从它 import |
+| 改进度 / 练习存储 | `src/learning/progress.js`（唯一存储层）→ enhancer、右栏挂件、图谱双页的 `learnState.js`（课级四态）都从它 import |
 | 改账号校验口径 | `src/auth/index.js` 与 `scripts/add-user.mjs` / `server/sync-server.mjs` **两侧一起改**（哈希口径 `sha256(salt + ':' + 密码)`） |
-| 改 `/graph` 钻取数据 | `npm run gen:graph` 后 `npm run gen:chapters`；改完跑 `node scripts/check-graph-drill.mjs` |
+| 改 `/graph` / `/tree` 或其数据 | 层级 `ringLayout` / 版图 `atlasModel` / 家谱 `lineageLayout`；数据变了 `npm run gen:graph` → `npm run gen:chapters`；build 后跑 `node scripts/check-graph-drill.mjs` |
 
 ## 工作流
 

@@ -116,27 +116,27 @@ print("正规方程对照: w=1.4, b=1.5, mse=0.05")
 三百步后 `w` 收敛到约 1.4、`b` 到约 1.49，与正规方程几乎重合——凸碗地形上梯度下降没有悬念。损失曲线一路下滑并压平：
 
 ```python title="训练损失曲线"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # pyplot 首现：图中画损失曲线，看梯度下降是不是单调把 mse 压下去
 
-xs = [1, 2, 3, 4]
+xs = [1, 2, 3, 4]  # 四个训练点：x 是特征，y 是标签，一共 4 组
 ys = [3, 4, 6, 7]
 n = len(xs)
-eta = 0.05
+eta = 0.05  # 学习率 0.05：太大会震荡，太小 60 步内降不到位
 
-losses = []
+losses = []  # losses 收集每一步的均方误差，横轴是步数、纵轴是损失
 w, b = 0.0, 0.0
-for step in range(60):
+for step in range(60):  # 60 步足够看到曲线弯下来并趋于平缓
     pred_errs = [ys[i] - (w * xs[i] + b) for i in range(n)]
-    losses.append(sum(e * e for e in pred_errs) / n)
+    losses.append(sum(e * e for e in pred_errs) / n)  # sum(生成器表达式) 首现：圆括号里不建列表，边算边加，省内存
     gw = -2 / n * sum(xs[i] * pred_errs[i] for i in range(n))
     gb = -2 / n * sum(pred_errs[i] for i in range(n))
     w = w - eta * gw
     b = b - eta * gb
 
-plt.plot(range(60), losses, marker="o", markersize=3)
+plt.plot(range(60), losses, marker="o", markersize=3)  # marker="o" 让每个点都画小圆点，markersize=3 把点缩小免得糊成一片
 plt.xlabel("step")
 plt.ylabel("mse")
-plt.grid(True)
+plt.grid(True)  # grid(True) 打开网格线，方便读数
 ```
 
 前十几步陡降、随后贴地爬行——这是学习率固定时凸问题的标准姿态。
@@ -179,9 +179,9 @@ $\hat{y}=1.4\times3.5+1.5=6.4$（64 万），若真实成交 70 万则残差 $7-
 # @check: 1.5
 # @check: 0.2
 # @hint: 分子分母都要乘 n：w = (n*Sxy - Sx*Sy) / (n*Sxx - Sx^2)；残差平方和别除以 n。
-pts = [[1, 3], [2, 4], [3, 6], [4, 7]]
+pts = [[1, 3], [2, 4], [3, 6], [4, 7]]  # 练习把数据折成 [x, y] 点对：p[0] 取 x，p[1] 取 y
 n = len(pts)
-sx = sum(p[0] for p in pts)
+sx = sum(p[0] for p in pts)  # sum(生成器) 汇总四个 x；下面 sx、sy 分别是一阶和
 sy = sum(p[1] for p in pts)
 sxx = sum(p[0] * p[0] for p in pts)
 sxy = sum(p[0] * p[1] for p in pts)
@@ -190,7 +190,7 @@ m = (sxy - sx * sy) / (sxx - sx * sx)      # ← 少乘了 n
 b = (sy - m * sx) / n
 
 preds = [m * p[0] + b for p in pts]
-sse = sum((p[1] - r) ** 2 for p, r in zip(pts, preds))
+sse = sum((p[1] - r) ** 2 for p, r in zip(pts, preds))  # zip 首现：把真实 y 与预测 y 按位置配成对，再逐对求残差
 
 print(round(m, 2))
 print(round(b, 2))

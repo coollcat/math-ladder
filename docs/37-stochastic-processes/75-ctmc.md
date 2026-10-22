@@ -184,7 +184,7 @@ $\rho=\lambda/\mu=0.5$。$\pi_0=(1-\rho)/(1-\rho^3)=0.5/(1-0.125)=0.5/0.875=4/7$
 # @title: 练习：修复 CTMC 转移逻辑
 # @check: 0.6
 # @check: 0.4
-# @hint: 两状态 CTMC 的稳态 π_0 = μ/(λ+μ)，π_1 = λ/(λ+μ)
+# @hint: 稳态比例衡量的是"待多久"，不是"来了几次"。每次停留的时长与离开速率成反比。
 import random, math
 random.seed(123)
 
@@ -192,20 +192,18 @@ lam, mu = 4.0, 6.0
 
 def simulate(steps):
     state = 0
-    visits = [0, 0]
+    time_in = [0.0, 0.0]              # 累计在状态 0/1 里待的总时长
     for _ in range(steps):
-        visits[state] += 1
-        if state == 0:
-            hold = -math.log(random.random()) / lam
-            state = 1
-        else:
-            hold = -math.log(random.random()) / mu
-            state = 0
-    return visits[0] / sum(visits), visits[1] / sum(visits)
+        rate = lam if state == 0 else mu
+        hold = -math.log(random.random()) / rate   # 指数分布的停留时长
+        time_in[state] += 1           # ← 问题在这：这里累加的应该是时长还是次数？
+        state = 1 - state
+    total = sum(time_in)
+    return time_in[0] / total, time_in[1] / total
 
 p0, p1 = simulate(100000)
-print(round(p0, 1))   # 应为 0.6
-print(round(p1, 1))   # 应为 0.4
+print(round(p0, 1))
+print(round(p1, 1))
 ```
 
 <details>

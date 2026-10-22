@@ -162,19 +162,21 @@ print(round(dist(A, C1) ** 2))           # 2²+2²+2² = 12，三维版的“平
 import matplotlib.pyplot as plt          # 绘图库，第 0 章《matplotlib 入门》的老朋友
 
 fig = plt.figure(figsize=(7, 5))         # 开一块画布
-ax = fig.add_subplot(projection="3d")    # 首现参数 projection="3d"：把坐标面升成三维（matplotlib 自带，不必额外 import）
+ax = fig.add_subplot(projection="3d")    # 首现参数 projection="3d"：把坐标面升成三维
 
+# 画两张平面：用「逐条网格线」而不是 plot_surface。
+# plot_surface 只吃二维数组（纯列表会抛 AttributeError: 'list' object has no attribute
+# 'ndim'），而本站 numpy 到第 18 章才登场，这里不该提前引库——网格线用 ax.plot 就够。
 n = 9                                    # 每条边切 8 段，共 9 个格点
 xs = [-2 + 4 * i / (n - 1) for i in range(n)]   # x：从 −2 均匀取到 2
 ys = [-2 + 4 * j / (n - 1) for j in range(n)]   # y：同样从 −2 取到 2
 
-X  = [[xs[i] for j in range(n)] for i in range(n)]               # 每个格点的 x 坐标
-Y  = [[ys[j] for j in range(n)] for i in range(n)]               # 每个格点的 y 坐标
-Za = [[xs[i] - ys[j] for j in range(n)] for i in range(n)]       # 平面 α：z = x − y
-Zb = [[-xs[i] + 2 * ys[j] for j in range(n)] for i in range(n)]  # 平面 β：z = −x + 2y
-
-ax.plot_surface(X, Y, Za, alpha=0.45, color="tab:blue")     # alpha=0.45：半透明，才看得见被挡住的那张
-ax.plot_surface(X, Y, Zb, alpha=0.45, color="tab:orange")
+for i in range(n):                       # 平面 α：z = x − y，先沿 x 铺线，再沿 y 铺线
+    ax.plot(xs, [ys[i]] * n, zs=[x - ys[i] for x in xs], color="tab:blue", linewidth=0.8)
+    ax.plot([xs[i]] * n, ys, zs=[xs[i] - y for y in ys], color="tab:blue", linewidth=0.8)
+for i in range(n):                       # 平面 β：z = −x + 2y
+    ax.plot(xs, [ys[i]] * n, zs=[-x + 2 * ys[i] for x in xs], color="tab:orange", linewidth=0.8)
+    ax.plot([xs[i]] * n, ys, zs=[-xs[i] + 2 * y for y in ys], color="tab:orange", linewidth=0.8)
 
 # 联立两式：x − y = −x + 2y  →  2x = 3y  →  令 x = 3t、y = 2t，代回得 z = t
 ts = [-0.6 + 0.2 * k for k in range(7)]                     # t 取 7 个值，描出一段交线
@@ -186,7 +188,7 @@ ax.set_zlabel("z")
 ax.set_title("两个平面交于一条直线")
 ```
 
-怎么玩：蓝橙两张平面彼此穿心而过，公共部分只有那一根黑线——不多不少一条。再把 `Zb` 的算式改成 `xs[i] - ys[j] + 1`（与 $\alpha$ 倾斜程度相同、只差一个高度）重新运行：黑线没了，两张平面变成永远不相交的**平行**平面。两不重合的平面，要么交于一条直线，要么平行，没有第三种。
+怎么玩：蓝橙两张平面彼此穿心而过，公共部分只有那一根黑线——不多不少一条。把平面 β 的两个算式从 `-x + 2 * y` 一起改成 `x - y + 1`（倾角与 $\alpha$ 相同、只差一个高度）重新运行：黑线没了，两张平面变成永远不相交的**平行**平面。两不重合的平面，要么交于一条直线，要么平行，没有第三种。
 
 ## 6. 常见误区
 

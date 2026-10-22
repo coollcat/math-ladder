@@ -94,10 +94,10 @@ exits:
 ### 实验 2：用余数分类
 
 ```python title="按除以 2 的余数检查奇偶"
-for n in [4, 7, 10, 13]:
+for n in [4, 7, 10, 13]:   # 拿四个样本挨个检验规则；for 直接遍历列表，不用自己数下标
     if n % 2 == 0:    # % 是取余数；除以 2 余 0 就是偶数
         print("even")
-    else:
+    else:             # else：条件不成立（余数不为 0）才走这一支
         print("odd")
 ```
 
@@ -112,13 +112,13 @@ for n in [4, 7, 10, 13]:
 # @check: even
 # @check: odd
 # @hint: % 2 == 0 表示能被 2 整除，应当输出 even。
-def classify(n):
-    if n % 2 == 0:
-        return "odd"
-    return "even"
+def classify(n):          # 把"判奇偶"打包成函数，好对一批数反复调用
+    if n % 2 == 0:        # % 取余：余 0 就是能被 2 整除
+        return "odd"      # 命中这一支就把字符串交回调用处，后面那行不再执行
+    return "even"         # 两支都没命中时执行到这里（函数返回值就是判定的结论）
 
-for n in [4, 7, 10, 13]:
-    print(classify(n))
+for n in [4, 7, 10, 13]:   # 四个样本：两个偶、两个奇
+    print(classify(n))     # 每次调用返回一个字符串，print 逐个打印成一行
 ```
 
 <details>
@@ -127,13 +127,13 @@ for n in [4, 7, 10, 13]:
 把两个返回值互换：
 
 ```python
-def classify(n):
-    if n % 2 == 0:
+def classify(n):          # 函数：输入一个整数，输出它的奇偶标签
+    if n % 2 == 0:        # 余数为 0 → 偶数
         return "even"
-    return "odd"
+    return "odd"          # 余数不为 0 → 奇数
 
 for n in [4, 7, 10, 13]:
-    print(classify(n))
+    print(classify(n))     # 同一份规则逐个套在样本上
 ```
 
 数学证明已经说明规则对所有整数成立；这段代码只是把规则翻译给机器检查。

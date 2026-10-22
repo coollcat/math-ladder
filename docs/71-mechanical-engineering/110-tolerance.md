@@ -137,7 +137,7 @@ import random                                    # 随机数库（第 0 章已�
 
 random.seed(7)                                   # 固定随机种子，结果可复现
 tols = [0.10, 0.05, 0.12, 0.08, 0.06]            # 五个环的公差（±mm）
-T0 = 0.35                                        # 允许的封闭环公差（mm）
+# T0 由滑块给定（默认 0.35 mm）——不要再写 T0 = 0.35，那会把滑块值整个盖掉
 N = 20000                                        # 抽样次数
 
 worst = 0.0                                      # 极值法：误差绝对值之和
@@ -158,6 +158,7 @@ for _ in range(N):
     if abs(x) <= T0:
         inside = inside + 1
 
+print(f"目标公差 T0 = ±{T0:.4f} mm")
 print(f"极值法 Σ|t|      = ±{worst:.4f} mm")
 print(f"统计法 √(Σt²)    = ±{rss:.4f} mm  （RSS/极值 = {rss / worst * 100:.1f}%）")
 print(f"σ_封闭环 = RSS/3 = ±{rss / 3:.4f} mm")

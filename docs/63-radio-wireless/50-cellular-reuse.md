@@ -146,7 +146,7 @@ print(f"N={N}, D/R={round(math.sqrt(3*N), 3)}, SIR={round((3*N)**2/6, 1)} ({roun
 ```python title="N 与 gamma 双滑杆的 SIR 计算器"
 import math
 
-# sliders: n=7 [1:12:1], gamma=4 [20:50:5]
+# sliders: n=7 [1:12:1], gamma=40 [20:50:5]
 
 g = gamma / 10                       # 滑杆给整数，这里还原成 2.0~5.0
 sir = (3 * n) ** (g / 2) / 6         # 最坏情形信干比

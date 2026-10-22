@@ -396,8 +396,11 @@ export default function render(host, spec) {
       if (k === 'pc') inner = String(pc);
       else if (k === 'im') inner = hex4(st.word);
       else if (k === 'alu') inner = OPS[st.ins.op].sym;
-      else if (k === 'dm') inner = OPS[st.o.kind].kind === 'mem' ? String(st.addr) : '—';
-      else if (k === 'sext') inner = OPS[st.o.kind].kind === 'mem' ? String(st.imm) : '—';
+      /* st.o.kind 是 'r' | 'mem' | 'br'（指令**类别**），不是 OPS 的键；
+         写成 OPS[st.o.kind] 会拿到 undefined，再读 .kind 直接抛 TypeError，
+         整个组件在浏览器里连第一帧都画不出来。要比的是 st.o.kind 本身。 */
+      else if (k === 'dm') inner = st.o.kind === 'mem' ? String(st.addr) : '—';
+      else if (k === 'sext') inner = st.o.kind === 'mem' ? String(st.imm) : '—';
       if (inner) {
         label(ctx, inner, PX(b.x + b.w / 2), PY(b.y + b.h) - 4, on ? C.bg : C.accent2,
           { align: 'center', size: fs + 0.5, weight: 700 });
@@ -430,14 +433,14 @@ export default function render(host, spec) {
     const mw = (W - 16) / NMEM;
     for (let i = 0; i < NMEM; i += 1) {
       const x = 8 + i * mw;
-      ctx.fillStyle = (OPS[st.o.kind].kind === 'mem' && st.addr === i && beat >= 2) ? C.accent : C.soft;
+      ctx.fillStyle = (st.o.kind === 'mem' && st.addr === i && beat >= 2) ? C.accent : C.soft;
       ctx.strokeStyle = C.grid;
       ctx.lineWidth = 1;
       ctx.fillRect(x + 1, my, mw - 2, 24);
       ctx.strokeRect(x + 1.5, my + 0.5, mw - 3, 23);
       label(ctx, String(i), x + mw / 2, my + 9, C.axis, { align: 'center', size: 7.5 });
       label(ctx, String(mem[i]), x + mw / 2, my + 21,
-        (OPS[st.o.kind].kind === 'mem' && st.addr === i && beat >= 2) ? C.bg : C.fg,
+        (st.o.kind === 'mem' && st.addr === i && beat >= 2) ? C.bg : C.fg,
         { align: 'center', size: 11, weight: 700 });
       hits.push({ x, y: my - 4, w: mw, h: 32, id: 'm' + i, base: mem[i] });
     }

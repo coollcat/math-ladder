@@ -90,6 +90,7 @@ check_bounded(lambda z: np.ones_like(z), "常数 1")
 ### 实验 2：Cauchy 估计可视化
 
 ```python title="|a_n| ≤ M/R^n 随 R 增大趋向 0"
+import math                     # factorial 只在 math 里，NumPy 2 已移除 np.math
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -98,7 +99,7 @@ Rs = np.linspace(1, 50, 200)
 
 plt.figure(figsize=(8, 4))
 for n in [1, 2, 5, 10]:
-    bound = M * np.math.factorial(n) / Rs**n
+    bound = M * math.factorial(n) / Rs**n   # factorial 来自 math；np.math 在 NumPy 2 已移除
     plt.semilogy(Rs, bound, label=f"n={n}")
 
 plt.xlabel("R（圆盘半径）")
@@ -162,18 +163,22 @@ Liouville 定理的结论是什么？
 **练习 1**：证明：若 $f$ 是整函数且 $|f(z)| \leq |z|$ 对所有 $z$ 成立，则 $f(z) = cz$（某常数 $c$，$|c| \leq 1$）。
 
 ```exercise
-# @title: Liouville 推广
-# @check: f(z) = c*z, |c| <= 1
-# @hint: 考虑 g(z) = f(z)/z 在 z=0 处的可去奇点
+# @title: Liouville 推广的数值验证
+# @check: c = (0.8+0.2j): 满足 |c|<=1: True
+# @check: c = (1+0j): 满足 |c|<=1: True
+# @check: c = (1.5+0j): 满足 |c|<=1: False
+# @hint: |f(z)| ≤ |z| 处处成立，等价于 |c·z|/|z| = |c| 不超过 1。检查三个候选 c，哪一个越界了？
 import numpy as np
 
-# f 是整函数，|f(z)| ≤ |z|
-# g(z) = f(z)/z 在 z≠0 解析，z=0 是可去奇点
-# g 有界（|g| ≤ 1），由 Liouville 定理 g 是常数 c
-# 所以 f(z) = cz，且 |c| ≤ 1
+# 三个候选常数 c：前两个满足 |c| ≤ 1，第三个不满足
+zs = np.array([1+0j, 1j, 2-1j, -3+4j, 0.5+0.5j])   # 5 个采样点，含实轴与虚轴方向
+candidates = [0.8 + 0.2j, 1.0 + 0j, 1.5 + 0j]
 
-print("思路：f(z)/z 有界 → Liouville → f(z)/z = c → f(z) = cz")
-print("结论：f(z) = c*z，其中 |c| ≤ 1")
+for c in candidates:
+    # |f(z)|/|z| 恒等于 |c|，与 z 无关 —— 这正是「有界 → 常数」的关键
+    ratio = np.abs(c * zs) / np.abs(zs)**2   # ← 问题在这：分母该是一次的还是平方？
+    ok = ratio.max() <= 1 + 1e-12
+    print(f"c = {c}: 满足 |c|<=1: {ok}")
 ```
 
 **练习 2**：用 Liouville 定理证明：若 $f$ 和 $g$ 都是整函数，$f^2 + g^2 = 1$，则 $f$ 和 $g$ 都是常数。

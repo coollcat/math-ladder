@@ -132,31 +132,31 @@ $$y(t)=\frac{2500\cos t+50\sin t}{2501}-\frac{2500}{2501}e^{-50t}.$$
 ### 实验 3：显式 Euler 的生死开关
 
 ```python title="显式 Euler：拖动步长看生死"
-import math
-import matplotlib.pyplot as plt
+import math                        # 标准库 math：cos 与 exp 都从这里取
+import matplotlib.pyplot as plt    # 绑图库；浮窗里用 Agg 后端，只画不弹窗
 
 # sliders: h=0.05 [0.005:0.08:0.005]
 
-def f(t, y):
-    return -50 * (y - math.cos(t))    # 斜率规则：照抄方程
+def f(t, y):                        # def 定义函数：斜率规则 f(t,y) = -50(y - cos t)
+    return -50 * (y - math.cos(t)) # 系数 -50 是刚性的来源：稍微偏离平衡就被猛拽回去
 
-n = int(3.0 / h)                      # int() 截断取整：0 到 3 秒要走几步
-t, y = 0.0, 0.0                       # 两个变量一次赋值：时间与解都从 0 出发
-ts, ys = [t], [y]                     # 时间与数值解两本账，先记起点
-peak = 0.0                            # 登记整条轨迹上最大的 |y|
-for k in range(n):
-    y = y + h * f(t, y)               # 显式 Euler：起点斜率直接外推
-    t = t + h
-    ts.append(t)                      # append 把新样本接到列表末尾
+n = int(3.0 / h)                    # int() 截断取整：0 到 3 秒一共要走几步
+t, y = 0.0, 0.0                     # 一次给两个变量赋值：时间与解都从 0 出发
+ts, ys = [t], [y]                   # 两本账分别记时间和解，先把起点记上
+peak = 0.0                          # 登记整条轨迹上最大的 |y|
+for k in range(n):                  # range(n) 生成 0..n-1 的计数序列
+    y = y + h * f(t, y)             # 显式 Euler：按起点斜率直接外推
+    t = t + h                       # 时间推进一格
+    ts.append(t)                    # append 把新样本接到列表末尾
     ys.append(y)
-    if abs(y) > peak:                 # abs 取绝对值：只关心偏多远
+    if abs(y) > peak:               # abs 取绝对值：只关心偏离多远
         peak = abs(y)
 
 print("h =", h)
 print("最大 |y| =", f"{peak:.2e}")     # .2e 科学计数法，如 3.68e+10
-print("t=3 的 y =", round(y, 3))
-plt.plot(ts, ys, linewidth=1)
-plt.show()
+print("t=3 的 y =", round(y, 3))       # round 保留三位：终点读数
+plt.plot(ts, ys, linewidth=1)       # 把轨迹画出来；linewidth 控制线宽
+plt.show()                          # 渲染图像
 ```
 
 实测读数：h=0.01 时轨迹贴着余弦（t=3 的 y 约为 −0.987，与真解三位小数一致）；h=0.03 时开始抖动但有界（峰值 1.5）；h=0.04 踩线存活（峰值 2.0，幅度已经全错）；h=0.05 直接起飞——最大 |y| 冲到 3.68e+10。放大系数 $1-50h$ 越过 −1 的那一瞬，解从"贴轨"翻成"爆炸"。
@@ -164,27 +164,27 @@ plt.show()
 ### 实验 4：隐式 Euler 的治愈
 
 ```python title="隐式 Euler：同款方程，先解再走"
-import math
-import matplotlib.pyplot as plt
+import math                        # 标准库 math
+import matplotlib.pyplot as plt    # 绑图库
 
 # sliders: h=0.1 [0.01:0.2:0.01]
 
-def f(t, y):
-    return -50 * (y - math.cos(t))
+def f(t, y):                        # 同一个刚性方程
+    return -50 * (y - math.cos(t)) # 隐式格式最终要用到它，虽然下面直接写了移项后的式子
 
-n = int(3.0 / h)
-t, y = 0.0, 0.0
-ts, ys = [t], [y]
-for k in range(n):
-    t = t + h
-    y = (y + 50 * h * math.cos(t)) / (1 + 50 * h)   # 隐式更新式：从方程解出 y 的下一步
-    ts.append(t)
+n = int(3.0 / h)                    # 步数
+t, y = 0.0, 0.0                     # 起点
+ts, ys = [t], [y]                   # 记账
+for k in range(n):                  # 逐步推进
+    t = t + h                       # 先走到新时刻，隐式公式用的是终点时刻
+    y = (y + 50 * h * math.cos(t)) / (1 + 50 * h)   # 隐式更新式：从方程里解出下一步的 y
+    ts.append(t)                    # 记录
     ys.append(y)
 
-print("h =", h)
-print("t=3 的 y =", round(y, 3))
-plt.plot(ts, ys, linewidth=1)
-plt.show()
+print("h =", h)                     # 报出当前步长
+print("t=3 的 y =", round(y, 3))       # 终点读数：这档步长下隐式依然稳
+plt.plot(ts, ys, linewidth=1)       # 画出轨迹
+plt.show()                          # 渲染
 ```
 
 滑块从 0.01 拖到 0.2，读数始终有界：h=0.1 时 t=3 的 y 约为 −0.986，h=0.2 时约 −0.985——步长是显式禁区五倍，依然稳如老狗。注意看轨迹：头几个峰看起来"矮半截"（约 0.95），那是步长 0.1 的采样点恰好错过了真实波峰的观感；稳态振幅实测约 0.999，只比真解瘪约 0.1%——隐式的稳定几乎不用"磨钝"来换。
@@ -192,48 +192,48 @@ plt.show()
 ### 实验 5：同框对质
 
 ```python title="显式 vs 隐式：同一步长 0.05 的两张答卷"
-import math
-import matplotlib.pyplot as plt
+import math                        # 标准库 math：cos / exp
+import matplotlib.pyplot as plt    # 绑图库
 
-def f(t, y):
-    return -50 * (y - math.cos(t))
+def f(t, y):                        # 同一个刚性方程，这次两条路线各走一遍
+    return -50 * (y - math.cos(t)) # 斜率规则
 
-h = 0.05
-n = int(1.0 / h)
+h = 0.05                            # 同一条起跑线：显式会爆，隐式应该稳
+n = int(1.0 / h)                    # 走 0 到 1 秒要走几步
 
 t, y = 0.0, 0.0
 ts1, ys1 = [t], [y]
-peak1 = 0.0
+peak1 = 0.0                         # 只给显式那一路记峰值
 for k in range(n):
-    y = y + h * f(t, y)               # 显式
+    y = y + h * f(t, y)             # 显式：起点斜率外推
     t = t + h
-    ts1.append(t)
+    ts1.append(t)                   # 显式的账本
     ys1.append(y)
     if abs(y) > peak1:
-        peak1 = abs(y)
+        peak1 = abs(y)              # 刷新峰值
 
 t, y = 0.0, 0.0
 ts2, ys2 = [t], [y]
 for k in range(n):
     t = t + h
-    y = (y + 50 * h * math.cos(t)) / (1 + 50 * h)   # 隐式
+    y = (y + 50 * h * math.cos(t)) / (1 + 50 * h)   # 隐式：移项后解出的更新式
     ts2.append(t)
     ys2.append(y)
 
-ts3, ys3 = [], []                     # 精确解的账本
+ts3, ys3 = [], []                   # 精确解的账本，两个空列表先备好
 for k in range(301):
-    tt = 1.0 * k / 300
+    tt = 1.0 * k / 300              # 把 [0, 1] 均匀切成 300 份
     ts3.append(tt)
-    ys3.append((2500 * math.cos(tt) + 50 * math.sin(tt)) / 2501 - (2500 / 2501) * math.exp(-50 * tt))
+    ys3.append((2500 * math.cos(tt) + 50 * math.sin(tt)) / 2501 - (2500 / 2501) * math.exp(-50 * tt))   # 解析解的闭式
 
 print("显式 t=1 的 y =", round(ys1[-1], 3), " 峰值 =", f"{peak1:.2e}")   # [-1] 取列表最后一个元素
-print("隐式 t=1 的 y =", round(ys2[-1], 3))
-print("精确 t=1 的 y =", round(ys3[-1], 3))
-plt.plot(ts1, ys1, linewidth=1, label="explicit")
+print("隐式 t=1 的 y =", round(ys2[-1], 3))   # 隐式的终点读数
+print("精确 t=1 的 y =", round(ys3[-1], 3))   # 真解，用来对照
+plt.plot(ts1, ys1, linewidth=1, label="explicit")   # 三条线铺在同一张图上比
 plt.plot(ts2, ys2, linewidth=2, label="implicit")
 plt.plot(ts3, ys3, linewidth=1, linestyle="--", label="exact")   # linestyle 线型：虚线
-plt.legend()                          # legend 显示图例
-plt.ylim(-2, 2)                       # ylim 定住纵轴：显式曲线很快越界出画
+plt.legend()                        # legend 按 label 生成图例
+plt.ylim(-2, 2)                     # ylim 定死纵轴范围：显式曲线很快冲出画面
 plt.show()
 ```
 
@@ -246,17 +246,17 @@ plt.show()
 # @check: 0.829
 # @check: 0.99
 # @hint: 隐式更新要从 y1 = y0 - 50h(y1 - cos t1) 里把 y1 解出来：移项后分母是 1 + 50h。
-import math
+import math                       # 标准库 math：cos / exp
 
-h = 0.1
-t1 = 0.1
-y0 = 0.0
+h = 0.1                           # 步长（这里只走一步，等于区间长度）
+t1 = 0.1                          # 终点时刻
+y0 = 0.0                          # 起点 y(0)=0
 
-y1 = y0 + h * (-50) * (y0 - math.cos(t1))   # ← 有错：这是显式公式，只是把斜率取在了终点
-print(round(y1, 3))
+y1 = y0 + h * (-50) * (y0 - math.cos(t1))   # ← 这是显式公式：斜率取在终点时刻，y 却仍是旧值
+print(round(y1, 3))               # 第一行与 @check 对位
 
-y_exact = (2500 * math.cos(t1) + 50 * math.sin(t1)) / 2501 - (2500 / 2501) * math.exp(-50 * t1)
-print(round(y_exact, 3))
+y_exact = (2500 * math.cos(t1) + 50 * math.sin(t1)) / 2501 - (2500 / 2501) * math.exp(-50 * t1)   # 解析解在 t1 的值
+print(round(y_exact, 3))          # 第二行与 @check 对位
 ```
 
 初始代码能跑，但第一行打印 `4.975`——比真解 0.99 高出四倍多。这是"显式斜率套在终点"的假隐式。真隐式要从方程里把 $y_1$ 解出来：$y_1=\dfrac{y_0+50h\cos t_1}{1+50h}$，第一行变成 `0.829`。
@@ -266,8 +266,8 @@ print(round(y_exact, 3))
 
 隐式 Euler 的方程 $y_1=y_0-50h(y_1-\cos t_1)$ 把含 $y_1$ 的项挪到左边：
 
-```python
-y1 = (y0 + 50 * h * math.cos(t1)) / (1 + 50 * h)
+```py
+y1 = (y0 + 50 * h * math.cos(t1)) / (1 + 50 * h)   # 移项后的隐式更新式
 ```
 
 代入：$(1+5)y_1=5\cos0.1\approx4.975$，解得 $y_1\approx0.829$。它比真值 0.99 低一截（隐式偏保守），但对比显式的 4.975——一个活着，一个已经飞了。
@@ -275,15 +275,15 @@ y1 = (y0 + 50 * h * math.cos(t1)) / (1 + 50 * h)
 可执行复查：
 
 ```python
-import math
+import math       # 标准库 math
 
-h = 0.1
-t1 = 0.1
-y0 = 0.0
-y1 = (y0 + 50 * h * math.cos(t1)) / (1 + 50 * h)
-print(round(y1, 3))
-y_exact = (2500 * math.cos(t1) + 50 * math.sin(t1)) / 2501 - (2500 / 2501) * math.exp(-50 * t1)
-print(round(y_exact, 3))
+h = 0.1           # 步长
+t1 = 0.1          # 终点时刻
+y0 = 0.0          # 初值
+y1 = (y0 + 50 * h * math.cos(t1)) / (1 + 50 * h)   # 修正后的隐式更新
+print(round(y1, 3))      # 0.829
+y_exact = (2500 * math.cos(t1) + 50 * math.sin(t1)) / 2501 - (2500 / 2501) * math.exp(-50 * t1)   # 真解
+print(round(y_exact, 3))   # 0.99
 ```
 
 </details>

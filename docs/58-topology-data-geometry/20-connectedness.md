@@ -116,18 +116,18 @@ print(connected)
 起点 0 能到达 1；1 到 2 的距离是 4，大于 1.5，所以 2 不可达。应写：
 
 ```python
-points = [[0, 0], [1, 0], [5, 0]]
-threshold = 1.5
-reached = {0}
-frontier = [0]
+points = [[0, 0], [1, 0], [5, 0]]  # 一维传感器坐标：相邻两个点间距 1，第三个点跳到 5，中间断了
+threshold = 1.5  # 通信半径 1.5：距离不超过它就算连边
+reached = {0}  # 集合字面量 {0} 首现：用编号记「已经能到达」的点，重复加入不会变长
+frontier = [0]  # frontier 是待扩张的边界；while frontier 在列表非空时继续
 while frontier:
-    now = frontier.pop()
-    for other in range(len(points)):
-        dist = abs(points[now][0] - points[other][0])
-        if dist <= threshold and other not in reached:
-            reached.add(other)
+    now = frontier.pop()  # pop() 默认弹出末尾元素，这就是深度优先的扩张顺序
+    for other in range(len(points)):  # 枚举所有点编号，判断当前点与它是否在阈值内
+        dist = abs(points[now][0] - points[other][0])  # abs 首现：一维距离取绝对值即可，不用开方
+        if dist <= threshold and other not in reached:  # other not in reached 用集合做「已访问」判重，比列表快
+            reached.add(other)  # add 首现：往集合里塞一个元素，重复塞同一个值不报错也不增长
             frontier.append(other)
-connected = len(reached) == len(points)
+connected = len(reached) == len(points)  # 连通 ⇔ 可达点数等于总点数；这里写出的是错误判据，留给练习去修
 print(connected)
 ```
 

@@ -45,18 +45,36 @@ exits:
 
 ## 5. 动手实验
 
+### 实验 1（lab）：入度清零才能开工
+
+```lab
+{
+  "type": "gt-topo-kahn",
+  "title": "A 入度为 0 先走；D 要等 B、C 都走完才解锁",
+  "nodes": ["A", "B", "C", "D", "E"],
+  "edges": [["A", "B"], ["A", "C"], ["B", "D"], ["C", "D"], ["D", "E"]],
+  "height": 540
+}
+```
+
+每个点上方标着当前入度——还欠几个前置。**「消去入度为 0 的点 ▶」**取走一个可开工的点、写进底部输出序列，同时它的每条出边让下游入度减一；刚降到 0 的点会亮起绿色，表示「可开工」。
+
+走几步就会遇到分叉：A 走完后 B 和 C 的入度同时归零，面板「可开工队列」列出两个候选——**此时先取谁都合法**，所以拓扑序通常不唯一，这就是它的第一条性质。按**「制造一个环」**加一条回边，会有节点永远等不到入度 0，底部输出长度到不了 $n$：**输出长度小于 $n$ 就是有环的判据**，也是 DAG 检测的全部原理。
+
+### 实验 2（python）：Kahn 算法反复移除入度为零的点
+
 ```python title="Kahn 算法：反复移除入度为零的点"
-indegree={"A":0,"B":1,"C":1,"D":2,"E":1}
-children={"A":["B","C"],"B":["D"],"C":["D"],"D":["E"],"E":[]}
-order=[]
-available=[name for name in indegree if indegree[name]==0]
-while available:
-    current=available.pop(0)
+indegree={"A":0,"B":1,"C":1,"D":2,"E":1}     # 每个点还欠几个前置
+children={"A":["B","C"],"B":["D"],"C":["D"],"D":["E"],"E":[]}   # 邻接表：谁依赖谁
+order=[]                                    # 输出序列
+available=[name for name in indegree if indegree[name]==0]   # 列表推导挑出可开工的点
+while available:                            # 还有可开工的点就继续
+    current=available.pop(0)                # pop(0) 从队首取出，保证先进先出
     order.append(current)
-    for child in children[current]:
+    for child in children[current]:         # 逐条删掉它的出边
         indegree[child]-=1
         if indegree[child]==0:
-            available.append(child)
+            available.append(child)         # 刚降到 0 的点加入队列
 print(order)
 ```
 

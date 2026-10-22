@@ -59,7 +59,24 @@ exits:
 
 ## 5. 动手实验
 
-### 实验 1（python）：给闸机装上两格记忆
+### 实验 1（lab）：亲手把闸机跑一遍
+
+```lab
+{
+  "type": "aut-fsm-runner",
+  "title": "闸机只有两个状态：这一格填的是「这张票用过没有」",
+  "machine": "turnstile",
+  "input": "投通投通通"
+}
+```
+
+先按「单步」一格一格喂：读到「投」时从**锁住**跳到**放行**并填色；再读「通」又跳回锁住。两个状态就是这台机器的全部记忆。
+
+- 走完五格：`投` 锁住→放行、`通` 放行→锁住、`投` 锁住→放行、`通` 放行→锁住、最后一个 `通` 落在**锁住**状态上——两个状态之间的边只有这四条，没有第五条；
+- 顶部分段器有四台机器可切。切到「a 的个数 mod 3（3 态）」：三个状态只记得住「a 的个数除 3 的余数」，记不住「具体几个」——这正是本节选读里「有限」二字的含金量。注意**切机器时输入带会整条换掉**，因为字母表从「投/通」变成了「a/b」，旧串在新机器里一个合法符号都没有；
+- 想验证「状态就是历史摘要」，只要看读数条里的「已读输入」：机器没存这串字符，它只存了当前落在哪个状态。
+
+### 实验 2（python）：给闸机装上两格记忆
 
 ```python title="闸机状态逐步转移"
 state = "locked"              # 初始状态：locked 表示锁住
@@ -76,19 +93,19 @@ for action in actions:        # for 会依次取出列表中的每个动作
 
 默认序列会经历放行、锁定、放行、放行、锁定。删掉第一个 `"coin"` 后再运行，开头那个 `"pass"` 就打不开门。这就是“历史压缩成一个状态”的力量。
 
-### 实验 2（python）：只回答最后能不能过
+### 实验 3（python）：只回答最后能不能过
 
 ```python title="把过程折叠成最终结论"
-state = "locked"
-events = ["coin", "pass"]
+state = "locked"                   # 初始状态：locked 表示锁住
+events = ["coin", "pass"]          # 要依次投喂的两个事件
 
-for event in events:
-    if state == "locked" and event == "coin":
+for event in events:               # for 依次取出每个事件
+    if state == "locked" and event == "coin":    # 只有「锁住 + 投币」才开门
         state = "open"
-    elif state == "open" and event == "pass":
+    elif state == "open" and event == "pass":    # 只有「放行 + 通过」才重新锁上
         state = "locked"
 
-if state == "open":
+if state == "open":                # 循环结束后只看最后一个状态
     print("有人正在通过")
 else:
     print("闸机关着")

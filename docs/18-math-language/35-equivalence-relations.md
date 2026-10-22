@@ -203,13 +203,13 @@ print(f"等价类 = {sorted(classes)}")
 # @hint: a^2 = b^2 意味着 a = b 或 a = -b
 s = set(range(-10, 11))       # 用有限集近似，range(-10,11) 生成 -10 到 10 的整数
 eq_class_3 = set()
-for a in s:
+for a in s:  # a² = 9 的解正是 3 与 −3，所以等价类 [3] 有两只
     if a * a == 3 * 3:        # 判断 a² 是否等于 3²
         eq_class_3.add(a)
-print(f"[3] = {eq_class_3}")
+print(f"[3] = {eq_class_3}")  # f-string 里直接放 set：花括号来自字符串里的那几个字面花括号，不是字典
 
 eq_class_0 = set()
-for a in s:
+for a in s:  # 0 只和自己等价，[0] 是只含一个元素的等价类
     if a * a == 0 * 0:
         eq_class_0.add(a)
 print(f"[0] = {eq_class_0}")

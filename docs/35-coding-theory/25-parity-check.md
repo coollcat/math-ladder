@@ -136,10 +136,10 @@ $$s=1+1+1+0+0\equiv1\pmod 2.$$
 正确代码是：
 
 ```python
-data = [1, 1, 0, 1]
-received = [1, 1, 1, 0, 0]
-parity = sum(data) % 2
-syndrome = sum(received) % 2
+data = [1, 1, 0, 1]           # 待发送的四位数据
+received = [1, 1, 1, 0, 0]    # 收到的五位：数据位后面跟着一位校验位
+parity = sum(data) % 2        # 偶校验位：数据里 1 的个数取模 2
+syndrome = sum(received) % 2  # 校验子：整块 1 的个数取模 2，0 表示通过
 print(f"parity={parity}")
 print(f"syndrome={syndrome}")
 ```

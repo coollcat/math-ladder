@@ -105,15 +105,15 @@ $$y_{n+1}=y_n+\frac h6(k_1+2k_2+2k_3+k_4).$$
 ### 实验 3：Python 手算 Euler 一步
 
 ```python title="一步 Euler 与精确值对照"
-import math
+import math                        # 标准库 math：exp 用来算精确解
 
-def f(t, y):
-    return 3 - y
+def f(t, y):                       # def 定义函数：方程 y'=3-y 的斜率规则
+    return 3 - y                   # 平衡值是 3：y 越接近 3，增长越慢
 
-h = 0.1
-y0 = 1.0
-y1_euler = y0 + h * f(0, y0)
-y_exact = 3 - 2 * math.exp(-0.1)
+h = 0.1                            # 步长：从 t=0 一步走到 t=0.1
+y0 = 1.0                           # 初值 y(0)=1
+y1_euler = y0 + h * f(0, y0)       # 显式 Euler：按起点斜率直线外推一步
+y_exact = 3 - 2 * math.exp(-0.1)   # 解析解 y=3-2e^(-t) 在 t=0.1 处的值
 error = y_exact - y1_euler
 print(round(y1_euler, 3))
 print(round(y_exact, 3))
@@ -127,25 +127,25 @@ print(round(error, 3))
 仍用 $y'=3-y$、$y(0)=1$ 和 $h=0.1$。RK4 采样四个斜率：
 
 ```python title="一步 RK4 与精确值对照"
-import math
+import math                     # 标准库 math：exp
 
-def f(t, y):
+def f(t, y):                    # 与实验 3 相同的斜率规则
     return 3 - y
 
-h = 0.1
-y = 1.0
-k1 = f(0, y)
-k2 = f(0 + h / 2, y + h * k1 / 2)
-k3 = f(0 + h / 2, y + h * k2 / 2)
-k4 = f(0 + h, y + h * k3)
-y = y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
-y_exact = 3 - 2 * math.exp(-0.1)
+h = 0.1                         # 步长与实验 3 保持一致，才好比较精度
+y = 1.0                         # 当前值：从初值出发
+k1 = f(0, y)                    # 第一刀：起点处的斜率
+k2 = f(0 + h / 2, y + h * k1 / 2)   # 第二刀：先按 k1 走到半步中点，再取样
+k3 = f(0 + h / 2, y + h * k2 / 2)   # 第三刀：同样在中点，改用 k2 试探
+k4 = f(0 + h, y + h * k3)           # 第四刀：按 k3 走到整步终点取样
+y = y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6   # 加权平均：中间两刀各算两份，最后除以 6 归一
+y_exact = 3 - 2 * math.exp(-0.1)        # 精确值，用来量误差
 error = y_exact - y
-print(k1)
+print(k1)                       # 逐个打印四个斜率，便于核对采样点
 print(k2)
 print(k3)
 print(k4)
-print(round(y, 6))
+print(round(y, 6))              # 保留六位小数：RK4 的精度要高一个量级才看得出来
 print(f"{error:.7f}")   # .7f 表示固定显示 7 位小数
 ```
 
@@ -159,17 +159,17 @@ print(f"{error:.7f}")   # .7f 表示固定显示 7 位小数
 # @check: 1.19
 # @check: -0.01
 # @hint: 方程是 y'=3-y；在 (0,1) 处斜率是 2，不是 4。
-import math
+import math                       # 标准库 math：exp
 
-def f(t, y):
-    return 3 + y
+def f(t, y):                      # 斜率规则：先核对它和方程 y'=3-y 是否一致
+    return 3 + y                  # ← 这条规则和题目给的方程对不上
 
-h = 0.1
-y0 = 1.0
-y1_euler = y0 + h * f(0, y0)
-y_exact = 3 - 2 * math.exp(-0.1)
+h = 0.1                           # 步长
+y0 = 1.0                          # 初值 y(0)=1
+y1_euler = y0 + h * f(0, y0)      # 显式 Euler 走一步
+y_exact = 3 - 2 * math.exp(-0.1)  # 精确解在 t=0.1 的值
 error = y_exact - y1_euler
-print(round(y1_euler, 3))
+print(round(y1_euler, 3))         # 第一行与 @check 对位
 print(round(y_exact, 3))
 print(round(error, 3))
 ```
@@ -180,19 +180,19 @@ print(round(error, 3))
 修正规则：
 
 ```python
-import math
+import math     # 标准库 math：exp 算解析解
 
-def f(t, y):
+def f(t, y):    # 方程 y'=3−y 的右端
     return 3 - y
 
-h = 0.1
-y0 = 1.0
-y1_euler = y0 + h * f(0, y0)
-y_exact = 3 - 2 * math.exp(-0.1)
-error = y_exact - y1_euler
-print(round(y1_euler, 3))
-print(round(y_exact, 3))
-print(round(error, 3))
+h = 0.1         # 步长：只走一步，正好走到 t=0.1
+y0 = 1.0        # 初值 y(0)=1
+y1_euler = y0 + h * f(0, y0)   # 显式 Euler：用起点斜率外推一步
+y_exact = 3 - 2 * math.exp(-0.1)   # 解析解在 t=0.1 的值
+error = y_exact - y1_euler   # 误差：解析解减数值解
+print(round(y1_euler, 3))   # 第一行：数值解
+print(round(y_exact, 3))    # 第二行：真值
+print(round(error, 3))      # 第三行：一步的误差
 ```
 
 Euler 一步：

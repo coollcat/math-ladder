@@ -234,12 +234,12 @@ plt.legend()
 # @title: 练习：计算 Gamma 和 Beta 分布的均值
 # @check: Gamma mean: 2.5
 # @check: Beta mean: 0.4
-# @hint: Gamma 均值 = alpha/beta，Beta 均值 = a/(a+b)
+# @hint: 回到 §3 的密度公式：Gamma 的均值是 alpha 除以速率参数；Beta 的均值是 a 占 a+b 的比例
 from scipy.stats import gamma, beta
 
 # Gamma(5, 2) 的均值
 alpha, beta_rate = 5, 2
-gamma_mean = alpha / beta_rate  # ← 检查公式是否正确
+gamma_mean = alpha * beta_rate  # ← 问题在这：均值是 alpha 乘 beta 还是除 beta？
 
 # Beta(2, 3) 的均值
 a, b = 2, 3

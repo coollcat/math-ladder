@@ -96,18 +96,20 @@ $$f(x,y)=2x^2+3y^2+xy.$$
 
 ```python title="由二阶偏导分类"
 def f(x, y):
-    return 2 * x * x + 3 * y * y + x * y
+    return 2 * x * x + 3 * y * y + x * y   # 被分类的二元函数
 
-x = 0.0
+x = 0.0          # 待判定的临界点（本函数在原点梯度为零）
 y = 0.0
-h = 0.0001
+h = 0.0001       # 差分步长
+# 二阶中心差分：分子要减两次"中心值"，再除以 h²
 fxx = (f(x + h, y) - 2 * f(x, y) + f(x - h, y)) / (h * h)
 fyy = (f(x, y + h) - 2 * f(x, y) + f(x, y - h)) / (h * h)
+# 混合偏导用四个角点：加对角两个、减另两个，分母是 4h²
 fxy = (f(x + h, y + h) - f(x + h, y - h) - f(x - h, y + h) + f(x - h, y - h)) / (4 * h * h)
-det = fxx * fyy - fxy * fxy
-print([round(fxx, 3), round(fxy, 3)])
-print([round(fxy, 3), round(fyy, 3)])
-status = "local minimum" if det > 0 and fxx > 0 else "not minimum"
+det = fxx * fyy - fxy * fxy   # 二阶行列式 ad - bc（对称矩阵里 b = c = fxy）
+print([round(fxx, 3), round(fxy, 3)])   # 矩阵第一行
+print([round(fxy, 3), round(fyy, 3)])   # 第二行
+status = "local minimum" if det > 0 and fxx > 0 else "not minimum"   # 条件表达式 + and：两条件都成立才算极小
 print(status)
 ```
 
@@ -124,20 +126,20 @@ print(status)
 # @check: local minimum
 # @hint: fxx 是 2x² 的二阶导；fyy 是 3y² 的二阶导；交叉项 xy 各求一次。注意初始代码的分类条件写反了：行列式为正且 fxx>0 应输出 local minimum。
 def f(x, y):
-    return 2 * x * x + 3 * y * y + x * y
+    return 2 * x * x + 3 * y * y + x * y   # 原函数
 
-x = 0.0
+x = 0.0          # 临界点
 y = 0.0
-h = 0.0001
-fxx = 2
-fxy = 1
-fyy = 3
-det = fxx * fyy - fxy * fxy
+h = 0.0001       # 步长（本题直接代公式，用不到差分）
+fxx = 2          # ← f_xx 取这个值对吗？2x² 的二阶导是多少
+fxy = 1          # 交叉项 xy 先对 x 再对 y：系数 1
+fyy = 3          # ← f_yy 取这个值对吗？3y² 的二阶导是多少
+det = fxx * fyy - fxy * fxy   # 行列式
 # A if 条件 else B 表示：条件成立取 A，否则取 B。
-status = "saddle" if det > 0 else "local minimum"
-print([fxx, fxy])
-print([fxy, fyy])
-print(status)
+status = "saddle" if det > 0 else "local minimum"   # ← 分到"鞍点"的条件对吗？
+print([fxx, fxy])   # 第一行
+print([fxy, fyy])   # 第二行
+print(status)       # 分类结论
 ```
 
 <details>
@@ -146,9 +148,9 @@ print(status)
 二阶偏导：
 
 ```python
-fxx = 4
-fxy = 1
-fyy = 6
+fxx = 4   # 2x² 的二阶导
+fxy = 1   # 交叉项 xy：先对 x 再对 y
+fyy = 6   # 3y² 的二阶导
 ```
 
 行列式：
@@ -162,11 +164,11 @@ det=4*6-1*1=23
 完整判定还要同时反转初始代码中的分类条件：
 
 ```python
-fxx = 4
-fxy = 1
-fyy = 6
-det = fxx * fyy - fxy * fxy
-status = "local minimum" if det > 0 and fxx > 0 else "not a local minimum"
+fxx = 4     # 对角元 1
+fxy = 1     # 交叉项（对称矩阵里 fxy = fyx）
+fyy = 6     # 对角元 2
+det = fxx * fyy - fxy * fxy   # 行列式 23 > 0
+status = "local minimum" if det > 0 and fxx > 0 else "not a local minimum"   # 两条件同时成立才判极小
 print([fxx, fxy])
 print([fxy, fyy])
 print(status)

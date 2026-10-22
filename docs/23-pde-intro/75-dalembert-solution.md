@@ -92,16 +92,16 @@ $$u(x,t)=\frac{f(x-at)+f(x+at)}{2}+\frac{1}{2a}\int_{x-at}^{x+at}g(s)\,ds.$$
 ### 实验 2：初速度贡献的面积账
 
 ```python title="g=1 时初速度扫出的位移"
-a = 1.0        # 波速
-x = 2.0        # 观察点
-t = 1.5        # 时刻
+a = 1.0        # 波速：决定扰动传播多快
+x = 2.0        # 观察点位置
+t = 1.5        # 观察时刻
 
 # 积分区间 [x-a*t, x+a*t] 的长度：扫过的"底边"
-width = (x + a * t) - (x - a * t)
+width = (x + a * t) - (x - a * t)   # 积分区间 [x-at, x+at] 的长度（扫过的"底边"）
 # g 恒为 1 时面积就是底边乘高，再乘系数 1/(2a)
-u_velocity = (1 / (2 * a)) * width * 1.0
-print(round(width, 3))
-print(round(u_velocity, 3))
+u_velocity = (1 / (2 * a)) * width * 1.0   # g 恒为 1 时面积就是底边乘高，再乘系数 1/(2a)
+print(round(width, 3))         # round(值, 3)：保留三位小数
+print(round(u_velocity, 3))    # 速度项贡献的位移
 ```
 
 输出 `3.0` 和 `1.5`。初速度处处为 1 时，位移恰好是 $t$：整条弦被匀速抬起，与扫过面积成正比。
@@ -109,22 +109,22 @@ print(round(u_velocity, 3))
 ### 实验 3：闭式解逐点核对
 
 ```python title="数值采样对照公式"
-import math
+import math    # 标准库 math：sin 用来给出初始位移
 
 a = 1.0        # 波速
 x = 1.0        # 观察点
-t = 0.7        # 时刻
+t = 0.7        # 观察时刻
 
 def f(s):      # def 定义函数：给定 s 返回初始位移 sin(s)
     return math.sin(s)
 
 # 达朗贝尔公式：g=0 时只剩对半分的位移项
-u_formula = 0.5 * (f(x - a * t) + f(x + a * t))
-u_standing = math.sin(x) * math.cos(t)   # 例 2 的驻波形式
-diff = u_formula - u_standing
-print(round(u_formula, 3))
-print(round(u_standing, 3))
-print(round(diff, 3) + 0.0)
+u_formula = 0.5 * (f(x - a * t) + f(x + a * t))   # 达朗贝尔公式：g=0 时只剩两影子的平均
+u_standing = math.sin(x) * math.cos(t)   # 例 2 的驻波形式，用来交叉验证
+diff = u_formula - u_standing             # 两种写法之差，应为 0
+print(round(u_formula, 3))   # round(值, 3)：保留三位小数
+print(round(u_standing, 3))  # 第二行：驻波写法
+print(round(diff, 3) + 0.0)  # 第三行：两式之差；加 0.0 把 -0.0 规范成 0.0
 ```
 
 输出 `0.644`、`0.644`、`0.0`。闭式搬运与驻波形式在每一点重合：两种写法是同一个解。
@@ -139,17 +139,17 @@ print(round(diff, 3) + 0.0)
 # @hint: 影子位置是 x-a*t 与 x+a*t；g=0 时没有面积项，u 是两个影子位移的平均。
 a = 1.0        # 波速
 x = 2.0        # 观察点
-t = 1.0        # 时刻
+t = 1.0        # 观察时刻
 
-s_l = x + a * t       # ← 有错一：左影子沿左特征线回溯，应是 x-a*t
-s_r = x - a * t       # ← 有错二：右影子沿右特征线回溯，应是 x+a*t
-print(round(s_l, 3))
-print(round(s_r, 3))
+s_l = x + a * t       # ← 左影子沿左特征线回溯，应是 x-a*t
+s_r = x - a * t       # ← 右影子沿右特征线回溯，应是 x+a*t
+print(round(s_l, 3))   # 第一行与 @check 对位
+print(round(s_r, 3))   # 第二行与 @check 对位
 
-f_l = s_l ** 2        # 初始形状 f(s)=s 的平方在左影子的取值
+f_l = s_l ** 2        # ** 是幂运算：初始形状 f(s)=s² 在左影子的取值
 f_r = s_r ** 2
-u = f_l + f_r         # ← 有错三：达朗贝尔公式取平均，别忘除以 2
-print(round(u, 3))
+u = f_l + f_r         # ← 达朗贝尔公式取平均，别忘除以 2
+print(round(u, 3))     # 第三行与 @check 对位
 ```
 
 <details>
@@ -158,16 +158,16 @@ print(round(u, 3))
 修正后的搬运账本：
 
 ```python
-a = 1.0
-x = 2.0
-t = 1.0
+a = 1.0          # 波速
+x = 2.0          # 观察点
+t = 1.0          # 观察时刻
 
-s_l = x - a * t
-s_r = x + a * t
+s_l = x - a * t  # 修正后：左影子回溯到 x − at
+s_r = x + a * t  # 右影子回溯到 x + at
 print(round(s_l, 3))     # 1.0
 print(round(s_r, 3))     # 3.0
 
-u = (s_l ** 2 + s_r ** 2) / 2
+u = (s_l ** 2 + s_r ** 2) / 2   # 修正后：两个影子取平均
 print(round(u, 3))       # 5.0
 ```
 

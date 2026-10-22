@@ -141,7 +141,7 @@ Sf = 1400e6                  # Basquin 强度系数（帕）
 b = -0.085                   # Basquin 指数（负数）
 Se = 280e6                   # 疲劳极限（帕）
 Sut = 800e6                  # 抗拉强度（帕）
-sa = 350e6                   # 工作应力幅（帕）
+sa = sa * 1e6                # 滑块给的是 MPa（默认 350），换算成 Pa
 sm = 100e6                   # 工作平均应力（帕）
 
 
@@ -149,6 +149,7 @@ def life(S):                 # 由 Basquin 反解寿命：N = (S/Sf)^(1/b)
     return (S / Sf) ** (1 / b)
 
 
+print(f"工作应力幅 σa = {sa / 1e6:.0f} MPa")
 print("σa(MPa)   寿命")
 for mp in [220, 280, 350, 400, 500]:
     S = mp * 1e6

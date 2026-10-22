@@ -64,8 +64,8 @@ def my_abs(x):        # 自定义函数，第 0 章约定四见过
     else:             # else：条件不成立走另一支
         return -x     # 取相反数，负变正
 
-print(my_abs(-7))
-print(my_abs(3))
+print(my_abs(-7))   # 调用函数：括号里填的是实参；机器吐出什么，print 就打印什么
+print(my_abs(3))    # 同一台机器换个数再投一次——同样的输入永远得到同样的输出
 ```
 
 宣布：这台机器太常用，Python 自带成品 `abs()`。以后不必再自己造。
@@ -96,13 +96,13 @@ print(my_abs(3))
 ### 实验 1：三个函数在一排数上的行为表格
 
 ```python title="一排数过三关"
-import math  # 老朋友 math（第 3 章引入）：这回请出住在里面的 floor 和 ceil
+import math  # import 把 math 模块整包请进来，之后靠"模块名.函数名"取用里面的东西；第 3 章引入，这回请出住在里面的 floor 和 ceil
 
-numbers = [-2.5, -1.2, 0, 0.8, 2.9, 3]
+numbers = [-2.5, -1.2, 0, 0.8, 2.9, 3]   # 一排正负混编的样本：整数与小数都有，才好看出三兄弟的分歧
 
-for n in numbers:
+for n in numbers:   # for 逐个取出列表元素交给 n；不用写计数器，列表走完自动停
     # 三兄弟首次同台：abs 距离、math.floor 向左取整、math.ceil 向右取整
-    print(f"x={n}   abs={abs(n)}   floor={math.floor(n)}   ceil={math.ceil(n)}")
+    print(f"x={n}   abs={abs(n)}   floor={math.floor(n)}   ceil={math.ceil(n)}")   # f-string：引号前加 f，花括号里的表达式先算好再填进字符串，一行就能拼出一整行表
 ```
 
 逐行读表：正小数的 floor 是左边那个整数；负小数的 floor 会"跌到更小的整数"——这正是向左的含义。而 ceil 对每个数都给出右边那个整数。
@@ -116,7 +116,7 @@ import math   # floor 和 ceil 住在 math 模块里
 
 # sliders: x=2.6 [-5:5:0.1]
 # x 由滑块注入，步长 0.1，可扫过正负小数
-print(f"x = {x}")
+print(f"x = {x}")                     # f-string：花括号里写变量名，打印时自动换成当前值
 print(f"abs(x)   = {abs(x)}")           # 距离：永远非负
 print(f"floor(x) = {math.floor(x)}")    # 向左踩到最近的整数
 print(f"ceil(x)  = {math.ceil(x)}")     # 向右够到最近的整数
@@ -152,9 +152,9 @@ print(f"round(x) = {round(x)}")         # 四舍五入：只认最近的那个
 import math
 import matplotlib.pyplot as plt
 
-for k in range(-4, 5):
-    plt.plot([k, k + 1], [k, k], color="steelblue", linewidth=2.5)
-plt.plot([-4, 5], [-4, 5], linestyle="--", color="tomato", label="y = x")
+for k in range(-4, 5):   # 取 -4…4：每级台阶占一个单位宽的横段，所以起点要走到 -4、终点到 5 才能铺满
+    plt.plot([k, k + 1], [k, k], color="steelblue", linewidth=2.5)   # 每轮画一段水平线：横坐标从 k 到 k+1，纵坐标不变；linewidth 是线粗
+plt.plot([-4, 5], [-4, 5], linestyle="--", color="tomato", label="y = x")   # linestyle 指定实线/虚线（"--" 是虚线），label 供图例使用
 plt.legend()
 plt.grid(True)
 ```
@@ -193,9 +193,9 @@ floor(-2.5) 等于几？
 # @check: 7
 # @check: 2
 # @hint: 第一行：距离永远不带负号，检查是不是多带了个负号。第二行：floor 向左取整，别用成 ceil
-import math
-print(-abs(7))
-print(math.ceil(2.9))
+import math            # math.ceil 住在 math 模块里，用之前必须先导入
+print(-abs(7))         # abs(x) 直接给绝对值（距离）；前面那个 - 是另一步"取相反数"，两件事别搅在一起
+print(math.ceil(2.9))  # math.ceil(x)：向右（向上）够到最近的整数，注意它和 floor 方向相反
 ```
 
 **练习 2**：打印 $|3-8|$ 和 $|8-3|$，并解释为什么它们相等。

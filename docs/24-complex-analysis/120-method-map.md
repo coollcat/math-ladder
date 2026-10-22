@@ -37,7 +37,7 @@ exits:
 
 三条线的枢纽都是解析刚性：一点附近的规整会决定很远处的形状。
 
-## 3. 方法速查表
+## 3. 各定理的适用条件速查表
 
 | 问题症状 | 首选工具 | 判断关键 |
 | --- | --- | --- |
@@ -88,23 +88,23 @@ $a<0$ 是左半平面稳定模式，$a=0$ 是纯振荡边界，$a>0$ 是右半�
 ### 实验 2（python）：写一个迷你选路器
 
 ```python title="根据问题特征推荐方法"
-def recommend(has_singularity, closed_path):
-    if has_singularity and closed_path:
-        return "residue-theorem"
-    if has_singularity:
+def recommend(has_singularity, closed_path):   # def 定义函数：两个布尔输入决定用哪个工具
+    if has_singularity and closed_path:   # and 要求两侧同时为真
+        return "residue-theorem"          # 有奇点又走闭路：留数定理最省事
+    if has_singularity:               # 走到这里说明上一条不满
         return "laurent-series"
-    if closed_path:
+    if closed_path:                   # 无奇点但走闭路
         return "cauchy-goursat"
-    return "local-power-series"
+    return "local-power-series"       # 兜底：局部展开
 
-cases = [
+cases = [                       # 二维列表：每个内层列表是一组输入
     [False, False],
     [False, True],
     [True, False],
     [True, True],
 ]
-for has_hole, is_closed in cases:
-    print(recommend(has_hole, is_closed))
+for has_hole, is_closed in cases:   # 元组解包：把每组两个值分别交给两个变量
+    print(recommend(has_hole, is_closed))   # 打印推荐结果
 ```
 
 输出依次是局部幂级数、Cauchy 定理、Laurent 分析、留数定理。真实解题还要检查方向、区域和收敛域。
@@ -140,12 +140,12 @@ for has_hole, is_closed in cases:
 # @check: laurent-series
 # @check: residue-theorem
 # @hint: 分别对应局部可导、局部逼近、奇点分类、闭路净额。
-answers = ["residue-theorem", "cauchy-riemann", "laurent-series", "power-series"]
-targets = ["check differentiability", "approximate near center", "classify isolated hole", "evaluate closed contour"]
-for task in targets:
+answers = ["residue-theorem", "cauchy-riemann", "laurent-series", "power-series"]   # 候选工具清单（顺序待调整）
+targets = ["check differentiability", "approximate near center", "classify isolated hole", "evaluate closed contour"]   # 四个任务的描述
+for task in targets:            # 逐个任务处理
     # index 查出当前任务在列表中的序号
-    number = targets.index(task)
-    print(answers[number])
+    number = targets.index(task)   # index 返回该元素在列表中的序号（从 0 开始）
+    print(answers[number])         # 用同一个序号去 answers 里取值：两边顺序必须一一对应
 ```
 
 <details>

@@ -197,21 +197,21 @@ F(x,y)=x²+y²-1=0，在点 (1,0) 处能否用隐函数定理把 y 表示为 x �
 
 ```exercise
 # @title: 复数平方映射的 Jacobian
-# @check: det(J) = 4*(x^2 + y^2)
-# @check: det=0 仅在原点 (0,0)
-# @hint: J = [[2x, -2y], [2y, 2x]]
-import numpy as np
+# @check: (1,0): det = 4.0
+# @check: (0,1): det = 4.0
+# @check: (1,1): det = 8.0
+# @check: (0,0): det = 0.0
+# @hint: J = [[2x, -2y], [2y, 2x]]，行列式是 ad − bc —— 注意 -2y 与 2y 相乘那一项的符号。
+import numpy as np  # numpy 用 np 作别名是社区惯例，省得每次写全名
 
-def jacobian(x, y):
-    return np.array([[2*x, -2*y], [2*y, 2*x]])
+def jacobian(x, y):  # 2×2 Jacobian：第一行对 x 求偏导，第二行对 y 求偏导
+    return np.array([[2*x, 2*y], [2*y, 2*x]])   # ← 问题在这：四个偏导的符号都对吗？
 
-# 计算几个点的行列式
+# 算四个点的行列式：原点那行应当恰好为 0
 for (x, y) in [(1, 0), (0, 1), (1, 1), (0, 0)]:
     J = jacobian(x, y)
-    det = np.linalg.det(J)
-    print(f"({x},{y}): det = {det:.1f}")
-
-print("det = 0 仅在原点 → 除原点外处处局部可逆")
+    det = np.linalg.det(J)  # np.linalg.det 直接算行列式，不用手写 ad − bc
+    print(f"({x},{y}): det = {det:.1f}")  # :.1f 保留一位小数
 ```
 
 **练习 2**：$F(x, y, z) = x^2 + y^2 + z^2 - 1 = 0$。在点 $(\frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}})$ 处，能否把 $z$ 表示为 $(x, y)$ 的函数？

@@ -192,6 +192,8 @@ $\theta_i = 10000^{-2i/8} = 10000^{-i/4}$
 
 ```exercise
 # @title: 实现 RoPE 旋转
+# @check: 原始范数: 5.0000
+# @check: 旋转范数: 5.0000
 # @check: norm preserved: True
 # @hint: q1*cos - q2*sin, q1*sin + q2*cos
 import numpy as np
@@ -202,8 +204,8 @@ def apply_rope_pair(q_pair, angle):
     cos_a = np.cos(angle)
     sin_a = np.sin(angle)
     # 请补全旋转后的两个分量
-    out1 = q1       # ← 修复
-    out2 = q2       # ← 修复
+    out1 = q1 - q2  # ← 修复：这个"旋转"只做加减，长度会变
+    out2 = q1 + q2  # ← 修复
     return np.array([out1, out2])
 
 # 验证：旋转不改变向量长度

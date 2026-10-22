@@ -195,24 +195,23 @@ z^5 + 3z + 1 在 |z|<2 内有几个零点？
 **练习 1**：用 Rouché 定理证明 $z^4 + z^3 + 1$ 在 $|z| < 2$ 内有 4 个零点。
 
 ```exercise
-# @title: Rouché 定理练习
-# @check: 在 |z|=2 上 |z^3 + 1| <= 9
-# @check: 在 |z|=2 上 |z^4| = 16
-# @check: 9 < 16，Rouché 条件满足
-# @hint: 设 f(z) = z^4，g(z) = z^4 + z^3 + 1
+# @title: Rouché 定理的数值验证
+# @check: max|g-f| = 2.0
+# @check: min|f|   = 8.0
+# @check: 条件满足: True
+# @hint: 直接在 |z|=2 上密采样算模，别用三角不等式估。比较的是 max|g−f| 与 **min**|f|——取哪个界？
 import numpy as np
 
-# 在 |z| = 2 上验证
 R = 2
-# |g - f| = |z^3 + 1|
-max_diff = R**3 + 1             # 三角不等式上界
-mod_f = R**4                    # |z^4| = 16
+theta = np.linspace(0, 2*np.pi, 400000, endpoint=False)   # 在 |z|=2 上均匀密采样
+z = R * np.exp(1j * theta)                                # exp：复数指数，落在半径为 R 的圆上
 
-print(f"|z^3 + 1| <= {max_diff}")
-print(f"|z^4| = {mod_f}")
-print(f"{max_diff} < {mod_f} → Rouché 条件满足")
-print(f"z^4 有 4 个零点（重数 4，在原点）")
-print(f"结论：z^4 + z^3 + 1 在 |z|<2 内有 4 个零点")
+f = z**4 + 2*z**2          # 主项：在 |z|=2 上模长至少 8
+g = f + 0.5*z + 1          # 扰动项 0.5z + 1，模长最多 2
+
+print(f"max|g-f| = {np.abs(g-f).max():.1f}")
+print(f"min|f|   = {np.abs(f).max():.1f}")   # ← 问题在这：要的是模的下界还是上界？
+print(f"条件满足: {np.abs(g-f).max() < np.abs(f).min()}")
 ```
 
 **练习 2**：$e^z = 4z$ 在 $|z| < 1$ 内有几个解？

@@ -255,7 +255,8 @@ import math
 eigenvalues = [0.5, 0.5, 0.0]   # 纯态分量的特征值是 0，0·log0 按约定记 0
 S = 0.0
 for lam in eigenvalues:
-    S = S - lam * math.log2(lam)     # ← 这里没检查 lam 是否为正
+    if lam > 1:                    # ← 判断条件写错了：0 该跳过，1 不是门槛
+        S = S - lam * math.log2(lam)
 print(round(S, 6))
 ```
 
@@ -281,21 +282,21 @@ $$S(\rho) = -\tfrac23\log_2\tfrac23 - \tfrac13\log_2\tfrac13 \approx 0.9183 \tex
 **而发送 3 个等概率消息需要 $\log_2 3 \approx 1.585$ bit**——**缺口近 42%**，无法可靠区分。
 
 ```python
-import math
-def entropy_2x2(rho):
+import math  # import math 只为 log2 与 sqrt；下面要用它算冯·诺依曼熵
+def entropy_2x2(rho):  # 复用同一个 2×2 熵函数：特征值由迹与行列式解二次方程得到
     a, b = rho[0][0], rho[0][1]
     c, d = rho[1][0], rho[1][1]
-    tr, de = a + d, a * d - b * c
-    root = math.sqrt(max(tr * tr - 4 * de, 0))
+    tr, de = a + d, a * d - b * c  # a、d 是迹的对角贡献；det = ad − bc 是 2×2 行列式
+    root = math.sqrt(max(tr * tr - 4 * de, 0))  # max(…, 0) 防浮点把判别式算成极小负数，再开方就安全
     S = 0.0
     for lam in ((tr + root)/2, (tr - root)/2):
         if lam > 1e-12:
-            S -= lam * math.log2(lam)
+            S -= lam * math.log2(lam)  # -= 首现：S = S - … 的原位简写，语义完全等价
     return S
 
-print("平均态熵 =", round(entropy_2x2([[0.5, 1/6], [1/6, 0.5]]), 6))
-print("需要的比特数 =", round(math.log2(3), 6))
-print("缺口 =", f"{(1 - 0.9183/math.log2(3))*100:.1f}%")
+print("平均态熵 =", round(entropy_2x2([[0.5, 1/6], [1/6, 0.5]]), 6))  # 平均态 ρ = (|0><0| + |+><+|)/2 的对角元 1/2、非对角 1/6
+print("需要的比特数 =", round(math.log2(3), 6))  # 经典最优只能做到 log2(3) 比特，量子这边用熵给出下界
+print("缺口 =", f"{(1 - 0.9183/math.log2(3))*100:.1f}%")  # :.1f 首现：格式化浮点为 1 位小数，再拼进百分号
 ```
 
 **这正是量子密码学的基础**：窃听者无法完美区分非正交态，所以任何测量都会留下可检测的扰动。

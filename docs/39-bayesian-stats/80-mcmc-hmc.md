@@ -105,6 +105,7 @@ $$\alpha_{\text{HMC}}=\min\left(1,\ e^{H_{\text{旧}}-H_{\text{新}}}\right)$$
 ### 实验 2（python）：双峰山地上的真实游走
 
 ```python title="RW-MH 游走双峰山：接受率健康，足迹却跛了"
+import math                       # math.exp：双峰目标函数里那个高斯核
 import random                     # 固定种子保证人人同一路径
 import matplotlib.pyplot as plt   # 画图库
 

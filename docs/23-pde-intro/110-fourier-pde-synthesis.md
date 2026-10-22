@@ -93,41 +93,41 @@ $b_2=0$ 不是巧合：这个台阶关于中点 $x=0.5$ 左右对称，而 $\sin
 ### 实验 2：系数谱，以及 Gibbs 过冲的读数
 
 ```python title="打印前六个系数，并分别量「远离跳跃处」与「跳跃处」的误差"
-import math
+import math                    # 标准库 math：sin / pi
 
-def f(x):                                  # 初始形状：0.35 到 0.65 之间是 1，其余是 0
-    return 1.0 if 0.35 < x < 0.65 else 0.0
+def f(x):                                  # def 定义函数：初始形状，0.35 到 0.65 之间是 1，其余是 0
+    return 1.0 if 0.35 < x < 0.65 else 0.0  # 条件表达式：Python 支持链式比较 0.35 < x < 0.65
 
-def coeff(n):                              # 数值积分：把 [0,1] 切成 M 片取中点求和
-    s = 0.0
-    M = 2000
-    for i in range(M):
-        x = (i + 0.5) / M
-        s = s + f(x) * math.sin(n * math.pi * x)
-    return 2.0 * s / M
+def coeff(n):                              # 用中点法数值积分算第 n 个正弦系数
+    s = 0.0                                # 累加器
+    M = 2000                               # 切片数：片数越多积分越准
+    for i in range(M):                     # range(M)：0..M-1
+        x = (i + 0.5) / M                  # 取每片中点，比取端点误差小
+        s = s + f(x) * math.sin(n * math.pi * x)   # 累加 f(x)·sin(nπx)
+    return 2.0 * s / M                     # 乘 2/L（L=1）再除以片数，才是 Fourier 系数
 
 for n in range(1, 7):                      # 打印前六个系数
-    print(n, round(coeff(n), 4))
+    print(n, round(coeff(n), 4))           # 逗号分隔打印编号与系数，保留四位
 
-def trunc(x, N):                           # N 项截断在 x 处的取值
-    s = 0.0
-    for n in range(1, N + 1):
-        s = s + coeff(n) * math.sin(n * math.pi * x)
+def trunc(x, N):                           # 只取前 N 项的部分和，在 x 处的取值
+    s = 0.0                                # 部分和
+    for n in range(1, N + 1):              # 1 到 N，range 的右端不含
+        s = s + coeff(n) * math.sin(n * math.pi * x)   # 逐项叠加
     return s
 
 for N in [1, 3, 9, 25]:                    # 四个截断深度的对比
     far = 0.0                              # 远离跳跃的区段 [0.75, 1] 上的最大误差
-    for i in range(201):
-        x = 0.75 + 0.25 * i / 200
-        diff = abs(f(x) - trunc(x, N))     # abs 取绝对值
-        if diff > far:
+    for i in range(201):                   # 201 个采样点扫这段区间
+        x = 0.75 + 0.25 * i / 200          # 把 [0.75, 1] 均匀铺开
+        diff = abs(f(x) - trunc(x, N))     # abs 取绝对值：只看误差大小
+        if diff > far:                     # 擂主更新
             far = diff
-    peak = 0.0                             # 跳跃点右侧邻域 [0.35, 0.45] 的峰值
-    for i in range(101):
-        x = 0.35 + 0.10 * i / 100
-        if trunc(x, N) > peak:
-            peak = trunc(x, N)
-    print(N, round(far, 3), round(peak, 3))
+    peak = 0.0                             # 跳跃点右侧邻域 [0.35, 0.45] 的峰值（Gibbs 现象）
+    for i in range(101):                   # 101 个采样点
+        x = 0.35 + 0.10 * i / 100          # 铺开邻域
+        if trunc(x, N) > peak:             # 记录最大值
+            peak = trunc(x, N)             # 换擂主
+    print(N, round(far, 3), round(peak, 3))   # 一行三列：项数、远处误差、跳跃处峰值
 ```
 
 第一部分是系数谱：`1 0.578`、`2 0.0`、`3 -0.4192`、`4 -0.0`、`5 0.1801`、`6 0.0`——偶数号全部为零（对称性；`4` 号打印出的 `-0.0` 只是浮点舍入留下的负零），奇数号绝对值递减但减得不快。
@@ -137,24 +137,24 @@ for N in [1, 3, 9, 25]:                    # 四个截断深度的对比
 ### 实验 3：三个时刻的模态幅度表
 
 ```python title="高编号模态按 1/n² 的寿命差迅速掉队"
-import math
+import math                                # 标准库 math：sin / exp / pi
 
 k = 0.1                                    # 热扩散率
 
-def coeff(n):
-    s = 0.0
-    M = 2000
-    for i in range(M):
-        x = (i + 0.5) / M
-        s = s + (1.0 if 0.35 < x < 0.65 else 0.0) * math.sin(n * math.pi * x)
-    return 2.0 * s / M
+def coeff(n):                              # 同一个系数函数（函数体里直接内联了方波）
+    s = 0.0                                # 累加器
+    M = 2000                               # 切片数
+    for i in range(M):                     # 逐片累加
+        x = (i + 0.5) / M                  # 片中点
+        s = s + (1.0 if 0.35 < x < 0.65 else 0.0) * math.sin(n * math.pi * x)   # 条件表达式直接写在表达式里
+    return 2.0 * s / M                     # 归一化：2/L
 
 for t in [0.0, 0.1, 0.5]:                  # 三个时刻
-    amps = []
-    for n in range(1, 4):
+    amps = []                              # 每次循环都新建一个空列表，装该时刻的三个振幅
+    for n in range(1, 4):                  # 前三个模态
         decay = math.exp(-k * (n * math.pi) ** 2 * t)   # 第 n 号模态的衰减因子
         amps.append(round(coeff(n) * decay, 4))         # append 追加到列表尾部
-    print(t, amps)
+    print(t, amps)                         # 打印时刻与三个振幅
 ```
 
 输出 `0.0 [0.578, 0.0, -0.4192]`、`0.1 [0.5237, 0.0, -0.1724]`、`0.5 [0.3529, 0.0, -0.0049]`。到 $t=0.5$，第一号还剩六成，第三号已经只剩千分之五——**细节先死，轮廓后死**。图像模糊、音效变闷、热量摊平，背后都是同一条规律。
@@ -165,23 +165,23 @@ for t in [0.0, 0.1, 0.5]:                  # 三个时刻
 # @title: 练习：给方台阶算前三个系数
 # @check: [0.578, 0.0, -0.419]
 # @hint: 正交归一系数是 2/L（L=1 时就是 2），别写成 1/L；取样点取小区间的中点 (i+0.5)/M。
-import math
+import math      # 标准库 math：sin / pi
 
-def f(x):
-    return 1.0 if 0.35 < x < 0.65 else 0.0
+def f(x):        # 方台阶：0.35 到 0.65 之间取 1
+    return 1.0 if 0.35 < x < 0.65 else 0.0   # 链式比较
 
-def coeff(n):
-    s = 0.0
-    M = 2000
+def coeff(n):    # 中点法算第 n 个系数
+    s = 0.0      # 累加器
+    M = 2000     # 切片数
     for i in range(M):
-        x = (i + 0.5) / M
+        x = (i + 0.5) / M   # 片中点
         s = s + f(x) * math.sin(n * math.pi * x)
     return s / M                           # ← 有错：系数应是 2*s/M，这里漏了因子 2
 
-out = []
-for n in range(1, 4):
-    out.append(round(coeff(n), 3))
-print(out)
+out = []         # 结果账本
+for n in range(1, 4):   # 前三个系数
+    out.append(round(coeff(n), 3))   # 追加到列表
+print(out)       # 与 @check 对位
 ```
 
 <details>
@@ -190,20 +190,20 @@ print(out)
 修正版：
 
 ```python
-import math
+import math      # 标准库 math
 
-def f(x):
+def f(x):        # 方台阶
     return 1.0 if 0.35 < x < 0.65 else 0.0
 
-def coeff(n):
+def coeff(n):    # 修正后的系数
     s = 0.0
     M = 2000
     for i in range(M):
         x = (i + 0.5) / M
         s = s + f(x) * math.sin(n * math.pi * x)
-    return 2.0 * s / M
+    return 2.0 * s / M   # 补上因子 2
 
-out = []
+out = []         # 结果账本
 for n in range(1, 4):
     out.append(round(coeff(n), 3))
 print(out)     # [0.578, 0.0, -0.419]

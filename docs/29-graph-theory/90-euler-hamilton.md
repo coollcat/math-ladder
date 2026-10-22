@@ -58,14 +58,14 @@ Euler 回路关心边：中间点每次都要一进一出，所以奇度点不�
 但回路首尾相接：换个起点出发是同一条回路，反着走一遍也是——得从这 24 种排列里除掉此类重复。Hamilton 回路的计数比排列更挑剔。
 
 ```python title="按度数判断 Euler 回路可行性"
-edges=[["A","B"],["B","C"],["C","D"],["D","A"],["A","C"]]
-degree={"A":0,"B":0,"C":0,"D":0}
-for u,v in edges:
+edges=[["A","B"],["B","C"],["C","D"],["D","A"],["A","C"]]   # 每条边用两个端点表示
+degree={"A":0,"B":0,"C":0,"D":0}      # 字典：先给每个点配一个 0 度
+for u,v in edges:                     # 遍历边，两个端点各加一度
     degree[u]+=1
     degree[v]+=1
-odd=[name for name,value in degree.items() if value%2==1]
+odd=[name for name,value in degree.items() if value%2==1]   # 列表推导筛出奇度点
 print(degree)
-print("euler-circuit:",len(odd)==0)
+print("euler-circuit:",len(odd)==0)   # 奇度点为零，Euler 回路才存在
 ```
 
 :::warning[常见误区]

@@ -131,7 +131,7 @@ $$\sigma \le \frac{\sigma_y}{n} \quad (n \text{ 为安全系数，通常 } 1.5\s
 
 ```python title="应力不是力：面积减半，应力翻倍"
 # sliders: F=40.0 [0:300:1]
-F = 40e3            # 拉力（N）
+F = F * 1e3         # 滑块给的是 kN（默认 40），换算成 N
 area = 600e-6       # 截面积（m²），即 30 × 20 mm
 E = 200e9           # 结构钢弹性模量（Pa）
 sy = 250e6          # 屈服强度（Pa）

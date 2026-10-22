@@ -53,10 +53,11 @@ AGENTS.md（硬规则/红线）
 - [ ] 改章名 / 加删课 / 改 `index.md` → `npm run gen:graph` + `npm run gen:chapters`
 - [ ] 改 `references-data.json` → `node scripts/gen-references.mjs`（`--check` 是闸门）
 - [ ] 加 PDF → `fetch-papers.mjs` 再 `gen-references.mjs`（顺序不能反）
-- [ ] 改 lab 组件 → `node scripts/check-lab-syntax.mjs` + `node scripts/lab-engine-selftest.mjs`
+- [ ] 改 lab 组件 / 加 lab 围栏 → `node scripts/check-lab-syntax.mjs` + `node scripts/lab-engine-selftest.mjs` + `node scripts/check-lab-registry.mjs`（后者查「用了没登记」这类静默空白）
 - [ ] 改章首页收录 → `node scripts/check-index-links.mjs`
 - [ ] 改课内链接 → `node scripts/check-links.mjs`
-- [ ] 改 `/graph` 钻取 → `npm run build` 后 `node scripts/check-graph-drill.mjs`
+- [ ] 改判题式练习 / `@check` → `node scripts/check-answer-leak.mjs`（P0 必须清零；刻意抛错的题要写 `# @expect-error: 原因`）
+- [ ] 改 `/graph` 或 `/tree` → `npm run build` 后 `node scripts/check-graph-drill.mjs`
 - [ ] 改 `enhancer.js` / 浮窗 → 手测 python/quiz/exercise 三类块 + 浮窗开关 + 路由往返无重复注入
 - [ ] 改 `src/css/**` → 996 / 620 两个断点 + 暗色 + reduced-motion
 - [ ] 出包 → `node scripts/check-build-auth.mjs`（打包脚本已串）
@@ -73,13 +74,11 @@ AGENTS.md（硬规则/红线）
 
 | 位置 | 过时之处 | 正确做法 |
 | --- | --- | --- |
-| `ROADMAP.md` 正文 | 引用 `INTERACTION_AUDIT.md` / `KNOWLEDGE_COVERAGE_AUDIT_v2.md` / `PLANNED_NOT_IMPLEMENTED.md`，这些文件已不在仓库根（被 `.gitignore` 挡在 `_ai-workspace/` 之外） | 交互覆盖率以当前代码扫描为准；不要再引用这些文件名 |
-| `CONTENT_AUDIT.md` / `BACKFILL_LOG.md` | 分别写着「779 门」「794 门」的历史快照，与当前正式课数差得远 | 以 `node scripts/validate.mjs` 与 `node scripts/check-chapter-sync.mjs` 输出为准；这两个文件本身只该留「未完成项」 |
-| `ROADMAP.md` 正文 | 引用 `INTERACTION_AUDIT.md` / `KNOWLEDGE_COVERAGE_AUDIT_v2.md` / `PLANNED_NOT_IMPLEMENTED.md`——这三个文件已不在仓库里（`.gitignore` 把它们挡在 `_ai-workspace/` 之外，且目录已清空） | 交互覆盖率以当前代码扫描为准，不要再引用这些文件名 |
+| 三份台账（`ROADMAP.md` / `CONTENT_AUDIT.md` / `BACKFILL_LOG.md`） | ~~引用已移除的 `INTERACTION_AUDIT.md` / `PLANNED_NOT_IMPLEMENTED.md`，并写死「779 门」「794 门」快照~~ **已清**：悬空引用全删，门数一律改成「以命令输出为准」 | 只留「未完成 / 待改善」；门数以 `node scripts/check-chapter-sync.mjs` 为准，缺口分布跑 `scan-gaps.mjs` |
 | `VISION.md` §4 各卷表 | 部分章表仍写「L2→L8 桥」这类旧归层措辞，与 front matter 现状不完全一致（VISION 自称是「规范性应然口径」） | 实际归类以各课 front matter 的 `layer/track/stage` 为准；VISION 不作现状盘点 |
 | `UNIT_GUIDES/*.md` 的状态行 | 多数停在写作当时（「0/18」「全部未写」「目标 N 门」） | 以磁盘章节与 `ROADMAP.md` 为准；那些状态行不是进度依据 |
 | `deploy/README-部署.md` | 小节编号重复：建第一个账号与「首次上线：老账号平移」都编成 4.2 | 按标题文字定位，别按编号 |
-| `scripts/check-links.mjs` / `check-index-links.mjs` | 默认 docs 路径写死成旧机器的绝对路径（`D:/桌面/…`） | 传参运行：`node scripts/check-links.mjs <docs 目录>`，或先改默认值 |
+| `scripts/check-links.mjs` | ~~默认 docs 路径写死成旧机器的绝对路径~~ **已修**：默认解析为 `<仓库根>/docs`，命令行第一参数覆盖；有断链时退出码 1（`--warn` 只报不拦） | 直接 `node scripts/check-links.mjs`；也可 `node scripts/check-links.mjs <docs 目录>` |
 
 ## 留给未来接手的检查项
 

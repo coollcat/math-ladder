@@ -69,11 +69,11 @@ exits:
 蓝线是必要条件允许的边数上限 $3V-6$，橙色虚线是实际边数 $m$。拖动滑块改变 $m$：横线一旦顶到蓝线上方（如 $V=5,m=10$），图必非平面；横线在下方只说明"暂未违规"。
 
 ```python title="检查 V,E 是否违反平面必要条件"
-vertices=5
-edge_count=10
-limit=3*vertices-6
-verdict="bound-ok-not-proof"
-if edge_count>limit:
+vertices=5                       # 顶点数 V
+edge_count=10                    # 实际边数 m
+limit=3*vertices-6               # 平面图的必要条件给出的边上限 3V-6
+verdict="bound-ok-not-proof"     # 默认「没超界」——但这只是暂时没违规
+if edge_count>limit:             # 一旦超界，立刻可以断定非平面
     verdict="nonplanar-by-bound"
 print(limit,verdict)
 ```

@@ -97,16 +97,16 @@ $$A=\begin{pmatrix}2&1\\1&2\end{pmatrix},\qquad T(\vec v)=A\vec v.$$
 ### 实验 3：Python 验证加法保持
 
 ```python title="先加后映射，等于先映射后加"
-def T(point):
-    return [2 * point[0] + point[1],
-            point[0] + 2 * point[1]]
+def T(point):               # 线性映射 T：进一个二维点，出一个二维点
+    return [2 * point[0] + point[1],   # 第一个输出分量 = 2x + y
+            point[0] + 2 * point[1]]   # 第二个输出分量 = x + 2y（换行只是排版，仍在同一个列表里）
 
-u = [1, 2]
+u = [1, 2]      # 两个待相加的向量
 v = [3, -1]
-left = T([u[0] + v[0], u[1] + v[1]])
-right = [T(u)[0] + T(v)[0], T(u)[1] + T(v)[1]]
-print(left)
-print(right)
+left = T([u[0] + v[0], u[1] + v[1]])            # 先加：逐分量求和得新向量，再喂给 T
+right = [T(u)[0] + T(v)[0], T(u)[1] + T(v)[1]]  # 先映射：分别算出 T(u)、T(v)，再把结果逐分量相加
+print(left)     # [9, 6]
+print(right)    # [9, 6]：两行相同 = 加法保持成立
 ```
 
 两行都输出 `[9, 6]`。
@@ -118,16 +118,16 @@ print(right)
 # @check: [3, 3]
 # @check: [1, -1]
 # @check: rank=2
-# @hint: A 的两列是 (2,1) 和 (1,2)；行列式 4-1=3。
-A = [[2, 1], [1, 2]]
+# @hint: 把 T 的定义与 §3 的矩阵乘法逐项对照：A·p 的第 i 个分量就是 A 的第 i 行与 p 点积。再想想可逆矩阵的秩能小到几。
+A = [[2, 1], [1, 2]]   # 映射的矩阵：A[行][列]
 
 def T(point):
-    return [A[0][0] * point[0] - A[0][1] * point[1],
+    return [A[0][0] * point[0] - A[0][1] * point[1],   # ← 第一分量在这里用的是减号吗？
             A[1][0] * point[0] + A[1][1] * point[1]]
 
-print(T([1, 1]))
-print(T([1, -1]))
-print("rank=1")
+print(T([1, 1]))    # 输入 (1,1) 的像
+print(T([1, -1]))   # 输入 (1,-1) 的像
+print("rank=1")     # ← 行列式不为零时，秩该是几？
 ```
 
 <details>
@@ -137,7 +137,7 @@ print("rank=1")
 
 ```py
 def corrected_T(point):
-    return [A[0][0] * point[0] + A[0][1] * point[1],
+    return [A[0][0] * point[0] + A[0][1] * point[1],   # 第一分量改成加号
             A[1][0] * point[0] + A[1][1] * point[1]]
 ```
 

@@ -104,17 +104,17 @@ exits:
 ### 实验 2（python）：分诊台原型机
 
 ```python title="按症状开具科室单"
-def triage(spectrum_mystery, rate_shift, drifting_world, rough_surface):
+def triage(spectrum_mystery, rate_shift, drifting_world, rough_surface):  # def 首现：把「症状 → 方法」的分诊规则封成函数，入参是四个布尔症状
     # 优先级闸门：越结构性的问题越早分流
-    if spectrum_mystery:
+    if spectrum_mystery:  # 频率成分不明先做 DFT，看清谱线再谈滤波
         return "dft-leakage"
-    if rate_shift:
+    if rate_shift:  # 采样率不匹配是结构性问题，走多速率重采样而不是补一个滤波器
         return "multirate-resampling"
-    if drifting_world:
+    if drifting_world:  # 环境本身在漂移，只有自适应滤波能跟着变
         return "adaptive-filter"
-    if rough_surface:
+    if rough_surface:  # 只剩毛刺这类修形需求时，FIR / IIR 的选择就够了
         return "fir-iir"
-    return "convolution-lti"
+    return "convolution-lti"  # 一条都不命中时回到卷积与 LTI 的地基上重新描述问题
 
 cases = [
     ("噪声真假难辨，先开诊单看看频率", True, False, False, False),

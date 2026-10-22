@@ -109,12 +109,12 @@ $$u_n(x,t)=\sin\frac{n\pi x}{L}\;e^{-k\left(\frac{n\pi}{L}\right)^2t}.$$
 ### 实验 2：逐点验算 $u_t = k\,u_{xx}$
 
 ```python title="中心差分验证分离解满足热方程"
-import math
+import math       # 标准库 math：sin / exp / pi
 
 k = 0.1          # 热扩散率
 
 def u(x, t):     # def 定义函数：第 1 号分离解 sin(pi*x)*exp(-k*pi^2*t)
-    return math.sin(math.pi * x) * math.exp(-k * math.pi ** 2 * t)
+    return math.sin(math.pi * x) * math.exp(-k * math.pi ** 2 * t)   # 分离解：空间正弦乘时间指数衰减
 
 x = 0.3          # 位置
 t = 0.5          # 时刻
@@ -122,9 +122,9 @@ h = 0.0001       # 差分步长
 
 ut = (u(x, t + h) - u(x, t - h)) / (2 * h)                  # 时间方向中心差分
 uxx = (u(x + h, t) - 2 * u(x, t) + u(x - h, t)) / (h * h)   # 空间二阶差分
-print(round(u(x, t), 4))
-print(round(ut, 4))
-print(round(k * uxx, 4))
+print(round(u(x, t), 4))   # round(值, 4)：保留四位小数
+print(round(ut, 4))        # 第二行：u_t 的近似
+print(round(k * uxx, 4))   # 第三行：k·u_xx，与上一行相等就说明热方程成立
 ```
 
 输出 `0.4939`、`-0.4875`、`-0.4875`。后两个数一模一样：$u_t$ 与 $k\,u_{xx}$ 严丝合缝。这不是画出来的像，是逐点恒等。
@@ -132,13 +132,13 @@ print(round(k * uxx, 4))
 ### 实验 3：三个模态的寿命表
 
 ```python title="模态编号越大，活得越短"
-import math
+import math     # 标准库 math：pi / log
 
-k = 0.1
+k = 0.1          # 热扩散率
 for n in range(1, 4):        # range(1, 4) 依次生成 1、2、3
-    lam = (n * math.pi) ** 2            # ** 是幂运算：(n*pi) 的平方
-    half = math.log(2) / (k * lam)      # math.log 是自然对数 ln
-    print(n, round(lam, 3), round(half, 4))
+    lam = (n * math.pi) ** 2            # ** 是幂运算：(n·π)²
+    half = math.log(2) / (k * lam)      # math.log 是自然对数 ln：半衰期 = ln2 / 衰减率
+    print(n, round(lam, 3), round(half, 4))   # 逗号分隔一次打印三个值，中间自动加空格
 ```
 
 输出 `1 9.87 0.7023`、`2 39.478 0.1756`、`3 88.826 0.078`。同一根杆上，$n=1$ 的大鼓包能撑 0.7 个时间单位，$n=3$ 的细碎波纹 0.078 就没了。**细节先死，轮廓后死**——这条规律是后面所有模态分析的地基。
@@ -151,18 +151,18 @@ for n in range(1, 4):        # range(1, 4) 依次生成 1、2、3
 # @check: 3.948
 # @check: 0.1756
 # @hint: λ_n 是 (n*pi/L) 的平方，不是 n*pi/L。漏掉平方会让后面两个数一起错，且错得"看起来还算合理"。
-import math
+import math     # 标准库 math：pi / log
 
-L = 1.0          # 杆长
+L = 1.0          # 杆长：决定特征值的间距
 k = 0.1          # 热扩散率
-n = 2            # 模态编号
+n = 2            # 模态编号：题目要求算第 2 号
 
-lam = n * math.pi / L          # ← 有错：λ 是 (n*pi/L)^2，这里漏了平方
-rate = k * lam
-half = math.log(2) / rate
-print(round(lam, 3))
-print(round(rate, 3))
-print(round(half, 4))
+lam = n * math.pi / L          # ← λ 是 (n·π/L)²，这里漏了平方
+rate = k * lam                 # 衰减率 = 扩散率 × 特征值
+half = math.log(2) / rate      # 半衰期：振幅掉到一半所需时间
+print(round(lam, 3))    # 第一行与 @check 对位
+print(round(rate, 3))   # 第二行与 @check 对位
+print(round(half, 4))   # 第三行与 @check 对位
 ```
 
 <details>
@@ -171,13 +171,13 @@ print(round(half, 4))
 修正版：
 
 ```python
-import math
+import math     # 标准库 math：pi / log
 
-L = 1.0
-k = 0.1
-n = 2
+L = 1.0          # 杆长
+k = 0.1          # 热扩散率
+n = 2            # 模态编号
 
-lam = (n * math.pi / L) ** 2
+lam = (n * math.pi / L) ** 2   # 补上平方：这才是特征值 λ_n
 rate = k * lam
 half = math.log(2) / rate
 print(round(lam, 3))     # 39.478

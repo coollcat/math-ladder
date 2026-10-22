@@ -75,34 +75,34 @@ $$\operatorname{ord}(g)=\min\lbrace k>0:g^k=e\rbrace.$$
 每次前进 4 格，落点只在 0、4、8 三格之间打转，这个小圈就是由步长 4 生成的子群。把「每次 +k」调到 5 再连续前进，落点会走遍全部 12 格，一个都不遗漏。
 
 ```python title="从步长生成了集合，再检查子群"
-n = 12
-step = 4
+n = 12          # 模数：这里的群是 0..11 关于加法取模
+step = 4        # 生成元的步长：每次往前走 4 格
 
-cyclic_set = []
-place = 0
-for count in range(n):
-    duplicate = False
-    for old in cyclic_set:
+cyclic_set = []  # 空列表当账本：装生成出来的元素
+place = 0        # 当前位置，从 0 出发
+for count in range(n):   # 最多走 n 步，肯定能走完一圈
+    duplicate = False    # 这一格是不是已经记过了
+    for old in cyclic_set:   # 回头看账本里有没有
         if old == place:
             duplicate = True
-    if duplicate == False:
-        cyclic_set.append(place)
-    place = (place + step) % n
+    if duplicate == False:   # 是新的才 append
+        cyclic_set.append(place)   # append 往列表尾巴上加一个
+    place = (place + step) % n   # % 取余：走到 n 就绕回 0
 
-closed = True
-for a in cyclic_set:
+closed = True    # 封闭性初值
+for a in cyclic_set:   # 集合里任意两个元素
     for b in cyclic_set:
-        result = (a + b) % n
-        inside = False
-        for item in cyclic_set:
+        result = (a + b) % n   # 运算结果仍然取模
+        inside = False         # 结果在不在集合里
+        for item in cyclic_set:   # 逐个比对
             if item == result:
                 inside = True
-        if inside == False:
+        if inside == False:   # 落到集合外 → 不封闭
             closed = False
 
-print("generated:", cyclic_set)
-print("size:", len(cyclic_set))
-print("closed:", closed)
+print("generated:", cyclic_set)   # 逗号分隔打印
+print("size:", len(cyclic_set))   # len 取元素个数，就是子群的阶
+print("closed:", closed)          # 应为 True
 ```
 
 改 `step` 为 5，会得到 12 个元素的大循环；改为 3，会得到大小 4 的子群。所有结果都整除 12。
@@ -115,13 +115,13 @@ print("closed:", closed)
 # @check: order(4)=5
 # @check: order(5)=2
 # @hint: 从 0 开始不断加 step，第一次回到 0 所用步数就是阶。
-n = 10
+n = 10          # 模数
 
-def order(step):
-    return 1
+def order(step):   # def 定义函数：求步长 step 在模 n 下的阶
+    return 1       # ← 现在写死返回 1，还没真的去数
 
-for step in [2, 4, 5]:
-    print("order(" + str(step) + ")=" + str(order(step)))
+for step in [2, 4, 5]:   # 直接遍历列表：依次处理三个步长
+    print("order(" + str(step) + ")=" + str(order(step)))   # 用 + 把字符串和数字拼起来
 ```
 
 <details>

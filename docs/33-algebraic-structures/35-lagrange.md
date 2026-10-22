@@ -81,42 +81,42 @@ $$|G|=[G:H]\cdot|H|,$$
 六个人被三间等大的房间接收：$\lbrace0,3\rbrace$、$\lbrace1,4\rbrace$、$\lbrace2,5\rbrace$。没有谁被漏掉，也没有两间房重叠。
 
 ```python title="枚举陪集并检查划分"
-n = 6
-subgroup = [0, 3]
-whole = [0, 1, 2, 3, 4, 5]
-cosets = []
-covered = []
+n = 6                    # 群阶：整数 0..5 关于模 6 加法
+subgroup = [0, 3]        # 子群 {0,3}：它的阶是拉格朗日定理里的除数
+whole = [0, 1, 2, 3, 4, 5]   # 整个群
+cosets = []              # 陪集账本：每个陪集是一个列表
+covered = []             # 已经盖过戳的元素，避免重复记账
 
-for g in whole:
-    candidate = []
-    for h in subgroup:
-        value = (g + h) % n
-        candidate.append(value)
-        already = False
-        for old in covered:
+for g in whole:          # 用每个元素当代表去生成陪集
+    candidate = []       # 这一次生成的候选陪集
+    for h in subgroup:   # 与子群里的每个元素相加
+        value = (g + h) % n   # 加完取模，保证还落在 0..5
+        candidate.append(value)   # 加进候选陪集
+        already = False           # 这个值盖过戳没有
+        for old in covered:       # 回头看账本
             if old == value:
                 already = True
-        if already == False:
+        if already == False:      # 没盖过才记
             covered.append(value)
-    duplicate = False
-    for old_coset in cosets:
-        same = True
-        for item in old_coset:
+    duplicate = False    # 这个候选陪集是不是已经有同样的了
+    for old_coset in cosets:   # 与已有陪集逐个比对
+        same = True      # 先假定相同
+        for item in old_coset:   # 逐元素核对
             found = False
-            for value in candidate:
+            for value in candidate:   # 注意内层循环变量也叫 value，只在这个小作用域里用
                 if value == item:
                     found = True
-            if found == False:
+            if found == False:   # 有元素找不到 → 不是同一间房
                 same = False
-        if same:
+        if same:             # 全部对上 → 判定重复
             duplicate = True
-    if duplicate == False:
+    if duplicate == False:   # 新的才收进账本
         cosets.append(candidate)
 
-print("cosets:", cosets)
-print("room_size:", len(subgroup))
-print("rooms:", len(cosets))
-print("product:", len(subgroup) * len(cosets))
+print("cosets:", cosets)             # 逗号分隔打印：一共三间房
+print("room_size:", len(subgroup))   # len 取每间房的人数 = 子群阶
+print("rooms:", len(cosets))         # 房间数 = 陪集个数
+print("product:", len(subgroup) * len(cosets))   # 两者相乘正好等于群阶：这就是拉格朗日定理
 ```
 
 输出应为三个大小 2 的陪集，乘积回到 6。把 `subgroup` 改成 `[0,2,4]` 或 `[0]` 再跑一遍。
@@ -129,16 +129,16 @@ print("product:", len(subgroup) * len(cosets))
 # @check: subgroup_order=1
 # @check: number_of_cosets=7
 # @hint: 取平凡子群 {0}。每间房只有一个人，房间数就是群阶。
-n = 7
-subgroup = [1, 3]
+n = 7            # 群阶 7：质数，所以只有平凡子群
+subgroup = [1, 3]   # ← 这不是子群；题目提示应取平凡子群 {0}
 
-group_order = n
-subgroup_order = len(subgroup)
-number_of_cosets = 0
+group_order = n              # 群阶就是 n
+subgroup_order = len(subgroup)   # 子群阶 = 元素个数
+number_of_cosets = 0   # ← 还没算：按拉格朗日定理是 群阶 ÷ 子群阶
 
-print("group_order=" + str(group_order))
-print("subgroup_order=" + str(subgroup_order))
-print("number_of_cosets=" + str(number_of_cosets))
+print("group_order=" + str(group_order))     # 第一行与 @check 对位
+print("subgroup_order=" + str(subgroup_order))   # 第二行与 @check 对位
+print("number_of_cosets=" + str(number_of_cosets))   # 第三行与 @check 对位
 ```
 
 <details>

@@ -113,21 +113,21 @@ $$\vec F=(-y,x),\qquad C:x=\cos t,\ y=\sin t,\ 0\le t\le2\pi.$$
 ### 实验 3：Python 数值环流
 
 ```python title="用多边形逼近单位圆环流"
-import math
+import math     # cos / sin / pi 都在这个模块里
 
-n = 1000
-circulation = 0.0
-for k in range(n):
-    t1 = 2 * math.pi * k / n
-    t2 = 2 * math.pi * (k + 1) / n
-    x = math.cos(t1)
-    y = math.sin(t1)
-    dx = math.cos(t2) - math.cos(t1)
-    dy = math.sin(t2) - math.sin(t1)
-    circulation = circulation + (-y) * dx + x * dy
-print(round(circulation, 3))
-direction = "counterclockwise"
-conservative = "not conservative"
+n = 1000        # 用 1000 段折线逼近整个圆
+circulation = 0.0   # 环流累加器
+for k in range(n):  # 逐段处理：第 k 段从参数 t1 走到 t2
+    t1 = 2 * math.pi * k / n        # 起点参数（把 0…2π 均分成 n 份）
+    t2 = 2 * math.pi * (k + 1) / n  # 终点参数
+    x = math.cos(t1)                # 起点处的 x
+    y = math.sin(t1)                # 起点处的 y
+    dx = math.cos(t2) - math.cos(t1)   # 这一小步的位移分量 Δx
+    dy = math.sin(t2) - math.sin(t1)   # 这一小步的位移分量 Δy
+    circulation = circulation + (-y) * dx + x * dy   # 场 F=(-y,x) 与位移的点积：P dx + Q dy
+print(round(circulation, 3))        # 保留 3 位小数
+direction = "counterclockwise"      # 参数 t 递增 = 逆时针
+conservative = "not conservative"   # 绕一圈做正功 → 不保守
 print(direction)
 print(conservative)
 ```
@@ -142,21 +142,21 @@ print(conservative)
 # @check: counterclockwise
 # @check: not conservative
 # @hint: 四边形只能粗略逼近圆；把 n 增大到 1000，方向按角度增加。场 (-y,x) 绕圈做正功、沿不同路线功不同，所以它不保守——第三个字符串也要改。
-import math
+import math     # cos/sin/pi
 
-n = 4
+n = 4           # 现在只有 4 段折线——它还是个圆吗？
 circulation = 0.0
 for k in range(n):
-    t1 = 2 * math.pi * k / n
-    t2 = 2 * math.pi * (k + 1) / n
+    t1 = 2 * math.pi * k / n        # 第 k 段起点参数
+    t2 = 2 * math.pi * (k + 1) / n  # 终点参数
     x = math.cos(t1)
     y = math.sin(t1)
-    dx = math.cos(t2) - math.cos(t1)
-    dy = math.sin(t2) - math.sin(t1)
-    circulation = circulation + (-y) * dx + x * dy
+    dx = math.cos(t2) - math.cos(t1)   # 位移的 x 分量
+    dy = math.sin(t2) - math.sin(t1)   # 位移的 y 分量
+    circulation = circulation + (-y) * dx + x * dy   # 点积累加：P dx + Q dy
 print(round(circulation, 3))
-direction = "clockwise"
-conservative = "conservative"
+direction = "clockwise"          # 走向标签：参数递增时它真的在顺时针吗？
+conservative = "conservative"    # 保守标签：这个场绕圈做的功是零吗？
 print(direction)
 print(conservative)
 ```
@@ -189,7 +189,7 @@ conservative = "not conservative"
 ```python
 import math
 
-n = 1000
+n = 1000        # 段数：折线越密，越接近真正的圆
 circulation = 0.0
 for k in range(n):
     t1 = 2 * math.pi * k / n
@@ -200,8 +200,8 @@ for k in range(n):
     dy = math.sin(t2) - math.sin(t1)
     circulation = circulation + (-y) * dx + x * dy
 print(round(circulation, 3))
-direction = "counterclockwise"
-conservative = "not conservative"
+direction = "counterclockwise"   # t 递增 → 逆时针
+conservative = "not conservative"   # 环流非零 → 这个场不保守
 print(direction)
 print(conservative)
 ```

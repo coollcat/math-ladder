@@ -202,20 +202,23 @@ LU 分解中，L 矩阵的对角线元素是什么？
 
 ```exercise
 # @title: 2×2 LU 分解
-# @check: L = [[1, 0], [3, 1]]
-# @check: U = [[1, 2], [0, 1]]
-# @hint: l_{21} = a_{21}/a_{11} = 3
+# @check: L = [[1.0, 0.0], [3.0, 1.0]]
+# @check: U = [[1.0, 2.0], [0.0, 1.0]]
+# @check: LU = [[1.0, 2.0], [3.0, 7.0]]
+# @check: A  = [[1.0, 2.0], [3.0, 7.0]]
+# @hint: l_{21} = a_{21}/a_{11} = 3；U 的第二行要减去 3 倍的第一行。最后两行 print 是「验证」——LU 必须还原出 A。
 import numpy as np
 
 A = np.array([[1, 2], [3, 7]], dtype=float)
-# 你的 LU 分解
-L = np.array([[1, 0], [0, 1]], dtype=float)   # ← 填入正确值
-U = np.array([[0, 0], [0, 0]], dtype=float)   # ← 填入正确值
+
+# 先按杜尔（Doolittle）填出下三角 L 与上三角 U
+L = np.array([[1, 0], [0, 1]], dtype=float)   # ← 左下角那个 l21 填什么？
+U = np.array([[0, 0], [0, 0]], dtype=float)   # ← 消元后 A 还剩什么？
 
 print(f"L = {L.tolist()}")
 print(f"U = {U.tolist()}")
-print(f"LU = {(L @ U).tolist()}")
-print(f"A = {A.tolist()}")
+print(f"LU = {(L @ U).tolist()}")   # @ 是矩阵乘法：L 乘 U 应当还原出 A
+print(f"A  = {A.tolist()}")
 ```
 
 **练习 2**：为什么 $A = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$ 不能直接做 LU 分解（不做行交换）？

@@ -67,15 +67,15 @@ $$f^{-1}(x) = \frac{x - 1}{2}$$
 ```python title="先过 g，再过 f"
 # sliders: x=5 [0:8:1]
 
-def f(x):
+def f(x):            # 外层机器：先乘 2 再加 1
     return 2 * x + 1
 
-def g(x):
+def g(x):            # 内层机器：减 3
     return x - 3
 
-print(f"g({x}) = {g(x)}")
-print(f"f(g({x})) = {f(g(x))}")
-print(f"g(f({x})) = {g(f(x))}")
+print(f"g({x}) = {g(x)}")            # f-string 里可以直接调用函数：括号内的表达式先算好再填空
+print(f"f(g({x})) = {f(g(x))}")      # 嵌套调用：内层 g(x) 先出结果，再整份喂给外层 f
+print(f"g(f({x})) = {g(f(x))}")      # 换个顺序接同两台机器——结果未必相同，正是本课要点
 ```
 
 默认 $x=5$ 时，第三行再次提醒：$f(g(5))=5$ 而 $g(f(5))=8$，顺序即命运。拖动输入 x，会看到两条流水线始终给出不同结果。
@@ -115,10 +115,10 @@ print(f"g(f({x})) = {g(f(x))}")
 def f(x):
     return 2 * x + 1
 
-def inverse_f(x):      # 反函数：先减 1 再除 2
+def inverse_f(x):      # 反函数：先减 1 再除 2（顺序必须与 f 的"先乘 2 再加 1"完全反过来）
     return (x - 1) / 2 # 除法结果是 10.0 这种小数形式，数值上就是 10
 
-print(f"f({v}) = {f(v)}，倒带回 {inverse_f(f(v))}")
+print(f"f({v}) = {f(v)}，倒带回 {inverse_f(f(v))}")   # 先加工再倒带：一路套下去就是 f⁻¹(f(v))，应该回到 v
 ```
 
 拖动 v 会发现每个数都精确回家——$f^{-1}(f(v)) = v$ 不是口号，是可以逐个验收的合同。
@@ -148,22 +148,22 @@ print(f"f({v}) = {f(v)}，倒带回 {inverse_f(f(v))}")
 ### 实验 5（python）：交换坐标，跳到镜子对面
 
 ```python title="关于 y=x 的对称点"
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt   # 画图库 pyplot 改名 plt
 
-pxs = [1, 2, 3]
-pys = [2, 4, 6]
+pxs = [1, 2, 3]   # 三个原点的横坐标
+pys = [2, 4, 6]   # 与之一一对应的纵坐标（它们都在 y = 2x 上）
 
 # sliders: p=0 [0:2:1]
 
-p = int(p)                       # 滑块给的是数，int() 把它变成可靠整数
-x = pxs[p]                       # 方括号按位置取列表元素：位置从 0 开始
-y = pys[p]
+p = int(p)                       # 滑块给的是数，int() 把它变成可靠整数（列表下标必须是整数）
+x = pxs[p]                       # 方括号按位置取列表元素：位置从 0 开始，所以 p=0 拿到第一个
+y = pys[p]                       # 同一位置的纵坐标——两张列表靠下标对齐
 
-plt.plot([-6, 6], [-6, 6], linestyle="--", color="gray", label="y = x (mirror)")
-plt.scatter([x], [y], s=90, label="points on y = 2x")
-plt.scatter([y], [x], marker="s", s=90, label="swapped points")   # marker="s" 方块标记
-plt.legend()
-plt.grid(True)
+plt.plot([-6, 6], [-6, 6], linestyle="--", color="gray", label="y = x (mirror)")   # 虚线画出镜面 y=x
+plt.scatter([x], [y], s=90, label="points on y = 2x")   # scatter 画散点：两个列表分别给横、纵坐标；s 是点的大小
+plt.scatter([y], [x], marker="s", s=90, label="swapped points")   # 坐标前后一换，就跳到镜面另一侧；marker="s" 方块标记
+plt.legend()    # 把各条线自报的 label 画成图例
+plt.grid(True)  # 铺网格线，方便读坐标
 ```
 
 拖动 p 可在三组点中切换：$(1,2),(2,4),(3,6)$ 都来自 $y=2x$；把它们坐标前后一换，方块点 $(2,1),(4,2),(6,3)$ 全部落在 $y=\frac{x}{2}$ 上，且与蓝圆点隔着虚线遥遥相望。
@@ -210,13 +210,13 @@ print(2*5+1)
 $h$ 的步骤是"加 3"，逆序就是"减 3"：$h^{-1}(x) = x - 3$。
 
 ```python
-def h(x):
+def h(x):          # 原机器：加 3
     return x + 3
 
-def inverse_h(x):
+def inverse_h(x):  # 倒带机：把加 3 撤销掉
     return x - 3
 
-print(inverse_h(h(7)))
+print(inverse_h(h(7)))   # 先加工再倒带：应该原样回到 7
 ```
 
 输出 7。加减互逆是最简单的反函数：一条向左平移 3 格的直线，倒带就是向右平移 3 格。

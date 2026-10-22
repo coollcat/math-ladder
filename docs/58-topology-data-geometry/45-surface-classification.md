@@ -72,17 +72,17 @@ Klein 瓶和轮胎面示性数相同，但方向性不同，所以不同胚。
 蓝线是账本 $\chi=2-2g$ 的全景：横轴是环柄数，纵轴只落在偶数刻度 2,0,-2,-4,-6。橙色水平线随滑块 `g` 移动，它与蓝线的交点横坐标就是当前选择的亏格。未来专属组件会把环柄做成可增删的三维示意盘；当前先用图像记录账本。
 
 ```python title="判断曲面类型标签"
-surfaces = [
+surfaces = [  # 曲面清单首现：每项一个字典，字段固定为 name / orientable / chi
     {"name": "sphere", "orientable": True, "chi": 2},
     {"name": "torus", "orientable": True, "chi": 0},
     {"name": "projective_plane", "orientable": False, "chi": 1},
     {"name": "klein_bottle", "orientable": False, "chi": 0},
 ]
 
-for item in surfaces:
+for item in surfaces:  # 可定向与不可定向两类分开打标签，这是曲面分类的第一刀
     if item["orientable"]:
-        label = f"oriented-chi-{item['chi']}"
-    else:
+        label = f"oriented-chi-{item['chi']}"  # f-string 里再套 item['chi']：花括号内可以写表达式，但外层引号要与字符串的引号错开
+    else:  # 不可定向曲面没有亏格，只能靠 χ 与「是否可定向」两个不变量来分类
         label = f"nonorientable-chi-{item['chi']}"
     print(label)
 ```
@@ -116,15 +116,15 @@ for item in items:
 逐项计算：
 
 ```python
-items = [
+items = [  # 练习用同一张表，只是省略了 orientable 字段
     {"name": "sphere", "chi": 2},
     {"name": "torus", "chi": 0},
     {"name": "double_torus", "chi": -2},
 ]
 for item in items:
     # // 是整除：(2-chi) 对闭定向曲面总是偶数
-    genus = (2 - item["chi"]) // 2
-    label = item["name"].replace("_", "-")
+    genus = (2 - item["chi"]) // 2  # replace 首现：把名字里的下划线换成连字符，输出才对得上 @check 的 sphere-g0 形式
+    label = item["name"].replace("_", "-")  # f-string 里做格式化，g 后面紧跟计算出的亏格
     print(f"{label}-g{genus}")
 ```
 
