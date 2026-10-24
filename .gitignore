@@ -101,3 +101,7 @@ py_ex.json
 .stabledge/
 .sd
 /undefined/
+
+# AgentTeams 协作运行时（team.json / inbox 邮箱 / 归档）。是本次会话的运行状态，
+# 不是项目内容；留在工作区会一直冒在 git status 里。归档产物另存 _ai-workspace/reports/。
+.agent-teams/

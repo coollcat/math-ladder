@@ -226,7 +226,19 @@ $\frac{\partial F}{\partial z} = 2z$。在给定点处 $z = \frac{1}{\sqrt{3}} \
 隐函数的偏导：$\frac{\partial z}{\partial x} = -\frac{\partial F/\partial x}{\partial F/\partial z} = -\frac{2x}{2z} = -\frac{x}{z}$。
 </details>
 
-## 7. 选读：为什么 Jacobian 可逆是关键条件
+## 7. 常见误区
+
+:::warning[常见误区]
+
+**误区一**：你以为 $\det J_\mathbf{F}(\mathbf{a})\neq 0$ 保证的是"$\mathbf{F}$ 可逆"。定理给的只是**局部**双射：在 $\mathbf{a}$ 附近存在一对邻域 $V,W$，使 $\mathbf{F}:V\to W$ 一对一且满；换到别处完全不保证。同一个 $\det$ 图像就是现成的反例——$\mathbf{F}(x,y)=(e^x\cos y,\,e^x\sin y)$ 的 $\det J=e^{2x}$ 处处为正（$x=-1$ 时 $0.1353$，$x=0$ 时 $1.0$，$x=1$ 时 $7.3891$），局部可逆点满全平面；但它是极坐标的指数版，$y$ 差 $2\pi$ 的整数倍会落到同一点，所以 $\mathbf{F}$ 整体根本不单射。
+
+**误区二**：你以为条件不满足就等于"不能表示"。定理只说"条件满足 ⇒ 能表示"，从来没有反向承诺。单位圆 $x^2+y^2=1$ 在 $(1,0)$ 处 $\frac{\partial F}{\partial y}=2y=0$，定理失效；但 $y$ 照样能写成 $x$ 的函数，只是不能写成 $x$ 的光滑函数——$y=\sqrt{1-x^2}$ 在 $x\to1^-$ 时导数 $-x/\sqrt{1-x^2}\to-\infty$，图像竖直切线。真正的教训是：条件失效时你要换一个变量来解（改解 $x=g(y)$，那里 $\frac{\partial F}{\partial x}=2\neq0$），而不是宣布无解。
+
+**误区三**：你以为逆映射的 Jacobian 就是把 $J_\mathbf{F}$ 的元素逐个取倒数。矩阵求逆与逐元素倒数完全不是一回事：取 $J=\begin{pmatrix}2&1\\1&2\end{pmatrix}$，$\det J=3$，真正的 $J^{-1}=\begin{pmatrix}0.6667&-0.3333\\-0.3333&0.6667\end{pmatrix}$，而逐元素倒数给出 $\begin{pmatrix}0.5&1.0\\1.0&0.5\end{pmatrix}$——后者连 $J\cdot J^{-1}=I$ 都对不上。$J_{\mathbf{F}^{-1}}(\mathbf{y})=\left[J_\mathbf{F}(\mathbf{F}^{-1}(\mathbf{y}))\right]^{-1}$ 里的 $-1$ 是矩阵的逆，不是数字的倒数。
+
+:::
+
+## 8. 选读：为什么 Jacobian 可逆是关键条件
 
 <details>
 <summary>选读 · 从线性近似到反函数定理</summary>
@@ -241,8 +253,10 @@ Jacobian 不可逆时，线性近似退化（把空间压扁了），局部信�
 
 </details>
 
-## 8. 下一站
+## 9. 下一站
 
-矩阵分解是线性代数的核心工具。高斯消元的矩阵形式就是 LU 分解——把一个矩阵拆成"下三角 × 上三角"。
+本章到此收官：偏导、梯度、Hessian、Jacobian，加上"局部可逆"的两条定理，多元微积分的微分一支配齐了。可整章反复出现的 Jacobian 只是被当成一台"查表机器"——它本身作为矩阵有什么结构可拆？下一章把这批对象搬到结构语言里：从解方程组与秩出发，一路走到特征值、SVD 与低秩近似。
 
-→ [LU 分解](../21-linear-algebra-advanced/25-lu-decomposition.md)
+→ [第 21 章 · 线性代数进阶](../21-linear-algebra-advanced/index.md)
+
+想先看那台机器最实用的一次拆解，也可以跳到 [LU 分解](../21-linear-algebra-advanced/25-lu-decomposition.md)。

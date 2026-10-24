@@ -64,7 +64,7 @@ import {
 import {
   bark,
   spread,
-  ath,
+  ath, dbToAmp, // dbToAmp 曾漏导入：掩蔽分析与编码在异步回调里抛 ReferenceError，页面无红条、图卡在半成品
 } from '../engines/dsp.js';
 
 const FS = 44100;

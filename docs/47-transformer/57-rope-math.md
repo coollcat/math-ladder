@@ -11,8 +11,7 @@ stage: research-elective
 difficulty: 5
 introduces_math: []
 introduces_builtin: []
-introduces_import:
-  - torch
+introduces_import: []
 introduces_concepts:
   - rope-encoding
   - rotation-matrix
@@ -253,6 +252,6 @@ SO(2) 是**阿贝尔群**（交换群）：$R_\alpha R_\beta = R_{\alpha+\beta} 
 
 ## 8. 下一站
 
-RoPE 通过旋转编码了位置信息，但注意力的 $O(n^2)$ 复杂度仍是长序列的瓶颈。有没有办法从控制论的视角理解序列建模？状态空间模型（SSM）给出了另一条路。
+RoPE 把位置变成旋转，一个头里的相对位置问题就此解决。可真实模型不会只开一个头：把 $d$ 维空间切成几份，每份配一组自己的旋转频率，同时开几桌各有所长的小会，再把笔记拼回一本总账——下一课就是这套施工队，[多头注意力的子空间分工](./60-multihead-attention.md)。想直接看绕开注意力平方复杂度的另一条路（SSM 与 RWKV），可以跳到 [现代 RNN 与 SSM](./100-modern-rnn-ssm.md)。
 
-→ [现代 RNN 与 SSM](./100-modern-rnn-ssm.md)
+→ [多头注意力的子空间分工](./60-multihead-attention.md)

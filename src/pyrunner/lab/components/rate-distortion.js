@@ -133,14 +133,16 @@ export default function render(host, spec) {
   const dctPts = DQ.map((quality) => {
     const r = dctPath(src, quality);
     return {
-      p: quality, rec: r.rec, cv: toCanvas(r.rec), rate: r.rate, nz: r.nz,
+      /* toCanvas 必须带宽高：漏传时 createImageData(undefined) 在真浏览器里直接抛错，
+         整个组件变成「组件渲染出错」红条（node 桩不校验参数，冒烟测不出来） */
+      p: quality, rec: r.rec, cv: toCanvas(r.rec, IW, IH), rate: r.rate, nz: r.nz,
       psnrDb: psnr(src, r.rec), label: `质量因子 ${quality}`,
     };
   });
   const spPts = SL.map((levels) => {
     const r = spatialPath(src, levels);
     return {
-      p: levels, rec: r.rec, cv: toCanvas(r.rec), rate: r.rate,
+      p: levels, rec: r.rec, cv: toCanvas(r.rec, IW, IH), rate: r.rate,
       psnrDb: psnr(src, r.rec), label: `${levels} 级均匀量化`,
     };
   });

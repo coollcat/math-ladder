@@ -179,4 +179,4 @@ print(round(total, 4))           # round(x, 4)：四舍五入到 4 位小数
 
 测度论的直系下游是泛函分析：把积分看作线性泛函，$L^p$ 空间登场（该章 35 课为可积函数正式安家），傅里叶分析获得完整的家。带着这一章的地基出发吧。
 
-→ [从向量空间到函数空间](../26-functional-analysis/10-function-spaces.md)
+→ [泛函分析选讲 · 第 26 章路线图](../26-functional-analysis/index.md)：函数变成空间里的点，测度论的地基在那里长出 $L^p$。

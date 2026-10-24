@@ -12,8 +12,7 @@ stage: research-elective
 difficulty: 5
 introduces_math: []
 introduces_builtin: []
-introduces_import:
-  - torch
+introduces_import: []
 introduces_concepts:
   - flash-attention
   - io-aware-algorithm
@@ -101,7 +100,17 @@ $$Q = \begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 1 \\ 0 & 0 \end{pmatrix}, \quad K = 
 
 ## 5. 动手实验
 
-### 实验 1：Online Softmax 演示
+### 实验 1（lab）：那张 n×n 的矩阵到底占多少显存
+
+拖 n、块大小 B，看两条显存条差几个数量级。
+
+```lab
+{ "type": "flash-attention-tiling", "title": "同一份注意力，两种存法", "n": 4096, "B": 256, "d": 64 }
+```
+
+上半幅是标准注意力：整张 $4096\times 4096$ 的分数矩阵必须躺在 HBM 里，64 MB 一格不少。下半幅是 Flash：SRAM 里只有一个 B 宽的条带沿 K 块滑过去，算完就丢，峰值只有 0.375 MB。按「n 翻倍」把序列拉到 8192：标准涨到 256 MB（**4 倍**），Flash **一个字节都不涨**——它只由 B 和 d 决定。代价在「搬运比」那一行：块减半能把峰值再压到三分之一，但 K/V 要重读一遍，搬运量翻倍。省内存不是白来的。
+
+### 实验 2：Online Softmax 演示
 
 ```python title="增量计算 softmax：证明和一次性算结果相同"
 import numpy as np
@@ -165,8 +174,8 @@ $B = \lfloor \frac{M}{4 \times 3 \times d} \rfloor = \lfloor \frac{192 \times 10
 
 ```exercise
 # @title: 简化版 Flash Attention
-# @check: 1.000
-# @hint: 分两块处理 K,V，每块计算局部 softmax 分子和分母，最后合并
+# @check: 最大差异: 0.000000
+# @hint: 每块先算局部分子 p_j。合并旧账时要用 exp(m_old − m_new) 把已累积的分母和分子缩放回来（因为换了新的行最大值，旧的指数基准失效了）；循环结束后再除以总分母
 import numpy as np
 
 np.random.seed(0)
@@ -186,10 +195,16 @@ for j in range(0, n, B):  # 遍历 K,V 的每个块
     V_j = V[j:j+B]
     S = Q @ K_j.T / np.sqrt(d)  # 局部注意力分数
     m_block = S.max(axis=1)  # 每行最大值
-    m_new = np.maximum(m_running, m_block)  # 更新全局最大值
-    # 请补全以下两行：更新 l_running 和 O_flash
-    l_running = l_running  # ← 修复
-    O_flash = O_flash       # ← 修复
+    m_prev = m_running                        # 记住旧的最大值：缩放旧账要用
+    m_new = np.maximum(m_running, m_block)    # 更新全局最大值
+    p_j = np.exp(S - m_new[:, None])          # 本块的局部分子，[:, None] 让 n 个基准对齐到 n×B
+    # 请补全以下三行：更新 l_running（块内求和 + 旧账缩放）、O_flash（加权求和 + 旧账缩放）、m_running
+    l_running = l_running
+    O_flash = O_flash
+    m_running = m_running
+
+# 请补全这一行：把累积的分子除以总分母，完成归一化
+O_flash = O_flash
 
 # 对比标准注意力
 S_full = Q @ K.T / np.sqrt(d)
@@ -234,6 +249,8 @@ $$m^{(k)} = \max_{j \leq kB} s_j, \quad \ell^{(k)} = \sum_{j \leq kB} e^{s_j - m
 $$\ell^{(k+1)} = e^{m^{(k)} - m^{(k+1)}} \ell^{(k)} + \sum_{j \in \text{block}} e^{s_j - m^{(k+1)}}$$
 
 这是恒等式 $\sum_{j \leq (k+1)B} e^{s_j - m^{(k+1)}} = e^{m^{(k)} - m^{(k+1)}} \sum_{j \leq kB} e^{s_j - m^{(k)}} + \sum_{j \in \text{block}} e^{s_j - m^{(k+1)}}$ 的直接展开。$\square$
+
+**两种写法都常见，别混着抄。** 上面把 $O^{(k)}$ 定义成**已经除过分母**的加权平均，好处是它直接就是当前答案；代价是每一步更新都要再乘一个比值、多一次除法。练习代码用的是另一种等价写法：**把分子和分母分开存**（`O_flash` 存分子、`l_running` 存分母），循环里只做乘加不做除法，循环结束再除一次。两种写法结果逐位相同，后者在实际 kernel 里更省。练习的提示按后一种写。
 
 </details>
 

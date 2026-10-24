@@ -266,6 +266,8 @@ $\sup\lbrace a_k\mid k\ge n\rbrace$ 是尾部整体的上确界，不是某一�
 
 ## 8. 下一站
 
-从数列的极限，我们走向函数的极限、导数、积分——多元函数的世界里，一个全新的工具等待着我们：反函数定理和隐函数定理。
+数列这一支的账目到此收束：任何有界数列都有上极限与下极限两个归宿，两者相等当且仅当数列收敛。下一步把 $\epsilon$ 语言从数列搬到函数——$\epsilon$ 与 $\delta$ 谁先给定，这个先后顺序的问题会重写前几课的全部定义。
 
-→ [反函数定理与隐函数定理](../20-multivariable-calc/68-inverse-implicit-function.md)
+→ [函数极限与连续性](./30-epsilon-delta-continuity.md)
+
+想先看这套语言在多元世界的终极形态，也可以跳到 [反函数定理与隐函数定理](../20-multivariable-calc/68-inverse-implicit-function.md)。

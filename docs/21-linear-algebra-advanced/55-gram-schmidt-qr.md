@@ -273,6 +273,8 @@ Gram-Schmidt 的中间产物 $\mathbf{u}_k$ 只保证两两垂直，长度还不
 
 ## 9. 下一站
 
-矩阵分解之后，我们转向微分方程——Laplace 变换把微分方程变成代数方程，是工程中最强大的求解工具之一。
+正交基掰正之后，矩阵分解这条线暂时告一段落。下一课把 SVD 与正交轴一起搬进数据：一条云雾状的散点图，看似每个点都要两个坐标，其实一个数加“在线上第几格”就能近似描述——这就是 PCA 与高维压缩。
 
-→ [Laplace 变换求解 ODE](../22-ode-dynamics/25-laplace-transform.md)
+→ [PCA 与高维压缩](./60-pca-compression.md)
+
+如果更想先看这套分解在微分方程里的用法，也可以跳到 [Laplace 变换求解 ODE](../22-ode-dynamics/25-laplace-transform.md)——第 22 章的主线课。

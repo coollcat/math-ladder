@@ -21,4 +21,6 @@ export default {
   'power-regulator': () => import('../components/power-regulator.js'),
   'adc-dac': () => import('../components/adc-dac.js'),
   'pcb-flow': () => import('../components/pcb-flow.js'),
+  /* 症状分诊卡：68 / 73 / 75 三章的方法地图课共用同一份组件，症状表由课文给 */
+  'symptom-triage': () => import('../components/symptom-triage.js'),
 };

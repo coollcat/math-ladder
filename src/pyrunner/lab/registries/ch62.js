@@ -3,4 +3,5 @@
    注：按本轮任务边界未修改 lab/registry.js；总表接线由该文件 owner 处理。 */
 export default {
   'eye-matched-filter': () => import('../components/eye-matched-filter.js'),
+  'hamming-syndrome': () => import('../components/hamming-syndrome.js'),
 };

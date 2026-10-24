@@ -287,7 +287,8 @@ export default function render(host, spec) {
   /* ---------- 拖拽 ---------- */
 
   function onDrag(x, y) {
-    s.freq = clamp(F(x), FMIN, FMAX);
+    /* F() 是 draw() 里的局部函数，这里够不着（曾在拖拽时抛 ReferenceError）：按 geo 现算对数频率轴的反变换 */
+    s.freq = clamp(FMIN * (FMAX / FMIN) ** clamp((x - geo.x0) / geo.w, 0, 1), FMIN, FMAX);
     const u = clamp(1 - (y - geo.y0) / geo.h, 0, 1);
     s.gain = DBMIN + u * (DBMAX - DBMIN);
     setSliderRow(sliders, 0, s.freq, 0, NAMES[0]);

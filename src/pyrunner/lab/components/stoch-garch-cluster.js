@@ -307,7 +307,9 @@ export default function render(host, spec) {
       acc += dt;
       if (acc < 0.06) return;
       acc = 0;
-      t = t >= n ? 30 : t + Math.max(1, Math.round(n / 60));
+      /* 必须夹到 n：30 + k·step 未必正好落在 n 上（默认 n=240、step=4 就跳到 242），
+         越界后 sim[t] 是 undefined，播放第二圈时 drawSeries 抛错、动画卡死 */
+      t = t >= n ? 30 : Math.min(n, t + Math.max(1, Math.round(n / 60)));
       draw();
     },
     onReset() { acc = 0; t = n; draw(); },

@@ -278,7 +278,7 @@ export default function render(host, spec) {
       if (Math.abs(px - hx) <= 6 && py >= TOP - 6 && py <= PLOT_BOT + 12) return 'h';
       return null;
     },
-    down(id, px) { move(id, px); },
+    down(id, px) { this.move(id, px); }, // 方法简写里的 move 不是变量：裸写 move() 会抛 ReferenceError，按下即失效
     move(id, px) {
       const g = geom();
       const t = g.invX(px);

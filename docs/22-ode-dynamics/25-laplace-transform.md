@@ -229,7 +229,19 @@ $F'(s) = \frac{-4s}{(s^2+4)^2}$。
 所以 $\mathcal{L}\lbrace t\sin(2t)\rbrace = -F'(s) = \frac{4s}{(s^2+4)^2}$。
 </details>
 
-## 7. 选读：Laplace 变换为什么有效
+## 7. 常见误区
+
+:::warning[常见误区]
+
+**误区一**：你以为 $\mathcal{L}\lbrace y' \rbrace = sY(s)$，把导数直接换成乘 $s$。初值项不能丢：正确公式是 $sY(s) - y(0)$。取 $y = e^{2t}$（$y(0)=1$），则 $Y = \frac{1}{s-2}$，真正的 $\mathcal{L}\lbrace y' \rbrace = \mathcal{L}\lbrace 2e^{2t} \rbrace = \frac{2}{s-2}$。在 $s = 3$ 处核对：$sY = 3$，而 $sY - y(0) = 2$。差的正是被漏掉的那个 $y(0)=1$——初值条件本来就是靠这一项自动塞进方程的，漏掉它等于假装初值为零。
+
+**误区二**：你以为 $\mathcal{L}\lbrace f \cdot g \rbrace = F(s)\,G(s)$。乘积的变换**不等于**变换的乘积，与 $F(s)G(s)$ 对应的是**卷积**。取 $f = g = 1$：$F(s) = G(s) = \frac{1}{s}$，于是 $F(s)G(s) = \frac{1}{s^2}$，而 $\mathcal{L}\lbrace 1 \cdot 1 \rbrace = \mathcal{L}\lbrace 1 \rbrace = \frac{1}{s}$。$\frac{1}{s^2}$ 其实对应 $\mathcal{L}\lbrace t \rbrace$，也就是卷积 $1 * 1 = t$，不是逐点乘积 $1 \cdot 1$。
+
+**误区三**：你以为二阶方程只给一个初值就能定解。$y'' + y = 0$ 变换后是 $s^2Y - s\,y(0) - y'(0) + Y = 0$，**两个**初值都在里面。若 $y(0) = 0$ 而漏掉 $y'(0) = 1$，方程退化成 $s^2Y + Y = 0$，解出 $Y = 0$，即 $y \equiv 0$——一条满足 $y(0)=0$ 却根本不合题意的零解。补上 $y'(0)$ 才有 $Y = \frac{1}{s^2+1}$，反变换回 $\sin t$。
+
+:::
+
+## 8. 选读：Laplace 变换为什么有效
 
 <details>
 <summary>选读 · 收敛条件与存在性</summary>
@@ -246,7 +258,7 @@ $$f(t) = \frac{1}{2\pi i}\int_{\gamma - i\infty}^{\gamma + i\infty} e^{st} F(s)\
 
 </details>
 
-## 8. 下一站
+## 9. 下一站
 
 Laplace 变换把整个方程一锅端。有没有更精细的方法，先解齐次方程，再用"常数变易"修补出非齐次的解？
 

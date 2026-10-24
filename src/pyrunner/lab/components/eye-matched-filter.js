@@ -714,7 +714,13 @@ export default function render(host, spec) {
     const pts = constellationPoints(s.carrier);
     const q = car.q || null;
     const pi = q ? clamp(Math.floor(scan) % q.length, 0, q.length - 1) : 0;
-    const cleanP = q ? q[pi] : pts[active < pts.length ? active : 0];
+    /* carrierData() 的 QAM 分支压的是 {i,q,bits}（复数分量口径），而
+       constellationPoints()/nearestPoint() 用的是 {x,y,bits}。这里必须显式换算，
+       否则 cleanP.x/cleanP.y 是 undefined、obs 立刻变成 NaN，判决永远落到 pts[0]
+       = 0000 并被判「误判」。下方 drawSync() 一直是对的，可对照。 */
+    const cleanP = q
+      ? { x: q[pi].i, y: q[pi].q, bits: q[pi].bits }
+      : pts[active < pts.length ? active : 0];
     const noisePair = gaussianPair(s.seed + 17, 1)[0];
     const obs = {
       x: cleanP.x + noisePair[0] * s.noise,

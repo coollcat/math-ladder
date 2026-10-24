@@ -237,7 +237,11 @@ $$u_{tt} = \frac{Ka^2}{m}u_{xx} \equiv c^2 u_{xx}, \qquad c = a\sqrt{\frac{K}{m}
 
 ## 8. 回望本章与下一站
 
-八课走完，这条线的形状已经清楚了：
+一条主线贯穿始终：**先找结构，再算数值**。相空间的结构、括号的代数结构、辛的几何结构——结构定住了，剩下的问题就只剩下"代入"。场论的门推开之后，下一个舞台是神经信号：
+
+→ [脑机接口的数学 · 第 78 章路线图](../78-brain-computer-interface/index.md)
+
+回头看一眼八课走完的形状：
 
 | 课 | 一件事 |
 | --- | --- |
@@ -250,10 +254,4 @@ $$u_{tt} = \frac{Ka^2}{m}u_{xx} \equiv c^2 u_{xx}, \qquad c = a\sqrt{\frac{K}{m}
 | [哈密顿–雅可比](./70-hamilton-jacobi.md) | 可积系统 = 若干互不干扰的匀速转动 |
 | 本课 | 无穷多自由度 = 无穷多个振子 |
 
-一条主线贯穿始终：**先找结构，再算数值**。相空间的结构、括号的代数结构、辛的几何结构——结构定住了，剩下的问题就只剩下"代入"。
-
-→ [脑机接口的数学 · 第 78 章路线图](../78-brain-computer-interface/index.md)
-
-相关课程：[辛结构与辛积分](./60-symplectic-integrator.md) · [回到本章首页](./index.md)
-
-相关课程：[相图](../22-ode-dynamics/40-phase-portraits.md) · [变分法](../26-functional-analysis/95-calculus-of-variations.md) · [闵可夫斯基时空](../76-relativity/50-minkowski-interval.md)
+相关课程：[辛结构与辛积分](./60-symplectic-integrator.md) · [相图](../22-ode-dynamics/40-phase-portraits.md) · [变分法](../26-functional-analysis/95-calculus-of-variations.md) · [闵可夫斯基时空](../76-relativity/50-minkowski-interval.md) · [回到本章首页](./index.md)

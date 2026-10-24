@@ -73,7 +73,21 @@ $$A^{-1} = -\frac{1}{c_0}\left[(-1)^n A^{n-1} + c_{n-1}A^{n-2} + \cdots + c_1 I\
 
 ## 5. 动手实验
 
-### 实验 1：数值验证 Cayley-Hamilton
+### 实验 1：先换到特征基，多项式就在每条轴上分别归零
+
+拖 a、b、c、d 改矩阵，再按「切换标准基 / 特征基」换一套坐标系看同一个动作。默认的 $A=\begin{pmatrix}2&1\\0&3\end{pmatrix}$ 在特征基里的网格只沿两条轴伸缩，倍率正是 2 和 3——而 $p(\lambda)=\lambda^2-5\lambda+6=(\lambda-2)(\lambda-3)$，两个倍率各自把它代成 0。**再把 c 从 0 拖到 $-1$**：迹还是 5，行列式变成 7，判别式 $25-28=-3<0$，画面立刻改口说「实特征方向不足」，网格开始带旋转。对角化这条捷径断了，Cayley-Hamilton 却照样成立（$p(\lambda)=\lambda^2-5\lambda+7$，实跑 $p(A)$ 仍是零矩阵）——定理从来不需要特征向量存在。
+
+```viz
+{
+  "type": "diagonalize-grid",
+  "title": "同一矩阵，两套坐标：p(A) 在哪套里看得见",
+  "matrix": [2, 1, 0, 3]
+}
+```
+
+所以定理的"神"不在 $A$ 上，而在**它作用的那组方向**上：每个特征方向被 $A$ 缩放 $\lambda_i$ 倍，于是被 $p(A)$ 缩放 $p(\lambda_i)=0$ 倍。所有方向都被压成 0，$p(A)$ 只能是零矩阵。
+
+### 实验 2：数值验证 Cayley-Hamilton
 
 ```python title="对随机矩阵验证 p(A) = 0"
 import numpy as np
@@ -100,7 +114,7 @@ for size in [2, 3, 4]:
 
 误差在机器精度范围（$\sim 10^{-14}$），说明定理成立。
 
-### 实验 2：用 Cayley-Hamilton 求逆
+### 实验 3：用 Cayley-Hamilton 求逆
 
 ```python title="对比 Cayley-Hamilton 求逆与 numpy 求逆"
 import numpy as np
@@ -125,7 +139,7 @@ print(A_inv_ch)
 print(f"差异: {np.max(np.abs(A_inv_np - A_inv_ch)):.2e}")
 ```
 
-### 实验 3：$A^n$ 的快速计算
+### 实验 4：$A^n$ 的快速计算
 
 ```python title="用 Cayley-Hamilton 避免矩阵连乘"
 import numpy as np
@@ -210,7 +224,19 @@ $A^5 = -15A^2 - 14A = -15(-3A - 2I) - 14A = 31A + 30I$。
 $$A^5 = 31\begin{pmatrix} 0 & 1 \\ -2 & -3 \end{pmatrix} + 30\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} 30 & 31 \\ -62 & -63 \end{pmatrix}$$
 </details>
 
-## 7. 选读：Cayley-Hamilton 的证明思路
+## 7. 常见误区
+
+:::warning[常见误区]
+
+**误区一**：你以为 $p(A) = 0$ 里的 $p$ 是「把 $\lambda$ 换成 $A$、逐元素算一遍」。矩阵有自己的乘法，代入必须按矩阵运算走。$A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$ 的 $p(\lambda) = \lambda^2 - 5\lambda - 2$：按矩阵算是 $A^2 - 5A - 2I = \begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix}$，逐元素算 $A_{ij}^2 - 5A_{ij} - 2$ 却得到 $\begin{pmatrix} -6 & -8 \\ -8 & -6 \end{pmatrix}$。后者恒不为零——不是定理错了，是代入方式错了。
+
+**误区二**：你以为特征多项式就是「让 $p(A)=0$ 成立的最小那个多项式」。最小的那个叫**极小多项式**，它可能严格小于特征多项式。$A = I_2$ 的特征多项式是 $(\lambda-1)^2$，可 $A - I = 0$ 早已成立，极小多项式只是 $\lambda - 1$。定理保证特征多项式**够用**，不保证它**最省**。
+
+**误区三**：你以为这条定理只对可对角化的矩阵成立。它并不需要任何特征向量存在。$N = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}$ 只有一个特征值 $0$（代数重数 $2$），特征多项式是 $\lambda^2$，代入得 $N^2 = \begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix}$——定理照样应验。Jordan 块这类最不听话的矩阵，正是它最需要的战场。
+
+:::
+
+## 8. 选读：Cayley-Hamilton 的证明思路
 
 <details>
 <summary>选读 · 伴随矩阵法</summary>
@@ -225,8 +251,10 @@ $\text{adj}(A - \lambda I)$ 的每个元素是 $\lambda$ 的多项式，写成 $
 
 </details>
 
-## 8. 下一站
+## 9. 下一站
 
-Cayley-Hamilton 告诉我们 $A^n$ 可以降次。另一个基本的矩阵分解是正交化——把一组向量变成互相垂直的单位向量。
+Cayley-Hamilton 告诉我们 $A^n$ 可以降次，可特征方向本身常常歪歪扭扭：一般矩阵的两个特征向量斜着交叉，算投影时处处别扭。下一课请出一类天生享受**正交**特征方向的矩阵——对称矩阵，这条保障叫谱定理，它同时是 SVD 与正定判据的法律依据。
 
-→ [Gram-Schmidt 正交化与 QR 分解](./55-gram-schmidt-qr.md)
+→ [对称矩阵与谱定理：正交的特征方向](./45-symmetric-spectral-theorem.md)
+
+如果更想先学“把歪斜坐标轴掰正”的手艺，也可以跳到 [Gram-Schmidt 正交化与 QR 分解](./55-gram-schmidt-qr.md)。

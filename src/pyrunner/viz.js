@@ -2805,6 +2805,16 @@ function renderDomino(host, spec) {
     if (!ctx) return;
     const tc = themeColors();
     ctx.clearRect(0, 0, st.W, H);
+    /* 缺陷修复（非新功能）：首次 layout 时组件还没挂进文档，clientWidth=0，画布宽 0 → 整块空白。
+       宽度变化时按当前 clientWidth 重设位图尺寸（resize 也走这里） */
+    const cw = st.canvas.clientWidth;
+    if (cw && Math.abs(cw - st.W) > 0.5) {
+      st.canvas.width = cw * st.dpr;
+      st.canvas.height = H * st.dpr;
+      ctx.setTransform(st.dpr, 0, 0, st.dpr, 0, 0);
+      st.W = cw;
+      ctx.clearRect(0, 0, st.W, H);
+    }
     const totalW = st.n * DW + (st.n + 1) * st.gap * 34;
     const scale = Math.min(1, (st.W - 20) / totalW);
     const spacing = DW + st.gap * 34 * scale;
@@ -2899,7 +2909,7 @@ function renderDomino(host, spec) {
   });
   box.appendChild(sl.box);
   layout();
-  window.addEventListener('resize', paint);
+  window.addEventListener('resize', paint); requestAnimationFrame(() => paint()); /* 挂进文档后补画一帧，触发宽度自愈 */
   reset(true);
   return { slidersBox: document.createElement('div') };
 }
@@ -9609,8 +9619,12 @@ function renderGreentheorem(host, spec) {
       const p = { x: callField(pFn, point.x, point.y), y: callField(qFn, point.x, point.y) };
       const tangent = { x: -Math.sin(angle), y: Math.cos(angle) };
       const normal = { x: Math.cos(angle), y: Math.sin(angle) };
-      circulation += (p.x * tangent.x + p.y * tangent.y) * state.radius;
-      flux += (p.x * normal.x + p.y * normal.y) * state.radius;
+      /* 缺陷修复（非新功能）：k===n 与 k===0 是同一个点，闭合段只该画不该再累加。
+         原先 k<=n 全累加，读数恒为解析值的 (n+1)/n 倍（n=160 时 6.2832 印成 6.3225）。 */
+      if (k < n) {
+        circulation += (p.x * tangent.x + p.y * tangent.y) * state.radius;
+        flux += (p.x * normal.x + p.y * normal.y) * state.radius;
+      }
       const screen = { x: pm.X(point.x), y: pm.Y(point.y) };
       if (!k) ctx.moveTo(screen.x, screen.y);
       else ctx.lineTo(screen.x, screen.y);
@@ -12608,9 +12622,12 @@ function renderPayoffmatrix(host, spec) {
       `保底=${JSON.stringify(fl)} → maximin=${maxi}    封顶=${JSON.stringify(ce)} → minimax=${mini}    ${saddle ? '✔ 有鞍点：安全做法就是最优做法' : '✘ 无鞍点（maximin < minimax）：必须随机化'}`,
       pad, H - 6,
     );
+    // 缺陷修复（非新功能）：原先 nonzero 一支的说明承诺「每格上行/下行双层数字 + 最佳响应箭头」，
+    // 但 draw() 每格只画一次数值、也不画任何箭头。此处把说明改成与实现一致；真要双层数字与箭头
+    // 属于新交互，按红线 7 走 lab 组件，不在冻结的 viz.js 里长。
     cap.textContent = mode === 'zero-sum'
       ? '点一个格子选中它，再用滑块改数字：亲手把鞍点造出来，再亲手把它拆掉。红色是各行保底里的最大值（行的安全牌），蓝色是各列封顶里的最小值（列的止损牌）；两者撞在同一个格子上就是鞍点。'
-      : '每格上行是行玩家收益、下行是列玩家收益。悬停或点选某格，箭头会指出双方的最佳响应。';
+      : '这张表只画行玩家（甲方）一个人的收益，每格一个数字。红框是各行保底里的最大值（甲的安全牌），蓝框是各列封顶里的最小值；两者撞在同一格就是鞍点。列玩家的账要另开一张表。';
   }
   r = setupCanvas(wrap, H);
   r.canvas.classList.add('ml-drag');

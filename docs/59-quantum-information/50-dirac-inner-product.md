@@ -200,6 +200,8 @@ $$\langle\psi\rvert U^\dagger U\lvert\psi\rangle=\langle\psi\rvert I\lvert\psi\r
 
 ## 8. 下一站
 
-书包收好、墨水换毕。单比特的全部几何如今可以画进一颗星球：北极南极定轴，赤道走经度，每一个门都是一次拧动。
+书包收好、墨水换毕。下一步先别急着画球：把刚才这套记号对准"不确定"本身——密度矩阵的 von Neumann 熵、Holevo 界，看看一个量子比特到底能捎带多少经典信息。
 
-→ [Bloch 球：单量子比特的几何地图](./60-bloch-sphere.md)
+→ [量子信息论：von Neumann 熵与被限定的信道](./55-quantum-information-theory.md)
+
+想先看几何，也可以跳到 [Bloch 球：单量子比特的几何地图](./60-bloch-sphere.md)：北极南极定轴，赤道走经度。

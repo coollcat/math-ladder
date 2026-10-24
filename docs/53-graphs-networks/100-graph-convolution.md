@@ -172,7 +172,30 @@ GCN 对称归一化最主要防止什么？
 ? 两端度平方根共同缩放边权，使不同 degree 的聚合更可比。
 ```
 
-## 9. 下一站
+## 9. 选读：归一化后的谱为什么被关在 [-1, 1] 里
+
+<details>
+<summary>选读 · 对称归一化传播矩阵的谱半径不超过 1</summary>
+
+GCN 反复乘 $\tilde D^{-1/2}\tilde A\tilde D^{-1/2}$ 却不会把特征放大到爆炸，靠的是一条谱上界。
+
+记 $S=\tilde D^{-1/2}\tilde A\tilde D^{-1/2}$。它是**对称**的，所以特征值全为实数，而且用二次型就能把它夹住。对任意非零 $\vec x$：
+
+$$\big\lvert \vec x^{\top}S\vec x\big\rvert=\Big\lvert\sum_{i,j}\tilde A_{ij}\frac{x_ix_j}{\sqrt{\tilde d_i\tilde d_j}}\Big\rvert\ \le\ \frac12\sum_{i,j}\tilde A_{ij}\Big(\frac{x_i^2}{\tilde d_i}+\frac{x_j^2}{\tilde d_j}\Big)=\sum_i x_i^2=\lVert\vec x\rVert^2.$$
+
+第一步是代入定义，第二步用 $2\lvert a\rvert\lvert b\rvert\le a^2+b^2$ 逐边配平，第三步把每个 $x_i^2/\tilde d_i$ 乘回它那一行的度和 $\tilde d_i$，正好合成 $x_i^2$（两项各贡献一半）。于是 $S$ 的瑞利商被关在 $[-1,1]$ 里，特征值也只能落在这里：
+
+$$\lvert\lambda\rvert\le 1.$$
+
+等号只在 $\vec x$ 为常数向量时取到（此时 $\lambda=1$）。
+
+**实跑对账**：链 $A-B-C$ 加自环后，$S$ 的三个特征值是 $-0.1667,\ 0.5,\ 1$；五节点星形加自环后是 $-0.3,\ 0.5,\ 0.5,\ 0.5,\ 1$。两组都在 $[-1,1]$ 内，最大值恰好等于 $1$，最小值为负——负特征值意味着聚合会**反号**，这正是 105 号课"多层之后振荡"的伏笔。
+
+**边界**：上界靠"对称归一化"这一条。换成行归一化的 $\tilde D^{-1}\tilde A$，矩阵不再对称，特征值可以跑进复平面，谱半径的上界要改由 Perron–Frobenius 给出。
+
+</details>
+
+## 10. 下一站
 
 度数定死的配比只是聚合的一种。下一课让每个节点学着决定「该多听谁」。
 

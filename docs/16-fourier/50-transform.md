@@ -189,7 +189,30 @@ print(round(d_b, 3))
 print(round(1 / d_b, 1))
 ```
 
-## 7. 下一站
+## 7. 选读：为什么不能同时窄
+
+<details>
+<summary>选读 · 时宽 × 带宽有下界</summary>
+
+正文提到“时域越窄，频域越宽”，这里给它一个能算的形式。对任意信号，定义
+
+$$\Delta t^2=\frac{\int t^2|f(t)|^2dt}{\int|f(t)|^2dt},\qquad \Delta\omega^2=\frac{\int \omega^2|F(\omega)|^2d\omega}{\int|F(\omega)|^2d\omega},$$
+
+即“能量在时间轴上摊多开”“能量在频率轴上摊多开”的方差。则恒有
+
+$$\Delta t\cdot\Delta\omega\ge \frac12.$$
+
+**证明只有两步**。第一步是分部积分：归一化 $\int|f|^2=1$ 后，$\int t\,\frac{d}{dt}|f|^2\,dt=\big[t|f|^2\big]_{-\infty}^{\infty}-\int|f|^2dt=-1$，而左边正是 $2\,\mathrm{Re}\int t\,f\,\overline{f'}\,dt$，于是
+
+$$\Big|\int t\,f\,\overline{f'}\,dt\Big|=\frac12.$$
+
+第二步是柯西–施瓦茨（第 26 章内积那一套）：把 $tf$ 与 $f'$ 看成两个向量，内积被两者长度之积压住，而这两个长度分别是 $\Delta t$ 与 $\sqrt{\int|f'|^2}$。再由导数的傅里叶变换是乘 $i\omega$，$\int|f'|^2$ 恰好等于 $\int\omega^2|F|^2=\Delta\omega^2$。代入即得 $\frac14\le\Delta t^2\Delta\omega^2$。
+
+**等号只在高斯脉冲上取到**：$f(t)=e^{-t^2/2}$ 的傅里叶变换还是高斯，时宽与带宽的乘积恰好 $1/2$。这解释了 65 号课里那条绕不开的规矩：想让谱峰分辨 440 与 441 Hz（窄带宽），就必须录得更久（宽时宽）——不是仪器不够好，是这条不等式不允许。
+
+</details>
+
+## 8. 下一站
 
 公式已经瘦身完毕，接下来让它落地干活：合成一个三音和弦，画出它的时域波形和频域柱状谱——你会亲眼看到“频域一眼看穿成分”不是修辞。MP3、JPEG 与降噪耳机都在使用相关的频域工具，但它们分别还要处理块变换、量化、心理声学或实时控制。
 

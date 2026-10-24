@@ -174,6 +174,23 @@ print("种子 7 终局：", run(7, 400))
 只要让 B 的策略固定不动，A 的环境就恢复平稳，Q 值和策略都会迅速安静下来——这一半实验是"非平稳性才是病根"的对照：
 
 ```python
+# 本块接着实验 2 的变量（acts / payoff / random_list）。单独点开这块会 NameError，
+# 所以这里把三样最小依赖重新声明一遍，让它是自足的。
+acts = ["R", "P", "S"]
+beats = {"R": "S", "P": "R", "S": "P"}
+
+def payoff(mine, theirs):
+    if mine == theirs:
+        return 0
+    return 1 if beats[mine] == theirs else -1
+
+def random_list(seed, n):
+    out, state = [], seed
+    for _ in range(n):
+        state = (state * 1103515245 + 12345) % 2147483648
+        out.append(state / 2147483648)
+    return out
+
 def run_frozen(seed, rounds, fixed_b):    # B 固定出 fixed_b，A 独立学习
     Qa = {a: {b: 0.0 for b in acts} for a in acts}
     rn = random_list(seed, 2 * rounds + 2)
@@ -262,6 +279,6 @@ print(round(q_a["T"]["T"], 1))
 
 ## 8. 下一站
 
-多智能体把"别人也在学"这个事实摆上了桌，也顺手把一个更老的问题交还给了我们：当对手必须随机化才能不被看穿时，**"随机"到底该怎么设计、按什么比例才叫均衡？** 这是第 51 章要正面回答的题——[混合策略：把"随机"当成一种策略](../51-game-theory/22-mixed-strategy.md) 会给出 2×2 的闭式解与无差异原理；而如果目标变成"让一群人一起分功劳"，那就直接看 [合作博弈与 Shapley 值：功劳该怎么分](../51-game-theory/45-cooperative-shapley.md)。
+多智能体把「别人也在学」这个事实摆上了桌，也顺手把一个更老的问题交还给了我们：当对手必须随机化才能不被看穿时，**「随机」到底该怎么设计、按什么比例才叫均衡？** 这正是下一章的开场题——[第 51 章 · 博弈论与机制设计](../51-game-theory/index.md) 从一张四格收益表讲起，把「会动的优化」一步步拆成可计算的均衡。想先看 2×2 的闭式解与无差异原理，也可以直接跳到 [混合策略](../51-game-theory/22-mixed-strategy.md)。
 
 → [混合策略：把"随机"当成一种策略](../51-game-theory/22-mixed-strategy.md)

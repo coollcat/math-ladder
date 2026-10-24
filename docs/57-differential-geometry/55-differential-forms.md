@@ -11,6 +11,9 @@ track:
   - analysis-change
 stage: research-elective
 difficulty: 5
+introduces_math: []
+introduces_builtin: []
+introduces_import: []
 ---
 
 # 微分形式与外微分：把积分定理装进一个公式
@@ -123,7 +126,17 @@ $$= 2y\cdot 0 + 2x\,dy\wedge dx + 2x\,dx\wedge dy = -2x\,dx\wedge dy + 2x\,dx\we
 
 ## 5. 动手实验
 
-先用数值验证 $d^2 = 0$ 不是巧合，而是一个**自动成立**的代数事实：
+### 实验 0（viz）：边界账 = 内部账，拖半径当场对账
+
+最后一个实验打算用 Green 定理演示「边界账 = 内部账」。看代码之前先看画面：拖半径滑杆，橙色闭曲线上的环流与通量当场重算——它们分别等于内部旋度与散度的总量。
+
+```viz
+{ "type": "green-theorem", "title": "边界账 vs 内部账：环流与通量随半径变", "p": "-y", "q": "x", "radius": 1 }
+```
+
+怎么玩：默认场 $(P,Q)=(-y,\,x)$、半径 $r=1$，读数给出环流 $\approx 6.2832$、通量 $\approx 0$、面积 $\approx 3.142$——环流正好是 $2\pi r^2 = 2\times$ 面积，也就是内部旋度 $\partial_x Q-\partial_y P = 2$ 在整个圆盘上的积分；通量则是 $\partial_x P+\partial_y Q = 0$ 的积分：这个场只管打旋、不往外冒，与下一段 Python 算出的 $2\pi$ 是同一笔账。把半径拖到 $1.5$：环流涨到 $14.14$（$=2\pi r^2$）、通量一直是 $0$——格林公式两边同乘一个因子，等号不动。想把通量也弄活，就把下面的场换成 $(x,\,y)$ 再跑一遍：那时环流归零、通量 $=2\pi r^2$，同一个定理换了一侧现形。
+
+接下来用数值验证 $d^2 = 0$ 不是巧合，而是一个**自动成立**的代数事实：
 
 ```python title="d² = 0：用符号记账验证"
 def d0(f_partials):
@@ -297,6 +310,8 @@ $$H^k = \frac{\text{闭 }k\text{-形式}}{\text{恰当 }k\text{-形式}}$$
 
 ## 8. 下一站
 
-到这里，微分几何的入门工具已经配齐：切空间、两种基本形式、联络、微分形式。下一站回到拓扑，去数一数那些"洞"到底有多少个。
+到这里，微分几何的入门工具已经配齐：切空间、两种基本形式、联络、微分形式。可它们都还是一件件单独的兵器。把"每点一副尺子"这件事本身抽出来当研究对象，这些兵器才会自动归位成同一套语言——那就是 Riemann 几何的开端：流形与度量。
 
-→ [第 58 章 · 同调与 Betti 数](../58-topology-data-geometry/58-homology-betti.md)：把"洞"变成可以计算的量。
+→ [Riemann 度量与流形直觉](./60-riemann-metric-manifold.md)
+
+想直接去看"闭而不恰当"怎么数出拓扑上的洞，也可以跳到 [同调与 Betti 数：数一数有几个洞](../58-topology-data-geometry/58-homology-betti.md)。
